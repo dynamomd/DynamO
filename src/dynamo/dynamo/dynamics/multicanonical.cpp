@@ -40,7 +40,7 @@ namespace dynamo {
 	  = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>()
 	  / Sim->units.unitEnergy();
 
-	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
+	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").findNode("W"); 
 	     node.valid(); ++node)
 	  {
 	    double energy = node.getAttribute("Energy").as<double>() / Sim->units.unitEnergy();	    

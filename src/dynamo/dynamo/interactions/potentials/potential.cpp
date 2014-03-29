@@ -85,7 +85,7 @@ namespace dynamo {
 		<< XML.getPath();
 
     std::vector<std::pair<double, double> > steps;
-    for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
+    for (magnet::xml::Node node = XML.findNode("Step"); node.valid(); ++node)
       steps.push_back(std::pair<double, double>(node.getAttribute("R").as<double>(),
 						node.getAttribute("E").as<double>()));
     

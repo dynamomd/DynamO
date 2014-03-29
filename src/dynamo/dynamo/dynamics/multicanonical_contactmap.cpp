@@ -35,14 +35,14 @@ namespace dynamo {
 
     if (XML.hasNode("Potential"))
       {
-	for (magnet::xml::Node map_node = XML.getNode("Potential").fastGetNode("Map"); 
+	for (magnet::xml::Node map_node = XML.getNode("Potential").findNode("Map"); 
 	     map_node.valid(); ++map_node)
 	  {
 	    double Wval = map_node.getAttribute("W").as<double>();
 	    size_t distance = map_node.getAttribute("Distance").as<size_t>();
 
 	    detail::CaptureMap map;
-	    for (magnet::xml::Node entry_node = map_node.fastGetNode("Contact"); entry_node.valid(); ++entry_node)
+	    for (magnet::xml::Node entry_node = map_node.findNode("Contact"); entry_node.valid(); ++entry_node)
 	      map[detail::CaptureMap::key_type(entry_node.getAttribute("ID1").as<size_t>(), entry_node.getAttribute("ID2").as<size_t>())]
 		= entry_node.getAttribute("State").as<size_t>();
 	    _W.push_back(std::make_pair(map, WData(distance, Wval)));

@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     IDRangeList(const magnet::xml::Node& XML) 
     { 
-      for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
+      for (magnet::xml::Node node = XML.findNode("ID"); node.valid(); ++node)
 	IDs.push_back(node.getAttribute("val").as<size_t>());
     }
 

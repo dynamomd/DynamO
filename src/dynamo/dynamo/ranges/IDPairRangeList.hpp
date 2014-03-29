@@ -57,7 +57,7 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node& XML)
     {
-      for (magnet::xml::Node node = XML.fastGetNode("IDPair"); node.valid(); ++node)
+      for (magnet::xml::Node node = XML.findNode("IDPair"); node.valid(); ++node)
 	addPair(node.getAttribute("ID1").as<unsigned long>(), 
 		node.getAttribute("ID2").as<unsigned long>());
     }

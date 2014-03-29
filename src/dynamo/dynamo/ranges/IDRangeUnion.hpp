@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     IDRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* Sim) 
     { 
-      for (magnet::xml::Node node = XML.fastGetNode("IDRange"); node.valid(); ++node)
+      for (magnet::xml::Node node = XML.findNode("IDRange"); node.valid(); ++node)
 	{
 	  shared_ptr<IDRange> ptr(IDRange::getClass(node, Sim));
 	  ranges.push_back(ptr);

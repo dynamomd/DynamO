@@ -30,12 +30,6 @@
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/globals/PBCSentinel.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/copy.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <iomanip>
 #include <set>
@@ -330,44 +324,17 @@ namespace dynamo
       M_throw() << "Loading config at wrong time, status = " << status;
 
     using namespace magnet::xml;
-    Document doc;
-    
-    namespace io = boost::iostreams;
     
     dout << "Reading the XML input file, " << fileName << ", into memory" << std::endl;
     if (!boost::filesystem::exists(fileName))
       M_throw() << "Could not find the XML file named " << fileName
 		<< "\nPlease check the file exists.";
-    { //This scopes out the file objects
-      
-      //We use the boost iostreams library to load the file into a
-      //string which may be compressed.
-      
-      //We make our filtering iostream
-      io::filtering_istream inputFile;
-      
-      //Now check if we should add a decompressor filter
-      if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-	inputFile.push(io::bzip2_decompressor());
-      else if (!(std::string(fileName.end()-4, fileName.end()) == ".xml"))
-	M_throw() << "Unrecognized extension for xml file";
-
-      //Finally, add the file as a source
-      inputFile.push(io::file_source(fileName));
-	  
-      io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
-    }
-
     dout << "Parsing the XML" << std::endl;
-    try {
-      doc.parseData();
-    } catch (std::exception& cep)
-      {
-	derr << "Failed to parse the XML" << std::endl;
-	throw;
-      }
+
+    Document doc(fileName);
 
     dout << "Loading tags from the XML" << std::endl;
+
     Node mainNode = doc.getNode("DynamOconfig");
 
     {
@@ -395,9 +362,9 @@ namespace dynamo
     primaryCellSize /= units.unitLength();
 
     {
-      checkNodeNameAttribute(simNode.getNode("Genus").fastGetNode("Species"));
+      checkNodeNameAttribute(simNode.getNode("Genus").findNode("Species"));
       size_t i(0);
-      for (magnet::xml::Node node = simNode.getNode("Genus").fastGetNode("Species"); node.valid(); ++node, ++i)
+      for (magnet::xml::Node node = simNode.getNode("Genus").findNode("Species"); node.valid(); ++node, ++i)
 	species.push_back(Species::getClass(node, this, i));
     }
     
@@ -407,34 +374,34 @@ namespace dynamo
 
     if (simNode.hasNode("Topology"))
       {
-	checkNodeNameAttribute(simNode.getNode("Topology").fastGetNode("Structure"));
+	checkNodeNameAttribute(simNode.getNode("Topology").findNode("Structure"));
 	size_t i(0);
-	for (magnet::xml::Node node = simNode.getNode("Topology").fastGetNode("Structure"); node.valid(); ++node, ++i)
+	for (magnet::xml::Node node = simNode.getNode("Topology").findNode("Structure"); node.valid(); ++node, ++i)
 	  topology.push_back(Topology::getClass(node, this, i));
       }
     
-    checkNodeNameAttribute(simNode.getNode("Interactions").fastGetNode("Interaction"));
-    for (magnet::xml::Node node = simNode.getNode("Interactions").fastGetNode("Interaction"); node.valid(); ++node)
+    checkNodeNameAttribute(simNode.getNode("Interactions").findNode("Interaction"));
+    for (magnet::xml::Node node = simNode.getNode("Interactions").findNode("Interaction"); node.valid(); ++node)
       interactions.push_back(Interaction::getClass(node, this));
 
     if (simNode.hasNode("Locals"))
       {
-	checkNodeNameAttribute(simNode.getNode("Locals").fastGetNode("Local"));
-	for (magnet::xml::Node node = simNode.getNode("Locals").fastGetNode("Local"); node.valid(); ++node)
+	checkNodeNameAttribute(simNode.getNode("Locals").findNode("Local"));
+	for (magnet::xml::Node node = simNode.getNode("Locals").findNode("Local"); node.valid(); ++node)
 	  locals.push_back(Local::getClass(node, this));
       }
 
     if (simNode.hasNode("Globals"))
       {
-	checkNodeNameAttribute(simNode.getNode("Globals").fastGetNode("Global"));
-	for (magnet::xml::Node node = simNode.getNode("Globals").fastGetNode("Global"); node.valid(); ++node)
+	checkNodeNameAttribute(simNode.getNode("Globals").findNode("Global"));
+	for (magnet::xml::Node node = simNode.getNode("Globals").findNode("Global"); node.valid(); ++node)
 	  globals.push_back(Global::getClass(node, this));
       }
 
     if (simNode.hasNode("SystemEvents"))
       {
-	checkNodeNameAttribute(simNode.getNode("SystemEvents").fastGetNode("System"));
-	for (magnet::xml::Node node = simNode.getNode("SystemEvents").fastGetNode("System"); node.valid(); ++node)
+	checkNodeNameAttribute(simNode.getNode("SystemEvents").findNode("System"));
+	for (magnet::xml::Node node = simNode.getNode("SystemEvents").findNode("System"); node.valid(); ++node)
 	  systems.push_back(System::getClass(node, this));
       }
 

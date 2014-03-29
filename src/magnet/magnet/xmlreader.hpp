@@ -17,9 +17,15 @@
 
 #pragma once
 
-#include <magnet/detail/rapidXML/rapidxml.hpp>
+#include <rapidXML/rapidxml.hpp>
 #include <magnet/exception.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/copy.hpp>
 #include <vector>
 
 namespace magnet {
@@ -157,7 +163,7 @@ namespace magnet {
        */
       template<class T> inline Node getNode(T name) const 
       { 
-	Node child(fastGetNode(name));
+	Node child(findNode(name));
 	
 	if (!child.valid())
 	  M_throw() << "XML error: Node \"" << name <<"\" does not exist."
@@ -170,7 +176,7 @@ namespace magnet {
 	
         \param name The name of the Node to return.
        */
-      template<class T> inline Node fastGetNode(T name) const 
+      template<class T> inline Node findNode(T name) const 
       { 
 	if (!valid())
 	  M_throw() << (std::string("XML error: Cannot fetch sub node of invalid node\nXML Path: ")
@@ -309,6 +315,32 @@ namespace magnet {
     */
     class Document {
     public:
+      /*! \brief Decompress (if needed) and parse an XML file. */
+      Document(std::string filename) {
+	_data.clear();
+	namespace io = boost::iostreams;
+	io::filtering_istream inputFile;
+	if (std::string(filename.end()-4, filename.end()) == ".bz2")
+	  inputFile.push(io::bzip2_decompressor());
+	inputFile.push(io::file_source(filename));
+	io::copy(inputFile, io::back_inserter(_data));
+	parseData();
+      }
+      
+      /*! \brief Return the first root node with a certain name in the
+        Document.
+
+	\param name Name of the node to return.
+      */
+      inline Node getNode(const std::string& name)
+      {
+	Node node(_doc.first_node(name.c_str()), &_doc); 
+	if (!node.valid())
+	  M_throw() << "XML error: Root node \"" << name <<"\" does not exist.";
+	return node;
+      }
+
+    protected:
       /*! \brief Parse the stored XML data.
        */
       inline void parseData()
@@ -342,26 +374,10 @@ namespace magnet {
 		      << std::string(error_loc_ptr - error_line_start, ' ') << "^";
 	  }
       }
-      
-      /*! \brief Return the first Node with a certain name in the
-        Document.
-        
-        Test if the Node is Node::valid before using it.
-        \param name Name of the node to return.
-      */
-      template<class T>
-      inline Node getNode(T name) { return Node(_doc.first_node(name), &_doc); }
 
-      std::string& getStoredXMLData() { return _data; }
-
-    protected:
       std::string _data;
       rapidxml::xml_document<> _doc;
     };
-
-    template<>
-    inline Node Document::getNode<const std::string&>(const std::string& name)
-    { return Node(_doc.first_node(name.c_str()), &_doc); }
 
   }
 }

@@ -95,7 +95,7 @@ namespace dynamo {
     sequence.clear();
     std::set<size_t> letters;
     
-    for (magnet::xml::Node node = XML.getNode("Sequence").fastGetNode("Element");
+    for (magnet::xml::Node node = XML.getNode("Sequence").findNode("Element");
 	 node.valid(); ++node)
       {
 	if (node.getAttribute("seqID").as<size_t>() != sequence.size())
@@ -112,7 +112,7 @@ namespace dynamo {
     for (std::vector<double>& vec : alphabet)
       vec.resize(letters.size(), 0.0);
     
-    for (magnet::xml::Node node = XML.getNode("Alphabet").fastGetNode("Word");
+    for (magnet::xml::Node node = XML.getNode("Alphabet").findNode("Word");
 	 node.valid(); ++node)
       {
 	alphabet

@@ -112,7 +112,7 @@ namespace dynamo {
 
     bool outofsequence = false;  
   
-    for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
+    for (magnet::xml::Node node = XML.getNode("ParticleData").findNode("Pt"); 
 	 node.valid(); ++node)
       {
 	if (!node.hasAttribute("ID")
@@ -136,7 +136,7 @@ namespace dynamo {
       {
 	orientationData.resize(Sim->N());
 	size_t i(0);
-	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); node.valid(); ++node, ++i)
+	for (magnet::xml::Node node = XML.getNode("ParticleData").findNode("Pt"); node.valid(); ++node, ++i)
 	  {
 	    orientationData[i].orientation << node.getNode("U");
 	    orientationData[i].angularVelocity << node.getNode("O");

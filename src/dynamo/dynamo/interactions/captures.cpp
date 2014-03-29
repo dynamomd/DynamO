@@ -60,7 +60,7 @@ namespace dynamo {
 	_mapUninitialised = false;
 	clear();
 
-	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair"); node.valid(); ++node)
+	for (magnet::xml::Node node = XML.getNode("CaptureMap").findNode("Pair"); node.valid(); ++node)
 	  Map::operator[](Map::key_type(node.getAttribute("ID1").as<size_t>(), node.getAttribute("ID2").as<size_t>()))
 	    = node.getAttribute("val").as<size_t>();
       }

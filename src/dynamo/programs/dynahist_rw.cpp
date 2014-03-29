@@ -63,35 +63,11 @@ struct SimulationData
   {
     using namespace magnet::xml;
 
-    Document doc;
-
-    namespace io = boost::iostreams;
-    
     if (!boost::filesystem::exists(fileName))
       M_throw() << "Could not find the XML file named " << fileName
 		<< "\nPlease check the file exists.";
-    { //This scopes out the file objects
-      
-      //We use the boost iostreams library to load the file into a
-      //string which may be compressed.
-      
-      //We make our filtering iostream
-      io::filtering_istream inputFile;
-      
-      //Now check if we should add a decompressor filter
-      if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-	inputFile.push(io::bzip2_decompressor());
-      else if (!(std::string(fileName.end()-4, fileName.end()) == ".xml"))
-	M_throw() << "Unrecognized extension for xml file";
 
-      //Finally, add the file as a source
-      inputFile.push(io::file_source(fileName));
-	  
-      //Force the copy to occur
-      io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
-    }
-
-    doc.parseData();
+    Document doc(fileName);
 
     Node mainNode = doc.getNode("OutputData");
 
@@ -112,7 +88,7 @@ struct SimulationData
     //Load the W factor for each energy
     if (mainNode.getNode("EnergyHist").hasNode("PotentialDeformation"))
       {
-	for (magnet::xml::Node node = mainNode.getNode("EnergyHist").getNode("PotentialDeformation").fastGetNode("W"); 
+	for (magnet::xml::Node node = mainNode.getNode("EnergyHist").getNode("PotentialDeformation").findNode("W"); 
 	     node.valid(); ++node)
 	  {
 	    double energy = node.getAttribute("Energy").as<double>();

@@ -33,7 +33,7 @@ namespace dynamo {
     IDPairRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
       SimBase_const(nSim, "IDPairRangeUnion")
     {
-      for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
+      for (magnet::xml::Node node = XML.findNode("IDPairRange"); node.valid(); ++node)
 	{
 	  shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
 	  ranges.push_back(ptr);

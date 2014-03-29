@@ -162,7 +162,7 @@ namespace dynamo {
     {
       //Move up to the particles nodes, and start loading the property values
       for (magnet::xml::Node pNode = node.getParent().getParent()
-	     .getNode("ParticleData").fastGetNode("Pt");
+	     .getNode("ParticleData").findNode("Pt");
 	   pNode.valid(); ++pNode)
 	_values.push_back(pNode.getAttribute(_name).as<double>());
     }
@@ -301,7 +301,7 @@ namespace dynamo {
     inline PropertyStore& operator<<(const magnet::xml::Node& node)
     {
       if (node.hasNode("Properties"))
-	for (magnet::xml::Node propNode = node.getNode("Properties").fastGetNode("Property");
+	for (magnet::xml::Node propNode = node.getNode("Properties").findNode("Property");
 	     propNode.valid(); ++propNode)
 	  {
 	    if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
