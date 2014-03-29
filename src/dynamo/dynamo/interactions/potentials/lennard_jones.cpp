@@ -38,7 +38,7 @@ namespace dynamo {
     case MIDPOINT: XML << attr("UMode") << "Midpoint"; break;
     case LEFT: XML << attr("UMode") << "Left"; break;
     case RIGHT: XML << attr("UMode") << "Right"; break;
-    case VOLUME: XML << attr("UMode") << "Volume"; break;
+    case VOLUME: /*XML << attr("UMode") << "Volume"*/; break;
     case VIRIAL: 
       XML << attr("UMode") << "Virial"
 	  << attr("Temperature") << _kT
@@ -51,7 +51,7 @@ namespace dynamo {
 
     switch (_R_mode) {
     case DELTAR: XML << attr("RMode") << "DeltaR"; break;
-    case DELTAU: XML << attr("RMode") << "DeltaU"; break;
+    case DELTAU: /*XML << attr("RMode") << "DeltaU"*/; break;
     case DELTAV: XML << attr("RMode") << "DeltaV"; break;
     default:
       M_throw() << "Unknown RMode";
@@ -96,26 +96,32 @@ namespace dynamo {
     
     _attractiveSteps = XML.getAttribute("AttractiveSteps").as<double>();
 
-    const std::string umode_string = XML.getAttribute("UMode").as<std::string>();
-    if (!umode_string.compare("Midpoint"))    _U_mode = MIDPOINT;
-    else if (!umode_string.compare("Left"))   _U_mode = LEFT;
-    else if (!umode_string.compare("Right"))  _U_mode = RIGHT;
-    else if (!umode_string.compare("Volume")) _U_mode = VOLUME;
-    else if (!umode_string.compare("MidVolume")) _U_mode = MIDVOLUME;
-    else if (!umode_string.compare("Virial")) 
-      {
-	_kT = XML.getAttribute("Temperature").as<double>();
-	_U_mode = VIRIAL;
-      }
-    else
-      M_throw() << "Unknown LennardJones UMode (" << umode_string << ") at " << XML.getPath();
+    _U_mode = VOLUME;
+    if (XML.hasAttribute("UMode")) {
+      const std::string umode_string = XML.getAttribute("UMode").as<std::string>();
+      if (!umode_string.compare("Midpoint"))    _U_mode = MIDPOINT;
+      else if (!umode_string.compare("Left"))   _U_mode = LEFT;
+      else if (!umode_string.compare("Right"))  _U_mode = RIGHT;
+      else if (!umode_string.compare("Volume")) _U_mode = VOLUME;
+      else if (!umode_string.compare("MidVolume")) _U_mode = MIDVOLUME;
+      else if (!umode_string.compare("Virial")) 
+	{
+	  _kT = XML.getAttribute("Temperature").as<double>();
+	  _U_mode = VIRIAL;
+	}
+      else
+	M_throw() << "Unknown LennardJones UMode (" << umode_string << ") at " << XML.getPath();
+    }
 
-    const std::string rmode_string = XML.getAttribute("RMode").as<std::string>();
-    if (!rmode_string.compare("DeltaR"))      _R_mode = DELTAR;
-    else if (!rmode_string.compare("DeltaU")) _R_mode = DELTAU;
-    else if (!rmode_string.compare("DeltaV")) _R_mode = DELTAV;
-    else
-      M_throw() << "Unknown LennardJones RMode (" << rmode_string << ") at " << XML.getPath();
+    _R_mode = DELTAU;
+    if (XML.hasAttribute("RMode")) {
+      const std::string rmode_string = XML.getAttribute("RMode").as<std::string>();
+      if (!rmode_string.compare("DeltaR"))      _R_mode = DELTAR;
+      else if (!rmode_string.compare("DeltaU")) _R_mode = DELTAU;
+      else if (!rmode_string.compare("DeltaV")) _R_mode = DELTAV;
+      else
+	M_throw() << "Unknown LennardJones RMode (" << rmode_string << ") at " << XML.getPath();
+    }
   }
 
   std::size_t 
