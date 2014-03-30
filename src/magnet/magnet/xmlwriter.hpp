@@ -22,13 +22,22 @@
 #include <string>
 #include <sstream>
 #include <magnet/exception.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/copy.hpp>
 
 namespace magnet {
   namespace xml {
+    namespace io = boost::iostreams;
+
     /*! \brief A class which behaves like an output stream for XML output.
      */
     class XmlStream {
     public:
+
       //! \brief Internal type used to modify the state of the XML stream.
       struct Controller {
 	typedef enum {
@@ -46,12 +55,14 @@ namespace magnet {
 	  _type(type), _str(str) {}
       };
     
-      inline XmlStream(std::ostream& _s):
-	state(stateNone), s(_s), prologWritten(false), FormatXML(false) {}
-    
-      inline XmlStream(const XmlStream &XML):
-	state(XML.state), s(XML.s), prologWritten(XML.prologWritten), FormatXML(XML.FormatXML) {}
-    
+      inline XmlStream(std::string filename):
+	state(stateNone), prologWritten(false), FormatXML(false)
+      {
+	if (std::string(filename.end() - 4, filename.end()) == ".bz2")
+	  s.push(io::bzip2_compressor());
+	s.push(io::file_sink(filename));
+      }
+        
       inline ~XmlStream() { while (tags.size()) endTag(tags.top()); }
 
       /*! \brief Main insertion operator which changes the state of
@@ -129,7 +140,7 @@ namespace magnet {
     
       tag_stack_type	tags;
       state_type	state;
-      std::ostream&	s;
+      io::filtering_ostream s;
       bool	prologWritten;
       std::ostringstream	tagName;
       bool        FormatXML;

@@ -421,16 +421,8 @@ namespace dynamo
   void
   Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
-    namespace io = boost::iostreams;
-    io::filtering_ostream coutputFile;
-
-    if (std::string(fileName.end()-4, fileName.end()) == ".bz2")
-      coutputFile.push(io::bzip2_compressor());
-  
-    coutputFile.push(io::file_sink(fileName));
-  
     namespace xml = magnet::xml;
-    xml::XmlStream XML(coutputFile);
+    xml::XmlStream XML(fileName);
     XML.setFormatXML(true);
 
     dynamics->updateAllParticles();
@@ -684,16 +676,8 @@ namespace dynamo
     if (status < INITIALISED)
       M_throw() << "Cannot output data when not initialised!";
 
-    namespace io = boost::iostreams;
-    io::filtering_ostream coutputFile;
-  
-    if (std::string(filename.end()-4, filename.end()) == ".bz2")
-      coutputFile.push(io::bzip2_compressor());
-  
-    coutputFile.push(io::file_sink(filename));
-    
     namespace xml = magnet::xml;
-    xml::XmlStream XML(coutputFile);
+    xml::XmlStream XML(filename);
     XML.setFormatXML(true);
     
     XML << std::setprecision(std::numeric_limits<double>::digits10 + 2)
