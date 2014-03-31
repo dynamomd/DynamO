@@ -352,7 +352,7 @@ namespace dynamo {
 	      }
 	    else
 	      {
-		for (EEventType etype: {EEventType:STEP_OUT, EEventType:BOUNCE, EEventType:STEP_IN})
+		for (EEventType etype: {EEventType::STEP_OUT, EEventType::BOUNCE, EEventType::STEP_IN})
 		  for (const auto& data: _edgedata)
 		    if ((data.first.first == potential_step) && (data.first.second == etype))
 		      {

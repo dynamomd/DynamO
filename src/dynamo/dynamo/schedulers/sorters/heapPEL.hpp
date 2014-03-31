@@ -62,6 +62,6 @@ namespace dynamo {
 namespace std
 {
   /*! \brief Template specialisation of the std::swap function for pList*/
-  template<> inline void swap(dynamo::PELHeap& lhs, dynamo::PELHeap& rhs)
+  template<> inline void swap(dynamo::PELHeap& lhs, dynamo::PELHeap& rhs) noexcept
   { lhs.swap(rhs); }
 }

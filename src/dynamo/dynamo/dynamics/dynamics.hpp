@@ -443,7 +443,7 @@ namespace dynamo {
     virtual ParticleEventData runPlaneEvent(Particle& part, 
 					       const Vector & vNorm,
 					       const double e,
-					       double diameter
+					       const double diameter
 					       ) const = 0;
 
     /*! \brief Collides a particle with an Andersen thermostat wall.

@@ -106,15 +106,15 @@ namespace magnet {
 	object to the underlying std::stream.
        */
       template<class T>
-      XmlStream& operator<<(const T& value) {
-	s << value;
-	return *this;
+      friend XmlStream& operator<<(XmlStream& XML, const T& value) {
+	static_cast<std::ostream &>(XML.s) << value;
+	return XML;
       }
 
       /*! \brief Specialisation for pointers. */
       template<class T>
-      XmlStream& operator<<(const std::shared_ptr<T>& value) {
-	return (*this) << (*value);
+      friend XmlStream& operator<<(XmlStream& XML, const std::shared_ptr<T>& value) {
+	return XML << (*value);
       }
 
       //! \brief Returns the underlying output stream.

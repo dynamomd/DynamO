@@ -366,7 +366,7 @@ namespace magnet {
 
 	    //Determine the end of the error line
 	    const char* error_line_end = error_loc_ptr;
-	    while ((*error_line_end != '\n') && (error_line_end != '\0'))
+	    while ((*error_line_end != '\n') && (*error_line_end != '\0'))
 	      ++error_line_end;	    
 
 	    M_throw() << "Parser error at line " << line_num << ": " << err.what() << "\n"

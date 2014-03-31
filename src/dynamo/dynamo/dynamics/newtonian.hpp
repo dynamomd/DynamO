@@ -55,7 +55,7 @@ namespace dynamo {
     virtual std::pair<double, Dynamics::TriangleIntersectingPart> getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const;
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;
     virtual ParticleEventData runCylinderWallCollision(Particle&, const Vector &, const Vector &, const double&) const;
-    virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, double, double) const;
+    virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, const double, const double) const;
     virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d) const;
     virtual ParticleEventData randomGaussianEvent(Particle&, const double&, const size_t) const;
     virtual NEventData multibdyCollision(const IDRange&, const IDRange&, const double&, const EEventType&) const;

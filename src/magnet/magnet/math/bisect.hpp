@@ -19,10 +19,12 @@
 
 namespace magnet {
   namespace math {
+#ifdef MAGNET_DEBUG
     namespace {
       inline bool comparesign(double a, double b)
       { return (a < 0) == (b < 0); }
     }
+#endif
 
     template<class Functor>
     inline double bisect(const Functor& func, double t1, double t2, double rootthreshold, const size_t nIt = 5000)

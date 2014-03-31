@@ -80,6 +80,6 @@ namespace dynamo {
 namespace std
 {
   template<>
-  inline void swap(dynamo::PELSingleEvent& lhs, dynamo::PELSingleEvent& rhs)
+  inline void swap(dynamo::PELSingleEvent& lhs, dynamo::PELSingleEvent& rhs) noexcept
   { lhs.swap(rhs); }
 }

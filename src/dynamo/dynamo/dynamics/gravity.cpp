@@ -694,7 +694,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynGravity::runPlaneEvent(Particle &part, const Vector& vNorm, const double& e, double diameter) const
+  DynGravity::runPlaneEvent(Particle &part, const Vector& vNorm, const double e, const double diameter) const
   {
     updateParticle(part);
 

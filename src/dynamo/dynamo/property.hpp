@@ -47,7 +47,7 @@ namespace dynamo {
     { M_throw() << "Unimplemented"; }
 
     //! Fetch the value of this property for a particle pairing
-    inline virtual const double getProperty(size_t ID1, size_t ID2) const 
+    inline const double getProperty(size_t ID1, size_t ID2) const 
     { return (getProperty(ID1) + getProperty(ID2)) / 2; }
 
     //! Fetch the maximum value of this property

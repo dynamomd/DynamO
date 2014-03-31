@@ -316,7 +316,7 @@ namespace dynamo {
     return EDat;
   }
 
-  namespace{
+  /*namespace{
     std::string getTypeName(size_t type)
     {
       switch (type)
@@ -327,7 +327,7 @@ namespace dynamo {
 	}
       M_throw() << "Invalid type";
     }
-  }
+  }*/
 
   bool 
   IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
