@@ -25,6 +25,7 @@ obj boost_header_test : tests/boost_test.cpp ;
 obj boost_filesystem_test : tests/boost_test.cpp /system//boost_filesystem ;
 obj boost_program_options_test : tests/boost_test.cpp /system//boost_program_options ;
 obj boost_iostreams_test : tests/boost_test.cpp /system//boost_iostreams ;
+obj judy64_test : tests/judy64_test.cpp /system//judy ;
 exe libbz2_library_test : tests/buildreq.cpp /system//bz2 ;
 
 project	: requirements
@@ -34,7 +35,7 @@ project	: requirements
 	 [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-bz2-library : libbz2_library_test : "DynamO: libbz2 library" : incidental ]
-	 [ builddep.set-feature-on-build dynamo-judy-library : /magnet//judy-test : "DynamO: Judy array library (libJudy) (optional, gives faster stepped interactions)" : symmetric ]
+	 [ builddep.set-feature-on-build dynamo-judy-library : judy64_test : "DynamO: Judy library + 64 bit (optional, faster stepped interactions)" : symmetric ]
 	 [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams dynamo-bz2-library : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
