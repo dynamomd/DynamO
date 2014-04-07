@@ -25,14 +25,19 @@ namespace magnet {
       template<size_t Order>
       struct PolynomialFunction: public std::array<double, Order + 1>
       {
-	template <typename... T> 
+	template <typename... T>
 	PolynomialFunction(T... ts) : std::array<double, Order + 1>({{ts...}}) {} 
 
-	void timeShift(double dt) {
-	  std::array<double, Order + 1> newCoeffs;
-	  for (size_t i(0); i <= Order; ++i)
-	    newCoeffs[i] = eval(dt, i);
-	  *this = newCoeffs;
+	//Allow demotion to a lower order polynomial if the highest coefficient is zero
+	PolynomialFunction<Order-1> lowerOrder() const
+	{
+#ifdef MAGNET_DEBUG
+	  if (f[Order] != 0) M_throw() << "Trying to reduce the order of a polynomial with non-zero highest order coefficients!";
+#endif
+	  PolynomialFunction<Order-1> f;
+	  for (size_t i(0); i < Order; ++i)
+	    f[i] = (*this)[i];
+	  return f;
 	}
 
 	inline double operator()(double dt = 0) const {
@@ -59,46 +64,13 @@ namespace magnet {
 	double order() const { return Order; }
       };
 
-      namespace {
-	constexpr size_t ctime_max(size_t a, size_t b) { return (b>a) ? b : a; }
-      }
-
-      /*! \brief Return an overlap function for calculating when we
-          must transfer from overlapped dynamics of A into overlapped
-          dynamics of B.
-       */
-      template<size_t OA, size_t OB>
-      PolynomialFunction<ctime_max(OA, OB)> 
-      interfaceLine(const PolynomialFunction<OA>& fA, const PolynomialFunction<OB>& fB)
-      {
-	PolynomialFunction<ctime_max(OA, OB)> f;
-	for (size_t i(0); i <= ctime_max(OA, OB); ++i)
-	  {
-	    f[i] = 0;
-	    if (i <= OA)
-	      f[i] += fB[i];
-	    if (i <= OB)
-	      f[i] -= fA[i];
-	  }
-	return f;
-      }
-
-
-      template<size_t Order>
-      PolynomialFunction<Order-1> lowerOrder(const PolynomialFunction<Order>& f) {
-	PolynomialFunction<Order-1> retval;
-	for (size_t i(0); i < Order; ++i)
-	  retval[i] = f[i];
-	return retval;
-      }
-
       inline double nextEvent(const PolynomialFunction<1>& f) {
 	if (f[1] >= 0) return HUGE_VAL;
 	return std::max(0.0, - f[0] / f[1]);
       }
 
       inline double nextEvent(const PolynomialFunction<2>& f) {
-	if (f[2] == 0) return nextEvent(lowerOrder(f));
+	if (f[2] == 0) return nextEvent(f.lowerOrder());
 	const double arg = f[1] * f[1] - 2 * f[2] * f[0];
 	if (f[2] < 0) {
 	  if (arg <= 0) return std::max(0.0, -f[1] / f[2]);
@@ -115,7 +87,7 @@ namespace magnet {
 
       inline double nextEvent(const PolynomialFunction<3>& f)
       {
-	if (f[3] == 0) return nextEvent(lowerOrder(f));
+	if (f[3] == 0) return nextEvent(f.lowerOrder());
 
 	//Calculate and sort the roots of the overlap function
 	std::array<double, 3> roots;
@@ -144,7 +116,7 @@ namespace magnet {
 
       inline double nextEvent(const PolynomialFunction<4>& f, double f0char, double precision=1e-16)
       {
-	if (f[4] == 0) return nextEvent(lowerOrder(f));
+	if (f[4] == 0) return nextEvent(f.lowerOrder());
 	
 	//Determine and sort the roots of the derivative
 	std::array<double, 3> roots;

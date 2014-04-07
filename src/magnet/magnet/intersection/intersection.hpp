@@ -32,11 +32,6 @@ namespace magnet {
 	  return std::min(_fA(dt), _fB(dt));
 	}
 
-	void timeShift(double dt) {
-	  _fA.timeShift(dt);
-	  _fB.timeShift(dt);
-	}
-
 	void flipSign() {
 	  _fA.flipSign();
 	  _fB.flipSign();
