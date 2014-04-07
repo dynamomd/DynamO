@@ -29,52 +29,119 @@ namespace magnet {
       {
       public:
 	FDerivative(const Base& b):Base(b) {}
-	template<size_t d> double eval() const { return Base::template eval<d+derivative>(); }
+	template<size_t d> double eval(double dt) const { return Base::template eval<d+derivative>(dt); }
 	template<size_t d> double max() const { return Base::template max<d+derivative>(); }
-	bool test_root() const { return true; }
       };
 
       template<class F> std::pair<bool, double>
-      halleysMethod(const F& f, double t_guess, const double t_min, const double t_max, size_t iterations = 100)
+      halleySearch(const F& f, double t_guess, const double t_min, const double t_max, const int digits = 12, size_t iterations = 50)
       {
-	double delta = 0;
-	do
-	  {
-	    const double f0 = f.template eval<0>(t_guess);
-	    //Check if we're at a root already
-	    if (f0==0) return std::pair<bool,double>(true, t_guess); 
-	    //Begin method
-	    const double f1 = f.template eval<1>(t_guess);
-	    const double f2 = f.template eval<2>(t_guess);
+	const double digitfactor = std::ldexp(1.0, 1 - digits);
+	do {
+	  const double f0 = f.template eval<0>(t_guess);
+	  //Check if we're at a root already
+	  if (f0 == 0) return std::pair<bool,double>(true, t_guess); 
+	  //Begin method
+	  const double f1 = f.template eval<1>(t_guess);
+	  const double f2 = f.template eval<2>(t_guess);
 	    
-	    //If we have zero derivatives, just abort as the algorithm
-	    //will try again from somewhere else
-	    if ((f1 == 0) && (f2==0)) break;
+	  //If we have zero derivatives, just abort as the algorithm
+	  //will try again from somewhere else
+	  if ((f1 == 0) && (f2==0)) break;
 
-	    if (f2 == 0) //Use a newton step
-	      delta = f0 / f1;
-	    else
-	      {
-		const double denom = 2 * f0;
-		const double num = 2 * f1 - f0 * (f2 / f1);
-		if ((std::abs(num) < 1) && (std::abs(denom) >= std::abs(num) * std::
-	      }
-	    else
-	    delta = ;
-	    
-	  }
-	while (--iterations);
+	  double delta = 0;
+	  if (f2 != 0) 
+	    {
+	      const double denom = 2 * f0;
+	      const double num = 2 * f1 - f0 * (f2 / f1);
+	      if ((std::abs(num) < 1) && (std::abs(denom) >= std::abs(num) * std::numeric_limits<double>::max()))
+		//Possible overflow, switch to newton step
+		delta = f0 / f1;
+	      else
+		delta = denom / num;
+	      
+	      if (delta * f1 / f0 < 0)
+		//Possible cancellation error, switch to newton step
+		delta = f0 / f1;
+	    }
+	  else
+	    delta = f0 / f1;
+	  
+	  t_guess -= delta;
+	  
+	  //Check we've not gone out of range
+	  if ((t_guess < t_min) || (t_guess > t_max)) break;
+
+	  //Check if we've converged
+	  if (std::abs(t_guess * digitfactor) >= std::abs(delta))
+	    return std::pair<bool,double>(true, t_guess);
+	} while (--iterations);
 	
 	//Failed! We're not at a root, and the best lower bound we can do is t_min.
-	return std::pair<bool,double>(false, t_min);
+	return std::pair<bool,double>(false, HUGE_VAL);
       }
+      
 
-      template<class F> std::pair<bool, double> nextDecreasingRoot(F f, double t_min, double t_max, const double tol)
+      template<class F> std::pair<bool, double> nextDecreasingRoot(const F& f, double t_min, double t_max, const int digits=15)
       {
+	enum {
+	  LOW = 0,
+	  HIGH = 1,
+	};
+
+	int active_boundary = LOW;
+	const double f2max = f.template max<2>();
+	
+	//Loop while we still have a valid search window
+	while (t_min < t_max)
+	  {
+	    double& t_current = (active_boundary == HIGH) ? t_max : t_min;
+	    const double f0 = f.template eval<0>(t_current);
+	    const double f1 = f.template eval<1>(t_current);
+	    
+	    //Improve the boundary first
+	    auto boundary_roots = math::quadraticEquation(- 0.5 * std::copysign(f2max, f0), f1, f0);
+	    if (active_boundary == LOW)
+	      t_min += std::max(boundary_roots.first, boundary_roots.second);
+	    else /*(active_boundary == HIGH)*/
+	      t_max += std::min(boundary_roots.first, boundary_roots.second);
+	    
+	    //Switch the working boundary for the next iteration
+	    if (t_max != HUGE_VAL)
+	      active_boundary = !active_boundary;
+
+	    //Now search for a root:
+	    auto search_result = halleySearch(f, t_current, t_min, t_max);
+	    
+	    //If searching failed, restart from the other bound
+	    if (!search_result.first) continue;
+	    
+	    {
+	      //Searching succeeded check for earlier roots in this
+	      //interval using recursion.
+	      const double current_root = search_result.second;
+	      const double f1 = f.template eval<1>(current_root);
+	      const double inner_t_max = current_root - 2.0 * std::abs(f1 / f2max);
+	      auto check_result = nextDecreasingRoot(f, t_min, inner_t_max, digits);
+	      if (check_result.second != HUGE_VAL)
+		//We have found an earlier root. Return this one instead.
+		return check_result;
+		
+	      //There are no earlier roots, current_root is the
+	      //next root in the region. Return it if its
+	      //approaching
+	      if (f.template eval<1>(current_root) < 0)
+		return std::pair<bool,double>(true, current_root);
+	      
+	      //Use it as a new lower bound if its a receeding
+	      //root and carry on
+	      t_min = current_root + 2.0 * std::abs(f1 / f2max);
+	    }
+	  }
 	return std::pair<bool,double>(false, HUGE_VAL);
       }
     }
-
+      
     /*! \brief A generic implementation of the stable EDMD algorithm
       which uses Frenkel's root finder on overlap functions.
       
