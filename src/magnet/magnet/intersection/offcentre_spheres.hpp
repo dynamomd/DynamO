@@ -52,13 +52,17 @@ namespace magnet {
 	}
   
 	template<size_t deriv> 
-	double eval() const
+	double eval(const double dt) const
 	{
+	  math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
+	  math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
+	  math::Vector r12new = r12 + v12 * dt;
+
 	  double colldiam = 0.5 * (_diameter1 + _diameter2);
-	  const math::Vector rij = r12 + u1 - u2;
-	  const math::Vector vij = v12 + (w1 ^ u1) - (w2 ^ u2);
-	  const math::Vector aij = -w1.nrm2() * u1 + w2.nrm2() * u2;
-	  const math::Vector dotaij = -w1.nrm2() * (w1 ^ u1) + w2.nrm2() * (w2 ^ u2);
+	  const math::Vector rij = r12new + u1new - u2new;
+	  const math::Vector vij = v12 + (w1 ^ u1new) - (w2 ^ u2new);
+	  const math::Vector aij = -w1.nrm2() * u1new + w2.nrm2() * u2new;
+	  const math::Vector dotaij = -w1.nrm2() * (w1 ^ u1new) + w2.nrm2() * (w2 ^ u2new);
 
 	  switch (deriv)
 	    {
@@ -140,14 +144,17 @@ namespace magnet {
 	}
   
 	template<size_t deriv> 
-	double eval() const
+	double eval(const double dt) const
 	{
+	  math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
+	  math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
+
 	  const double colldiam = 0.5 * (_diameter1 + _diameter2);
-	  const double growthfactor = 1 + _invgamma * _t;
-	  const math::Vector rij = r12 + growthfactor * (u1 - u2);
-	  const math::Vector vij = v12 + growthfactor * ((w1 ^ u1) - (w2 ^ u2)) + _invgamma * (u1 - u2);
-	  const math::Vector aij = growthfactor * (-w1.nrm2() * u1 + w2.nrm2() * u2) + 2 * _invgamma * ((w1 ^ u1) - (w2 ^ u2));
-	  const math::Vector dotaij = growthfactor * (-w1.nrm2() * (w1 ^ u1) + w2.nrm2() * (w2 ^ u2)) + 3 * _invgamma * (-w1.nrm2() * u1 + w2.nrm2() * u2);
+	  const double growthfactor = 1 + _invgamma * (_t + dt);
+	  const math::Vector rij = r12 + dt * v12 + growthfactor * (u1new - u2new);
+	  const math::Vector vij = v12 + growthfactor * ((w1 ^ u1new) - (w2 ^ u2new)) + _invgamma * (u1new - u2new);
+	  const math::Vector aij = growthfactor * (-w1.nrm2() * u1new + w2.nrm2() * u2new) + 2 * _invgamma * ((w1 ^ u1new) - (w2 ^ u2new));
+	  const math::Vector dotaij = growthfactor * (-w1.nrm2() * (w1 ^ u1new) + w2.nrm2() * (w2 ^ u2new)) + 3 * _invgamma * (-w1.nrm2() * u1new + w2.nrm2() * u2new);
 
 	  switch (deriv)
 	    {
@@ -207,7 +214,7 @@ namespace magnet {
 #endif
 
       detail::OffcentreSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist);
-      return magnet::intersection::generic_algorithm(f, t_max, std::min(diameteri, diameterj) * 1e-10);
+      return magnet::intersection::nextEvent(f, 0, t_max, std::min(diameteri, diameterj) * 1e-10);
     }
 
     /*! \brief Intersection test for growing offcentre spheres.
@@ -222,7 +229,7 @@ namespace magnet {
 #endif
 
       detail::OffcentreGrowingSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist, t, invgamma, t_max);
-      return magnet::intersection::generic_algorithm(f, t_max, std::min(diameteri, diameterj) * 1e-10);
+      return magnet::intersection::nextEvent(f, 0, t_max, std::min(diameteri, diameterj) * 1e-10);
     }
   }
 }

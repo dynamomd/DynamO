@@ -40,10 +40,6 @@ namespace magnet {
 	  return f;
 	}
 
-	inline double operator()(double dt = 0) const {
-	  return eval(dt, 0);
-	}
-
 	double eval(double dt, size_t derivative = 0) const {
 	  double accum(0);
 	  for (size_t i(Order); i > derivative; --i) {
