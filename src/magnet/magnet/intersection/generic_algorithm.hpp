@@ -70,10 +70,18 @@ namespace magnet {
 	    delta = denom / num;
 	    
 	  //Perform the step
-	  t_guess -= delta;
-
+	  double t_new_guess = t_guess - delta;
+	  
 	  //Check we've not gone out of range
-	  if ((t_guess < t_min) || (t_guess > t_max)) break;
+	  if ((t_new_guess < t_min) || (t_new_guess > t_max)) {
+	    //Try a Newton step, sometimes Halley's method likes to shoot off
+	    delta = f0 / f1;
+	    t_new_guess = t_guess - delta;
+	    //If this fails, then quit
+	    if ((t_new_guess < t_min) || (t_new_guess > t_max)) break;
+	  }
+
+	  t_guess = t_new_guess;
 
 	  //Check if we've converged
 	  if (std::abs(t_guess * digitfactor) >= std::abs(delta))
@@ -148,7 +156,12 @@ namespace magnet {
 	      t_min = current_root + 2.0 * std::abs(f1 / f2max);
 	    }
 	  }
-	return std::pair<bool,double>(false, HUGE_VAL);
+
+	//We've failed to find a root 
+	if (restarts==0)
+	  return std::pair<bool,double>(false, t_min);
+	else
+	  return std::pair<bool,double>(true, HUGE_VAL);
       }
     }
       

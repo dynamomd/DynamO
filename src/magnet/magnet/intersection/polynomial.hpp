@@ -32,7 +32,7 @@ namespace magnet {
 	PolynomialFunction<Order-1> lowerOrder() const
 	{
 #ifdef MAGNET_DEBUG
-	  if (f[Order] != 0) M_throw() << "Trying to reduce the order of a polynomial with non-zero highest order coefficients!";
+	  if ((*this)[Order] != 0) M_throw() << "Trying to reduce the order of a polynomial with non-zero highest order coefficients!";
 #endif
 	  PolynomialFunction<Order-1> f;
 	  for (size_t i(0); i < Order; ++i)

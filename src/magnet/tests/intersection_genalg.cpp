@@ -30,13 +30,13 @@ using namespace magnet::intersection;
 
 template<size_t Order>
 class PolyGeneral {
-private:
+public:
   PolyGeneral(const magnet::intersection::detail::PolynomialFunction<Order>& f,
 	      double t_min, double t_max): _f(f), _t_min(t_min), _t_max(t_max) {}
 
   template<size_t Deriv=0>
   double eval(double dt) const {
-    return _f.template eval<Deriv>();
+    return _f.template eval<Deriv>(dt);
   }
 
   template<size_t Deriv=0>
@@ -48,7 +48,7 @@ private:
     return accum;
   }
 
-public:
+private:
   static constexpr uint64_t factorial(uint64_t n) { 
     return n == 0 ? 1  :  n * factorial(n-1); 
   }
@@ -71,5 +71,50 @@ public:
 
 BOOST_AUTO_TEST_CASE( TimeToEvent_Test )
 {
-  RNG.seed();
+  RNG.seed(5489u);
+
+  size_t errors = 0;
+  const size_t tests = 10000;
+  for (size_t i(0); i < tests; ++i){
+    const Vector aij = random_unit_vec();
+    const Vector rij = random_unit_vec() * 1.5;
+    const Vector vij = random_vec();
+    const double r = 1;
+  
+    magnet::intersection::detail::PolynomialFunction<4> f_radical{rij.nrm2() - r * r, 2 * (vij | rij), 2 * (vij.nrm2() + (aij | rij)), 6 * (aij | vij), 6 * aij.nrm2()};
+    double radical_root = magnet::intersection::detail::nextEvent(f_radical, r * r);
+
+    PolyGeneral<4> f_numerical(f_radical, 0, 10);
+
+    const double t_max = 10;
+
+    auto numerical_root = magnet::intersection::nextEvent(f_numerical, 0, t_max);
+    while (!numerical_root.first && !std::isinf(numerical_root.second)) {
+      numerical_root = magnet::intersection::nextEvent(f_numerical, numerical_root.second, t_max);
+    };
+    
+    if (!std::isinf(radical_root))
+      {	
+	double err = std::abs(radical_root / numerical_root.second - 1);
+	if ((err < -0.001) || (err > 0.001))
+	  {
+	    ++errors;
+	    std::cout << "MISSED ROOT"
+		      << "\n radical_root=" << radical_root
+		      << "\n numeric_root=" << numerical_root.second
+		      << std::endl;
+	  }
+      }
+    else if (!std::isinf(numerical_root.second))
+      {
+	++errors;
+	std::cout << "EXTRA ROOT"
+		  << "\n radical_root=" << radical_root
+		  << "\n numeric_root=" << numerical_root.second
+		  << std::endl;
+      }
+      
+  }
+  std::cout << "Error Rate =" << (100.0 * errors) / tests  << "%"
+	    << std::endl;
 }
