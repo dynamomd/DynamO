@@ -58,23 +58,11 @@ private:
   const double _t_max;  
 };
 
-
-//template<bool inverse = false>
-//inline double parabola_sphere(const math::Vector& R, const math::Vector& V, const math::Vector& A, const double& r)
-//{
-//  magnet::intersection::detail::PolynomialFunction<4> f{R.nrm2() - r * r, 2 * (V | R), 2 * (V.nrm2() + (A | R)), 6 * (A | V), 6 * A.nrm2()};
-//  if (inverse) f.flipSign();
-//  return detail::nextEvent(f, r * r);
-//}
-
-
-
-BOOST_AUTO_TEST_CASE( TimeToEvent_Test )
+BOOST_AUTO_TEST_CASE( GravitySphere_Test )
 {
   RNG.seed(5489u);
+  const size_t tests = 100000;
 
-  size_t errors = 0;
-  const size_t tests = 10000;
   for (size_t i(0); i < tests; ++i){
     const Vector aij = random_unit_vec();
     const Vector rij = random_unit_vec() * 1.5;
@@ -87,34 +75,13 @@ BOOST_AUTO_TEST_CASE( TimeToEvent_Test )
     PolyGeneral<4> f_numerical(f_radical, 0, 10);
 
     const double t_max = 10;
-
     auto numerical_root = magnet::intersection::nextEvent(f_numerical, 0, t_max);
-    while (!numerical_root.first && !std::isinf(numerical_root.second)) {
+    while (!numerical_root.first && !std::isinf(numerical_root.second))
       numerical_root = magnet::intersection::nextEvent(f_numerical, numerical_root.second, t_max);
-    };
     
-    if (!std::isinf(radical_root))
-      {	
-	double err = std::abs(radical_root / numerical_root.second - 1);
-	if ((err < -0.001) || (err > 0.001))
-	  {
-	    ++errors;
-	    std::cout << "MISSED ROOT"
-		      << "\n radical_root=" << radical_root
-		      << "\n numeric_root=" << numerical_root.second
-		      << std::endl;
-	  }
-      }
-    else if (!std::isinf(numerical_root.second))
-      {
-	++errors;
-	std::cout << "EXTRA ROOT"
-		  << "\n radical_root=" << radical_root
-		  << "\n numeric_root=" << numerical_root.second
-		  << std::endl;
-      }
-      
+    if (std::isinf(radical_root) != std::isinf(numerical_root.second))
+      { BOOST_CHECK(false); }
+    else if (!std::isinf(radical_root))
+      { BOOST_CHECK_CLOSE(radical_root, numerical_root.second, 1e-12); }
   }
-  std::cout << "Error Rate =" << (100.0 * errors) / tests  << "%"
-	    << std::endl;
 }
