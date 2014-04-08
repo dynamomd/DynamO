@@ -95,8 +95,6 @@ namespace magnet {
 	const math::Vector& getr12() const { return r12; }
 	const math::Vector& getv12() const { return v12; }
   
-	bool test_root() const { return true; }
-
       private:
 	const math::Vector& w1;
 	const math::Vector& w2;
@@ -187,8 +185,6 @@ namespace magnet {
 	const math::Vector& getr12() const { return r12; }
 	const math::Vector& getv12() const { return v12; }
   
-	bool test_root() const { return true; }
-
       private:
 	const math::Vector& w1;
 	const math::Vector& w2;
@@ -214,7 +210,7 @@ namespace magnet {
 #endif
 
       detail::OffcentreSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist);
-      return magnet::intersection::nextEvent(f, 0, t_max, std::min(diameteri, diameterj) * 1e-10);
+      return magnet::intersection::nextEvent(f, 0, t_max);
     }
 
     /*! \brief Intersection test for growing offcentre spheres.
@@ -229,7 +225,7 @@ namespace magnet {
 #endif
 
       detail::OffcentreGrowingSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist, t, invgamma, t_max);
-      return magnet::intersection::nextEvent(f, 0, t_max, std::min(diameteri, diameterj) * 1e-10);
+      return magnet::intersection::nextEvent(f, 0, t_max);
     }
   }
 }
