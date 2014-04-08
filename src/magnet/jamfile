@@ -66,7 +66,8 @@ alias math-test : dilate-test cubic-quartic-test vector-test spline-test quatern
 
 unit-test plane-test : tests/plane_intersection.cpp magnet /system//boost_unit_test_framework ;
 unit-test triangle-test : tests/triangle_intersection.cpp magnet /system//boost_unit_test_framework ;
-alias intersection-test : plane-test triangle-test ;
+unit-test intersection-genAlg-test : tests/intersection_genalg.cpp magnet /system//boost_unit_test_framework ;
+alias intersection-test : plane-test triangle-test intersection-genAlg-test ;
 
 ##################################################
 alias test : opencl-test thread-test math-test judy-test intersection-test ;

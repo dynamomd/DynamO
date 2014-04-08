@@ -38,9 +38,9 @@ namespace magnet {
       };
 
       template<class F> std::pair<bool, double>
-      halleySearch(const F& f, double t_guess, const double t_min, const double t_max, const int digits, size_t iterations)
+      halleySearch(const F& f, double t_guess, const double t_min, const double t_max, const int binary_digits, size_t iterations)
       {
-	const double digitfactor = std::ldexp(1.0, 1 - digits);
+	const double digitfactor = std::ldexp(1.0, 1 - binary_digits);
 	do {
 	  const double f0 = f.template eval<0>(t_guess);
 
@@ -87,7 +87,7 @@ namespace magnet {
 
       template<class F> std::pair<bool, double> nextDecreasingRoot(const F& f, double t_min, double t_max, 
 								   size_t restarts = std::numeric_limits<size_t>::max() - 1,
-								   const size_t halley_digits = 15, 
+								   const size_t halley_binary_digits = 45, 
 								   const size_t halley_iterations = 50)
       {
 	//Make things clearer using enums for high/low boundary marking
@@ -121,7 +121,7 @@ namespace magnet {
 	      active_boundary = !active_boundary;
 
 	    //Now search for a root using halley's method, starting from the current boundary
-	    auto search_result = halleySearch(f, t_current, t_min, t_max, halley_digits, halley_iterations);
+	    auto search_result = halleySearch(f, t_current, t_min, t_max, halley_binary_digits, halley_iterations);
 	    
 	    //If searching failed, restart from the other bound (and update it)
 	    if (!search_result.first) continue;
@@ -132,7 +132,7 @@ namespace magnet {
 	      const double current_root = search_result.second;
 	      const double f1 = f.template eval<1>(current_root);
 	      const double inner_t_max = current_root - 2.0 * std::abs(f1 / f2max);
-	      auto check_result = nextDecreasingRoot(f, t_min, inner_t_max, halley_digits, halley_iterations);
+	      auto check_result = nextDecreasingRoot(f, t_min, inner_t_max, halley_binary_digits, halley_iterations);
 	      if (check_result.second != HUGE_VAL)
 		//We have found an earlier root. Return this one instead.
 		return check_result;

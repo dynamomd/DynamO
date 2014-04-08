@@ -116,7 +116,7 @@ namespace magnet {
 	OffcentreGrowingSpheresOverlapFunction(const math::Vector& rij, const math::Vector& vij, const math::Vector& omegai, const math::Vector& omegaj,
 					       const math::Vector& nu1, const math::Vector& nu2, const double diameter1, const double diameter2, 
 					       const double maxdist, const double t, const double invgamma, const double t_max):
-	  w1(omegai), w2(omegaj), u1(nu1), u2(nu2), r12(rij), v12(vij), _diameter1(diameter1), _diameter2(diameter2), _invgamma(invgamma), _t_max(t_max), _t(t)
+	  w1(omegai), w2(omegaj), u1(nu1), u2(nu2), r12(rij), v12(vij), _diameter1(diameter1), _diameter2(diameter2), _invgamma(invgamma), _t(t)
 	{
 	  double Gmax = std::max(1 + t * invgamma, 1 + (t + t_max) * invgamma);
 	  const double sigmaij = 0.5 * (_diameter1 + _diameter2);
@@ -193,7 +193,7 @@ namespace magnet {
 	math::Vector r12;
 	math::Vector v12;
 
-	const double _diameter1, _diameter2, _invgamma, _t_max;
+	const double _diameter1, _diameter2, _invgamma;
 	double _t, _f1max, _f2max, _f3max;
       };
     }

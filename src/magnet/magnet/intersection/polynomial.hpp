@@ -39,13 +39,14 @@ namespace magnet {
 	    f[i] = (*this)[i];
 	  return f;
 	}
-
-	double eval(double dt, size_t derivative = 0) const {
+	
+	template<size_t Deriv=0>
+	double eval(double dt) const {
 	  double accum(0);
-	  for (size_t i(Order); i > derivative; --i) {
-	    accum = (*this)[i] + (dt * accum) / (i + 1 - derivative);
+	  for (size_t i(Order); i > Deriv; --i) {
+	    accum = (*this)[i] + (dt * accum) / (i + 1 - Deriv);
 	  }
-	  return accum * dt + (*this)[derivative];
+	  return accum * dt + (*this)[Deriv];
 	}
 	
 	void flipSign() {
