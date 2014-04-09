@@ -85,3 +85,39 @@ BOOST_AUTO_TEST_CASE( GravitySphere_Test )
       { BOOST_CHECK_CLOSE(radical_root, numerical_root.second, 1e-12); }
   }
 }
+
+BOOST_AUTO_TEST_CASE( OffCentreSphere_Test )
+{
+  RNG.seed(5489u);
+
+  const long double systime1 = 0.29228171769001683291721097046611533;
+  const Vector rij1(0.33930816635469108, 1.971007348602491, 0);
+  const Vector vij(1.1608942531073687, -4.0757606085691398, 0);
+  const Vector angvi(-0,-0,-1.0326096458374654);
+  const Vector angvj(0,0,3.0759235803301794);
+  const Vector relativeposi1(0.19838653763498912, -0.45895836596057499, 2.2204460492503128e-16);
+  const Vector relativeposj1(0.32578919839301484, 0.37929065136177137, 0);
+  double diameteri=1, diameterj=1, maxdist = 2;
+
+  const long double systime2 = 0.32486537488833596663004646409866893;
+  const double dt = (systime2 - systime1)*0.99999;
+  const Vector rij2 = rij1 + dt * vij;
+  const Vector relativeposi2 = Rodrigues(angvi * dt) * relativeposi1;
+  const Vector relativeposj2 = Rodrigues(angvj * dt) * relativeposj1;
+
+//  std::cout << "\nrij2=" << rij2.toString() 
+//	    << "\nrposi2=" << relativeposi2.toString()
+//	    << "\nrposj2=" << relativeposj2.toString()
+//	    << std::endl;
+
+  magnet::intersection::detail::OffcentreSpheresOverlapFunction f1(rij1, vij, angvi, angvj, relativeposi1, relativeposj1, diameteri, diameterj, 2);
+  auto result1 = magnet::intersection::nextEvent(f1, 0, 0.49421681707429921);
+  //0.032812502395565935
+
+  std::cout << "\nresult1="<< result1.first << "," << result1.second - dt << std::endl;
+
+  magnet::intersection::detail::OffcentreSpheresOverlapFunction f2(rij2, vij, angvi, angvj, relativeposi2, relativeposj2, diameteri, diameterj, 2);
+  auto result2 = magnet::intersection::nextEvent(f2, 0, 0.81815864721356835);
+
+  std::cout << "\nresult2="<< result2.first << "," << result2.second << std::endl;
+}

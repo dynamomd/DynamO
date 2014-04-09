@@ -38,8 +38,33 @@ namespace magnet {
 	template<size_t d> double max() const { return f.template max<d+derivative>(); }
       };
 
+      /*! \brief A numerical root finder based on Halley's method.
+
+	This is losely based around the boost implementation of
+	Halley's method and includes additional strategies to attempt
+	to ensure convergence. It attempts a halley's method step by
+	default, but if this has numerical difficulties, it switches
+	to a Newton-Raphson step. 
+
+	The search window [t_min,t_max] is updated with each step to
+	make sure that the steps are converging (delta is reducing
+	with each step).
+
+	If this does not happen, a step will head out of bounds
+	indicating that our initial guess is too far from a root for
+	the quadratic approximation to work. In these cases, the
+	mid-point between the current location and the boundary in the
+	direction of the step (t_min/t_max) is used as the next
+	step. This is a last-ditch attempt to get the method to
+	converge.
+	
+	The overall key to success is an appropriate selection of the
+	binary_digits argument. If we try to solve roots to a higher
+	precision than f allows, we might enter endless cycles due to
+	precision, therefore binary_digits cannot be too large.
+       */
       template<class F> std::pair<bool, double>
-      halleySearch(const F& f, double t_guess, const double t_min, const double t_max, const int binary_digits, size_t iterations)
+      halleySearch(const F& f, double t_guess, double t_min, double t_max, const int binary_digits, size_t iterations)
       {
 	const double digitfactor = std::ldexp(1.0, 1 - binary_digits);
 	do {
@@ -48,6 +73,7 @@ namespace magnet {
 	  //Check if we're at a root already
 	  if (f0 == 0) return std::pair<bool,double>(true, t_guess); 
 
+	  //Calculate the current derivatives
 	  const double f1 = f.template eval<1>(t_guess);
 	  const double f2 = f.template eval<2>(t_guess);
 	    
@@ -55,33 +81,33 @@ namespace magnet {
 	  //algorithm will try again from somewhere else
 	  if ((f1 == 0) && (f2==0)) break;
 
+	  //Calculate the numerator and denominator terms of Halley's method.
 	  const double denom = 2 * f0;
 	  const double num = 2 * f1 - f0 * (f2 / f1);
 
-	  double delta = 0;
+	  //Calculate the delta, taking care over the evaluation and
+	  //switching to a Newton step if required.
+	  double delta = - denom / num;
 	  if (//Check that we have a second derivative
 	      (f2 == 0)
 	      //Check for overflow
 	      || ((std::abs(num) < 1) && (std::abs(denom) >= std::abs(num) * std::numeric_limits<double>::max()))
 	      //Check for cancellation error
-	      || (delta * f1 / f0 < 0))
-	    //Switch to newton step
-	    delta = f0 / f1;
-	  else
-	    delta = denom / num;
+	      || (- delta * f1 / f0 < 0))
+	    delta = - f0 / f1;
 	    
-	  //Perform the step
-	  double t_new_guess = t_guess - delta;
-	  
+	  //Calculate the new step
+	  double t_new_guess = t_guess + delta;
 	  //Check we've not gone out of range
-	  if ((t_new_guess < t_min) || (t_new_guess > t_max)) {
-	    //Try a Newton step, sometimes Halley's method likes to shoot off
-	    delta = f0 / f1;
-	    t_new_guess = t_guess - delta;
-	    //If this fails, then quit
-	    if ((t_new_guess < t_min) || (t_new_guess > t_max)) break;
-	  }
+	  if ((t_new_guess < t_min) || (t_new_guess > t_max))
+	    break;
 
+	  //Accept the step and update the bounds to the old guesses.
+	  if (t_new_guess > t_guess)
+	    t_min = t_guess;
+	  else
+	    t_max = t_guess;
+	  //Then update the current guess.
 	  t_guess = t_new_guess;
 
 	  //Check if we've converged
@@ -96,7 +122,7 @@ namespace magnet {
 
       template<class F> std::pair<bool, double> nextDecreasingRoot(const F& f, double t_min, double t_max, 
 								   size_t restarts = std::numeric_limits<size_t>::max() - 1,
-								   const size_t halley_binary_digits = 45, 
+								   const size_t halley_binary_digits = 45,
 								   const size_t halley_iterations = 50)
       {
 	//Make things clearer using enums for high/low boundary marking
@@ -108,6 +134,13 @@ namespace magnet {
 	
 	//Loop while we still have a valid search window and
 	//are not limiting the number of restarts
+
+	//Store the initial sign of the function at t_min and
+	//t_max. This is to combat precision errors causing us to miss
+	//a root when we update these boundaries.
+	//const bool t_min_sign = std::signbit(f.template eval<0>(t_min));
+	//const bool t_max_sign = std::signbit(f.template eval<0>(t_max));
+
 	++restarts;
 	while ((t_min < t_max) && (--restarts))
 	  {
@@ -166,11 +199,11 @@ namespace magnet {
       }
     }
       
-    /*! \brief A generic implementation of the stable EDMD algorithm
-      which uses Frenkel's root finder on overlap functions.
-      
+    /*! \brief A generic implementation of the stable EDMD algorithm.
       \tparam T The type of the overlap function which is being solved.
       \param f The overlap function.
+      \param t_min The minimum time to start the search from.
+      \param t_max The maximum time to start the search from (may be HUGE_VAL).
     */
     template<class T> std::pair<bool, double> nextEvent(const T& f, const double t_min, const double t_max)
     {
