@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/math/frenkelroot.hpp>
+#include <limits>
 
 namespace magnet {
   namespace intersection {
