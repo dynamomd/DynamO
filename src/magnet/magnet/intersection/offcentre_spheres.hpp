@@ -44,21 +44,14 @@ namespace magnet {
 	  _f3max = 6 * vijmax * aijmax + 2 * rijmax * dotaijmax;
 	}
 
-	void stream(const double& dt)
-	{
-	  u1 = Rodrigues(w1 * dt) * math::Vector(u1);
-	  u2 = Rodrigues(w2 * dt) * math::Vector(u2);
-	  r12 += v12 * dt;
-	}
-  
 	template<size_t deriv> 
 	double eval(const double dt) const
 	{
-	  math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
-	  math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
-	  math::Vector r12new = r12 + v12 * dt;
+	  const math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
+	  const math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
+	  const math::Vector r12new = r12 + v12 * dt;
 
-	  double colldiam = 0.5 * (_diameter1 + _diameter2);
+	  const double colldiam = 0.5 * (_diameter1 + _diameter2);
 	  const math::Vector rij = r12new + u1new - u2new;
 	  const math::Vector vij = v12 + (w1 ^ u1new) - (w2 ^ u2new);
 	  const math::Vector aij = -w1.nrm2() * u1new + w2.nrm2() * u2new;
@@ -133,14 +126,6 @@ namespace magnet {
 	  _f3max = 6 * vijmax * aijmax + 2 * rijmax * dotaijmax;
 	}
 
-	void stream(const double& dt)
-	{
-	  u1 = Rodrigues(w1 * dt) * math::Vector(u1);
-	  u2 = Rodrigues(w2 * dt) * math::Vector(u2);
-	  _t += dt;
-	  r12 += v12 * dt;
-	}
-  
 	template<size_t deriv> 
 	double eval(const double dt) const
 	{
@@ -205,10 +190,6 @@ namespace magnet {
 		      const math::Vector& relativeposi, const math::Vector& relativeposj,
 		      const double diameteri, const double diameterj, double maxdist, double t_max)
     {
-#ifdef MAGNET_DEBUG
-      if (std::isinf(t_max)) M_throw() << "Cannot perform root search in infinite intervals";
-#endif
-
       detail::OffcentreSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist);
       return magnet::intersection::nextEvent(f, 0, t_max);
     }
@@ -220,10 +201,6 @@ namespace magnet {
 			      const math::Vector& relativeposi, const math::Vector& relativeposj,
 			      const double diameteri, const double diameterj, double maxdist, double t_max, double t, double invgamma)
     {
-#ifdef MAGNET_DEBUG
-      if (std::isinf(t_max)) M_throw() << "Cannot perform root search in infinite interval";
-#endif
-
       detail::OffcentreGrowingSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist, t, invgamma, t_max);
       return magnet::intersection::nextEvent(f, 0, t_max);
     }
