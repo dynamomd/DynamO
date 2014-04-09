@@ -51,8 +51,9 @@ namespace magnet {
 	with each step).
 
 	If this does not happen, a step will head out of bounds
-	indicating that our initial guess is too far from a root for
-	the quadratic approximation to work. In these cases, the
+	possibly indicating a) that our initial guess is too far from
+	a root for the quadratic approximation to work or b) a
+	boundary is very near the root. To deal with case b), the
 	mid-point between the current location and the boundary in the
 	direction of the step (t_min/t_max) is used as the next
 	step. This is a last-ditch attempt to get the method to
@@ -67,6 +68,7 @@ namespace magnet {
       halleySearch(const F& f, double t_guess, double t_min, double t_max, const int binary_digits, size_t iterations)
       {
 	const double digitfactor = std::ldexp(1.0, 1 - binary_digits);
+	bool test_boundary_root = true;
 	do {
 	  const double f0 = f.template eval<0>(t_guess);
 
@@ -98,9 +100,24 @@ namespace magnet {
 	    
 	  //Calculate the new step
 	  double t_new_guess = t_guess + delta;
+	  
 	  //Check we've not gone out of range
-	  if ((t_new_guess < t_min) || (t_new_guess > t_max))
-	    break;
+	  if (t_new_guess < t_min)
+	    {
+	      //Assume that the root is near t_min
+	      if (!test_boundary_root) break;
+	      delta = 0.99f * (t_min - t_guess);
+	      t_new_guess = t_guess + delta;
+	      test_boundary_root = false;
+	    }
+	  if (t_new_guess > t_max)
+	    {
+	      //Assume that the root is near t_max
+	      if (!test_boundary_root) break;
+	      delta = 0.99f * (t_max - t_guess);
+	      t_new_guess = t_guess + delta;
+	      test_boundary_root = false;
+	    }
 
 	  //Accept the step and update the bounds to the old guesses.
 	  if (t_new_guess > t_guess)
@@ -138,10 +155,11 @@ namespace magnet {
 	//Store the initial sign of the function at t_min and
 	//t_max. This is to combat precision errors causing us to miss
 	//a root when we update these boundaries.
-	//const bool t_min_sign = std::signbit(f.template eval<0>(t_min));
-	//const bool t_max_sign = std::signbit(f.template eval<0>(t_max));
+	const bool t_min_sign = std::signbit(f.template eval<0>(t_min));
+	const bool t_max_sign = std::signbit(f.template eval<0>(t_max));
 
 	++restarts;
+	double old_t_min = t_min, old_t_max = t_max;
 	while ((t_min < t_max) && (--restarts))
 	  {
 	    double& t_current = (active_boundary == HIGH) ? t_max : t_min;
