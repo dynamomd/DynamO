@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/math/frenkelroot.hpp>
+#include <magnet/math/bisect.hpp>
 #include <limits>
 
 namespace magnet {
@@ -28,28 +29,43 @@ namespace magnet {
 	The derivative is taken by reference, so the original overlap
 	function must not fall out of scope.
        */
-      template <class Base, int derivative = 1> class FDerivative
+      template <class Base, int derivative = 1> 
+      class FDerivative
       {
-	const Base& f;
+	const Base& _f;
       public:
-	FDerivative(const Base& b):f(b) {}
+	FDerivative(const Base& f): _f(f) {}
 
-	template<size_t d> double eval(double dt) const { return f.template eval<d+derivative>(dt); }
-	template<size_t d> double max() const { return f.template max<d+derivative>(); }
+	template<size_t d> double eval(double dt) const { return _f.template eval<d+derivative>(dt); }
+	template<size_t d> double max() const { return _f.template max<d+derivative>(); }
       };
+
+      template <class Base> 
+      class FBisect_Wrapper
+      {
+	const Base& _f;
+      public:
+	FBisect_Wrapper(const Base& f):_f(f) {}
+	double operator()(const double dt) const
+	{ return _f.template eval<0>(dt); }
+      };      
 
       /*! \brief A numerical root finder based on Halley's method.
 
 	This is losely based around the boost implementation of
-	Halley's method and includes additional strategies to attempt
-	to ensure convergence. It attempts a halley's method step by
+	Halley's method which includes additional strategies to
+	attempt to ensure convergence. We cannot use the boost method
+	directly as it seems to assume a root is definitely contained
+	within the bounds whereas we are speculatively searching for a
+	root.  
+
+	This implementation attempts a Halley's method step by
 	default, but if this has numerical difficulties, it switches
-	to a Newton-Raphson step. 
+	to a Newton-Raphson step.
 
 	The search window [t_min,t_max] is updated with each step to
 	make sure that the steps are converging (delta is reducing
 	with each step).
-
 	If this does not happen, a step will head out of bounds
 	possibly indicating a) that our initial guess is too far from
 	a root for the quadratic approximation to work or b) a
@@ -65,13 +81,13 @@ namespace magnet {
 	precision, therefore binary_digits cannot be too large.
        */
       template<class F> std::pair<bool, double>
-      halleySearch(const F& f, double t_guess, double t_min, double t_max, const int binary_digits, size_t iterations)
+      halleySearch(const F& f, double t_guess, double t_min, double t_max, const double fprecision, const int binary_digits, size_t iterations)
       {
 	const double digitfactor = std::ldexp(1.0, 1 - binary_digits);
-	bool test_boundary_root = true;
-	do {
-	  const double f0 = f.template eval<0>(t_guess);
 
+	//This is recalculated at the end of each step to allow a check for convergence.
+	double f0 = f.template eval<0>(t_guess);
+	do {
 	  //Check if we're at a root already
 	  if (f0 == 0) return std::pair<bool,double>(true, t_guess); 
 
@@ -79,8 +95,9 @@ namespace magnet {
 	  const double f1 = f.template eval<1>(t_guess);
 	  const double f2 = f.template eval<2>(t_guess);
 	    
-	  //If we have zero derivatives, just abort as the wrapping
-	  //algorithm will try again from somewhere else
+	  //If we have zero derivatives, we can't make progress so
+	  //abort to allow the algorithm to try again from somewhere
+	  //else
 	  if ((f1 == 0) && (f2==0)) break;
 
 	  //Calculate the numerator and denominator terms of Halley's method.
@@ -89,37 +106,36 @@ namespace magnet {
 
 	  //Calculate the delta, taking care over the evaluation and
 	  //switching to a Newton step if required.
-	  double delta = - denom / num;
-	  if (//Check that we have a second derivative
+	  double delta;
+	  if (//Check that we had a second derivative
 	      (f2 == 0)
 	      //Check for overflow
-	      || ((std::abs(num) < 1) && (std::abs(denom) >= std::abs(num) * std::numeric_limits<double>::max()))
-	      //Check for cancellation error
-	      || (- delta * f1 / f0 < 0))
+	      || ((std::abs(num) < 1) && (std::abs(denom) >= std::abs(num) * std::numeric_limits<double>::max())))
 	    delta = - f0 / f1;
-	    
+	  else
+	    {
+	      //Perform a Halley step
+	      delta = - denom / num;
+	      //Check that both Newton and Halley methods agree on the
+	      //direction, if they don't it could be a cancellation
+	      //error. We then switch to a Newton step, with a fixed
+	      //maximum magnitude
+	      if (- delta * f1 / f0 < 0)
+		{
+		  delta = - f0 / f1;
+		  const double max_delta = 2 * std::abs(t_guess);
+		  if (std::abs(delta) > max_delta)
+		    delta = std::copysign(max_delta, delta);
+		}
+	    }
+	  
 	  //Calculate the new step
 	  double t_new_guess = t_guess + delta;
 	  
 	  //Check we've not gone out of range
-	  if (t_new_guess < t_min)
-	    {
-	      //Assume that the root is near t_min
-	      if (!test_boundary_root) break;
-	      delta = 0.99f * (t_min - t_guess);
-	      t_new_guess = t_guess + delta;
-	      test_boundary_root = false;
-	    }
-	  if (t_new_guess > t_max)
-	    {
-	      //Assume that the root is near t_max
-	      if (!test_boundary_root) break;
-	      delta = 0.99f * (t_max - t_guess);
-	      t_new_guess = t_guess + delta;
-	      test_boundary_root = false;
-	    }
+	  if ((t_new_guess < t_min) || (t_new_guess > t_max)) break;
 
-	  //Accept the step and update the bounds to the old guesses.
+	  ////Accept the step and update the bounds to the old guesses.
 	  if (t_new_guess > t_guess)
 	    t_min = t_guess;
 	  else
@@ -128,8 +144,10 @@ namespace magnet {
 	  t_guess = t_new_guess;
 
 	  //Check if we've converged
-	  if (std::abs(t_guess * digitfactor) >= std::abs(delta))
+	  f0 = f.template eval<0>(t_guess);
+	  if (std::abs(t_guess * digitfactor) >= std::abs(delta) && (std::abs(f0) < fprecision))
 	    return std::pair<bool,double>(true, t_guess);
+
 	} while (--iterations);
 	
 	//Failed! We've not found a valid root.
@@ -138,9 +156,10 @@ namespace magnet {
       
 
       template<class F> std::pair<bool, double> nextDecreasingRoot(const F& f, double t_min, double t_max, 
+								   double fprecision = 1e-10,
 								   size_t restarts = std::numeric_limits<size_t>::max() - 1,
-								   const size_t halley_binary_digits = 45,
-								   const size_t halley_iterations = 50)
+								   const size_t halley_binary_digits = 32,
+								   const size_t halley_iterations = 500)
       {
 	//Make things clearer using enums for high/low boundary marking
 	enum { LOW = 0, HIGH = 1};
@@ -153,37 +172,59 @@ namespace magnet {
 	//are not limiting the number of restarts
 
 	//Store the initial sign of the function at t_min and
-	//t_max. This is to combat precision errors causing us to miss
-	//a root when we update these boundaries.
+	//t_max. This is used to combat precision errors which cause
+	//the boundaries to pass over a root when updated.
 	const bool t_min_sign = std::signbit(f.template eval<0>(t_min));
 	const bool t_max_sign = std::signbit(f.template eval<0>(t_max));
+	double old_t_min = t_min, old_t_max = t_max;
 
 	++restarts;
-	double old_t_min = t_min, old_t_max = t_max;
 	while ((t_min < t_max) && (--restarts))
 	  {
 	    double& t_current = (active_boundary == HIGH) ? t_max : t_min;
 	    const double f0 = f.template eval<0>(t_current);
 	    const double f1 = f.template eval<1>(t_current);
-	    
-	    //Improve the boundary first. The copysign should
-	    //guarantee that we have roots either side of t_current.
-	    auto boundary_roots = math::quadraticEquation(- 0.5 * std::copysign(f2max, f0), f1, f0);
 
-	    //Update the active boundary
-	    if (active_boundary == LOW)
-	      t_min += std::max(boundary_roots.first, boundary_roots.second);
-	    else /*(active_boundary == HIGH)*/
-	      t_max += std::min(boundary_roots.first, boundary_roots.second);
+	    //Improve the boundary. The copysign should guarantee that
+	    //we have roots either side of t_current.
+	    auto boundary_roots = math::quadraticEquation(- 0.5 * std::copysign(f2max, f0), f1, f0);
 	    
-	    //Switch the working boundary for the next iteration (if we have a finite upper bound)
+	    //Check that the last update didn't cause a sign change on
+	    //at the boundary (indicating it skipped over a root). If
+	    //it did, we can bisect a root here!
+	    if (active_boundary == HIGH)
+	      {
+		if (std::signbit(f0) == t_max_sign)
+		  {
+		    old_t_max = t_max;
+		    t_max += std::min(boundary_roots.first, boundary_roots.second);
+		  }
+		else
+		  return std::pair<bool,double>(true, magnet::math::bisect(FBisect_Wrapper<F>(f), old_t_max, t_max, fprecision));
+	      }
+	    else
+	      {
+		if (std::signbit(f0) == t_min_sign)
+		  {
+		    old_t_min = t_min;
+		    t_min += std::max(boundary_roots.first, boundary_roots.second);
+		  }
+		else
+		  return std::pair<bool,double>(true, magnet::math::bisect(FBisect_Wrapper<F>(f), old_t_min, t_min, fprecision));
+	      }
+
+	    //Switch the working boundary for the next iteration (if
+	    //we have a finite upper bound, otherwise stick with the
+	    //lower bound)
 	    if (t_max != HUGE_VAL)
 	      active_boundary = !active_boundary;
-
-	    //Now search for a root using halley's method, starting from the current boundary
-	    auto search_result = halleySearch(f, t_current, t_min, t_max, halley_binary_digits, halley_iterations);
 	    
-	    //If searching failed, restart from the other bound (and update it)
+	    //Now search for a root using halley's method, starting
+	    //from the current boundary
+	    auto search_result = halleySearch(f, t_current, t_min, t_max, fprecision, halley_binary_digits, halley_iterations);
+	    
+	    //If searching failed, restart from the other bound (and
+	    //update it)
 	    if (!search_result.first) continue;
 	    
 	    {

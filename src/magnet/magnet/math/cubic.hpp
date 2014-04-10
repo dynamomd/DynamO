@@ -20,7 +20,6 @@
 #include <cmath>
 #include <limits>
 #include <magnet/math/quadratic.hpp>
-#include <magnet/math/bisect.hpp>
 
 /* 
    This work is heavily derived from the public domain work of Don

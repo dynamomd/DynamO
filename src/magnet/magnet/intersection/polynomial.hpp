@@ -18,6 +18,7 @@
 #pragma once
 #include <algorithm>
 #include <magnet/math/cubic.hpp>
+#include <magnet/math/bisect.hpp>
 
 namespace magnet {
   namespace intersection {
