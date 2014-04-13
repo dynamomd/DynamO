@@ -36,7 +36,8 @@ namespace magnet {
       public:
 	FDerivative(const Base& f): _f(f) {}
 
-	template<size_t d> double eval(double dt) const { return _f.template eval<d+derivative>(dt); }
+	template<size_t first_deriv = 0, size_t nderivs = 1> std::array<double, nderivs> eval(double dt) const 
+	{ return _f.template eval<first_deriv+derivative, nderivs>(dt); }
 	template<size_t d> double max() const { return _f.template max<d+derivative>(); }
       };
 
@@ -47,7 +48,7 @@ namespace magnet {
       public:
 	FBisect_Wrapper(const Base& f):_f(f) {}
 	double operator()(const double dt) const
-	{ return _f.template eval<0>(dt); }
+	{ return _f.template eval<0>(dt).front(); }
       };      
 
       /*! \brief A numerical root finder based on Halley's method.
@@ -86,32 +87,28 @@ namespace magnet {
 	const double digitfactor = std::ldexp(1.0, 1 - binary_digits);
 
 	//This is recalculated at the end of each step to allow a check for convergence.
-	double f0 = f.template eval<0>(t_guess);
+	auto fval = f.template eval<0,3>(t_guess);
 	do {
 	  //Check if we're at a root already
-	  if (f0 == 0) return std::pair<bool,double>(true, t_guess); 
-
-	  //Calculate the current derivatives
-	  const double f1 = f.template eval<1>(t_guess);
-	  const double f2 = f.template eval<2>(t_guess);
+	  if (fval[0] == 0) return std::pair<bool,double>(true, t_guess); 
 	    
 	  //If we have zero derivatives, we can't make progress so
 	  //abort to allow the algorithm to try again from somewhere
 	  //else
-	  if ((f1 == 0) && (f2==0)) break;
+	  if ((fval[1] == 0) && (fval[2]==0)) break;
 
 	  //Calculate the numerator and denominator terms of Halley's method.
-	  const double denom = 2 * f0;
-	  const double num = 2 * f1 - f0 * (f2 / f1);
+	  const double denom = 2 * fval[0];
+	  const double num = 2 * fval[1] - fval[0] * (fval[2] / fval[1]);
 
 	  //Calculate the delta, taking care over the evaluation and
 	  //switching to a Newton step if required.
 	  double delta;
 	  if (//Check that we had a second derivative
-	      (f2 == 0)
+	      (fval[2] == 0)
 	      //Check for overflow
 	      || ((std::abs(num) < 1) && (std::abs(denom) >= std::abs(num) * std::numeric_limits<double>::max())))
-	    delta = - f0 / f1;
+	    delta = - fval[0] / fval[1];
 	  else
 	    {
 	      //Perform a Halley step
@@ -120,9 +117,9 @@ namespace magnet {
 	      //direction, if they don't it could be a cancellation
 	      //error. We then switch to a Newton step, with a fixed
 	      //maximum magnitude
-	      if (- delta * f1 / f0 < 0)
+	      if (- delta * fval[1] / fval[0] < 0)
 		{
-		  delta = - f0 / f1;
+		  delta = - fval[0] / fval[1];
 		  const double max_delta = 2 * std::abs(t_guess);
 		  if (std::abs(delta) > max_delta)
 		    delta = std::copysign(max_delta, delta);
@@ -143,11 +140,10 @@ namespace magnet {
 	  //Then update the current guess.
 	  t_guess = t_new_guess;
 
-	  //Check if we've converged
-	  f0 = f.template eval<0>(t_guess);
-	  if (std::abs(t_guess * digitfactor) >= std::abs(delta) && (std::abs(f0) < fprecision))
+	  //Check if we've converged (and calculate the next iteration's data)
+	  fval = f.template eval<0,3>(t_guess);
+	  if (std::abs(t_guess * digitfactor) >= std::abs(delta) && (std::abs(fval[0]) < fprecision))
 	    return std::pair<bool,double>(true, t_guess);
-
 	} while (--iterations);
 	
 	//Failed! We've not found a valid root.
@@ -174,27 +170,26 @@ namespace magnet {
 	//Store the initial sign of the function at t_min and
 	//t_max. This is used to combat precision errors which cause
 	//the boundaries to pass over a root when updated.
-	const bool t_min_sign = std::signbit(f.template eval<0>(t_min));
-	const bool t_max_sign = std::signbit(f.template eval<0>(t_max));
+	const bool t_min_sign = std::signbit(f.template eval<0>(t_min).front());
+	const bool t_max_sign = std::signbit(f.template eval<0>(t_max).front());
 	double old_t_min = t_min, old_t_max = t_max;
 
 	++restarts;
 	while ((t_min < t_max) && (--restarts))
 	  {
 	    double& t_current = (active_boundary == HIGH) ? t_max : t_min;
-	    const double f0 = f.template eval<0>(t_current);
-	    const double f1 = f.template eval<1>(t_current);
+	    const auto fval = f.template eval<0,2>(t_current);
 
 	    //Improve the boundary. The copysign should guarantee that
 	    //we have roots either side of t_current.
-	    auto boundary_roots = math::quadraticEquation(- 0.5 * std::copysign(f2max, f0), f1, f0);
+	    auto boundary_roots = math::quadraticEquation(- 0.5 * std::copysign(f2max, fval[0]), fval[1], fval[0]);
 	    
 	    //Check that the last update didn't cause a sign change on
 	    //at the boundary (indicating it skipped over a root). If
 	    //it did, we can bisect a root here!
 	    if (active_boundary == HIGH)
 	      {
-		if (std::signbit(f0) == t_max_sign)
+		if (std::signbit(fval[0]) == t_max_sign)
 		  {
 		    old_t_max = t_max;
 		    t_max += std::min(boundary_roots.first, boundary_roots.second);
@@ -204,7 +199,7 @@ namespace magnet {
 	      }
 	    else
 	      {
-		if (std::signbit(f0) == t_min_sign)
+		if (std::signbit(fval[0]) == t_min_sign)
 		  {
 		    old_t_min = t_min;
 		    t_min += std::max(boundary_roots.first, boundary_roots.second);
@@ -231,7 +226,7 @@ namespace magnet {
 	      //Searching succeeded check for earlier roots in this
 	      //interval using recursion.
 	      const double current_root = search_result.second;
-	      const double f1 = f.template eval<1>(current_root);
+	      const double f1 = f.template eval<1>(current_root).front();
 	      const double inner_t_max = current_root - 2.0 * std::abs(f1 / f2max);
 	      auto check_result = nextDecreasingRoot(f, t_min, inner_t_max, halley_binary_digits, halley_iterations);
 	      if (check_result.second != HUGE_VAL)
@@ -241,7 +236,7 @@ namespace magnet {
 	      //There are no earlier roots, current_root is the
 	      //next root in the region. Return it if its
 	      //approaching
-	      if (f.template eval<1>(current_root) < 0)
+	      if (f1 < 0)
 		return std::pair<bool,double>(true, current_root);
 	      
 	      //Use it as a new lower bound if its a receeding
@@ -266,14 +261,13 @@ namespace magnet {
     */
     template<class T> std::pair<bool, double> nextEvent(const T& f, const double t_min, const double t_max)
     {
-      const double f0 = f.template eval<0>(t_min);
-      const double f1 = f.template eval<1>(t_min);
-
+      const auto fval = f.template eval<0, 2>(t_min);
+      
       //If particles are not in contact, just search for the next contact
-      if (f0 > 0) return detail::nextDecreasingRoot(f, t_min, t_max);
+      if (fval[0] > 0) return detail::nextDecreasingRoot(f, t_min, t_max);
       
       //Particles are either in contact or overlapped. Check if they're approaching
-      if (f1 < 0) return std::pair<bool, double>(true, 0.0);
+      if (fval[1] < 0) return std::pair<bool, double>(true, 0.0);
 
       //Overlapping but they're moving away from each other. Determine
       //when they reach their next maximum separation (it may be the
@@ -287,7 +281,7 @@ namespace magnet {
       //if derivroot is a virtual (recalculate) event or an actual
       //turning point. We can just return it and either have a
       //collision then or recalculate then.
-      if (f.template eval<0>(derivroot.second) < 0) return derivroot;
+      if (f.template eval<0>(derivroot.second).front() < 0) return derivroot;
       
       //Real or virtual, the derivroot contains a time before the
       //next interaction which is outside the invalid state, we just

@@ -44,8 +44,8 @@ namespace magnet {
 	  _f3max = 6 * vijmax * aijmax + 2 * rijmax * dotaijmax;
 	}
 
-	template<size_t deriv> 
-	double eval(const double dt) const
+	template<size_t first_deriv=0, size_t nderivs = 1>
+	std::array<double, nderivs> eval(const double dt) const
 	{
 	  const math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
 	  const math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
@@ -57,15 +57,18 @@ namespace magnet {
 	  const math::Vector aij = -w1.nrm2() * u1new + w2.nrm2() * u2new;
 	  const math::Vector dotaij = -w1.nrm2() * (w1 ^ u1new) + w2.nrm2() * (w2 ^ u2new);
 
-	  switch (deriv)
-	    {
-	    case 0: return (rij | rij) - colldiam * colldiam;
-	    case 1: return 2 * (rij | vij);
-	    case 2: return 2 * vij.nrm2() + 2 * (rij | aij);
-	    case 3: return 6 * (vij | aij) + 2 * (rij | dotaij);
+	  std::array<double, nderivs> retval;
+	  for (size_t i(0); i < nderivs; ++i)
+	    switch (first_deriv + i) {
+	    case 0: retval[i] = (rij | rij) - colldiam * colldiam; break;
+	    case 1: retval[i] = 2 * (rij | vij); break;
+	    case 2: retval[i] = 2 * vij.nrm2() + 2 * (rij | aij); break;
+	    case 3: retval[i] = 6 * (vij | aij) + 2 * (rij | dotaij); break;
 	    default:
 	      M_throw() << "Invalid access";
 	    }
+
+	  return retval;
 	}
     
 	template<size_t deriv> 
@@ -126,8 +129,8 @@ namespace magnet {
 	  _f3max = 6 * vijmax * aijmax + 2 * rijmax * dotaijmax;
 	}
 
-	template<size_t deriv> 
-	double eval(const double dt) const
+	template<size_t first_deriv=0, size_t nderivs = 1>
+	std::array<double, nderivs> eval(const double dt) const
 	{
 	  math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
 	  math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
@@ -139,15 +142,17 @@ namespace magnet {
 	  const math::Vector aij = growthfactor * (-w1.nrm2() * u1new + w2.nrm2() * u2new) + 2 * _invgamma * ((w1 ^ u1new) - (w2 ^ u2new));
 	  const math::Vector dotaij = growthfactor * (-w1.nrm2() * (w1 ^ u1new) + w2.nrm2() * (w2 ^ u2new)) + 3 * _invgamma * (-w1.nrm2() * u1new + w2.nrm2() * u2new);
 
-	  switch (deriv)
-	    {
-	    case 0: return (rij | rij) - growthfactor * growthfactor * colldiam * colldiam;
-	    case 1: return 2 * (rij | vij) - 2 * _invgamma * growthfactor * colldiam * colldiam;
-	    case 2: return 2 * vij.nrm2() + 2 * (rij | aij) - 2 * _invgamma * _invgamma * colldiam * colldiam;
-	    case 3: return 6 * (vij | aij) + 2 * (rij | dotaij);
+	  std::array<double, nderivs> retval;
+	  for (size_t i(0); i < nderivs; ++i)
+	    switch (first_deriv + i) {
+	    case 0: retval[i] = (rij | rij) - growthfactor * growthfactor * colldiam * colldiam; break;
+	    case 1: retval[i] = 2 * (rij | vij) - 2 * _invgamma * growthfactor * colldiam * colldiam; break;
+	    case 2: retval[i] = 2 * vij.nrm2() + 2 * (rij | aij) - 2 * _invgamma * _invgamma * colldiam * colldiam; break;
+	    case 3: retval[i] = 6 * (vij | aij) + 2 * (rij | dotaij); break;
 	    default:
 	      M_throw() << "Invalid access";
 	    }
+	  return retval;
 	}
     
 	template<size_t deriv> 

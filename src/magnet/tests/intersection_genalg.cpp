@@ -32,9 +32,9 @@ public:
   PolyGeneral(const magnet::intersection::detail::PolynomialFunction<Order>& f,
 	      double t_min, double t_max): _f(f), _t_min(t_min), _t_max(t_max) {}
 
-  template<size_t Deriv=0>
-  double eval(double dt) const {
-    return _f.template eval<Deriv>(dt);
+  template<size_t first_deriv=0, size_t nderivs = 1>
+  std::array<double, nderivs> eval(double dt) const {
+    return _f.template eval<first_deriv, nderivs>(dt);
   }
 
   template<size_t Deriv=0>

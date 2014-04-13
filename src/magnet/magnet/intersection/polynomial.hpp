@@ -41,13 +41,18 @@ namespace magnet {
 	  return f;
 	}
 	
-	template<size_t Deriv=0>
-	double eval(double dt) const {
-	  double accum(0);
-	  for (size_t i(Order); i > Deriv; --i) {
-	    accum = (*this)[i] + (dt * accum) / (i + 1 - Deriv);
-	  }
-	  return accum * dt + (*this)[Deriv];
+	template<size_t first_deriv=0, size_t nderivs=1>
+	std::array<double, nderivs> eval(double dt) const {
+	  std::array<double, nderivs> retval;
+	  for (size_t j(0); j < nderivs; ++j)
+	    {
+	      double accum(0);
+	      for (size_t i(Order); i > first_deriv + j; --i) {
+		accum = (*this)[i] + (dt * accum) / (i + 1 - first_deriv - j);
+	      }
+	      retval[j] = accum * dt + (*this)[first_deriv + j];
+	    }
+	  return retval;
 	}
 	
 	void flipSign() {
@@ -123,31 +128,31 @@ namespace magnet {
 
 	const double rootthreshold = f0char * precision;
 	
-	auto bisectFunc = [&] (double t) { return f.eval(t); };
+	auto bisectFunc = [&] (double t) { return f.eval(t).front(); };
 
 	if (f[4] > 0) {
-	  if ((roots[0] > 0) && (f.eval(roots[0]) < 0))
+	  if ((roots[0] > 0) && (f.eval(roots[0]).front() < 0))
 	    {
-	      if (f.eval(0) <= 0)
+	      if (f.eval(0).front() <= 0)
 		return 0;
 	      else
 		return magnet::math::bisect(bisectFunc, 0, roots[0], rootthreshold);
 	    }
 	  
-	  if ((rootCount == 3) && (roots[2] > 0) && (f.eval(roots[2]) < 0))
+	  if ((rootCount == 3) && (roots[2] > 0) && (f.eval(roots[2]).front() < 0))
 	    {
 	      double tmin = std::max(0.0, roots[1]);
-	      if (f.eval(tmin) <= 0)
+	      if (f.eval(tmin).front() <= 0)
 		return tmin;
 	      else
 		return magnet::math::bisect(bisectFunc, tmin, roots[2], rootthreshold);
 	    }
 	  return HUGE_VAL;
 	} else /*(f4 < 0)*/ {
-	  if ((rootCount == 3) && (roots[1] > 0) && (f.eval(roots[1]) < 0))
+	  if ((rootCount == 3) && (roots[1] > 0) && (f.eval(roots[1]).front() < 0))
 	    {
 	      double tmin = std::max(0.0, roots[0]);
-	      if (f.eval(tmin) <= 0)
+	      if (f.eval(tmin).front() <= 0)
 		return tmin;
 	      else
 		return magnet::math::bisect(bisectFunc, tmin, roots[1], rootthreshold);
@@ -155,15 +160,15 @@ namespace magnet {
       
 	  double tlast = roots[rootCount - 1];
       
-	  if (f.eval(tlast) <= 0) return std::max(0.0, tlast);
+	  if (f.eval(tlast).front() <= 0) return std::max(0.0, tlast);
 
-	  if ((tlast < 0) && (f.eval(0) <= 0)) return 0;
+	  if ((tlast < 0) && (f.eval(0).front() <= 0)) return 0;
       
 	  double t0 = std::max(0.0, tlast);
       
 	  double deltate = std::pow(- 24 * f0char / f[4], 0.25);
       
-	  while (f.eval(t0 + deltate) >= 0)
+	  while (f.eval(t0 + deltate).front() >= 0)
 	    {
 	      t0 += deltate;
 	      deltate *= 2;
