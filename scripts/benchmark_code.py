@@ -62,7 +62,7 @@ class RunCmd(threading.Thread):
 def RunAndAddData(benchmarkname, executable):
     print "Running",benchmarkname,
     sys.stdout.flush()
-    timings=RunCmd([executable], TestTimeout).run_the_process()
+    timings=RunCmd(["taskset","0x1", executable], TestTimeout).run_the_process()
     if not timings:
         return
     print "Done!"
