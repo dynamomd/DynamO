@@ -68,7 +68,7 @@ unit-test plane-test : tests/plane_intersection.cpp magnet /system//boost_unit_t
 unit-test triangle-test : tests/triangle_intersection.cpp magnet /system//boost_unit_test_framework ;
 unit-test intersection-genAlg-test : tests/intersection_genalg.cpp magnet /system//boost_unit_test_framework ;
 unit-test intersection-OffSpheres-test : tests/offcenterspheres.cpp magnet /system//boost_unit_test_framework ;
-alias intersection-test : plane-test triangle-test intersection-genAlg-test ;
+alias intersection-test : plane-test triangle-test intersection-genAlg-test intersection-OffSpheres-test ;
 
 ##################################################
 alias test : opencl-test thread-test math-test judy-test intersection-test ;
