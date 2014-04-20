@@ -31,88 +31,8 @@ namespace magnet {
       public:
 	OffcentreSpheresOverlapFunction(const math::Vector& rij, const math::Vector& vij, const math::Vector& omegai, const math::Vector& omegaj,
 					const math::Vector& nu1, const math::Vector& nu2, const double diameter1, const double diameter2, 
-					const double maxdist):
-	  w1(omegai), w2(omegaj), u1(nu1), u2(nu2), r12(rij), v12(vij), _diameter1(diameter1), _diameter2(diameter2)
-	{
-	  double magw1 = w1.nrm(), magw2 = w2.nrm();
-	  double rijmax = u1.nrm() + u2.nrm() + maxdist;
-	  double vijmax = v12.nrm() + magw1 * u1.nrm() + magw2 * u2.nrm();
-	  double aijmax = w1.nrm2() * u1.nrm() + w2.nrm2() * u2.nrm();
-	  double dotaijmax = magw1 * w1.nrm2() * u1.nrm() + magw2 * w2.nrm2() * u2.nrm();
-	  _f1max = 2 * rijmax * vijmax;
-	  _f2max = 2 * vijmax * vijmax + 2 * rijmax * aijmax;
-	  _f3max = 6 * vijmax * aijmax + 2 * rijmax * dotaijmax;
-	}
-
-	template<size_t first_deriv=0, size_t nderivs = 1>
-	std::array<double, nderivs> eval(const double dt) const
-	{
-	  const math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
-	  const math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
-	  const math::Vector r12new = r12 + v12 * dt;
-
-	  const double colldiam = 0.5 * (_diameter1 + _diameter2);
-	  const math::Vector rij = r12new + u1new - u2new;
-	  const math::Vector vij = v12 + (w1 ^ u1new) - (w2 ^ u2new);
-	  const math::Vector aij = -w1.nrm2() * u1new + w2.nrm2() * u2new;
-	  const math::Vector dotaij = -w1.nrm2() * (w1 ^ u1new) + w2.nrm2() * (w2 ^ u2new);
-
-	  std::array<double, nderivs> retval;
-	  for (size_t i(0); i < nderivs; ++i)
-	    switch (first_deriv + i) {
-	    case 0: retval[i] = (rij | rij) - colldiam * colldiam; break;
-	    case 1: retval[i] = 2 * (rij | vij); break;
-	    case 2: retval[i] = 2 * vij.nrm2() + 2 * (rij | aij); break;
-	    case 3: retval[i] = 6 * (vij | aij) + 2 * (rij | dotaij); break;
-	    default:
-	      M_throw() << "Invalid access";
-	    }
-
-	  return retval;
-	}
-    
-	template<size_t deriv> 
-	double max() const
-	{
-	  switch (deriv)
-	    {
-	    case 1: return _f1max;
-	    case 2: return _f2max;
-	    case 3: return _f3max;
-	    default:
-	      M_throw() << "Invalid access";
-	    }
-	}
-
-	const math::Vector& getu1() const { return u1; }
-	const math::Vector& getu2() const { return u2; }
-	const math::Vector& getw1() const { return w1; }
-	const math::Vector& getw2() const { return w2; }
-	const math::Vector& getr12() const { return r12; }
-	const math::Vector& getv12() const { return v12; }
-  
-      private:
-	const math::Vector& w1;
-	const math::Vector& w2;
-	math::Vector u1;
-	math::Vector u2;
-	math::Vector r12;
-	math::Vector v12;
-
-	const double _diameter1, _diameter2;
-	double _f1max, _f2max, _f3max;
-      };
-
-      /*! \brief The overlap function and its derivatives for two
-	offcentre spheres rotating about an individual point.
-      */
-      class OffcentreGrowingSpheresOverlapFunction
-      {
-      public:
-	OffcentreGrowingSpheresOverlapFunction(const math::Vector& rij, const math::Vector& vij, const math::Vector& omegai, const math::Vector& omegaj,
-					       const math::Vector& nu1, const math::Vector& nu2, const double diameter1, const double diameter2, 
-					       const double maxdist, const double t, const double invgamma, const double t_max):
-	  w1(omegai), w2(omegaj), u1(nu1), u2(nu2), r12(rij), v12(vij), _diameter1(diameter1), _diameter2(diameter2), _invgamma(invgamma), _t(t)
+					const double maxdist, const double t, const double invgamma, const double t_min, const double t_max):
+	  w1(omegai), w2(omegaj), u1(nu1), u2(nu2), r12(rij), v12(vij), _diameter1(diameter1), _diameter2(diameter2), _invgamma(invgamma), _t(t), _t_min(t_min), _t_max(t_max)
 	{
 	  double Gmax = std::max(1 + t * invgamma, 1 + (t + t_max) * invgamma);
 	  const double sigmaij = 0.5 * (_diameter1 + _diameter2);
@@ -130,7 +50,7 @@ namespace magnet {
 	}
 
 	template<size_t first_deriv=0, size_t nderivs = 1>
-	std::array<double, nderivs> eval(const double dt) const
+	std::array<double, nderivs> eval(const double dt = 0) const
 	{
 	  math::Vector u1new = Rodrigues(w1 * dt) * math::Vector(u1);
 	  math::Vector u2new = Rodrigues(w2 * dt) * math::Vector(u2);
@@ -168,46 +88,22 @@ namespace magnet {
 	    }
 	}
 
-	const math::Vector& getu1() const { return u1; }
-	const math::Vector& getu2() const { return u2; }
-	const math::Vector& getw1() const { return w1; }
-	const math::Vector& getw2() const { return w2; }
-	const math::Vector& getr12() const { return r12; }
-	const math::Vector& getv12() const { return v12; }
+	std::pair<bool, double> nextEvent() const {
+	  return magnet::intersection::nextEvent(*this, _t_min, _t_max);
+	}
   
       private:
-	const math::Vector& w1;
-	const math::Vector& w2;
-	math::Vector u1;
-	math::Vector u2;
-	math::Vector r12;
-	math::Vector v12;
+	const math::Vector w1;
+	const math::Vector w2;
+	const math::Vector u1;
+	const math::Vector u2;
+	const math::Vector r12;
+	const math::Vector v12;
 
 	const double _diameter1, _diameter2, _invgamma;
 	double _t, _f1max, _f2max, _f3max;
+	const double _t_min, _t_max;
       };
-    }
-
-    /*! \brief Intersection test for offcentre spheres.
-     */
-    inline std::pair<bool, double> 
-    offcentre_spheres(const math::Vector& rij, const math::Vector& vij, const math::Vector& angvi, const math::Vector& angvj,
-		      const math::Vector& relativeposi, const math::Vector& relativeposj,
-		      const double diameteri, const double diameterj, double maxdist, double t_max)
-    {
-      detail::OffcentreSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist);
-      return magnet::intersection::nextEvent(f, 0, t_max);
-    }
-
-    /*! \brief Intersection test for growing offcentre spheres.
-     */
-    inline std::pair<bool, double> 
-    offcentre_growing_spheres(const math::Vector& rij, const math::Vector& vij, const math::Vector& angvi, const math::Vector& angvj,
-			      const math::Vector& relativeposi, const math::Vector& relativeposj,
-			      const double diameteri, const double diameterj, double maxdist, double t_max, double t, double invgamma)
-    {
-      detail::OffcentreGrowingSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist, t, invgamma, t_max);
-      return magnet::intersection::nextEvent(f, 0, t_max);
     }
   }
 }

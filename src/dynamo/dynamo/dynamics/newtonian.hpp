@@ -66,8 +66,6 @@ namespace dynamo {
     virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
     virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const;
 
-    virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const;
-
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 

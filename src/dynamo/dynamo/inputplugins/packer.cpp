@@ -2871,7 +2871,10 @@ namespace dynamo {
 	  const double mB = mA * massratio;
 	  const double I = (mA * sigmaA * sigmaA + mB * sigmaB * sigmaB) * 0.1 + mA * LA * LA + mB * LB * LB;
 
-	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA, LB, sigmaA, sigmaA * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
+	  shared_ptr<IDumbbells> interaction(new IDumbbells(Sim, elasticity, new IDPairRangeAll(), "Bulk"));
+	  Sim->interactions.push_back(interaction);
+	  interaction->addSphere(LA, sigmaA);
+	  interaction->addSphere(-LB, sigmaA * sizeratio);
 	  
 	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, I)));
 

@@ -33,7 +33,6 @@
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/intersection/ray_cube.hpp>
 #include <magnet/intersection/line_line.hpp>
-#include <magnet/intersection/offcentre_spheres.hpp>
 #include <magnet/intersection/overlapfuncs/oscillatingplate.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -1061,30 +1060,6 @@ namespace dynamo {
     
     return magnet::intersection::line_line(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity,
 					   orientationData[p1.getID()].orientation, orientationData[p2.getID()].orientation, length, skip_first, t_max);
-  }
-
-  std::pair<bool, double> 
-  DynNewtonian::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const
-  {  
-#ifdef DYNAMO_DEBUG
-    if (!hasOrientationData())
-      M_throw() << "Cannot use this function without orientational data";
-
-    if (!isUpToDate(p1))
-      M_throw() << "Particle1 " << p1.getID() << " is not up to date";
-
-    if (!isUpToDate(p2))
-      M_throw() << "Particle2 " << p2.getID() << " is not up to date";
-#endif
-
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-  
-    return magnet::intersection::offcentre_spheres(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, 
-						   orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, 
-						   orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2,
-						   diameter1, diameter2, maxdist, t_max);
   }
 
 

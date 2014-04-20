@@ -24,16 +24,11 @@ namespace dynamo {
   class IDumbbells: public ICapture
   {
   public:
-    template<class T1, class T2, class T3, class T4, class T5>
-    IDumbbells(dynamo::Simulation* tmp, T1 LA, T2 LB, T3 diamA, T4 diamB, T5 e, IDPairRange* nR, std::string name):
+    template<class T1>
+    IDumbbells(dynamo::Simulation* tmp, T1 e, IDPairRange* nR, std::string name):
       ICapture(tmp, nR),
-      _diamA(Sim->_properties.getProperty(diamA, Property::Units::Length())),
-      _diamB(Sim->_properties.getProperty(diamB, Property::Units::Length())),
-      _LA(Sim->_properties.getProperty(LA, Property::Units::Length())),
-      _LB(Sim->_properties.getProperty(LB, Property::Units::Length())),
       _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
-      _unusedDimension(std::numeric_limits<size_t>::max())
-    {
+      _unusedDimension(std::numeric_limits<size_t>::max()) {
       intName = name;
     }
 
@@ -51,6 +46,8 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
+    double maxIntDist(size_t p1, size_t p2) const;
+
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
     virtual PairEventData runEvent(Particle&, Particle&, const IntEvent&);
@@ -63,11 +60,16 @@ namespace dynamo {
 
     void setUnusedDimension(size_t v) { _unusedDimension = v; }
 
+    template<class T1, class T2>
+    void addSphere(const T1& diameter, const T2& L)
+    {
+      _compositeData.push_back(std::pair<shared_ptr<Property>, shared_ptr<Property> >
+			       (Sim->_properties.getProperty(diameter, Property::Units::Length()),
+				Sim->_properties.getProperty(L, Property::Units::Length())));
+    }
+
   protected:
-    shared_ptr<Property> _diamA;
-    shared_ptr<Property> _diamB;
-    shared_ptr<Property> _LA;
-    shared_ptr<Property> _LB;
+    std::vector<std::pair<shared_ptr<Property>, shared_ptr<Property> > > _compositeData;
     shared_ptr<Property> _e;
     size_t _unusedDimension;
   };

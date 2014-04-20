@@ -47,36 +47,6 @@ namespace dynamo {
     Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::ray_growing_sphere<true>(r12, v12, d, growthRate, Sim->systemTime);
   }
-
-  std::pair<bool, double> 
-  DynCompression::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const
-  {  
-#ifdef DYNAMO_DEBUG
-    if (!hasOrientationData())
-      M_throw() << "Cannot use this function without orientational data";
-
-    if (!isUpToDate(p1))
-      M_throw() << "Particle1 " << p1.getID() << " is not up to date";
-
-    if (!isUpToDate(p2))
-      M_throw() << "Particle2 " << p2.getID() << " is not up to date";
-#endif
-
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-    
-    const double limit_time_window = 1 / growthRate;
-
-    std::pair<bool, double> retval = magnet::intersection::offcentre_growing_spheres(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2, diameter1, diameter2, maxdist, std::min(limit_time_window, t_max), Sim->systemTime, growthRate);
-    
-    //Check if there's no collision reported but we've limited the interval
-    if ((retval.second == HUGE_VAL) && (t_max > limit_time_window))
-      return std::pair<bool, double>(false, limit_time_window);
-    
-    //Otherwise return what was calculated
-    return retval;
-  }
   
   double 
   DynCompression::getPlaneEvent(const Particle& part, const Vector & origin, const Vector & norm, double diameter) const

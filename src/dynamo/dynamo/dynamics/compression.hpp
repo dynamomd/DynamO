@@ -34,7 +34,6 @@ namespace dynamo {
     DynCompression(dynamo::Simulation*, double);
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
-    virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const;
     virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
