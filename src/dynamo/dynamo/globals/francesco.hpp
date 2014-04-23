@@ -18,6 +18,7 @@
 #pragma once
 #include <dynamo/globals/global.hpp>
 #include <vector>
+#include <random>
 
 namespace dynamo {
   /*! \brief A Global event which helps prevent wrap around problems
@@ -51,9 +52,11 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
     void particlesUpdated(const NEventData& PDat);
+    
+    double generateTime() const;
 
     std::vector<double> _eventTimes;
-    double _T;
-    double _MFT;
+    mutable std::normal_distribution<> _dist;
+    double _vel;
   };
 }

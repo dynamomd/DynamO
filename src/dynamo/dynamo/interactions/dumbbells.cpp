@@ -345,7 +345,11 @@ namespace dynamo {
   bool
   IDumbbells::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const double max_dist = maxIntDist(p1, p2);
+    double growthrate = 0;
+    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+      growthrate = std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate();
+    const double growthfactor = 1 + growthrate * Sim->systemTime;
+    const double max_dist = maxIntDist(p1, p2) * growthfactor;
     
     bool has_error = false;
     double distance = Sim->BCs->getDistance(p1, p2);
@@ -371,9 +375,6 @@ namespace dynamo {
 	const auto& angv2 = Sim->dynamics->getRotData(p2).angularVelocity;
 	const auto& director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 	const auto& director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
-	double growthrate = 0;
-	if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
-	  growthrate = std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate();
 	
 	for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
 	  for (auto it2 = _compositeData.begin(); it2 != _compositeData.end(); ++it2)

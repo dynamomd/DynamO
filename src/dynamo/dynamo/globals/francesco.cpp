@@ -40,13 +40,23 @@ namespace dynamo {
     Sim->_sigParticleUpdate.connect<GFrancesco, &GFrancesco::particlesUpdated>(this);
   }
 
+  double 
+  GFrancesco::generateTime() const
+  {
+    double dt;
+    do
+      dt = _dist(Sim->ranGenerator);
+    while ((dt < 0) || (dt > (2 * _dist.mean())));
+    return dt + Sim->systemTime;
+  }
+
   void 
   GFrancesco::particlesUpdated(const NEventData& PDat)
   {
     for (const PairEventData& pdat : PDat.L2partChanges)
       {
-	_eventTimes[pdat.particle1_.getParticleID()] = - _MFT * std::log(1.0 - std::uniform_real_distribution<>()(Sim->ranGenerator)) + Sim->systemTime;
-	_eventTimes[pdat.particle2_.getParticleID()] = - _MFT * std::log(1.0 - std::uniform_real_distribution<>()(Sim->ranGenerator)) + Sim->systemTime;
+	_eventTimes[pdat.particle1_.getParticleID()] = generateTime();
+	_eventTimes[pdat.particle2_.getParticleID()] = generateTime();
       }
   }
   void 
@@ -54,8 +64,9 @@ namespace dynamo {
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << "Francesco"
 	<< magnet::xml::attr("Name") << globName
-	<< magnet::xml::attr("MFT") << _MFT / Sim->units.unitTime()
-	<< magnet::xml::attr("Temperature") << _T / Sim->units.unitEnergy()
+	<< magnet::xml::attr("MFT") << _dist.mean() / Sim->units.unitTime()
+	<< magnet::xml::attr("MFTstddev") << _dist.stddev() / Sim->units.unitTime()
+	<< magnet::xml::attr("Velocity") << _vel / Sim->units.unitVelocity()
 	<< range
     	<< magnet::xml::endtag("Global");
   }
@@ -64,8 +75,10 @@ namespace dynamo {
   GFrancesco::operator<<(const magnet::xml::Node& XML)
   {
     globName = XML.getAttribute("Name");
-    _MFT = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
-    _T = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
+    const double MFT = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
+    const double MFTstddev = XML.getAttribute("MFTstddev").as<double>() * Sim->units.unitTime();
+    _dist = std::normal_distribution<>(MFT, MFTstddev);
+    _vel = XML.getAttribute("Velocity").as<double>() * Sim->units.unitVelocity();
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   }
 
@@ -91,10 +104,7 @@ namespace dynamo {
     //Kill the rotational motion
     Sim->dynamics->getRotData(part).angularVelocity = Vector(0,0,0);
     //Reassign the linear motion
-    //const double mass = Sim->species[part]->getMass(part);
-    //std::normal_distribution<> norm_dist(0, std::sqrt(_T / mass));
-    //double vel = std::abs(norm_dist(Sim->ranGenerator));
-    part.getVelocity() = Sim->dynamics->getRotData(part).orientation * magnet::math::Quaternion::initialDirector();
+    part.getVelocity() = _vel * (Sim->dynamics->getRotData(part).orientation * magnet::math::Quaternion::initialDirector());
 
     Sim->_sigParticleUpdate(EDat);
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)

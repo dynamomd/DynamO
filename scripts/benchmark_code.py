@@ -139,7 +139,8 @@ def builtTestAndExtractPath(projectpath, unittest):
     command=['bjam','-j8',projectpath+'//'+unittest["name"],'testing.launcher="echo TESTEXELOCATION"']
     try:
         output=subprocess.check_output(' '.join(command), shell=True, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
+        print "Failed build (return code",e.returncode,", output is\n",e.output
         raise TestBuildFail("Build of test failed")
         
     for line in output.split('\n'):
