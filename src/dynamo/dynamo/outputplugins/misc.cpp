@@ -498,9 +498,8 @@ namespace dynamo {
       std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
 	data = _thermalConductivity.getAveragedCorrelator();
     
-      double inv_units = Sim->units.unitk()
-	/ ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 
-	    * std::pow(getMeankT(), 2) * V);
+      const double inv_units = Sim->units.unitk()
+	/ ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 * getMeankT() * V);
 
       XML << "0 0 0 0 0\n";
       for (size_t i(0); i < data.size(); ++i)
