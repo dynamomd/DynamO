@@ -152,18 +152,21 @@ namespace dynamo {
 
     //Run this to determine when the spheres no longer intersect
     const double t_max = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
-    std::pair<bool, double> current(false, HUGE_VAL);
 
+    std::pair<bool, double> current(false, HUGE_VAL);
     for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
       for (auto it2 = _compositeData.begin(); it2 != _compositeData.end(); ++it2)
 	{
+	  const double t_max_current = std::min(t_max, current.second);
+	  const double max_growth_factor = std::max(growthrate * Sim->systemTime, 
+						    growthrate * (Sim->systemTime + t_max_current));
 	  const double Diam1 = it1->first->getProperty(p1);
 	  const double L1 = it1->second->getProperty(p1);
 	  const double Diam2 = it2->first->getProperty(p2);
 	  const double L2 = it2->second->getProperty(p2);
-    
+	  
 	  magnet::intersection::detail::OffcentreSpheresOverlapFunction
-	    f(r12, v12, angv1, angv2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, std::min(t_max, current.second));
+	    f(r12, v12, angv1, angv2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist * max_growth_factor, Sim->systemTime, growthrate, 0, t_max_current);
 	  
 	  std::pair<bool, double> test = f.nextEvent();
 	  if (test.second < current.second) 

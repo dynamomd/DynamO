@@ -73,3 +73,29 @@ BOOST_AUTO_TEST_CASE( OffCentreSphere_Test )
     BOOST_CHECK(result2.second == 0);
   }
 }
+
+BOOST_AUTO_TEST_CASE( OffCentreSphereGrowing_Test )
+{
+
+  const Vector r1(-58.502136713115014, -36.366193091936353, 0);
+  const Vector v1(0.84416336042235662, 1.2211750596392101, 0);
+  const Vector angv1(0, 0, 3.2360018350663511);
+  const Quaternion orientation1(0.70710678118654757, Vector(0.51568947764362061, -0.48380198702325511, 0));
+  const Vector relativepos1 = - 0.5 * (orientation1 * Quaternion::initialDirector());
+  const double diam1 = 1.0;
+
+  const Vector r2(-58.502136713115014, -33.203915431767982, 0);
+  const Vector v2(1.1393960536121741, -0.73973475637700326, 0);
+  const Vector angv2(0, 0, 1.2537004072984947);
+  const Quaternion orientation2(0.70710678118654757, Vector(-0.61761216742478009, 0.34431847270930083, 0));
+  const Vector relativepos2 = - 0.5 * (orientation2 * Quaternion::initialDirector());
+  const double diam2 = 1.0;
+
+  const double invgamma = 1.0;
+
+  magnet::intersection::detail::OffcentreSpheresOverlapFunction f1(r1 - r2, v1 - v2, angv1, angv2, relativepos1, relativepos2, diam1, diam2, Vector(r1-r2).nrm() + 1.0, 0, invgamma, 0, 0.363046);
+  auto result1 = f1.nextEvent();
+  std::cout << "Result1.first = " << result1.first << "Result1.second = " << result1.second << std::endl;
+  std::cout << "f = " << f1.eval(result1.second).front() << "Result1.second = " << result1.second << std::endl;
+  
+}
