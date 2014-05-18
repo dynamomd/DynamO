@@ -168,6 +168,8 @@ namespace dynamo {
       return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
     else if (!Name.compare("OrientationalOrder"))
       return testGeneratePlugin<OPOrientationalOrder>(Sim, XML);
+    else if (!Name.compare("PolarNematic"))
+      return testGeneratePlugin<OPPolarNematic>(Sim, XML);
     else
       M_throw() << Name << ", Unknown type of OutputPlugin encountered";
   }

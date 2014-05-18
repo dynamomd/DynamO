@@ -33,3 +33,4 @@
 #include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
 #include <dynamo/outputplugins/tickerproperty/OrientationalOrder.hpp>
 #include <dynamo/outputplugins/tickerproperty/vacf.hpp>
+#include <dynamo/outputplugins/tickerproperty/PolarNematic.hpp>
