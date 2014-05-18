@@ -15,6 +15,7 @@
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
+#include <dynamo/interactions/nullInteraction.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/msd.hpp>
 #include <random>
@@ -45,7 +46,9 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeRange(0, 0), 1.0, "Bulk", 0)));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpFixedCollider(&Sim, new dynamo::IDRangeRange(1, 8), "FixedColliders", 1)));
 
-  Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(&Sim, 1.0, 1, new dynamo::IDPairRangeAll(), "Bulk")));
+  Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(&Sim, 1.0, 1, new dynamo::IDPairRangePair(new dynamo::IDRangeAll(&Sim), new dynamo::IDRangeRange(0,0)), "Bulk")));
+
+  Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::INull(&Sim, new dynamo::IDPairRangeAll(), "NoInteraction")));
   
   Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, 1.0, dynamo::Vector(0,1,0), dynamo::Vector(0,-2.67753263802375e+01,0), "GroundPlate", new dynamo::IDRangeAll(&Sim))));
   
