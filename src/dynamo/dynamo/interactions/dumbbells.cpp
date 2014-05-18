@@ -152,21 +152,42 @@ namespace dynamo {
 
     //Run this to determine when the spheres no longer intersect
     const double t_max = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
-
+    
     std::pair<bool, double> current(false, HUGE_VAL);
+    //If the bounding spheres never stop intersecting, we need to
+    //establish an upper time to search for events as the intersection
+    //routine needs a maximum upper bound for the distance. If we
+    //reach this time, we recalculate for events from then.
+    if (t_max == HUGE_VAL)
+      current.second = 1.0;
+    
     for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
       for (auto it2 = _compositeData.begin(); it2 != _compositeData.end(); ++it2)
 	{
 	  const double t_max_current = std::min(t_max, current.second);
-	  const double max_growth_factor = std::max(growthrate * Sim->systemTime, 
-						    growthrate * (Sim->systemTime + t_max_current));
 	  const double Diam1 = it1->first->getProperty(p1);
 	  const double L1 = it1->second->getProperty(p1);
 	  const double Diam2 = it2->first->getProperty(p2);
 	  const double L2 = it2->second->getProperty(p2);
-	  
+
+//const double max_growth_factor = 1 + std::max(growthrate * Sim->systemTime, growthrate * (Sim->systemTime + t_max_current));
+//dout << "max_dist=" << max_dist << std::endl;
+//dout << "max_growth_factor=" << max_growth_factor <<std::endl;
+//dout << "r12=" << r12.toString() <<std::endl;
+//dout << "v12=" << v12.toString() <<std::endl;
+//dout << "angv1=" << angv1.toString() <<std::endl;
+//dout << "angv2=" << angv2.toString() <<std::endl;
+//dout << "u1=" << Vector(director1 * L1).toString() << std::endl;
+//dout << "u2=" << Vector(director2 * L2).toString() << std::endl;
+//dout << "Diam1=" << Diam1 << std::endl;
+//dout << "Diam2=" << Diam1 << std::endl;
+//dout << "max_dist_eff=" << max_dist * max_growth_factor << std::endl;
+//dout << "t=" << Sim->systemTime << std::endl;
+//dout << "growthrate=" << growthrate << std::endl;
+//dout << "tmin=" << 0 << std::endl;
+//dout << "tmax=" << t_max_current << std::endl;
 	  magnet::intersection::detail::OffcentreSpheresOverlapFunction
-	    f(r12, v12, angv1, angv2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist * max_growth_factor, Sim->systemTime, growthrate, 0, t_max_current);
+	    f(r12, v12, angv1, angv2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, t_max_current);
 	  
 	  std::pair<bool, double> test = f.nextEvent();
 	  if (test.second < current.second) 

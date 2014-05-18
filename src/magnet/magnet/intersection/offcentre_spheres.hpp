@@ -38,7 +38,11 @@ namespace magnet {
 	  const double sigmaij = 0.5 * (_diameter1 + _diameter2);
 	  const double sigmaij2 = sigmaij * sigmaij;
 	  double magw1 = w1.nrm(), magw2 = w2.nrm();
-	  double rijmax = Gmax * maxdist;
+	  double rijmax = Gmax * std::max(maxdist, rij.nrm());
+#ifdef MAGNET_DEBUG
+	  if (rij.nrm() > 1.0001 * maxdist)
+	    std::cout << "WARNING!: Particle separation is larger than the maximum specified. " <<rij.nrm() << ">" << maxdist << "\n";
+#endif
 	  double magu1 = u1.nrm(), magu2 = u2.nrm();
 	  double vijmax = v12.nrm() + Gmax * (magu1 * magw1 + magu2 * magw2) + std::abs(invgamma) * (magu1 + magu2);
 	  double aijmax = Gmax * (magu1 * magw1 * magw1 + magu2 * magw2 * magw2) + 2 * std::abs(invgamma) * (magu1 * magw1 + magu2 * magw2);
