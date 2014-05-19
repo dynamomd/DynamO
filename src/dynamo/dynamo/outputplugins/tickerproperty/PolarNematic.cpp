@@ -25,6 +25,7 @@
 #include <magnet/xmlreader.hpp>
 #include <fstream>
 #include <cmath>
+#include <complex>
 #include <limits>
 
 namespace dynamo {
@@ -46,21 +47,22 @@ namespace dynamo {
   void 
   OPPolarNematic::ticker()
   {
-    Vector polar(0,0,0);
-    Vector nematic(0,0,0);
-    for (const auto& data : Sim->dynamics->getCompleteRotData())
+    std::complex<double> polar(0,0);
+    std::complex<double> nematic(0,0);
+    const auto& data = Sim->dynamics->getCompleteRotData();
+    for (const auto& entry : data)
       {
-	Vector vec = data.orientation * Quaternion::initialDirector();
-	polar += vec;
-	for (size_t i(0); i < 3; ++i)
-	  nematic[i] += 2 * vec[i] * vec[i] - 1;
+	const Vector vec = entry.orientation * Quaternion::initialDirector();
+	const double arg = std::arg(std::complex<double>(vec[0], vec[1]));
+	polar += std::exp(std::complex<double>(0,arg));
+	nematic += std::exp(std::complex<double>(0,2 * arg));
       }
 
-    const size_t count = Sim->dynamics->getCompleteRotData().size();
+    const size_t count = data.size();
     polar /= count;
     nematic /= count;
 
-    _history.push_back(std::pair<double, double>(polar.nrm(), nematic.nrm()));
+    _history.push_back(std::pair<double, double>(std::abs(polar), std::abs(nematic)));
   }
 
   void 
