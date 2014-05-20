@@ -98,6 +98,13 @@ namespace coil {
     loadData(outbuffer, dim, Vector(1,1,1));
   }
 
+#ifdef COIL_TIFFSUPPORT
+  void 
+  RVolume::loadTiffFiles(std::vector<std::string> files)
+  {
+  }
+#endif
+
   void
   RVolume::loadSphereTestPattern()
   {

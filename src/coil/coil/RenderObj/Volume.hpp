@@ -61,6 +61,10 @@ void main()
 
     void loadRawFile(std::string filename, std::array<size_t, 3> dimensions, size_t bytes);
 
+#ifdef COIL_TIFFSUPPORT
+    void loadTiffFiles(std::vector<std::string> files);
+#endif
+
     /*! \brief Return the icon used for the object in the render view.
      */
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
