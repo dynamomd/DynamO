@@ -19,6 +19,11 @@
 #include <coil/RenderObj/Light.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/GL/objects/primitives/cube.hpp>
+
+#ifdef COIL_TIFFSUPPORT
+# include <magnet/image/TIFF.hpp>
+#endif
+
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/clamp.hpp>
 #include <boost/lexical_cast.hpp>
@@ -100,8 +105,24 @@ namespace coil {
 
 #ifdef COIL_TIFFSUPPORT
   void 
-  RVolume::loadTiffFiles(std::vector<std::string> files)
+  RVolume::loadTIFFFiles(std::vector<std::string> files)
   {
+    const auto data = magnet::image::loadTIFFStack(files);
+
+    std::array<size_t, 3> dim;
+    dim[0] = data.width;
+    dim[1] = data.height;
+    dim[2] = data.depth;
+    std::vector<GLubyte> outbuffer(data.width * data.height * data.depth);
+    for (size_t x(0); x < data.width; ++x)
+      for (size_t y(0); y < data.height; ++y)
+	for (size_t z(0); z < data.depth; ++z)
+	  {
+	    const size_t idx = x + data.width * (y + data.height * z);
+	    outbuffer[idx] = data.pixels[idx].r;
+	  }
+
+    loadData(outbuffer, dim, Vector(1,1,1));
   }
 #endif
 
@@ -122,13 +143,15 @@ namespace coil {
   }
 
   namespace {
-    inline size_t coordCalc(GLint x, GLint y, GLint z, 
-			    GLint width, GLint height, GLint depth)
+    inline GLubyte coordCalc(GLint x, GLint y, GLint z, 
+			     GLint width, GLint height, GLint depth, const std::vector<GLubyte>& buffer)
     {
-      x = magnet::clamp(x, 0, width  - 1);
-      y = magnet::clamp(y, 0, height - 1);
-      z = magnet::clamp(z, 0, depth  - 1);
-      return x + width * (y + height * z);
+      if (((x < 0) || (x >= width)) 
+	  || ((y < 0) || (y >= height))
+	  || ((z < 0) || (z >= depth)))
+	return 0;
+      else
+	return buffer[x + width * (y + height * z)];
     }
   }
 
@@ -159,13 +182,13 @@ namespace coil {
       for (int y(0); y < int(height); ++y)
 	for (int x(0); x < int(width); ++x)
 	  {
-	    Vector sample1(inbuffer[coordCalc(x - 1, y, z, width, height, depth)],
-			   inbuffer[coordCalc(x, y - 1, z, width, height, depth)],
-			   inbuffer[coordCalc(x, y, z - 1, width, height, depth)]);
+	    Vector sample1(coordCalc(x - 1, y, z, width, height, depth, inbuffer),
+			   coordCalc(x, y - 1, z, width, height, depth, inbuffer),
+			   coordCalc(x, y, z - 1, width, height, depth, inbuffer));
 
-	    Vector sample2(inbuffer[coordCalc(x + 1, y, z, width, height, depth)],
-			   inbuffer[coordCalc(x, y + 1, z, width, height, depth)],
-			   inbuffer[coordCalc(x, y, z + 1, width, height, depth)]);
+	    Vector sample2(coordCalc(x + 1, y, z, width, height, depth, inbuffer),
+			   coordCalc(x, y + 1, z, width, height, depth, inbuffer),
+			   coordCalc(x, y, z + 1, width, height, depth, inbuffer));
 	    
 	    //Do a central difference scheme
 	    Vector grad = sample1 - sample2;
@@ -178,7 +201,7 @@ namespace coil {
 	    voldata[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
 	    voldata[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
 	    
-	    GLubyte val = inbuffer[coordCalc(x, y, z, width, height, depth)];
+	    GLubyte val = coordCalc(x, y, z, width, height, depth, inbuffer);
 	    voldata[4 * coord + 3] = val;
 	    histogram[val] += 1;
 	  }

@@ -42,9 +42,9 @@ always coilDependencies ;
 
 alias coil : [ glob-tree *.cpp : tests examples programs ]
       clwingtk.gladexml /system//png /system//glut /system//GLU /system//GL /system//Xext /system//X11 /system//GLEW /system//gtkmm /magnet//magnet /system//boost_filesystem
-      : <include>. <tag>@tags.lib-naming <coil-cwiid>yes:<source>/system//cwiid <magnet-FFMPEG>yes:<source>/system//libavcodec <coil-buildable>no:<build>no 
+      : <include>. <tag>@tags.lib-naming <coil-cwiid>yes:<source>/system//cwiid <magnet-FFMPEG>yes:<source>/system//libavcodec <coil-buildable>no:<build>no  <coil-Tiff>yes:<source>/system//tiff
       <coil-Tiff>yes:<define>COIL_TIFFSUPPORT 
-      : : <define>GLVIEWER <include>. ;
+      : : <define>GLVIEWER <include>. <coil-Tiff>yes:<define>COIL_TIFFSUPPORT ;
 
 exe coilvol : programs/coilvol.cpp coil /system//boost_program_options : <tag>@tags.exe-naming ;
 
