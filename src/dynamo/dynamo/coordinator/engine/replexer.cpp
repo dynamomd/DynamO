@@ -529,11 +529,7 @@ namespace dynamo {
 		Simulations[i].endEventCount = vm["events"].as<size_t>();
 	      }
 
-	    timespec endTime;
-	    clock_gettime(CLOCK_MONOTONIC, &endTime);
-	    
-	    double duration = double(endTime.tv_sec) - double(_startTime.tv_sec)
-	      + 1e-9 * (double(endTime.tv_nsec) - double(_startTime.tv_nsec));
+	    double duration = std::chrono::duration<double>(std::chrono::system_clock::now() - _startTime).count();
 	    
 	    double fractionComplete = (Simulations[0].systemTime / Simulations[0].units.unitTime()) / replicaEndTime;
 	    double seconds_remaining_double = duration * (1/ fractionComplete - 1);

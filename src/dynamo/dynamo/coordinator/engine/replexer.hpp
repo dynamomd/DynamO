@@ -190,7 +190,7 @@ namespace dynamo {
      */
     unsigned int nSims;
 
-    timespec _startTime;
+    std::chrono::system_clock::time_point _startTime;
 
     /*! \brief Initialises this class ready for the replica exchange.
      */
