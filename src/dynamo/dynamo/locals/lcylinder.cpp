@@ -23,8 +23,10 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <magnet/GL/objects/primitives/cylinder.hpp>
 #include <magnet/math/quaternion.hpp>
+#ifdef DYNAMO_visualizer
+# include <magnet/GL/objects/primitives/cylinder.hpp>
+#endif
 
 namespace dynamo {
   LCylinder::LCylinder(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
@@ -128,7 +130,6 @@ namespace dynamo {
   }
 
 #ifdef DYNAMO_visualizer
-
   shared_ptr<coil::RenderObj>
   LCylinder::getCoilRenderObj() const
   {
