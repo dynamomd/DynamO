@@ -35,6 +35,15 @@
 #include <cmath>
 #include <iomanip>
 
+//Sources:
+//[1] "α-Helix formation: Discontinuous molecular dynamics on an
+//intermediate-resolution protein model", Smith and Hall (2001)
+//http://onlinelibrary.wiley.com/doi/10.1002/prot.1100/full
+//
+//[2] "Solvent effects on the conformational transition of a model
+//polyalanine peptide", Nguyen, Marchut and Hall  (2004)
+//http://onlinelibrary.wiley.com/doi/10.1110/ps.04701304/full
+
 //This is an anonymous namespace, the contents of the anonymous
 //namespace will not be available outside of this file. This is used
 //to place all of the settings of the model at the top of this file.
@@ -43,13 +52,15 @@ namespace {
   const size_t CH = 1; //Also known as C_\alpha
   const size_t CO = 2; //Also known as C
 
-  //Values taken from
-  //http://onlinelibrary.wiley.com/doi/10.1002/prot.1100/full
+  //All values taken from [1] unless otherwise noted.
+
   //These are the basic bead diameters
   const double _PRIME_diameters[] = {/*NH*/ 3.3, /*CH*/ 3.7, /*CO*/ 4.0};
 
-  //This is the fluctuation of the bond distance allowed
-  const double _PRIME_bond_tolerance = 0.02;
+  //Value taken from [2], which differs from value given in [1]
+  //and produces a more realistic Ramachandran plot.
+  //This is the fluctuation of the bond distance allowed.
+  const double _PRIME_bond_tolerance = 0.02375;
 
   //This is a list of the bond lengths in the backbone. These only
   //apply to beads seperated by 1 backbone bond.
