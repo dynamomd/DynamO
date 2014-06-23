@@ -96,6 +96,19 @@ namespace {
   //This is the scaling factor of the bead diameters if they are
   //closer than four bonds on the same chain.
   const double _PRIME_near_diameter_scale_factor = 0.75;
+
+  //Backbone-to-backbone hydrogen bonding
+  //Maximum distance for the CO and NH sites
+  const double _PRIME_HB_well_diameter = 4.20;
+  //
+  //Minimum distance for the "auxiliary pairs"
+  const double _PRIME_HB_aux_min_distances[] =
+    /*       NH,   CH,   CO, */
+    {/*NH*/4.74, 5.00, 0.00,
+     /*CH*/5.00, 0.00, 4.86,
+     /*CO*/0.00, 4.86, 4.83}
+    ;
+
 }
 
 namespace dynamo {
