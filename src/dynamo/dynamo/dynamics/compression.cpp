@@ -61,7 +61,7 @@ namespace dynamo {
   {
     updateParticle(part);
     ParticleEventData retVal(part, *Sim->species(part), WALL);
-    Vector vij = part.getVelocity() - vNorm * diameter * growthRate;
+    Vector vij = part.getVelocity() - vNorm * diameter * growthRate / (1 + growthRate * Sim->systemTime);
     part.getVelocity() -= (1+e) * (vNorm | vij) * vNorm;
     return retVal; 
   }
@@ -87,7 +87,7 @@ namespace dynamo {
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2); 
-    double r2 = retVal.rij.nrm2();
+    const double r2 = retVal.rij.nrm2();
     retVal.rvdot = (retVal.rij | retVal.vijold);
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
     bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
@@ -97,7 +97,9 @@ namespace dynamo {
 	mu = 0.5;
       }
 
-    retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+    const double growthVel = - growthRate / (1 + growthRate * Sim->systemTime);
+
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot + r2 * growthVel) / r2);  
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
     //If both particles have infinite mass we pretend no momentum was transferred
@@ -124,15 +126,17 @@ namespace dynamo {
 	mu = 0.5;
       }
 
-    Vector  urij = retVal.rij / retVal.rij.nrm();
+    const double rijnrm = retVal.rij.nrm();
+    const double growthVel = - growthRate * rijnrm / (1 + growthRate * Sim->systemTime);
+    const Vector urij = retVal.rij / rijnrm;
     retVal.rvdot = (urij | retVal.vijold);
-    double sqrtArg = std::pow(retVal.rvdot - growthRate * sqrt(d2), 2)  + (2.0 * deltaKE / mu);
+    const double sqrtArg = std::pow(retVal.rvdot + growthVel, 2)  + 2.0 * deltaKE / mu;
     if ((deltaKE < 0) && (sqrtArg < 0))
       {
 	event.setType(BOUNCE);
 	retVal.setType(BOUNCE);
 
-	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot - growthRate * sqrt(d2)));
+	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot + growthVel));
       }
     else if (deltaKE==0)
       retVal.impulse = Vector(0,0,0);
@@ -142,11 +146,9 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.impulse = urij 
-	    * (2.0 * deltaKE / (growthRate * sqrt(d2) + std::sqrt(sqrtArg) - retVal.rvdot ));
+	  retVal.impulse = urij * (2.0 * deltaKE / (+ std::sqrt(sqrtArg) - retVal.rvdot - growthVel));
 	else
-	  retVal.impulse = urij 
-	    * (2.0 * deltaKE / (growthRate * sqrt(d2) - std::sqrt(sqrtArg) - retVal.rvdot ));
+	  retVal.impulse = urij * (2.0 * deltaKE / (- std::sqrt(sqrtArg) - retVal.rvdot - growthVel));
 	;
       }
 
@@ -232,13 +234,14 @@ namespace dynamo {
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       part.getVelocity()[iDim] = normal_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
   
+
+    Vector vij = part.getVelocity() - vNorm * d * growthRate / (1 + growthRate * Sim->systemTime);
+
     part.getVelocity()
       //This first line adds a component in the direction of the normal
       += vNorm * (sqrtT * sqrt(-2.0*log(1.0 - uniform_dist(Sim->ranGenerator)) / mass)
 		  //This removes the original normal component
-		  -(part.getVelocity() | vNorm)
-		  //This adds on the velocity of the wall
-		  + d * growthRate)
+		  - (vij | vNorm))
       ;
 
     return tmpDat; 
