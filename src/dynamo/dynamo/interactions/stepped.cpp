@@ -315,6 +315,7 @@ namespace dynamo {
 	XML << endtag("Step");
       }
     
+    //If there is a radial distribution plugin loaded, calculate the g(r) and indirect correlation function.
     shared_ptr<OPRadialDistribution> raddist = Sim->getOutputPlugin<OPRadialDistribution>();
     if (raddist && kT)
       {
@@ -325,7 +326,7 @@ namespace dynamo {
 	
 	for (size_t i = 1; i < grdata.size(); ++i)
 	  {
-	    int potential_step = -1;
+	    size_t potential_step = std::numeric_limits<size_t>::max();
 	    for (size_t stepID(0); stepID < _potential->cached_steps(); ++stepID)
 	      {
 		const double R = (*_potential)[stepID].first * Sim->units.unitLength();
@@ -333,7 +334,7 @@ namespace dynamo {
 		if (i == istep) { potential_step = stepID; break; }
 	      }
 	    
-	    if (potential_step == -1)
+	    if (potential_step == std::numeric_limits<size_t>::max())
 	      {
 		const double R = grdata[i].first / Sim->units.unitLength();
 		XML << R << " " << grdata[i].second << "\n";
