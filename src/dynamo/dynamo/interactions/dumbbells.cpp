@@ -34,7 +34,8 @@
 
 namespace dynamo {
   IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ICapture(tmp, NULL)
+    ICapture(tmp, NULL),
+    _unusedDimension(std::numeric_limits<size_t>::max())
   {
     operator<<(XML);
   }
