@@ -2873,8 +2873,8 @@ namespace dynamo {
 
 	  shared_ptr<IDumbbells> interaction(new IDumbbells(Sim, elasticity, new IDPairRangeAll(), "Bulk"));
 	  Sim->interactions.push_back(interaction);
-	  interaction->addSphere(LA, sigmaA);
-	  interaction->addSphere(-LB, sigmaA * sizeratio);
+	  interaction->addSphere(sigmaA, LA);
+	  interaction->addSphere(sigmaA * sizeratio, -LB);
 	  
 	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, I)));
 
