@@ -36,7 +36,7 @@ namespace dynamo {
     virtual ~Species();
 
     inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
-    inline const double& getMass(size_t ID) const { return _mass->getProperty(ID); }
+    inline const double getMass(size_t ID) const { return _mass->getProperty(ID); }
     inline unsigned long getCount() const { return range->size(); }
     inline unsigned int getID() const { return ID; }
     inline const std::string& getName() const { return spName; }

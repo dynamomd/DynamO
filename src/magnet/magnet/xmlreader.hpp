@@ -379,5 +379,9 @@ namespace magnet {
       rapidxml::xml_document<> _doc;
     };
 
+    template<> inline bool 
+    Node::hasAttribute(std::string name) const 
+    { return hasAttribute(name.c_str()); }
+
   }
 }
