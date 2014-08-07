@@ -228,124 +228,6 @@ namespace dynamo {
     Container _values;
   };
 
-
-  /*! \brief A class which stores the type of PRIME group that the particle corresponds to.
-    
-    This is a specialist class for storing the group type information.
-  */
-  class PRIMEGroupProperty: public Property
-  {
-  public:
-    inline PRIMEGroupProperty(const std::string name):
-      Property(Units::Mass()), _name(name) {}
-  
-    inline PRIMEGroupProperty(const magnet::xml::Node& node):
-      Property(Units::Mass()), _name(node.getAttribute("Name").getValue())
-    {
-      size_t pID(0);
-      for (magnet::xml::Node pNode = node.getParent().getParent().getNode("ParticleData").findNode("Pt"); pNode.valid(); ++pNode, ++pID)
-	if (pNode.hasAttribute(_name))
-	  _types[pID] = pNode.getAttribute(_name).as<std::string>();
-    }
-  
-    inline virtual const double getProperty(size_t ID) const 
-    { 
-      const auto it = _types.find(ID);
-      if (it == _types.end())
-	M_throw() << "Out of bounds access to PRIMEGroupProperty \"" 
-		  << _name << "\", for particle ID " << ID;
-
-      const std::string& type = it->second;
-      if (type == "A")
-	return 1.00;
-      else if (type == "C")
-	return 3.133;
-      else if (type == "D")
-	return 3.933;
-      else if (type == "E")
-	return 4.793;
-      else if (type == "F")
-	return 6.061;
-      else if (type == "H")
-	return 5.400;
-      else if (type == "I")
-	return 3.799;
-      else if (type == "K")
-	return 4.865;
-      else if (type == "L")
-	return 3.800;
-      else if (type == "M")
-	return 5.000;
-      else if (type == "N")
-	return 3.866;
-      else if (type == "P")
-	return 2.733;
-      else if (type == "Q")
-	return 4.795;
-      else if (type == "R")
-	return 6.666;
-      else if (type == "S")
-	return 2.066;
-      else if (type == "T")
-	return 3.000;
-      else if (type == "V")
-	return 2.866;
-      else if (type == "W")
-	return 8.666;
-      else if (type == "Y")
-	return 6.126;
-      else if (type == "NH")
-	return 0.999;
-      else if (type == "CH")
-	return 0.866;
-      else if (type == "CO")
-	return 1.863;
-      else 
-	M_throw() << "Unrecognised PRIME group type'" << type << "'";
-    }
-
-    inline virtual std::string getName() const 
-    { return _name; }
-  
-    inline virtual const double getMaxValue() const
-    { return 8.666; }
-
-    inline virtual const double getMinValue() const 
-    { return 0.866; }
-  
-    //! \sa Property::rescaleUnit
-    inline virtual const void rescaleUnit(const Units::Dimension dim, const double rescale)
-    {
-      double factor = std::pow(rescale, _units.getUnitsPower(dim));
-
-      if (factor && factor != 1)
-	M_throw() << "Can't rescale the mass of the PRIMEGroupProperty yet!";
-    }
-
-    inline void outputParticleXMLData(magnet::xml::XmlStream& XML, const size_t pID) const
-    { 
-      const auto it = _types.find(pID);
-      if (it != _types.end())
-	XML << magnet::xml::attr(_name) << it->second; 
-    }
-  
-  
-  protected:
-    /*! \brief Output an XML representation of the Property to the
-      passed XmlStream.
-    */
-    virtual void outputXML(magnet::xml::XmlStream& XML) const 
-    { 
-      XML << magnet::xml::tag("Property") 
-	  << magnet::xml::attr("Type") << "PRIMEGroup"
-	  << magnet::xml::attr("Name") << _name
-	  << magnet::xml::endtag("Property");
-    }
-  
-    std::string _name;
-    std::unordered_map<size_t, std::string> _types;
-  };
-
   /*! \brief This class stores the properties of the particles loaded from the
     configuration file and hands out reference counting pointers to the
     properties to other classes when they're requested by name.
@@ -425,8 +307,6 @@ namespace dynamo {
 	  {
 	    if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
 	      _namedProperties.push_back(Value(new ParticleProperty(propNode)));
-	    else if (!std::string("PRIMEGroup").compare(propNode.getAttribute("Type")))
-	      _namedProperties.push_back(Value(new PRIMEGroupProperty(propNode)));
 	    else
 	      M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type").getValue();
 	  }
