@@ -30,10 +30,12 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/property.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
 
 //Sources:
 //[1] "α-Helix formation: Discontinuous molecular dynamics on an
@@ -67,12 +69,14 @@ namespace {
 
   enum _PRIME_site_type
   {
-    NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y
+    NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y,
+
+    GROUP_COUNT
   };
 
   //Sourced from: [3] for CH, NH, CO, K, L, V, F, A and E.
   //[4] for Q, I and Y. Other values calculated from molecular weights.
-  const double _PRIME_site_masses[] =
+  const double _PRIME_masses[] =
   {
   //NH     CH     CO     A      C      D      E      F      H      I      K
     0.999, 0.866, 1.863, 1.000, 3.133, 3.933, 4.793, 6.061, 5.400, 3.799, 4.865,
@@ -250,6 +254,60 @@ namespace {
 }
 
 namespace dynamo {
+  typedef std::unordered_map<size_t, std::pair<_PRIME_site_type, size_t> > BeadTypeMap;
+
+  /*! \brief A class which stores the type of PRIME group that the particle corresponds to.
+  
+  This is a specialist class for storing the group type information.
+*/
+  class PRIMEGroupProperty: public Property
+  {
+    std::string _name;
+    std::shared_ptr<BeadTypeMap> _beadTypes;
+  public:
+    inline PRIMEGroupProperty(const std::string name, std::shared_ptr<BeadTypeMap> map):
+      Property(Units::Mass()), _name(name), _beadTypes(map) {}
+    
+    inline virtual const double getProperty(size_t ID) const
+    { 
+      
+      const auto it = _beadTypes->find(ID);
+      if (it == _beadTypes->end())
+	M_throw() << "Do not have a PRIME bead type for particle ID " << ID;
+
+      return _PRIME_masses[it->second.first];
+    }
+
+    inline virtual std::string getName() const 
+    { return _name; }
+  
+    inline virtual const double getMaxValue() const
+    { return *std::max_element(_PRIME_masses, _PRIME_masses + GROUP_COUNT); }
+
+    inline virtual const double getMinValue() const 
+    { return *std::min_element(_PRIME_masses, _PRIME_masses + GROUP_COUNT); }
+  
+    //! \sa Property::rescaleUnit
+    inline virtual const void rescaleUnit(const Units::Dimension dim, const double rescale)
+    {
+      double factor = std::pow(rescale, _units.getUnitsPower(dim));
+
+      if (factor && factor != 1)
+	M_throw() << "Can't rescale the mass of the PRIMEGroupProperty yet!";
+    }
+
+    inline void outputParticleXMLData(magnet::xml::XmlStream& XML, const size_t pID) const
+    {}
+  
+  
+  protected:
+    /*! \brief Output an XML representation of the Property to the
+      passed XmlStream.
+    */
+    virtual void outputXML(magnet::xml::XmlStream& XML) const 
+    {}
+  };
+
   size_t
   IPRIME_BB::getType(const size_t particleID) const
   {
