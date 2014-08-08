@@ -6,7 +6,7 @@
     </Scheduler>
     <SimulationSize x="200" y="200" z="200"/>
     <Genus>
-      <Species Mass="PRIMEType" Name="PRIMEGroups" Type="Point">
+      <Species Mass="Backbone" Name="PRIMEGroups" Type="Point">
         <IDRange Type="All" />
       </Species>
     </Genus>
@@ -2937,7 +2937,6 @@
     <Dynamics Type="Newtonian"/>
   </Simulation>
   <Properties>
-    <Property Type="PRIMEGroup" Name="PRIMEType" />
   </Properties>
   <ParticleData>
     <Pt ID="0" PRIMEType="NH">

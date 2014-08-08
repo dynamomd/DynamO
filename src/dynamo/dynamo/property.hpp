@@ -314,6 +314,10 @@ namespace dynamo {
       return *this;
     }
 
+    inline void addNamedProperty(Value property) {
+      _namedProperties.push_back(property);
+    }
+
     inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const PropertyStore& propStore)
     {
       XML << magnet::xml::tag("Properties");

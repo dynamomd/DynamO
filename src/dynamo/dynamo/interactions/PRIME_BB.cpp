@@ -66,14 +66,6 @@
 //namespace will not be available outside of this file. This is used
 //to place all of the settings of the model at the top of this file.
 namespace {
-
-  enum _PRIME_site_type
-  {
-    NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y,
-
-    GROUP_COUNT
-  };
-
   //Sourced from: [3] for CH, NH, CO, K, L, V, F, A and E.
   //[4] for Q, I and Y. Other values calculated from molecular weights.
   const double _PRIME_masses[] =
@@ -250,11 +242,9 @@ namespace {
      /*CH*/5.00, 0.00, 4.86,
      /*CO*/0.00, 4.86, 4.83}
     ;
-
 }
 
 namespace dynamo {
-  typedef std::unordered_map<size_t, std::pair<_PRIME_site_type, size_t> > BeadTypeMap;
 
   /*! \brief A class which stores the type of PRIME group that the particle corresponds to.
   
@@ -263,19 +253,19 @@ namespace dynamo {
   class PRIMEGroupProperty: public Property
   {
     std::string _name;
-    std::shared_ptr<BeadTypeMap> _beadTypes;
+    std::shared_ptr<dynamo::IPRIME_BB::BeadTypeMap> _beadTypes;
+
   public:
-    inline PRIMEGroupProperty(const std::string name, std::shared_ptr<BeadTypeMap> map):
+    inline PRIMEGroupProperty(const std::string name, std::shared_ptr<dynamo::IPRIME_BB::BeadTypeMap> map):
       Property(Units::Mass()), _name(name), _beadTypes(map) {}
     
     inline virtual const double getProperty(size_t ID) const
     { 
-      
       const auto it = _beadTypes->find(ID);
       if (it == _beadTypes->end())
 	M_throw() << "Do not have a PRIME bead type for particle ID " << ID;
 
-      return _PRIME_masses[it->second.first];
+      return _PRIME_masses[it->second.second];
     }
 
     inline virtual std::string getName() const 
@@ -290,7 +280,7 @@ namespace dynamo {
     //! \sa Property::rescaleUnit
     inline virtual const void rescaleUnit(const Units::Dimension dim, const double rescale)
     {
-      double factor = std::pow(rescale, _units.getUnitsPower(dim));
+      const double factor = std::pow(rescale, _units.getUnitsPower(dim));
 
       if (factor && factor != 1)
 	M_throw() << "Can't rescale the mass of the PRIMEGroupProperty yet!";
@@ -345,7 +335,8 @@ namespace dynamo {
 
 
   IPRIME_BB::IPRIME_BB(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    Interaction(tmp, NULL) //A temporary value!
+    Interaction(tmp, NULL), //A temporary value!
+    _typeMap(new BeadTypeMap)
   {
     operator<<(XML);
   }
@@ -363,6 +354,8 @@ namespace dynamo {
       intName = XML.getAttribute("Name");
     }
     catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME_BB"; }
+
+    Sim->_properties.addNamedProperty(std::shared_ptr<Property>(new PRIMEGroupProperty(intName, _typeMap)));
   }
 
   std::array<double, 4> 
