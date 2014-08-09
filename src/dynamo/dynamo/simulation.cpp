@@ -361,6 +361,14 @@ namespace dynamo
     primaryCellSize << simNode.getNode("SimulationSize");
     primaryCellSize /= units.unitLength();
 
+    if (simNode.hasNode("Topology"))
+      {
+	checkNodeNameAttribute(simNode.getNode("Topology").findNode("Structure"));
+	size_t i(0);
+	for (magnet::xml::Node node = simNode.getNode("Topology").findNode("Structure"); node.valid(); ++node, ++i)
+	  topology.push_back(Topology::getClass(node, this, i));
+      }
+
     {
       checkNodeNameAttribute(simNode.getNode("Genus").findNode("Species"));
       size_t i(0);
@@ -371,14 +379,6 @@ namespace dynamo
     BCs = BoundaryCondition::getClass(simNode.getNode("BC"), this);
     dynamics = Dynamics::getClass(simNode.getNode("Dynamics"), this);
     dynamics->loadParticleXMLData(mainNode);
-
-    if (simNode.hasNode("Topology"))
-      {
-	checkNodeNameAttribute(simNode.getNode("Topology").findNode("Structure"));
-	size_t i(0);
-	for (magnet::xml::Node node = simNode.getNode("Topology").findNode("Structure"); node.valid(); ++node, ++i)
-	  topology.push_back(Topology::getClass(node, this, i));
-      }
     
     checkNodeNameAttribute(simNode.getNode("Interactions").findNode("Interaction"));
     for (magnet::xml::Node node = simNode.getNode("Interactions").findNode("Interaction"); node.valid(); ++node)

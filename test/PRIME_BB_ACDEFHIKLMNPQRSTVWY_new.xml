@@ -6,12 +6,16 @@
     </Scheduler>
     <SimulationSize x="200" y="200" z="200"/>
     <Genus>
-      <Species Mass="Backbone" Name="PRIMEGroups" Type="Point">
+      <Species Mass="PRIMEData" Name="PRIMEGroups" Type="Point">
         <IDRange Type="All" />
       </Species>
     </Genus>
     <BC Type="PBC"/>
-    <Topology/>
+    <Topology>
+      <Structure Type="PRIME" Name="PRIMEData">
+	<Molecule StartID="0" Sequence="ACDEFHIKLMNPQRSTVWY" />
+      </Structure>
+    </Topology>
     <Interactions>
       <Interaction Type="PRIME_BB" Name="Backbone" Start="0" End="56"/>
       <Interaction Type="SquareWell" Diameter="3.3999999999999999" Elasticity="1" Lambda="1.88235294118" WellDepth="-0.20000000000000001" Name="Unbond L L">

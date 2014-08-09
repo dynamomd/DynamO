@@ -16,3 +16,4 @@
 */
 
 #include <dynamo/topology/chain.hpp>
+#include <dynamo/topology/PRIME.hpp>

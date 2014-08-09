@@ -20,19 +20,11 @@
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/simulation.hpp>
 
-enum _PRIME_site_type {
-  NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y,
-  
-  GROUP_COUNT
-};
 
 namespace dynamo {
   class IPRIME_BB: public Interaction
   {
   public:
-    typedef std::pair<_PRIME_site_type, size_t> BeadType;
-    typedef std::unordered_map<size_t, BeadType> BeadTypeMap;
-
     IPRIME_BB(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
@@ -57,8 +49,6 @@ namespace dynamo {
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
-    std::shared_ptr<BeadTypeMap> _typeMap;
-
     /*! \brief Returns the type of the bead on the backbone.
      */
     size_t getType(const size_t particleID) const;

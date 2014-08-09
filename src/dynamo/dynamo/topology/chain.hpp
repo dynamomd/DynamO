@@ -28,7 +28,7 @@ namespace dynamo {
 
     virtual ~TChain() {}
   
-    virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void operator<<(const magnet::xml::Node&);
 
   protected:
   
