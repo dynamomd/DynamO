@@ -49,8 +49,6 @@ namespace dynamo {
   {
     Interaction::operator<<(XML);
   
-    intName = XML.getAttribute("Name");
-    
     _potential = Potential::getClass(XML.getNode("Potential"));
 
     _lengthScale = Sim->_properties.getProperty(XML.getAttribute("LengthScale"), Property::Units::Length());

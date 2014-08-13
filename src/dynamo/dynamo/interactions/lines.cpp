@@ -56,7 +56,6 @@ namespace dynamo {
     Interaction::operator<<(XML);
     _length = Sim->_properties.getProperty(XML.getAttribute("Length"), Property::Units::Length());
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
-    intName = XML.getAttribute("Name");
     ICapture::loadCaptureMap(XML);   
   }
 

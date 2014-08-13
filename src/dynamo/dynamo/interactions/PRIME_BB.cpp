@@ -38,67 +38,28 @@
 #include <algorithm>
 
 namespace dynamo {
-  size_t
-  IPRIME_BB::getType(const size_t particleID) const
-  {
-#ifdef DYNAMO_DEBUG
-    if ((particleID < startID) || (particleID > endID))
-      M_throw() << "Error, the supplied particle ID (" << particleID << " is out of range ["<< startID << "," << endID << "]";
-#endif
-    //The types of the ID's are constants defined above.
-    //
-    //This implementation will need to be improved once we generalise
-    //to multiple backbones.
-    return (particleID - startID) % 3;
-  }
-
-  size_t
-  IPRIME_BB::getDistance(const size_t pID1, const size_t pID2) const
-  {
-#ifdef DYNAMO_DEBUG
-    if ((pID1 < startID) || (pID2 > endID))
-      M_throw() << "Error, the supplied particle ID1 (" << pID1 << " is out of range ["<< startID << "," << endID << "]";
-
-    if ((pID2 < startID) || (pID2 > endID))
-      M_throw() << "Error, the supplied particle ID2 (" << pID2 << " is out of range ["<< startID << "," << endID << "]";
-#endif
-
-    //Here, we must be careful to return only positive distances along
-    //the chain. Negative values would cause the unsigned size_t to
-    //roll over, plus it makes the algorithm easier to implement if
-    //this is always positive.
-    //
-    //This implementation will need to be improved once we generalise
-    //to multiple backbones.
-    return std::max(pID1, pID2) - std::min(pID1, pID2);
-  }
-
-
   IPRIME_BB::IPRIME_BB(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Interaction(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }
 
-  void IPRIME_BB::operator<<(const magnet::xml::Node& XML)
-  {
-    //We don't call this operator, as we custom load our Range (it must be a linear range)
-    //Interaction::operator<<(XML);
-    try {
-      startID = XML.getAttribute("Start").as<unsigned long>();
-      endID = XML.getAttribute("End").as<unsigned long>();
+  void 
+  IPRIME_BB::operator<<(const magnet::xml::Node& XML)
+  { 
+    Interaction::operator<<(XML);
 
-      range = shared_ptr<IDPairRange>(new IDPairRangeSingle(new IDRangeRange(startID, endID)));
-
-      intName = XML.getAttribute("Name");
-    }
-    catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME_BB"; }
+    const std::string topologyName = XML.getAttribute("Topology");
+    _topology = std::dynamic_pointer_cast<TPRIME>(Sim->topology[topologyName]);
+    
+    if (!_topology)
+      M_throw() << "For \"" << getName() << "\", Topology is not a PRIME topology.";
   }
 
   std::array<double, 4> 
   IPRIME_BB::getGlyphSize(size_t ID) const
   {
-    return {{TPRIME::_PRIME_diameters[getType(ID)], 0, 0, 0}};
+    return {{TPRIME::_PRIME_diameters[getBeadData(ID).first], 0, 0, 0}};
   }
 
   double
@@ -106,7 +67,7 @@ namespace dynamo {
   {
     //This calculation only includes the volumes which are always
     //excluded (i.e. the hard core)
-    double diam = TPRIME::_PRIME_diameters[getType(ID)];
+    double diam = TPRIME::_PRIME_diameters[getBeadData(ID).first];
     return diam * diam * diam * M_PI / 6.0;
   }
 
@@ -124,36 +85,46 @@ namespace dynamo {
   std::pair<double, bool>
   IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {
-    size_t p1Type = getType(pID1);
-    size_t p2Type = getType(pID2);
+    const TPRIME::BeadData p1Type = getBeadData(pID1);
+    const TPRIME::BeadData p2Type = getBeadData(pID2);
+
+#ifdef DYNAMO_DEBUG
+    if ((p1Type.first > TPRIME::CO) || (p2Type.first > TPRIME::CO))
+      M_throw() << "Error! Can't do backbone-sidechain or sidechain-sidechain this way yet!";
+#endif
 
     //We need to discover what the interaction diameter is for the
     //particles. At first, we assume its equal to the bead diameters
-    double diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Type] + TPRIME::_PRIME_diameters[p2Type]);
+    double diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Type.first] + TPRIME::_PRIME_diameters[p2Type.first]);
     bool bonded = false;
+
+    //For backbone atoms only! We can calculate the distance like so:
+    const size_t loc1 = p1Type.first + 3 * p1Type.second;
+    const size_t loc2 = p2Type.first + 3 * p2Type.second;
+    const size_t distance = std::max(loc1, loc2) - std::min(loc1, loc2);
 
     //This treats the special cases if they are 0,1,2, or three backbone
     //bonds apart
-    switch (getDistance(pID1, pID2))
+    switch (distance)
       {
       case 0:
         M_throw() << "Invalid backbone distance of 0";
       case 1:
         {//Every type of this interaction is a bonded interaction
-          diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Type + p2Type];
+          diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Type.first + p2Type.first];
           bonded = true;
         }
         break;
       case 2:
         {//Every type of this interaction is a pseudobond interaction
-          diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Type + p2Type];
+          diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Type.first + p2Type.first];
           bonded = true;
         }
         break;
       case 3:
         {
           //Check if this is the special pseudobond
-          if ((p1Type == TPRIME::CH) && (p2Type == TPRIME::CH))
+          if ((p1Type.first == TPRIME::CH) && (p2Type.first == TPRIME::CH))
             {
               diameter = TPRIME::_PRIME_CH_CH_pseudobond_length;
               bonded = true;
@@ -172,7 +143,7 @@ namespace dynamo {
 
 #ifdef DYNAMO_DEBUG
     if (diameter == 0)
-      M_throw() << "Invalid diameter calculated";
+      M_throw() << "Invalid diameter calculated, p1="<< pID1 << ", p2="<<pID2 << ", distance="<<distance << ", type1=" << p1Type.first << ", type2="<< p2Type.first;
 #endif
 
     return std::make_pair(diameter, bonded);
@@ -266,19 +237,6 @@ namespace dynamo {
     return EDat;
   }
 
-  /*namespace{
-    std::string getTypeName(size_t type)
-    {
-      switch (type)
-	{
-	case NH: return "NH";
-	case CH: return "CH";
-	case CO: return "CO";
-	}
-      M_throw() << "Invalid type";
-    }
-  }*/
-
   bool 
   IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
@@ -335,7 +293,6 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type")  << "PRIME_BB"
         << magnet::xml::attr("Name")  << intName
-        << magnet::xml::attr("Start") << startID
-        << magnet::xml::attr("End")   << endID;
+        << magnet::xml::attr("Topology") << _topology->getName();
   }
 }

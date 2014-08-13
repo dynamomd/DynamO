@@ -36,13 +36,6 @@ namespace dynamo {
   INull::initialise(size_t nID)
   { ID=nID; }
 
-  void 
-  INull::operator<<(const magnet::xml::Node& XML)
-  { 
-    Interaction::operator<<(XML);
-    intName = XML.getAttribute("Name");
-  }
-
   IntEvent 
   INull::getEvent(const Particle &p1, const Particle &p2) const 
   { 

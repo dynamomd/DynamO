@@ -241,7 +241,13 @@ namespace dynamo {
   
     virtual void operator<<(const magnet::xml::Node&);
 
-    BeadData getBeadInfo(size_t ID) const { return (*_types)[ID]; }
+    BeadData getBeadInfo(size_t ID) const { 
+#ifdef DYNAMO_DEBUG
+      if (_types->find(ID) == _types->end())
+	M_throw() << "Particle " << ID << " has no bead data for " << getName();
+#endif
+      return (*_types)[ID]; 
+    }
     
   protected:
     std::shared_ptr<BeadTypeMap> _types;

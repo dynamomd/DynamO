@@ -19,15 +19,13 @@
 
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/simulation.hpp>
-
+#include <dynamo/topology/PRIME.hpp>
 
 namespace dynamo {
   class IPRIME_BB: public Interaction
   {
   public:
     IPRIME_BB(const magnet::xml::Node&, dynamo::Simulation*);
-
-    void operator<<(const magnet::xml::Node&);
 
     virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
@@ -46,17 +44,16 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const 
     { return 0.0; }
 
+    virtual void operator<<(const magnet::xml::Node&);
+
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     /*! \brief Returns the type of the bead on the backbone.
      */
-    size_t getType(const size_t particleID) const;
-
-    /*! \brief Returns the unsigned distance along the backbone
-        between to beads
-     */
-    size_t getDistance(const size_t pID1, const size_t pID2) const;
+    TPRIME::BeadData getBeadData(const size_t particleID) const {
+      return _topology->getBeadInfo(particleID);
+    }
 
     /*! \brief Calculates the interaction parameters for the passed pair.
 
@@ -65,6 +62,6 @@ namespace dynamo {
      */
     std::pair<double, bool> getInteractionParameters(const size_t pID1, const size_t pID2) const;
 
-    size_t startID, endID;
+    std::shared_ptr<TPRIME> _topology;
   };
 }

@@ -27,8 +27,6 @@ namespace dynamo {
 
     INull(const magnet::xml::Node&, dynamo::Simulation*);
 
-    void operator<<(const magnet::xml::Node&);
-
     virtual double getInternalEnergy() const { return 0; }
 
     virtual void initialise(size_t);

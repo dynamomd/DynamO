@@ -96,49 +96,44 @@ namespace dynamo {
 
     for (magnet::xml::Node node = XML.findNode("Molecule"); node.valid(); ++node)
       {
-	const std::string seq = node.getAttribute("Sequence").as<std::string>();	
 	const size_t startID = node.getAttribute("StartID").as<size_t>();
-	size_t endID = startID;
+	size_t ID = startID;
 	size_t residue = 0;
+	const std::string seq = node.getAttribute("Sequence").as<std::string>();
 	for (char letter: seq)
 	  {
-	    (*_types)[endID+0] = BeadData(NH, residue);
-	    (*_types)[endID+1] = BeadData(CH, residue);
-	    (*_types)[endID+2] = BeadData(CO, residue);
+	    (*_types)[ID++] = BeadData(NH, residue);
+	    (*_types)[ID++] = BeadData(CH, residue);
+	    (*_types)[ID++] = BeadData(CO, residue);
 	    
-	    if (letter == 'G')
-	      endID += 3;
-	    else
-	      {
-		switch (letter) {
-		case 'A': (*_types)[endID+3] = BeadData(A, residue); break;
-		case 'C': (*_types)[endID+3] = BeadData(C, residue); break;
-		case 'D': (*_types)[endID+3] = BeadData(D, residue); break;
-		case 'E': (*_types)[endID+3] = BeadData(E, residue); break;
-		case 'F': (*_types)[endID+3] = BeadData(F, residue); break;
-		case 'H': (*_types)[endID+3] = BeadData(H, residue); break;
-		case 'I': (*_types)[endID+3] = BeadData(I, residue); break;
-		case 'K': (*_types)[endID+3] = BeadData(K, residue); break;
-		case 'L': (*_types)[endID+3] = BeadData(L, residue); break;
-		case 'M': (*_types)[endID+3] = BeadData(M, residue); break;
-		case 'N': (*_types)[endID+3] = BeadData(N, residue); break;
-		case 'P': (*_types)[endID+3] = BeadData(P, residue); break;
-		case 'Q': (*_types)[endID+3] = BeadData(Q, residue); break;
-		case 'R': (*_types)[endID+3] = BeadData(R, residue); break;
-		case 'S': (*_types)[endID+3] = BeadData(S, residue); break;
-		case 'T': (*_types)[endID+3] = BeadData(T, residue); break;
-		case 'V': (*_types)[endID+3] = BeadData(V, residue); break;
-		case 'W': (*_types)[endID+3] = BeadData(W, residue); break;
-		case 'Y': (*_types)[endID+3] = BeadData(Y, residue); break;
-		default:
-		  M_throw() << "Unrecognised PRIME group type " << letter;
-		}
-		endID += 4;
-	      }
+	    switch (letter) {
+	    case 'A': (*_types)[ID++] = BeadData(TPRIME::A, residue); break;
+	    case 'C': (*_types)[ID++] = BeadData(TPRIME::C, residue); break;
+	    case 'D': (*_types)[ID++] = BeadData(TPRIME::D, residue); break;
+	    case 'E': (*_types)[ID++] = BeadData(TPRIME::E, residue); break;
+	    case 'F': (*_types)[ID++] = BeadData(TPRIME::F, residue); break;
+	    case 'G': /*This residue has no side chain*/ break;
+	    case 'H': (*_types)[ID++] = BeadData(TPRIME::H, residue); break;
+	    case 'I': (*_types)[ID++] = BeadData(TPRIME::I, residue); break;
+	    case 'K': (*_types)[ID++] = BeadData(TPRIME::K, residue); break;
+	    case 'L': (*_types)[ID++] = BeadData(TPRIME::L, residue); break;
+	    case 'M': (*_types)[ID++] = BeadData(TPRIME::M, residue); break;
+	    case 'N': (*_types)[ID++] = BeadData(TPRIME::N, residue); break;
+	    case 'P': (*_types)[ID++] = BeadData(TPRIME::P, residue); break;
+	    case 'Q': (*_types)[ID++] = BeadData(TPRIME::Q, residue); break;
+	    case 'R': (*_types)[ID++] = BeadData(TPRIME::R, residue); break;
+	    case 'S': (*_types)[ID++] = BeadData(TPRIME::S, residue); break;
+	    case 'T': (*_types)[ID++] = BeadData(TPRIME::T, residue); break;
+	    case 'V': (*_types)[ID++] = BeadData(TPRIME::V, residue); break;
+	    case 'W': (*_types)[ID++] = BeadData(TPRIME::W, residue); break;
+	    case 'Y': (*_types)[ID++] = BeadData(TPRIME::Y, residue); break;
+	    default:
+	      M_throw() << "Unrecognised PRIME group type " << letter;
+	    }
 	    ++residue;
 	  }
 
-	ranges.push_back(shared_ptr<IDRange>(new IDRangeRange(startID, endID)));
+	ranges.push_back(shared_ptr<IDRange>(new IDRangeRange(startID, ID)));
       }
   }
 

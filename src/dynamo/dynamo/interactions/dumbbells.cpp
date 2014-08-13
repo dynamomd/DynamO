@@ -72,7 +72,7 @@ namespace dynamo {
   { 
     Interaction::operator<<(XML);
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
-    intName = XML.getAttribute("Name");
+
     if (XML.hasAttribute("UnusedDimension"))
       _unusedDimension = XML.getAttribute("UnusedDimension").as<size_t>();
 
