@@ -82,6 +82,136 @@ namespace dynamo {
     return maxdiam;
   }
 
+  std::tuple<double, double, double>
+  IPRIME_BB::getInteractionParameters2(const size_t pID1, const size_t pID2) const
+  {
+    const TPRIME::BeadData p1Data = getBeadData(pID1);
+    const TPRIME::BeadData p2Data = getBeadData(pID2);
+
+    double outer_diameter; //Either the outer well diameter, or the hard-sphere diameter
+    double inner_diameter; //0 if its a hard sphere
+    double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
+
+    if (p1Data.first > TPRIME::CO && p2Data.first > TPRIME::CO ) //SC-SC interaction
+      {
+        inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+        outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.first + p2Data.first ];
+        bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.first + p2Data.first ];
+      }
+    else if (p1Data.first <= TPRIME::CO && p2Data.first <= TPRIME::CO) //BB-BB interaction
+      {
+        //Backbone-backbone interaction!
+        const size_t loc1 = p1Data.first + 3 * p1Data.second;
+        const size_t loc2 = p2Data.first + 3 * p2Data.second;
+        const size_t distance = std::max(loc1, loc2) - std::min(loc1, loc2);
+
+        //This treats the special cases if they are 0,1,2, or three backbone
+        //bonds apart
+        switch (distance)
+          {
+          case 0:
+            M_throw() << "Invalid backbone distance of 0";
+          case 1:
+            {//Every type of this interaction is a bonded interaction
+              inner_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.first + p2Data.first]
+                                  * (1.0 - TPRIME::_PRIME_bond_tolerance);
+              outer_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.first + p2Data.first]
+                                  * (1.0 + TPRIME::_PRIME_bond_tolerance);
+              bond_energy    = -std::numeric_limits<double>::infinity();
+            }
+            break;
+          case 2:
+            {//Every type of this interaction is a pseudobond interaction
+              inner_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.first + p2Data.first]
+                                  * (1.0 - TPRIME::_PRIME_bond_tolerance);
+              outer_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.first + p2Data.first]
+                                  * (1.0 + TPRIME::_PRIME_bond_tolerance);
+              bond_energy    = -std::numeric_limits<double>::infinity();
+            }
+            break;
+          case 3:
+            {
+              //Check if this is the special pseudobond
+              if ((p1Data.first == TPRIME::CH) && (p2Data.first == TPRIME::CH))
+                {
+                  inner_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length
+                                      * (1.0 - TPRIME::_PRIME_bond_tolerance);
+                  outer_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length
+                                      * (1.0 + TPRIME::_PRIME_bond_tolerance);
+                  bond_energy    = -std::numeric_limits<double>::infinity();
+                }
+              else
+                //Close backbone-backbone hard-sphere interaction
+                inner_diameter = 0.0;
+                outer_diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Data.first] + TPRIME::_PRIME_diameters[p2Data.first]);
+                outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+                bond_energy = std::numeric_limits<double>::infinity();
+            }
+            break;
+          default:
+            //Backbone-backbone hard-sphere interaction
+            inner_diameter = 0.0;
+            outer_diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Data.first] + TPRIME::_PRIME_diameters[p2Data.first]);
+            bond_energy = std::numeric_limits<double>::infinity();
+            break;
+          }
+      }
+    else //BB-SC interaction
+      {
+        if (p1Data.second == p2Data.second) //They are [pseudo]bonded on the same residue
+          {
+            if (p1Data.first <= TPRIME::CO) //p1 is BB, p2 is SC
+              {
+                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.first + p2Data.first ]
+                                      * (1.0 - TPRIME::_PRIME_bond_tolerance);
+                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.first + p2Data.first ]
+                                      * (1.0 + TPRIME::_PRIME_bond_tolerance);
+              }
+            else //p2 is BB, p1 is SC
+              {
+                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.first + p1Data.first ]
+                                      * (1.0 - TPRIME::_PRIME_bond_tolerance);
+                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.first + p1Data.first ]
+                                      * (1.0 + TPRIME::_PRIME_bond_tolerance);
+              }
+            bond_energy = -std::numeric_limits<double>::infinity();
+          }
+
+        else
+          {
+            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+            outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.first + p2Data.first ];
+            bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.first + p2Data.first ];
+
+            //Check for cases where it could be a "close" interaction
+            if (p2Data.second - p1Data.second == 1) //p1 is on the residuce before p2
+              {
+                  if ((p1Data.first > TPRIME::CO && p2Data.first == TPRIME::NH) || (p2Data.first > TPRIME::CO && p1Data.first == TPRIME::CO))
+                    {
+                      inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+                      outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+                    }
+              }
+            else if (p2Data.second - p1Data.second == -1) //p2 is on the residue before p1
+              {
+                  if ((p2Data.first > TPRIME::CO && p1Data.first == TPRIME::NH) || (p1Data.first > TPRIME::CO && p2Data.first == TPRIME::CO))
+                    {
+                      inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+                      outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+                    }
+              }
+          }
+      }
+
+
+#ifdef DYNAMO_DEBUG
+            if (bond_energy == 0.0)
+              M_throw() << "Invalid diameter calculated, p1="<< pID1 << ", p2="<<pID2 << ", distance="<<distance << ", type1=" << p1Data.first << ", type2="<< p2Data.first;
+#endif
+
+    return std::make_tuple( outer_diameter, inner_diameter, bond_energy );
+  }
+
   std::pair<double, bool>
   IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {
@@ -208,7 +338,7 @@ namespace dynamo {
       {
       case CORE:
         { //This is either a core for a unbonded or a bonded pair. For
-          //a unbonded pair, the interaction distance is the diameter:
+          //an unbonded pair, the interaction distance is the diameter:
           double coreD = diameter;
 
           //For a bonded pair, we need to subtract the bond
