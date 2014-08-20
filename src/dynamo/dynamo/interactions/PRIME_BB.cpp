@@ -70,24 +70,24 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
-    const auto data = getInteractionParameters2(p1, p2);
+    //Calculate the interaction parameters (and name them sensibly)
+    const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
+    const double outer_diameter = std::get<0>(interaction_data),
+      bond_energy = std::get<2>(interaction_data);
     
     //Check that this has a finite well energy
-    if (!std::isfinite(std::get<2>(data)))
-      return false;
+    if (!std::isfinite(bond_energy)) return false;
 
 #ifdef DYNAMO_DEBUG
-    const double inner_d = std::get<1>(data);
+    const double inner_diameter = std::get<1>(interaction_data);
 
-    if (Sim->dynamics->sphereOverlap(p1, p2, inner_d))
+    if (Sim->dynamics->sphereOverlap(p1, p2, inner_diameter))
       derr << "Warning! Two particles might be overlapping"
-	   << "Overlap is " << Sim->dynamics->sphereOverlap(p1, p2, inner_d) 
-	/ Sim->units.unitLength()
-	   << "\nd = " << inner_d / Sim->units.unitLength() << std::endl;
+	   << "Overlap is " << Sim->dynamics->sphereOverlap(p1, p2, inner_diameter) / Sim->units.unitLength()
+	   << "\nd = " << inner_diameter / Sim->units.unitLength() << std::endl;
 #endif
  
-    const double outer_d = std::get<0>(data);
-    return Sim->dynamics->sphereOverlap(p1, p2, outer_d) > 0;
+    return Sim->dynamics->sphereOverlap(p1, p2, outer_diameter) > 0;
   }
 
   double 
@@ -103,8 +103,9 @@ namespace dynamo {
   double 
   IPRIME_BB::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    const auto data = getInteractionParameters2(p1, p2);
-    return - std::get<2>(data) * isCaptured(p1, p2);
+    const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
+    const double bond_energy = std::get<2>(interaction_data);
+    return bond_energy * isCaptured(p1, p2);
   }
 
 
@@ -135,7 +136,7 @@ namespace dynamo {
   }
 
   std::tuple<double, double, double>
-  IPRIME_BB::getInteractionParameters2(const size_t pID1, const size_t pID2) const
+  IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {
     const TPRIME::BeadData p1Data = getBeadData(pID1);
     const TPRIME::BeadData p2Data = getBeadData(pID2);
@@ -263,73 +264,6 @@ namespace dynamo {
     return std::make_tuple( outer_diameter, inner_diameter, bond_energy );
   }
 
-  std::pair<double, bool>
-  IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
-  {
-    const TPRIME::BeadData p1Type = getBeadData(pID1);
-    const TPRIME::BeadData p2Type = getBeadData(pID2);
-
-#ifdef DYNAMO_DEBUG
-    if ((p1Type.first > TPRIME::CO) || (p2Type.first > TPRIME::CO))
-      M_throw() << "Error! Can't do backbone-sidechain or sidechain-sidechain this way yet!";
-#endif
-
-    //We need to discover what the interaction diameter is for the
-    //particles. At first, we assume its equal to the bead diameters
-    double diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Type.first] + TPRIME::_PRIME_diameters[p2Type.first]);
-    bool bonded = false;
-
-    //For backbone atoms only! We can calculate the distance like so:
-    const size_t loc1 = p1Type.first + 3 * p1Type.second;
-    const size_t loc2 = p2Type.first + 3 * p2Type.second;
-    const size_t distance = std::max(loc1, loc2) - std::min(loc1, loc2);
-
-    //This treats the special cases if they are 0,1,2, or three backbone
-    //bonds apart
-    switch (distance)
-      {
-      case 0:
-        M_throw() << "Invalid backbone distance of 0";
-      case 1:
-        {//Every type of this interaction is a bonded interaction
-          diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Type.first + p2Type.first];
-          bonded = true;
-        }
-        break;
-      case 2:
-        {//Every type of this interaction is a pseudobond interaction
-          diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Type.first + p2Type.first];
-          bonded = true;
-        }
-        break;
-      case 3:
-        {
-          //Check if this is the special pseudobond
-          if ((p1Type.first == TPRIME::CH) && (p2Type.first == TPRIME::CH))
-            {
-              diameter = TPRIME::_PRIME_CH_CH_pseudobond_length;
-              bonded = true;
-            }
-          else
-            //Its a standard bead-bead interaction, but the diameters
-            //are scaled by a factor
-            diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-        }
-        break;
-      default:
-        //The diameter was correctly specified in the start as a
-        //bead-bead interaction.
-        break;
-      }
-
-#ifdef DYNAMO_DEBUG
-    if (diameter == 0)
-      M_throw() << "Invalid diameter calculated, p1="<< pID1 << ", p2="<<pID2 << ", distance="<<distance << ", type1=" << p1Type.first << ", type2="<< p2Type.first;
-#endif
-
-    return std::make_pair(diameter, bonded);
-  }
-
   IntEvent
   IPRIME_BB::getEvent(const Particle &p1, const Particle &p2) const
   {
@@ -344,30 +278,45 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif
 
-    //Calculate the interaction diameter and if the pair are bonded
-    std::pair<double, bool> interaction_data = getInteractionParameters(p1.getID(), p2.getID());
-    double diameter = interaction_data.first;
-    bool bonded = interaction_data.second;
-
-    //Now that the diameters are known, and we know if they are bonded
-    //or not, we can do event detection. If it is bonded
-    //(bonded=true), the inner and outer interactions are at:
-    //diameter*(1+-_PRIME_bond_tolerance). If not, its a hard core
-    //interaction at the diameter.
+    //Calculate the interaction parameters (and name them sensibly)
+    const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
+    const double outer_diameter = std::get<0>(interaction_data),
+      inner_diameter = std::get<1>(interaction_data),
+      bond_energy = std::get<2>(interaction_data);
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
-    if (bonded)
-      {
-        double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter * (1.0 - TPRIME::_PRIME_bond_tolerance));
+
+    if (bond_energy == -std::numeric_limits<double>::infinity())
+      { //The pair are bonded, check for events with the well edges
+        double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, inner_diameter);
         if (dt != HUGE_VAL) retval = IntEvent(p1, p2, dt, CORE, *this);
 
-        dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, diameter * (1.0 + TPRIME::_PRIME_bond_tolerance));
+        dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, outer_diameter);
         if (retval.getdt() > dt) retval = IntEvent(p1, p2, dt, BOUNCE, *this);
       }
-    else
-      {
-        double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter);
+    else if (bond_energy == std::numeric_limits<double>::infinity())
+      { //The pair have a hard-sphere interaction, test for this event
+        double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, outer_diameter);
         if (dt != HUGE_VAL) retval = IntEvent(p1, p2, dt, CORE, *this);
+      }
+    else
+      { //The pair have a square-well/shoulder interaction, test for this
+	if (isCaptured(p1, p2))
+	  {
+	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, inner_diameter);
+	    if (dt != HUGE_VAL)
+	      retval = IntEvent(p1, p2, dt, CORE, *this);
+	    
+	    dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, outer_diameter);
+	    if (retval.getdt() > dt)
+	      retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
+	  }
+	else
+	  {
+	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, outer_diameter);
+	    if (dt != HUGE_VAL)
+	      retval = IntEvent(p1, p2, dt, STEP_IN, *this);
+	  }
       }
 
     return retval;
@@ -378,39 +327,44 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    //Calculate the interaction diameter and if the pair are bonded.
-    const std::pair<double, bool> interaction_data = getInteractionParameters(p1.getID(), p2.getID());
-    const double diameter = interaction_data.first;
-    const bool bonded = interaction_data.second;
+    //Calculate the interaction parameters (and name them sensibly)
+    const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
+    const double outer_diameter = std::get<0>(interaction_data),
+      inner_diameter = std::get<1>(interaction_data),
+      bond_energy = std::get<2>(interaction_data);
 
     /*Handle the different types of interactions that can occur.*/
     PairEventData EDat;
     switch (iEvent.getType())
       {
       case CORE:
-        { //This is either a core for a unbonded or a bonded pair. For
-          //an unbonded pair, the interaction distance is the diameter:
-          double coreD = diameter;
-
-          //For a bonded pair, we need to subtract the bond
-          //fluctuation:
-          if (bonded) coreD = diameter * (1.0 - TPRIME::_PRIME_bond_tolerance);
-
-          //Finally, run the event
-          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent.getType());
+        { //CORE events occur for all types of interaction
+          double coreD = inner_diameter;
+	  //Its the outer_diameter for CORE events if this is a hard sphere interaction
+	  if (bond_energy == std::numeric_limits<double>::infinity())
+	    coreD = outer_diameter;
+	  
+	  EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent.getType());
         }
         break;
       case BOUNCE:
         {
-#ifdef DYNAMO_DEBUG
-          if (!bonded) M_throw() << "Only bonded particles can undergo a BOUNCE event";
-#endif
-          //As this is the outer bond event, we know its diameter to
-          //be:
-          double bounceD = diameter * (1.0 + TPRIME::_PRIME_bond_tolerance);
-          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, bounceD * bounceD, iEvent.getType());
+	  //BOUNCE events only occur for outer_diameter of a bond.
+          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, outer_diameter * outer_diameter, iEvent.getType());
           break;
         }
+      case STEP_IN:
+	{
+	  EDat = Sim->dynamics->SphereWellEvent(iEvent, -bond_energy, outer_diameter * outer_diameter, 1);
+	  if (EDat.getType() != BOUNCE) ICapture::add(p1, p2);
+	  break;
+	}
+      case STEP_OUT:
+	{
+	  EDat = Sim->dynamics->SphereWellEvent(iEvent, bond_energy, outer_diameter * outer_diameter, 0);
+	  if (EDat.getType() != BOUNCE) ICapture::remove(p1, p2);
+	  break;
+	}
       default:
         M_throw() << "Unknown collision type";
       }
@@ -421,50 +375,91 @@ namespace dynamo {
   bool 
   IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    //Calculate the interaction diameter and if the pair are bonded.
-    std::pair<double, bool> interaction_data = getInteractionParameters(p1.getID(), p2.getID());
-    double diameter = interaction_data.first;
-    bool bonded = interaction_data.second;
+    const TPRIME::BeadData p1Data = getBeadData(p1);
+    const TPRIME::BeadData p2Data = getBeadData(p2);
 
-    if (bonded) {
-      //Inner and outer bond diameters²
-      double id = diameter * (1.0 - TPRIME::_PRIME_bond_tolerance);
-      double od = diameter * (1.0 + TPRIME::_PRIME_bond_tolerance);
+    //Calculate the interaction parameters (and name them sensibly)
+    const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
+    const double outer_diameter = std::get<0>(interaction_data),
+      inner_diameter = std::get<1>(interaction_data),
+      bond_energy = std::get<2>(interaction_data);
 
-      if (Sim->dynamics->sphereOverlap(p1, p2, id))
-	{
-	  if (textoutput)
-	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " are inside the bond with an inner hard core at " << id / Sim->units.unitLength()
-		 << " but they are at a distance of " 
-		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		 << std::endl;
-	  return true;
-	}
+    if (bond_energy == -std::numeric_limits<double>::infinity())
+      {//Bonded
+	if (Sim->dynamics->sphereOverlap(p1, p2, inner_diameter))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+		   << " are inside the bond with an inner hard core at " << inner_diameter / Sim->units.unitLength()
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	    return true;
+	  }
       
-      if (!Sim->dynamics->sphereOverlap(p1, p2, od))
-	{
-	  if (textoutput)
-	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " registered as being inside the bond with an upper limit of " << od / Sim->units.unitLength()
-		 << " but they are at a distance of " 
-		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		 << std::endl;
+	if (!Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+		   << " should be inside the bond with an upper limit of " << outer_diameter / Sim->units.unitLength()
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
 	  
-	  return true;
-	}
-    }
+	    return true;
+	  }
+      }
+    else if (bond_energy == std::numeric_limits<double>::infinity())
+      { //Hard sphere
+	if (Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+		   << " are inside the hard core at " << outer_diameter / Sim->units.unitLength()
+		   << " and are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	    return true;
+	  }
+      }
     else
-      if (Sim->dynamics->sphereOverlap(p1, p2, diameter))
-	{
-	  if (textoutput)
-	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " are inside the hard core at " << diameter / Sim->units.unitLength()
-		 << " and are at a distance of " 
-		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		 << std::endl;
-	  return true;
-	}
+      {
+	const bool captured = isCaptured(p1, p2);
+
+	if (captured && Sim->dynamics->sphereOverlap(p1, p2, inner_diameter))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+		   << " are inside the inner hard core of the well at " << inner_diameter / Sim->units.unitLength()
+		   << " and are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	    return true;
+	  }
+      
+	if (captured && !Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+		   << " are registered as being inside the well with an upper limit of " << outer_diameter / Sim->units.unitLength()
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	  
+	    return true;
+	  }
+
+	if (!captured && Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	  
+	    return true;
+	  }
+      }
 
     return false;
   }

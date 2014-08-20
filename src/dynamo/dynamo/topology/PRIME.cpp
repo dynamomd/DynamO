@@ -32,6 +32,9 @@ namespace dynamo {
   constexpr double TPRIME::_PRIME_well_depths[];
   constexpr double TPRIME::_PRIME_SC_BB_bond_lengths[];
 
+  const std::vector<std::string> TPRIME::PRIME_site_names {"NH", "CH", "CO", "A", "C", "D", "E", "F", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"};
+
+
   /*! \brief A class which stores the type of PRIME group that the particle corresponds to.
   
     This property is added automatically when you use the PRIME topology.

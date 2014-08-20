@@ -55,6 +55,8 @@ namespace dynamo {
       NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y,
       GROUP_COUNT
     };
+    
+    static const std::vector<std::string> PRIME_site_names;
 
     //Sourced from: [3] for CH, NH, CO, K, L, V, F, A and E.
     //[4] for Q, I and Y. Other values calculated from molecular weights.
