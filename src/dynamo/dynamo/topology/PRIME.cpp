@@ -97,13 +97,18 @@ namespace dynamo {
   {
     Topology::operator<<(XML);
 
+    size_t residue = 0;
     for (magnet::xml::Node node = XML.findNode("Molecule"); node.valid(); ++node)
       {
+	//Store the loaded data for output later (the internal
+	//representation is not easy to convert back)
+	_configData.push_back(std::make_pair(node.getAttribute("StartID").as<size_t>(),
+					     node.getAttribute("Sequence").as<std::string>()));
+
+	//Create an internal representation which allows fast look-ups
 	const size_t startID = node.getAttribute("StartID").as<size_t>();
 	size_t ID = startID;
-	size_t residue = 0;
-	const std::string seq = node.getAttribute("Sequence").as<std::string>();
-	for (char letter: seq)
+	for (char letter: node.getAttribute("Sequence").as<std::string>())
 	  {
 	    (*_types)[ID++] = BeadData(NH, residue);
 	    (*_types)[ID++] = BeadData(CH, residue);
@@ -146,8 +151,10 @@ namespace dynamo {
     XML << magnet::xml::attr("Name") << _name;
     XML << magnet::xml::attr("Type") << "PRIME";
 
-    for (const shared_ptr<IDRange>& plugPtr : ranges)
-      XML << magnet::xml::tag("Molecule") << plugPtr
+    for (const auto& entry: _configData)
+      XML << magnet::xml::tag("Molecule")
+	  << magnet::xml::attr("StartID") << entry.first
+	  << magnet::xml::attr("Sequence") << entry.second
 	  << magnet::xml::endtag("Molecule");
   }
 }

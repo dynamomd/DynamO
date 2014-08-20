@@ -18,6 +18,7 @@
 #pragma once
 #include <dynamo/topology/topology.hpp>
 #include <unordered_map>
+#include <vector>
 
 namespace dynamo {
   class TPRIME: public Topology
@@ -251,7 +252,7 @@ namespace dynamo {
     
   protected:
     std::shared_ptr<BeadTypeMap> _types;
-
+    std::vector<std::pair<size_t, std::string> > _configData;
     virtual void outputXML(magnet::xml::XmlStream&) const;
   };
 }
