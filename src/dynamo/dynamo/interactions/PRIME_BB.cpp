@@ -152,7 +152,6 @@ namespace dynamo {
       }
     else if (p1Data.first <= TPRIME::CO && p2Data.first <= TPRIME::CO) //BB-BB interaction
       {
-        //Backbone-backbone interaction!
         const size_t loc1 = p1Data.first + 3 * p1Data.second;
         const size_t loc2 = p2Data.first + 3 * p2Data.second;
         const size_t distance = std::max(loc1, loc2) - std::min(loc1, loc2);
@@ -195,18 +194,18 @@ namespace dynamo {
               else
                 //Close backbone-backbone hard-sphere interaction
                 inner_diameter = 0.0;
-                outer_diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Data.first] + TPRIME::_PRIME_diameters[p2Data.first]);
-                outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+                outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ]
+                                    * TPRIME::_PRIME_near_diameter_scale_factor;
                 bond_energy = std::numeric_limits<double>::infinity();
             }
             break;
           default:
             //Backbone-backbone hard-sphere interaction
             inner_diameter = 0.0;
-            outer_diameter = 0.5 * (TPRIME::_PRIME_diameters[p1Data.first] + TPRIME::_PRIME_diameters[p2Data.first]);
+            outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
             bond_energy = std::numeric_limits<double>::infinity();
             break;
-          }
+          };
       }
     else //BB-SC interaction
       {
