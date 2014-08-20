@@ -20,9 +20,10 @@
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/PRIME.hpp>
+#include <dynamo/interactions/captures.hpp>
 
 namespace dynamo {
-  class IPRIME_BB: public Interaction
+  class IPRIME_BB: public ICapture
   {
   public:
     IPRIME_BB(const magnet::xml::Node&, dynamo::Simulation*);
@@ -33,16 +34,19 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
+    virtual void initialise(size_t);
+
+    virtual size_t captureTest(const Particle&, const Particle&) const;
+
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
 
     virtual PairEventData runEvent(Particle&, Particle&, const IntEvent&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual double getInternalEnergy() const { return 0; }
+    virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-    virtual double getInternalEnergy(const Particle&, const Particle&) const 
-    { return 0.0; }
+    virtual double getInternalEnergy() const;
 
     virtual void operator<<(const magnet::xml::Node&);
 

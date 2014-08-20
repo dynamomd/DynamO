@@ -39,7 +39,7 @@
 
 namespace dynamo {
   IPRIME_BB::IPRIME_BB(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    Interaction(tmp, NULL) //A temporary value!
+    ICapture(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }
@@ -54,7 +54,59 @@ namespace dynamo {
     
     if (!_topology)
       M_throw() << "For \"" << getName() << "\", Topology is not a PRIME topology.";
+
+    ICapture::loadCaptureMap(XML);   
   }
+
+  void 
+  IPRIME_BB::initialise(size_t nID)
+  {
+    Interaction::initialise(nID);
+    ICapture::initCaptureMap();
+  }
+
+  size_t
+  IPRIME_BB::captureTest(const Particle& p1, const Particle& p2) const
+  {
+    if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
+
+    const auto data = getInteractionParameters2(p1, p2);
+    
+    //Check that this has a finite well energy
+    if (!std::isfinite(std::get<2>(data)))
+      return false;
+
+#ifdef DYNAMO_DEBUG
+    const double inner_d = std::get<1>(data);
+
+    if (Sim->dynamics->sphereOverlap(p1, p2, inner_d))
+      derr << "Warning! Two particles might be overlapping"
+	   << "Overlap is " << Sim->dynamics->sphereOverlap(p1, p2, inner_d) 
+	/ Sim->units.unitLength()
+	   << "\nd = " << inner_d / Sim->units.unitLength() << std::endl;
+#endif
+ 
+    const double outer_d = std::get<0>(data);
+    return Sim->dynamics->sphereOverlap(p1, p2, outer_d) > 0;
+  }
+
+  double 
+  IPRIME_BB::getInternalEnergy() const
+  { 
+    //Once the capture maps are loaded just iterate through that determining energies
+    double Energy = 0.0;
+    for (const ICapture::value_type& IDs : *this)
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
+    return Energy; 
+  }
+
+  double 
+  IPRIME_BB::getInternalEnergy(const Particle& p1, const Particle& p2) const
+  {
+    const auto data = getInteractionParameters2(p1, p2);
+    return - std::get<2>(data) * isCaptured(p1, p2);
+  }
+
 
   std::array<double, 4> 
   IPRIME_BB::getGlyphSize(size_t ID) const
@@ -184,7 +236,7 @@ namespace dynamo {
             bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.first + p2Data.first ];
 
             //Check for cases where it could be a "close" interaction
-            if (p2Data.second - p1Data.second == 1) //p1 is on the residuce before p2
+            if (p2Data.second - 1 ==  p1Data.second) //p1 is on the residue before p2
               {
                   if ((p1Data.first > TPRIME::CO && p2Data.first == TPRIME::NH) || (p2Data.first > TPRIME::CO && p1Data.first == TPRIME::CO))
                     {
@@ -192,7 +244,7 @@ namespace dynamo {
                       outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
                     }
               }
-            else if (p2Data.second - p1Data.second == -1) //p2 is on the residue before p1
+            else if (p2Data.second + 1 == p1Data.second) //p2 is on the residue after p1
               {
                   if ((p2Data.first > TPRIME::CO && p1Data.first == TPRIME::NH) || (p1Data.first > TPRIME::CO && p2Data.first == TPRIME::CO))
                     {
@@ -424,5 +476,7 @@ namespace dynamo {
     XML << magnet::xml::attr("Type")  << "PRIME_BB"
         << magnet::xml::attr("Name")  << intName
         << magnet::xml::attr("Topology") << _topology->getName();
+
+    ICapture::outputCaptureMap(XML);
   }
 }

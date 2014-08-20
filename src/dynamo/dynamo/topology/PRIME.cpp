@@ -28,6 +28,9 @@ namespace dynamo {
   constexpr double TPRIME::_PRIME_masses[];  
   constexpr double TPRIME::_PRIME_BB_bond_lengths[];  
   constexpr double TPRIME::_PRIME_pseudobond_lengths[];
+  constexpr double TPRIME::_PRIME_well_diameters[];
+  constexpr double TPRIME::_PRIME_well_depths[];
+  constexpr double TPRIME::_PRIME_SC_BB_bond_lengths[];
 
   /*! \brief A class which stores the type of PRIME group that the particle corresponds to.
   
