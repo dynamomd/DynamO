@@ -257,8 +257,8 @@ namespace dynamo {
 
 
 #ifdef DYNAMO_DEBUG
-            if (bond_energy == 0.0)
-              M_throw() << "Invalid diameter calculated, p1="<< pID1 << ", p2="<<pID2 << ", distance="<<distance << ", type1=" << p1Data.first << ", type2="<< p2Data.first;
+    if (bond_energy == 0.0)
+      M_throw() << "Invalid bond_energy calculated, p1="<< pID1 << ", p2="<< pID2 << ", type1=" << p1Data.first << ", type2="<< p2Data.first;
 #endif
 
     return std::make_tuple( outer_diameter, inner_diameter, bond_energy );
