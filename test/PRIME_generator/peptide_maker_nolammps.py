@@ -22,7 +22,6 @@ def gauss():
 nonglycine_SC    = list('ACDEFHIKLMNPQRSTVWY')
 nonglycine_sites = list(nonglycine_SC) + ['NH', 'CH', 'CO']
 sites            = list(nonglycine_sites) + ['G']
-nonglycine_names = ['Alanine', 'Cysteine', 'Aspartic Acid', 'Glutamic Acid', 'Phenylalanine', 'Histidine', 'Isoleucine', 'Lysine', 'Leucine', 'Methionine', 'Asparagine', 'Proline', 'Glutamine', 'Arginine', 'Serine', 'Threonine', 'Valine', 'Tryptophan', 'Tyrosine' ] + ['Nitrogen+Hydrogen', 'Carbon+Hydrogen', 'Carbon+Oxygen']
 
 try:
     filename = str(sys.argv[3])
@@ -46,6 +45,10 @@ try:
     else:
         sequence = list(sys.argv[1])
         assert [ sites.index(residue) for residue in sequence]
+
+        if len(sequence) > 33:
+            sys.exit('33 residues is currently the maximum length for this generator.')
+
 except (ValueError, IndexError):
     sys.exit('Run as ./peptide_maker.py (sequence) [temperature kT = 1.0] [xml_fn = PRIME_peptide].')
 
@@ -60,14 +63,10 @@ n_sites            = n_bb_sites + n_sc_sites
 dcd_temp_dir       = "tempDCDs"
 
 expanded_sequence = []
-sidechain_IDs = []
 for letter in sequence:
     expanded_sequence += ['NH','CH','CO']
     if letter != 'G':
-        sidechain_IDs.append(len(expanded_sequence))
         expanded_sequence.append(letter)
-
-nonglycine_expanded_sequence = filter(lambda a: a != 'G', expanded_sequence) #'Real' list, e.g. AGA gives NH,CH,CO,A,NH,CH,CO,NH,CH,CO,A
 
 print 'Sequence:' , ''.join(sequence)
 print 'File name:' , xml_fn , '\n'
@@ -76,7 +75,7 @@ print 'File name:' , xml_fn , '\n'
 ###      Geometry      ###
 ##########################
 
-coords = np.zeros([ len(nonglycine_expanded_sequence), 3 ], dtype=float)
+coords = np.zeros([ len(expanded_sequence), 3 ], dtype=float)
 j=0
 for i_res, res in enumerate(sequence):
 
@@ -142,45 +141,43 @@ Molecule  = ET.SubElement ( Structure, 'Molecule', attrib = {'StartID':'0', 'Seq
 #  Create PSF files  #
 ######################
 
-print "----------------------------------------------------"
-print "WARNING PSF FILE-GENERATOR IS OUT OF DATE AND WRONG."
-print "----------------------------------------------------"
-
 psf_atoms_section = ""
 psf_bonds_section = ""
 
-#Backbone atoms
-for i_res, res in enumerate(sequence):
-    for i_local_atom, atom in enumerate(['NH', 'CH', 'CO']):
-        i_atom = i_res*3 + i_local_atom
-        psf_atoms_section += "{0: >8d} {1: <4} {2: <4d} {3: <4} {4: <4} {4: <4} {5: >10} {6: >13} {7: >11}\n".format(i_atom+1, str(0), i_res, res, atom, "0.000000", "0.0000", "0")
+#Atoms
+i_res=-1
+for i_atom, atom in enumerate(expanded_sequence):
 
-#SC atoms
-for i_res, res in enumerate(nonglycine_expanded_sequence[n_bb_sites:]):
-    i_atom = n_bb_sites + i_res
-    psf_atoms_section += "{0: >8d} {1: <4} {2: <4d} {3: <4} {4: <4} {4: <4} {5: >10} {6: >13} {7: >11}\n".format(i_atom+1, str(0), i_res, res, res, "0.000000", "0.0000", "0")
+    if atom == 'NH':
+        i_res+=1
+        if sequence[i_res-1] == 'G':
+            bond_partner = i_atom - 1
+        else:
+            bond_partner = i_atom - 2
 
-#BB bonds
-for i_bb_site in range(1,n_bb_sites):
-    psf_bonds_section += "{0: >8d}{1: >8d}".format(i_bb_site, i_bb_site+1)
+        #Set equal to itself to signal no bond partner:
+        if i_res == 0:
+            bond_partner = i_atom
 
-    if len(psf_bonds_section) - psf_bonds_section.rfind("\n") > 63:
-        psf_bonds_section += "\n"
+    elif atom == 'CH' or atom == 'CO':
+        bond_partner = i_atom-1
 
-#SC bonds
-for i_res, res in enumerate(sequence):
-    if res != 'G':
-        i_bb_site = i_res*3 + 2
-        i_sc_site = n_bb_sites + 1 + i_res - sequence[:i_res].count('G')
-        psf_bonds_section += "{0: >8d}{1: >8d}".format(i_bb_site, i_sc_site)
+    else:
+        bond_partner = i_atom-2
+
+    psf_atoms_section += "{0: >8d} {1: <4} {2: <4d} {3: <4} {4: <4} {4: <4} {5: >10} {6: >13} {7: >11}\n".format(i_atom+1, str(0), i_res, sequence[i_res], atom, "0.000000", "0.0000", "0")
+
+    if bond_partner != i_atom:
+        print atom, i_atom, "bonds with", expanded_sequence[bond_partner], bond_partner
+        psf_bonds_section += "{0: >8d}{1: >8d}".format(bond_partner+1,i_atom+1)
 
         if len(psf_bonds_section) - psf_bonds_section.rfind("\n") > 63:
             psf_bonds_section += "\n"
 
 with open(psf_fn, 'w') as psf_file:
     psf_file.write("PSF\n\n\t1 !NTITLE\n REMARKS " + ''.join(sequence) + " STRUCTURE FILE\n REMARKS DATE: " + date + "\n\n")
-    psf_file.write("{0: >8d}".format(n_bb_sites+n_sc_sites) + " !NATOM\n" + psf_atoms_section + "\n")
-    psf_file.write("{0: >8d}".format(n_bb_sites-1+n_sc_sites) + " !NBOND\n" + psf_bonds_section + "\n\n")
+    psf_file.write("{0: >8d}".format(n_sites) + " !NATOM\n" + psf_atoms_section + "\n")
+    psf_file.write("{0: >8d}".format(n_sites-1) + " !NBOND\n" + psf_bonds_section + "\n\n")
 
 ####################
 #  Write XML file  #
@@ -216,7 +213,7 @@ if debug:
         xyz = subprocess.check_output(traj_command)
         trajfile.write(xyz)
 
-    convert_command = ["catdcd", "-o", dcd_temp_dir+"/dynamO_traj.dcd", "-xyz", "traj.xyz"]
+    convert_command = ["catdcd", "-o", "dynamO_traj.dcd", "-xyz", "traj.xyz"]
     subprocess.check_output(convert_command)
     print "Running this command:", " ".join(convert_command)
 
