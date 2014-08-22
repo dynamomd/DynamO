@@ -469,7 +469,8 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type")  << "PRIME_BB"
         << magnet::xml::attr("Name")  << intName
-        << magnet::xml::attr("Topology") << _topology->getName();
+        << magnet::xml::attr("Topology") << _topology->getName()
+        << *range;
 
     ICapture::outputCaptureMap(XML);
   }
