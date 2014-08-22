@@ -60,7 +60,6 @@ n_residues         = len(sequence)
 n_bb_sites         = 3*n_residues
 n_sc_sites         = n_residues - sequence.count('G')
 n_sites            = n_bb_sites + n_sc_sites
-dcd_temp_dir       = "tempDCDs"
 
 expanded_sequence = []
 for letter in sequence:
@@ -144,7 +143,6 @@ Molecule  = ET.SubElement ( Structure, 'Molecule', attrib = {'StartID':'0', 'Seq
 psf_atoms_section = ""
 psf_bonds_section = ""
 
-#Atoms
 i_res=-1
 for i_atom, atom in enumerate(expanded_sequence):
 
@@ -168,7 +166,6 @@ for i_atom, atom in enumerate(expanded_sequence):
     psf_atoms_section += "{0: >8d} {1: <4} {2: <4d} {3: <4} {4: <4} {4: <4} {5: >10} {6: >13} {7: >11}\n".format(i_atom+1, str(0), i_res, sequence[i_res], atom, "0.000000", "0.0000", "0")
 
     if bond_partner != i_atom:
-        print atom, i_atom, "bonds with", expanded_sequence[bond_partner], bond_partner
         psf_bonds_section += "{0: >8d}{1: >8d}".format(bond_partner+1,i_atom+1)
 
         if len(psf_bonds_section) - psf_bonds_section.rfind("\n") > 63:
@@ -212,9 +209,3 @@ if debug:
     with open('traj.xyz', 'w') as trajfile:
         xyz = subprocess.check_output(traj_command)
         trajfile.write(xyz)
-
-    convert_command = ["catdcd", "-o", "dynamO_traj.dcd", "-xyz", "traj.xyz"]
-    subprocess.check_output(convert_command)
-    print "Running this command:", " ".join(convert_command)
-
-    os.remove("traj.xyz")
