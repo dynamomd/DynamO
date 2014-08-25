@@ -67,5 +67,7 @@ namespace dynamo {
     std::tuple<double, double, double> getInteractionParameters(const size_t pID1, const size_t pID2) const;
 
     std::shared_ptr<TPRIME> _topology;
+
+    double _PRIME_HB_strength;
   };
 }

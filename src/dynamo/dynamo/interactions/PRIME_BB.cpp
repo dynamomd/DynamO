@@ -50,6 +50,7 @@ namespace dynamo {
     Interaction::operator<<(XML);
 
     const std::string topologyName = XML.getAttribute("Topology");
+    _PRIME_HB_strength = XML.getAttribute("HBStrength").as<double>();
     _topology = std::dynamic_pointer_cast<TPRIME>(Sim->topology[topologyName]);
     
     if (!_topology)
@@ -470,6 +471,7 @@ namespace dynamo {
     XML << magnet::xml::attr("Type")  << "PRIME_BB"
         << magnet::xml::attr("Name")  << intName
         << magnet::xml::attr("Topology") << _topology->getName()
+        << magnet::xml::attr("HBStrength") << _PRIME_HB_strength
         << *range;
 
     ICapture::outputCaptureMap(XML);

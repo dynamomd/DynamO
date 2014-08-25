@@ -9,7 +9,7 @@ import numpy as np
 import subprocess
 import prototype_positions as pp
 
-#Turn on for full output from DynamO, and a .dcd file output
+#Turn on for full output from DynamO, and a .xyz file output
 debug = False
 
 def gauss():
@@ -22,6 +22,8 @@ def gauss():
 nonglycine_SC    = list('ACDEFHIKLMNPQRSTVWY')
 nonglycine_sites = list(nonglycine_SC) + ['NH', 'CH', 'CO']
 sites            = list(nonglycine_sites) + ['G']
+
+HB_strength = 1.0
 
 try:
     filename = str(sys.argv[3])
@@ -129,7 +131,7 @@ temp = ET.SubElement( Globals, 'Global', attrib = {'Type':'Cells','Name':'Schedu
 ET.SubElement( temp, 'IDRange', attrib = {'Type':'All'})
 
 #Interactions section
-PRIME_BB=ET.SubElement( Interactions, 'Interaction', attrib = {'Type':'PRIME_BB', 'Name':'Backbone', 'Topology':"PRIMEData"} )
+PRIME_BB=ET.SubElement( Interactions, 'Interaction', attrib = {'Type':'PRIME_BB', 'Name':'Backbone', 'Topology':"PRIMEData", 'HBStrength':str(HB_strength)} )
 ET.SubElement( PRIME_BB, 'IDPairRange', attrib = {'Type':'All'} )
 
 #Topology section
