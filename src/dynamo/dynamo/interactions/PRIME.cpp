@@ -202,10 +202,41 @@ namespace dynamo {
             }
             break;
           default:
-            //Backbone-backbone hard-sphere interaction
+            //Backbone-backbone hard-sphere or hydrogen bond interaction
+
+            //not a HB pair
             inner_diameter = 0.0;
             outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
             bond_energy = std::numeric_limits<double>::infinity();
+
+            /*
+            //HB aux pair which is currently not captured
+            //not captured = in an appropriate place to allow HB to form
+            inner_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+            outer_diameter = std::numeric_limits<double>::infinity();
+            //if (all other conditions are met and pairs are in place for HBond to exist)
+                bond_energy = -TPRIME::_PRIME_HB_strength;
+            //else
+                bond_energy = 0.0;
+
+            //HB aux pair which is currently captured
+            //captured = too close for HB to form (on the shoulder)
+            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+            outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+            //if (all other conditions are met and pairs are in place for HBond to exist)
+                bond_energy = TPRIME::_PRIME_HB_strength;
+            //else 
+                bond_energy = 0.0;
+
+            //Main HB pair
+            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+            outer_diameter = TPRIME::_PRIME_HB_well_diameter;
+            //if (all other conditions are met and pairs are in place for HBond to exist)
+                bond_energy = -TPRIME::_PRIME_HB_strength;
+            //else
+                bond_energy = 0.0;
+            */
+
             break;
           };
       }
