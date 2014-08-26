@@ -131,8 +131,8 @@ temp = ET.SubElement( Globals, 'Global', attrib = {'Type':'Cells','Name':'Schedu
 ET.SubElement( temp, 'IDRange', attrib = {'Type':'All'})
 
 #Interactions section
-PRIME_BB=ET.SubElement( Interactions, 'Interaction', attrib = {'Type':'PRIME_BB', 'Name':'Backbone', 'Topology':"PRIMEData", 'HBStrength':str(HB_strength)} )
-ET.SubElement( PRIME_BB, 'IDPairRange', attrib = {'Type':'All'} )
+PRIME = ET.SubElement( Interactions, 'Interaction', attrib = {'Type':'PRIME', 'Name':'Backbone', 'Topology':"PRIMEData", 'HBStrength':str(HB_strength)} )
+ET.SubElement( PRIME, 'IDPairRange', attrib = {'Type':'All'} )
 
 #Topology section
 Structure = ET.SubElement ( Topology, 'Structure', attrib = {'Type':'PRIME', 'Name':'PRIMEData'} )

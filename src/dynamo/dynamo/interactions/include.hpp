@@ -24,6 +24,6 @@
 #include <dynamo/interactions/lines.hpp>
 #include <dynamo/interactions/DSMC.hpp>
 #include <dynamo/interactions/dumbbells.hpp>
-#include <dynamo/interactions/PRIME_BB.hpp>
+#include <dynamo/interactions/PRIME.hpp>
 #include <dynamo/interactions/parallelcubes.hpp>
 #include <dynamo/interactions/stepped.hpp>

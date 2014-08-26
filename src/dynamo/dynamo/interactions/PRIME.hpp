@@ -23,10 +23,10 @@
 #include <dynamo/interactions/captures.hpp>
 
 namespace dynamo {
-  class IPRIME_BB: public ICapture
+  class IPRIME: public ICapture
   {
   public:
-    IPRIME_BB(const magnet::xml::Node&, dynamo::Simulation*);
+    IPRIME(const magnet::xml::Node&, dynamo::Simulation*);
 
     virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 

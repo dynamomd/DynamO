@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/PRIME_BB.hpp>
+#include <dynamo/interactions/PRIME.hpp>
 #include <dynamo/topology/PRIME.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/units/units.hpp>
@@ -38,14 +38,14 @@
 #include <algorithm>
 
 namespace dynamo {
-  IPRIME_BB::IPRIME_BB(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
+  IPRIME::IPRIME(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     ICapture(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }
 
   void 
-  IPRIME_BB::operator<<(const magnet::xml::Node& XML)
+  IPRIME::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
 
@@ -60,14 +60,14 @@ namespace dynamo {
   }
 
   void 
-  IPRIME_BB::initialise(size_t nID)
+  IPRIME::initialise(size_t nID)
   {
     Interaction::initialise(nID);
     ICapture::initCaptureMap();
   }
 
   size_t
-  IPRIME_BB::captureTest(const Particle& p1, const Particle& p2) const
+  IPRIME::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
@@ -92,7 +92,7 @@ namespace dynamo {
   }
 
   double 
-  IPRIME_BB::getInternalEnergy() const
+  IPRIME::getInternalEnergy() const
   { 
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
@@ -102,7 +102,7 @@ namespace dynamo {
   }
 
   double 
-  IPRIME_BB::getInternalEnergy(const Particle& p1, const Particle& p2) const
+  IPRIME::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
     const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
     const double bond_energy = std::get<2>(interaction_data);
@@ -111,13 +111,13 @@ namespace dynamo {
 
 
   std::array<double, 4> 
-  IPRIME_BB::getGlyphSize(size_t ID) const
+  IPRIME::getGlyphSize(size_t ID) const
   {
     return {{TPRIME::_PRIME_diameters[getBeadData(ID).first], 0, 0, 0}};
   }
 
   double
-  IPRIME_BB::getExcludedVolume(size_t ID) const
+  IPRIME::getExcludedVolume(size_t ID) const
   {
     //This calculation only includes the volumes which are always
     //excluded (i.e. the hard core)
@@ -126,7 +126,7 @@ namespace dynamo {
   }
 
   double
-  IPRIME_BB::maxIntDist() const
+  IPRIME::maxIntDist() const
   {
     double maxdiam = 0;
     maxdiam = std::max(maxdiam, *std::max_element(TPRIME::_PRIME_diameters, TPRIME::_PRIME_diameters + 3));
@@ -137,7 +137,7 @@ namespace dynamo {
   }
 
   std::tuple<double, double, double>
-  IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
+  IPRIME::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {
     const TPRIME::BeadData p1Data = getBeadData(pID1);
     const TPRIME::BeadData p2Data = getBeadData(pID2);
@@ -266,7 +266,7 @@ namespace dynamo {
   }
 
   IntEvent
-  IPRIME_BB::getEvent(const Particle &p1, const Particle &p2) const
+  IPRIME::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics->isUpToDate(p1))
@@ -324,7 +324,7 @@ namespace dynamo {
   }
 
   PairEventData
-  IPRIME_BB::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IPRIME::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -374,7 +374,7 @@ namespace dynamo {
   }
 
   bool 
-  IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
+  IPRIME::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
     const TPRIME::BeadData p1Data = getBeadData(p1);
     const TPRIME::BeadData p2Data = getBeadData(p2);
@@ -466,9 +466,9 @@ namespace dynamo {
   }
 
   void
-  IPRIME_BB::outputXML(magnet::xml::XmlStream& XML) const
+  IPRIME::outputXML(magnet::xml::XmlStream& XML) const
   {
-    XML << magnet::xml::attr("Type")  << "PRIME_BB"
+    XML << magnet::xml::attr("Type")  << "PRIME"
         << magnet::xml::attr("Name")  << intName
         << magnet::xml::attr("Topology") << _topology->getName()
         << magnet::xml::attr("HBStrength") << _PRIME_HB_strength
