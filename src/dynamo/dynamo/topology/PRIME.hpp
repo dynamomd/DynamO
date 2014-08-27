@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/topology/topology.hpp>
-#include <unordered_map>
+#include <boost/bimap.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -236,7 +236,8 @@ namespace dynamo {
       ;
 
     typedef std::pair<PRIME_site_type, size_t> BeadData;
-    typedef std::unordered_map<size_t, BeadData> BeadTypeMap;
+    
+    typedef boost::bimap<size_t, BeadData> BeadTypeMap;
 
     TPRIME(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
 
@@ -246,12 +247,20 @@ namespace dynamo {
 
     BeadData getBeadInfo(size_t ID) const { 
 #ifdef DYNAMO_DEBUG
-      if (_types->find(ID) == _types->end())
+      if (_types->left.find(ID) == _types->left.end())
 	M_throw() << "Particle " << ID << " has no bead data for " << getName();
 #endif
-      return (*_types)[ID]; 
+      return _types->left[ID];
     }
     
+    size_t getBeadID(BeadData data) const { 
+#ifdef DYNAMO_DEBUG
+      if (_types->right.find(ID) == _types->right.end())
+	M_throw() << "Particle " << ID << " has no bead data for " << getName();
+#endif
+      return _types->right[data]; 
+    }
+
   protected:
     std::shared_ptr<BeadTypeMap> _types;
     std::vector<std::pair<size_t, std::string> > _configData;

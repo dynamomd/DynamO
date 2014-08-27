@@ -17,7 +17,7 @@
       </Structure>
     </Topology>
     <Interactions>
-      <Interaction Type="PRIME_BB" Name="Backbone" Topology="PRIMEData">
+      <Interaction Type="PRIME" Name="Backbone" Topology="PRIMEData" HBStrength="0">
         <IDPairRange Type="All"/>
         <CaptureMap>
           <Pair ID1="2" ID2="7" val="1"/>
