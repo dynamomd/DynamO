@@ -55,9 +55,7 @@ except (ValueError, IndexError):
     sys.exit('Run as ./peptide_maker.py (sequence) [temperature kT = 1.0] [xml_fn = PRIME_peptide].')
 
 date               = time.strftime('%X %x %Z')
-box_size_per_res   = 10.0
-box_pad            = 5.0
-box_size           = 2*box_pad + len(sequence)*box_size_per_res
+box_size           = 200
 n_residues         = len(sequence)
 n_bb_sites         = 3*n_residues
 n_sc_sites         = n_residues - sequence.count('G')
