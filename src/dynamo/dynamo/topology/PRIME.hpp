@@ -17,8 +17,10 @@
 
 #pragma once
 #include <dynamo/topology/topology.hpp>
-#include <boost/bimap.hpp>
+#include <boost/bimap/bimap.hpp>
 #include <vector>
+
+using namespace ::boost::bimaps;
 
 namespace dynamo {
   class TPRIME: public Topology
@@ -237,7 +239,8 @@ namespace dynamo {
 
     typedef std::pair<PRIME_site_type, size_t> BeadData;
     
-    typedef boost::bimap<size_t, BeadData> BeadTypeMap;
+    typedef bimap<set_of<size_t>, 
+		  set_of<BeadData> > BeadTypeMap;
 
     TPRIME(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
 
@@ -246,19 +249,21 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node&);
 
     BeadData getBeadInfo(size_t ID) const { 
+      const auto it = _types->left.find(ID);
 #ifdef DYNAMO_DEBUG
-      if (_types->left.find(ID) == _types->left.end())
+      if (it == _types->left.end())
 	M_throw() << "Particle " << ID << " has no bead data for " << getName();
 #endif
-      return _types->left[ID];
+      return it->second;
     }
     
     size_t getBeadID(BeadData data) const { 
+      const auto it = _types->right.find(data);
 #ifdef DYNAMO_DEBUG
-      if (_types->right.find(ID) == _types->right.end())
+      if (it == _types->right.end())
 	M_throw() << "Particle " << ID << " has no bead data for " << getName();
 #endif
-      return _types->right[data]; 
+      return it->second;
     }
 
   protected:
