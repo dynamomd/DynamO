@@ -54,7 +54,7 @@ namespace dynamo {
       if (it == _beadTypes->left.end())
 	M_throw() << "Do not have a PRIME bead type for particle ID " << ID;
 
-      return TPRIME::_PRIME_masses[it->second.second];
+      return TPRIME::_PRIME_masses[it->second.first];
     }
 
     inline virtual std::string getName() const 

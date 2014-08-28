@@ -260,12 +260,19 @@ namespace dynamo {
               }
             bond_energy = -std::numeric_limits<double>::infinity();
           }
-
         else
           {
-            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
-            outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.first + p2Data.first ];
-            bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.first + p2Data.first ];
+            inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.first + p2Data.first];
+            outer_diameter = TPRIME::_PRIME_well_diameters[22 * p1Data.first + p2Data.first];
+            bond_energy    = TPRIME::_PRIME_well_depths[22 * p1Data.first + p2Data.first];
+
+	    if (bond_energy == 0)
+	      { 
+		//Its a hard sphere interaction!
+		bond_energy = +std::numeric_limits<double>::infinity();
+		outer_diameter = inner_diameter;
+		inner_diameter = 0;
+	      }
 
             //Check for cases where it could be a "close" interaction
             if (p2Data.second - 1 ==  p1Data.second) //p1 is on the residue before p2
