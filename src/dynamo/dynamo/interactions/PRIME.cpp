@@ -113,7 +113,7 @@ namespace dynamo {
   std::array<double, 4> 
   IPRIME::getGlyphSize(size_t ID) const
   {
-    return {{TPRIME::_PRIME_diameters[getBeadData(ID).first], 0, 0, 0}};
+    return {{TPRIME::_PRIME_diameters[getBeadData(ID).bead_type], 0, 0, 0}};
   }
 
   double
@@ -121,7 +121,7 @@ namespace dynamo {
   {
     //This calculation only includes the volumes which are always
     //excluded (i.e. the hard core)
-    double diam = TPRIME::_PRIME_diameters[getBeadData(ID).first];
+    double diam = TPRIME::_PRIME_diameters[getBeadData(ID).bead_type];
     return diam * diam * diam * M_PI / 6.0;
   }
 
@@ -146,16 +146,16 @@ namespace dynamo {
     double inner_diameter; //0 if its a hard sphere
     double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
 
-    if (p1Data.first > TPRIME::CO && p2Data.first > TPRIME::CO ) //SC-SC interaction
+    if (p1Data.bead_type > TPRIME::CO && p2Data.bead_type > TPRIME::CO ) //SC-SC interaction
       {
-        inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
-        outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.first + p2Data.first ];
-        bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.first + p2Data.first ];
+        inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
+        outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
+        bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.bead_type + p2Data.bead_type];
       }
-    else if (p1Data.first <= TPRIME::CO && p2Data.first <= TPRIME::CO) //BB-BB interaction
+    else if (p1Data.bead_type <= TPRIME::CO && p2Data.bead_type <= TPRIME::CO) //BB-BB interaction
       {
-        const size_t loc1 = p1Data.first + 3 * p1Data.second;
-        const size_t loc2 = p2Data.first + 3 * p2Data.second;
+        const size_t loc1 = p1Data.bead_type + 3 * p1Data.residue;
+        const size_t loc2 = p2Data.bead_type + 3 * p2Data.residue;
         const size_t distance = std::max(loc1, loc2) - std::min(loc1, loc2);
 
         //This treats the special cases if they are 0,1,2, or three backbone
@@ -166,18 +166,18 @@ namespace dynamo {
             M_throw() << "Invalid backbone distance of 0";
           case 1:
             {//Every type of this interaction is a bonded interaction
-              inner_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.first + p2Data.first]
+              inner_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
                                   * (1.0 - TPRIME::_PRIME_bond_tolerance);
-              outer_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.first + p2Data.first]
+              outer_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
                                   * (1.0 + TPRIME::_PRIME_bond_tolerance);
               bond_energy    = -std::numeric_limits<double>::infinity();
             }
             break;
           case 2:
             {//Every type of this interaction is a pseudobond interaction
-              inner_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.first + p2Data.first]
+              inner_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
                                   * (1.0 - TPRIME::_PRIME_bond_tolerance);
-              outer_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.first + p2Data.first]
+              outer_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
                                   * (1.0 + TPRIME::_PRIME_bond_tolerance);
               bond_energy    = -std::numeric_limits<double>::infinity();
             }
@@ -185,7 +185,7 @@ namespace dynamo {
           case 3:
             {
               //Check if this is the special pseudobond
-              if ((p1Data.first == TPRIME::CH) && (p2Data.first == TPRIME::CH))
+              if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CH))
                 {
                   inner_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length
                                       * (1.0 - TPRIME::_PRIME_bond_tolerance);
@@ -196,7 +196,7 @@ namespace dynamo {
               else
                 //Close backbone-backbone hard-sphere interaction
                 inner_diameter = 0.0;
-                outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ]
+                outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ]
                                     * TPRIME::_PRIME_near_diameter_scale_factor;
                 bond_energy = std::numeric_limits<double>::infinity();
             }
@@ -206,13 +206,13 @@ namespace dynamo {
 
             //not a HB pair
             inner_diameter = 0.0;
-            outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+            outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
             bond_energy = std::numeric_limits<double>::infinity();
 
             /*
             //HB aux pair which is currently not captured
             //not captured = in an appropriate place to allow HB to form
-            inner_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+            inner_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
             outer_diameter = std::numeric_limits<double>::infinity();
             //if (all other conditions are met and pairs are in place for HBond to exist)
                 bond_energy = -TPRIME::_PRIME_HB_strength;
@@ -221,15 +221,15 @@ namespace dynamo {
 
             //HB aux pair which is currently captured
             //captured = too close for HB to form (on the shoulder)
-            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
-            outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
+            outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
             //if (all other conditions are met and pairs are in place for HBond to exist)
                 bond_energy = TPRIME::_PRIME_HB_strength;
             //else 
                 bond_energy = 0.0;
 
             //Main HB pair
-            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
             outer_diameter = TPRIME::_PRIME_HB_well_diameter;
             //if (all other conditions are met and pairs are in place for HBond to exist)
                 bond_energy = -TPRIME::_PRIME_HB_strength;
@@ -242,29 +242,29 @@ namespace dynamo {
       }
     else //BB-SC interaction
       {
-        if (p1Data.second == p2Data.second) //They are [pseudo]bonded on the same residue
+        if (p1Data.residue == p2Data.residue) //They are [pseudo]bonded on the same residue
           {
-            if (p1Data.first <= TPRIME::CO) //p1 is BB, p2 is SC
+            if (p1Data.bead_type <= TPRIME::CO) //p1 is BB, p2 is SC
               {
-                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.first + p2Data.first ]
+                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
                                       * (1.0 - TPRIME::_PRIME_bond_tolerance);
-                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.first + p2Data.first ]
+                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
                                       * (1.0 + TPRIME::_PRIME_bond_tolerance);
               }
             else //p2 is BB, p1 is SC
               {
-                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.first + p1Data.first ]
+                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.bead_type + p1Data.bead_type ]
                                       * (1.0 - TPRIME::_PRIME_bond_tolerance);
-                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.first + p1Data.first ]
+                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.bead_type + p1Data.bead_type ]
                                       * (1.0 + TPRIME::_PRIME_bond_tolerance);
               }
             bond_energy = -std::numeric_limits<double>::infinity();
           }
         else
           {
-            inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.first + p2Data.first];
-            outer_diameter = TPRIME::_PRIME_well_diameters[22 * p1Data.first + p2Data.first];
-            bond_energy    = TPRIME::_PRIME_well_depths[22 * p1Data.first + p2Data.first];
+            inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+            outer_diameter = TPRIME::_PRIME_well_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+            bond_energy    = TPRIME::_PRIME_well_depths[22 * p1Data.bead_type + p2Data.bead_type];
 
 	    if (bond_energy == 0)
 	      { 
@@ -275,17 +275,17 @@ namespace dynamo {
 	      }
 
             //Check for cases where it could be a "close" interaction
-            if (p2Data.second - 1 ==  p1Data.second) //p1 is on the residue before p2
+            if (p2Data.residue - 1 ==  p1Data.residue) //p1 is on the residue before p2
               {
-                  if ((p1Data.first > TPRIME::CO && p2Data.first == TPRIME::NH) || (p2Data.first > TPRIME::CO && p1Data.first == TPRIME::CO))
+                  if ((p1Data.bead_type > TPRIME::CO && p2Data.bead_type == TPRIME::NH) || (p2Data.bead_type > TPRIME::CO && p1Data.bead_type == TPRIME::CO))
                     {
                       inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
                       outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
                     }
               }
-            else if (p2Data.second + 1 == p1Data.second) //p2 is on the residue after p1
+            else if (p2Data.residue + 1 == p1Data.residue) //p2 is on the residue after p1
               {
-                  if ((p2Data.first > TPRIME::CO && p1Data.first == TPRIME::NH) || (p1Data.first > TPRIME::CO && p2Data.first == TPRIME::CO))
+                  if ((p2Data.bead_type > TPRIME::CO && p1Data.bead_type == TPRIME::NH) || (p1Data.bead_type > TPRIME::CO && p2Data.bead_type == TPRIME::CO))
                     {
                       inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
                       outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
@@ -297,7 +297,7 @@ namespace dynamo {
 
 #ifdef DYNAMO_DEBUG
     if (bond_energy == 0.0)
-      M_throw() << "Invalid bond_energy calculated, p1="<< pID1 << ", p2="<< pID2 << ", type1=" << p1Data.first << ", type2="<< p2Data.first;
+      M_throw() << "Invalid bond_energy calculated, p1="<< pID1 << ", p2="<< pID2 << ", type1=" << p1Data.bead_type << ", type2="<< p2Data.bead_type;
 #endif
 
     return std::make_tuple( outer_diameter, inner_diameter, bond_energy );
@@ -428,7 +428,7 @@ namespace dynamo {
 	if (Sim->dynamics->sphereOverlap(p1, p2, inner_diameter))
 	  {
 	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
 		   << " are inside the bond with an inner hard core at " << inner_diameter / Sim->units.unitLength()
 		   << " but they are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
@@ -439,7 +439,7 @@ namespace dynamo {
 	if (!Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
 	  {
 	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
 		   << " should be inside the bond with an upper limit of " << outer_diameter / Sim->units.unitLength()
 		   << " but they are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
@@ -453,7 +453,7 @@ namespace dynamo {
 	if (Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
 	  {
 	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
 		   << " are inside the hard core at " << outer_diameter / Sim->units.unitLength()
 		   << " and are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
@@ -468,7 +468,7 @@ namespace dynamo {
 	if (captured && Sim->dynamics->sphereOverlap(p1, p2, inner_diameter))
 	  {
 	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
 		   << " are inside the inner hard core of the well at " << inner_diameter / Sim->units.unitLength()
 		   << " and are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
@@ -479,7 +479,7 @@ namespace dynamo {
 	if (captured && !Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
 	  {
 	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
 		   << " are registered as being inside the well with an upper limit of " << outer_diameter / Sim->units.unitLength()
 		   << " but they are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
@@ -491,7 +491,7 @@ namespace dynamo {
 	if (!captured && Sim->dynamics->sphereOverlap(p1, p2, outer_diameter))
 	  {
 	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.first] << ":"<< p1Data.second << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.first] << ":" << p2Data.second << ")"
+	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
 		   << " but they are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
 		   << std::endl;

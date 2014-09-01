@@ -237,10 +237,15 @@ namespace dynamo {
        /*CO*/0.00, 4.86, 4.83}
       ;
 
-    typedef std::pair<PRIME_site_type, size_t> BeadData;
+    struct BeadData {
+      BeadData(PRIME_site_type t, size_t r, bool e): bead_type(t), residue(r), end_group(e) {}
+      bool operator<(const BeadData& op) const { return bead_type<op.bead_type || (!(op.bead_type<bead_type) && (residue<op.residue)); }
+      PRIME_site_type bead_type;
+      size_t residue;
+      bool end_group;
+    };
     
-    typedef bimap<set_of<size_t>, 
-		  set_of<BeadData> > BeadTypeMap;
+    typedef bimap<set_of<size_t>, set_of<BeadData> > BeadTypeMap;
 
     TPRIME(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
 
