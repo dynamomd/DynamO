@@ -136,7 +136,7 @@ namespace dynamo {
     return maxdiam;
   }
 
-  std::tuple<double, double, double>
+  std::tuple<double, double, double, size_t, size_t>
   IPRIME::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {
     const TPRIME::BeadData p1Data = getBeadData(pID1);
@@ -145,6 +145,10 @@ namespace dynamo {
     double outer_diameter; //Either the outer well diameter, or the hard-sphere diameter
     double inner_diameter; //0 if its a hard sphere
     double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
+
+    //IDs of the main NH-CO pair
+    size_t NH_ID = 0;
+    size_t CO_ID = 0;
 
     if (p1Data.first > TPRIME::CO && p2Data.first > TPRIME::CO ) //SC-SC interaction
       {
@@ -204,38 +208,234 @@ namespace dynamo {
           default:
             //Backbone-backbone hard-sphere or hydrogen bond interaction
 
-            //not a HB pair
-            inner_diameter = 0.0;
-            outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
-            bond_energy = std::numeric_limits<double>::infinity();
+            //Split the criteria based on time-dependence. If the time-independent criteria are met,
+            //we want to track the pair's capture state and evaluate the time-dependent criteria.
+            //If the time-dependent criteria are met, we want to turn the energy of the interaction on.
+            bool timeIndependentHBCriteria = false;
+            bool timeDependentHBCriteria = false;
 
-            /*
-            //HB aux pair which is currently not captured
-            //not captured = in an appropriate place to allow HB to form
-            inner_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
-            outer_diameter = std::numeric_limits<double>::infinity();
-            //if (all other conditions are met and pairs are in place for HBond to exist)
-                bond_energy = -TPRIME::_PRIME_HB_strength;
-            //else
-                bond_energy = 0.0;
+            //TODO: Make real bounds (for the first and last resIDs of the chain)
+            std::pair<int,int> p1Bounds = std::make_pair(0,4);
+            std::pair<int,int> p2Bounds = std::make_pair(0,4);
 
-            //HB aux pair which is currently captured
-            //captured = too close for HB to form (on the shoulder)
             inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
-            outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
-            //if (all other conditions are met and pairs are in place for HBond to exist)
-                bond_energy = TPRIME::_PRIME_HB_strength;
-            //else 
-                bond_energy = 0.0;
 
-            //Main HB pair
-            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
-            outer_diameter = TPRIME::_PRIME_HB_well_diameter;
-            //if (all other conditions are met and pairs are in place for HBond to exist)
-                bond_energy = -TPRIME::_PRIME_HB_strength;
-            //else
-                bond_energy = 0.0;
-            */
+            //Determine if HB
+            //If the time-independent criteria are met, it's not a hard-sphere and we track pairs.
+            //If the time-dependent criteria are met, the bond_energy is nonzero
+            if (p1Data.first == TPRIME::CO)
+              {
+                if (p2Data.first == TPRIME::CO)
+                  {
+                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+
+                    //First try assuming pID1 is the main CO
+                    //then the main NH is pID2+1 and has a resID of p2Data.second+1
+                    NH_ID = pID2+1;
+                    CO_ID = pID1;
+
+                    if (p1Data.second < p1Bounds.second && p2Data.second < p2Bounds.second)
+                      {
+                        if (abs( p1Data.second - (p2Data.second+1) ) > 3)
+                          {
+                            timeIndependentHBCriteria = true;
+                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,3);
+                          }
+
+                        //If time dependent criteria not met, try assuming pID2 is the main CO
+                        //then the main NH is pID1+1 and has a resID of p1Data.second+1
+                        if (!timeDependentHBCriteria)
+                          {
+                            NH_ID = pID1+1;
+                            CO_ID = pID2;
+
+                            if (abs( (p1Data.second+1) - p2Data.second ) > 3)
+                              {
+                                timeIndependentHBCriteria = true;
+
+                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,3);
+                              }
+                          }
+
+                        if (timeDependentHBCriteria)
+                          {
+                            bond_energy = _PRIME_HB_strength;
+                          }
+                      }
+                  }
+                else if (p2Data.first == TPRIME::NH)
+                  {
+                    // this is the primary NH-CO pair.
+                    outer_diameter = TPRIME::_PRIME_HB_well_diameter;
+
+                    NH_ID = pID2;
+                    CO_ID = pID1;
+
+                    if ( p1Data.second < p1Bounds.second && p2Data.second > p2Bounds.first &&
+                         (abs(p1Data.second - p2Data.second) > 3) )
+                      {
+                        timeIndependentHBCriteria = true;
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 0);
+                      }
+
+                    if (timeDependentHBCriteria)
+                      {
+                        bond_energy = -_PRIME_HB_strength;
+                      }
+
+                  }
+                else if (p2Data.first == TPRIME::CH)
+                  {
+                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+
+                    NH_ID = pID2-1;
+                    CO_ID = pID1;
+
+                    if ( p1Data.second < p1Bounds.second && p2Data.second > p2Bounds.first &&
+                        (abs( p1Data.second - p2Data.second ) > 3) )
+                      {
+                        timeIndependentHBCriteria = true;
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 4);
+                      }
+
+                    if (timeDependentHBCriteria)
+                      {
+                        bond_energy = _PRIME_HB_strength;
+                      }
+                  }
+              }
+            else if (p2Data.first == TPRIME::CO)
+              {
+                if (p1Data.first == TPRIME::NH)
+                  {
+                    // this is the primary NH-CO pair.
+                    outer_diameter = TPRIME::_PRIME_HB_well_diameter;
+
+                    NH_ID = pID1;
+                    CO_ID = pID2;
+
+                    if ( p1Data.second < p1Bounds.second && p2Data.second > p2Bounds.first &&
+                         (abs(p1Data.second - p2Data.second) > 3) )
+                      {
+                        timeIndependentHBCriteria = true;
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,0);
+                      }
+
+                    if (timeDependentHBCriteria)
+                      {
+                        bond_energy = -_PRIME_HB_strength;
+                      }
+
+                  }
+                else if (p1Data.first == TPRIME::CH)
+                  {
+                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+
+                    NH_ID = pID1-1;
+                    CO_ID = pID2;
+
+                    if ( p2Data.second < p2Bounds.second && p1Data.second > p1Bounds.first &&
+                        (abs( p1Data.second - p2Data.second ) > 3) )
+                      {
+                        timeIndependentHBCriteria = true;
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 4);
+                      }
+
+                    if (timeDependentHBCriteria)
+                      {
+                        bond_energy = _PRIME_HB_strength;
+                      }
+                  }
+              }
+            else if (p1Data.first == TPRIME::NH)
+              {
+                if (p2Data.first == TPRIME::NH)
+                  {
+                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+
+                    //First try assuming p1 is the main NH
+                    //then the main CO is pID2-1 and has a resID of p2Data.second-1
+                    NH_ID = pID1;
+                    CO_ID = pID2-1;
+
+                    if (p1Data.second > p1Bounds.first && p2Data.second > p2Bounds.first)
+                      {
+                        if (abs( p1Data.second - (p2Data.second-1) ) > 3)
+                          {
+                            timeIndependentHBCriteria = true;
+                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 2);
+                          }
+
+                        //If time dependent criteria not met, try assuming p2 is the main NH
+                        //then the main CO is pID1-1 and has a resID of p1Data.second-1
+                        if (!timeDependentHBCriteria)
+                          {
+
+                            NH_ID = pID2;
+                            CO_ID = pID1-1;
+
+                            if (abs( (p1Data.second-1) - p2Data.second ) > 3)
+                              {
+                                timeIndependentHBCriteria = true;
+                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 2);
+                              }
+                          }
+
+                        if (timeDependentHBCriteria)
+                          {
+                            bond_energy = _PRIME_HB_strength;
+                          }
+                      }
+                  }
+                else if (p2Data.first == TPRIME::CH)
+                  {
+                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+
+                    NH_ID = pID2-1;
+                    CO_ID = pID1;
+
+                    //pID1 is the main CO. The main NH is pID2-1
+                    if ( p1Data.second < p1Bounds.second && p2Data.second > p2Bounds.first &&
+                        (abs( p1Data.second - p2Data.second ) > 3) )
+                      {
+                        timeIndependentHBCriteria = true;
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,1);
+                      }
+
+                    if (timeDependentHBCriteria)
+                      {
+                        bond_energy = _PRIME_HB_strength;
+                      }
+                  }
+              }
+            else if (p2Data.first == TPRIME::NH)
+              {
+                //p1 must be CH, all other possibilities exhausted
+                outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.first + p2Data.first];
+
+                NH_ID = pID2;
+                CO_ID = pID1+1;
+
+                if ( p1Data.second < p1Bounds.second && p2Data.second > p2Bounds.first &&
+                    (abs( p1Data.second - p2Data.second ) > 3) )
+                  {
+                    timeIndependentHBCriteria = true;
+                    timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,1);
+                  }
+
+                if (timeDependentHBCriteria)
+                  {
+                    bond_energy = _PRIME_HB_strength;
+                  }
+              }
+
+            if (!timeIndependentHBCriteria)
+              {
+                //It's a hard-sphere interaction
+                inner_diameter = 0.0;
+                outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.first + p2Data.first ];
+                bond_energy = std::numeric_limits<double>::infinity();
+              }
 
             break;
           };
@@ -300,7 +500,44 @@ namespace dynamo {
       M_throw() << "Invalid bond_energy calculated, p1="<< pID1 << ", p2="<< pID2 << ", type1=" << p1Data.first << ", type2="<< p2Data.first;
 #endif
 
-    return std::make_tuple( outer_diameter, inner_diameter, bond_energy );
+    return std::make_tuple( outer_diameter, inner_diameter, bond_energy, NH_ID, CO_ID);
+  }
+
+  bool
+  IPRIME::checkTimeDependentCriteria(const size_t NH_ID, const size_t CO_ID, const size_t distance_i) const
+  {
+    //The 5 distance criteria are labelled 0 to 4, and the current pair's applicable number is distance_i.
+    //NH_ID and CO_ID give the IDs of the central NH-CO pair in the candidate hydrogen bond.
+
+    bool satisfied = !(NH_HB_exists[ getBeadData(NH_ID).second ]) && !(CO_HB_exists[ getBeadData(CO_ID).second ]);
+
+    //NH-CO
+    if (satisfied && distance_i != 0)
+      {
+        satisfied = isCaptured(NH_ID, CO_ID);
+      }
+    //NH-CH
+    if (satisfied && distance_i != 1)
+      {
+        satisfied = isCaptured(NH_ID, CO_ID-1);
+      }
+    //NH-NH
+    if (satisfied && distance_i != 2)
+      {
+        satisfied = isCaptured(NH_ID, CO_ID+1);
+      }
+    //CO-CO
+    if (satisfied && distance_i != 3)
+      {
+        satisfied = isCaptured(NH_ID-1, CO_ID);
+      }
+    //CO-CH
+    if (satisfied && distance_i != 4)
+      {
+        satisfied = isCaptured(NH_ID+1, CO_ID);
+      }
+
+    return satisfied;
   }
 
   IntEvent

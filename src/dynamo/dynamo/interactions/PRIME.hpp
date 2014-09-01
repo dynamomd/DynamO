@@ -64,7 +64,9 @@ namespace dynamo {
       \return This pair has the interaction diameter as the first
       value and whether this diameter is a bond as the second value.
      */
-    std::tuple<double, double, double> getInteractionParameters(const size_t pID1, const size_t pID2) const;
+    std::tuple<double, double, double, size_t, size_t> getInteractionParameters(const size_t pID1, const size_t pID2) const;
+
+    bool checkTimeDependentCriteria(const size_t NH_ID, const size_t CO_ID, const size_t distance_i) const;
 
     std::shared_ptr<TPRIME> _topology;
 
