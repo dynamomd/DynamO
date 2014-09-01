@@ -237,12 +237,15 @@ namespace dynamo {
        /*CO*/0.00, 4.86, 4.83}
       ;
 
+    enum BeadLocation { NH_END, MID, CO_END };
+
     struct BeadData {
-      BeadData(PRIME_site_type t, size_t r, bool e): bead_type(t), residue(r), end_group(e) {}
+      BeadData(PRIME_site_type t, size_t r, BeadLocation e): 
+	bead_type(t), residue(r), location(e) {}
       bool operator<(const BeadData& op) const { return bead_type<op.bead_type || (!(op.bead_type<bead_type) && (residue<op.residue)); }
       PRIME_site_type bead_type;
       size_t residue;
-      bool end_group;
+      BeadLocation location;
     };
     
     typedef bimap<set_of<size_t>, set_of<BeadData> > BeadTypeMap;
