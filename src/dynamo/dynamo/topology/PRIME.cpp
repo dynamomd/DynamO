@@ -54,7 +54,7 @@ namespace dynamo {
       if (it == _beadTypes->left.end())
 	M_throw() << "Do not have a PRIME bead type for particle ID " << ID;
 
-      return TPRIME::_PRIME_masses[it->second.first];
+      return TPRIME::_PRIME_masses[it->second.bead_type];
     }
 
     inline virtual std::string getName() const 
@@ -111,35 +111,40 @@ namespace dynamo {
 	//Create an internal representation which allows fast look-ups
 	const size_t startID = node.getAttribute("StartID").as<size_t>();
 	size_t ID = startID;
-	for (char letter: node.getAttribute("Sequence").as<std::string>())
+	const std::string seq =  node.getAttribute("Sequence").as<std::string>();
+	for (auto it = seq.begin(); it != seq.end(); ++it)
 	  {
-	    _types->insert(BeadTypeMap::value_type(ID++, BeadData(NH, residue)));
-	    _types->insert(BeadTypeMap::value_type(ID++, BeadData(CH, residue)));
-	    _types->insert(BeadTypeMap::value_type(ID++, BeadData(CO, residue)));
+	    BeadLocation location = MID;
+	    if (it == seq.begin()) location = NH_END;
+	    if (it == (seq.end() - 1)) location = CO_END;
+
+	    _types->insert(BeadTypeMap::value_type(ID++, BeadData(NH, residue, location)));
+	    _types->insert(BeadTypeMap::value_type(ID++, BeadData(CH, residue, location)));
+	    _types->insert(BeadTypeMap::value_type(ID++, BeadData(CO, residue, location)));
 	    
-	    switch (letter) {
-	    case 'A': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::A, residue))); break;
-	    case 'C': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::C, residue))); break;
-	    case 'D': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::D, residue))); break;
-	    case 'E': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::E, residue))); break;
-	    case 'F': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::F, residue))); break;
+	    switch (*it) {
+	    case 'A': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::A, residue, location))); break;
+	    case 'C': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::C, residue, location))); break;
+	    case 'D': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::D, residue, location))); break;
+	    case 'E': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::E, residue, location))); break;
+	    case 'F': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::F, residue, location))); break;
 	    case 'G': /*This residue has no side chain*/ break;
-	    case 'H': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::H, residue))); break;
-	    case 'I': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::I, residue))); break;
-	    case 'K': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::K, residue))); break;
-	    case 'L': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::L, residue))); break;
-	    case 'M': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::M, residue))); break;
-	    case 'N': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::N, residue))); break;
-	    case 'P': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::P, residue))); break;
-	    case 'Q': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::Q, residue))); break;
-	    case 'R': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::R, residue))); break;
-	    case 'S': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::S, residue))); break;
-	    case 'T': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::T, residue))); break;
-	    case 'V': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::V, residue))); break;
-	    case 'W': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::W, residue))); break;
-	    case 'Y': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::Y, residue))); break;
+	    case 'H': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::H, residue, location))); break;
+	    case 'I': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::I, residue, location))); break;
+	    case 'K': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::K, residue, location))); break;
+	    case 'L': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::L, residue, location))); break;
+	    case 'M': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::M, residue, location))); break;
+	    case 'N': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::N, residue, location))); break;
+	    case 'P': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::P, residue, location))); break;
+	    case 'Q': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::Q, residue, location))); break;
+	    case 'R': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::R, residue, location))); break;
+	    case 'S': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::S, residue, location))); break;
+	    case 'T': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::T, residue, location))); break;
+	    case 'V': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::V, residue, location))); break;
+	    case 'W': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::W, residue, location))); break;
+	    case 'Y': _types->insert(BeadTypeMap::value_type(ID++, BeadData(TPRIME::Y, residue, location))); break;
 	    default:
-	      M_throw() << "Unrecognised PRIME group type " << letter;
+	      M_throw() << "Unrecognised PRIME group type " << *it;
 	    }
 	    ++residue;
 	  }
