@@ -8,6 +8,7 @@ import random
 import numpy as np
 import subprocess
 import prototype_positions as pp
+import re
 
 #Turn on for full output from DynamO, and a .xyz file output
 debug = False
@@ -39,19 +40,37 @@ except:
     temperature = '1.0'
 
 try:
-    sys.argv[1] = [ letter.upper() for letter in sys.argv[1] ]
-    if ( sys.argv[1] == list('N16N') ):
+    sys.argv[1] = sys.argv[1].upper()
+    if ( sys.argv[1] == 'S1' ):
+        sequence = list('PPPWLPYMPPWS')
+    elif ( sys.argv[1] == 'N16N' ):
         sequence = list('AYHKKCGRYSYCWIPYDIERDRYDNGDKKC')
-    elif ( sys.argv[1][:5] == list('ALPHA') ):
+    elif ( sys.argv[1][:5] == 'ALPHA' ):
         sequence = list('ACDEFHIKLMNPQRSTVWY')
     else:
         sequence = list(sys.argv[1])
-        assert [ sites.index(residue) for residue in sequence]
+        valid_input = sites + [ str(number) for number in range(0,10) ]
+        assert ( [ residue in valid_input for residue in list(sys.argv[1])] )
+
+        matches = re.finditer("[0-9]+", sys.argv[1])
+
+        for match in matches:
+
+            letter_index = match.start()-1
+            number = int( match.group() )
+
+            letter = sys.argv[1][letter_index]
+            insertion = letter*number
+            sequence[letter_index] = insertion
+
+        sequence = filter( lambda x: x.isalpha(), sequence)
+        sequence = list(''.join(sequence))
 
         if len(sequence) > 33:
             sys.exit('33 residues is currently the maximum length for this generator.')
 
 except (ValueError, IndexError):
+    raise
     sys.exit('Run as ./peptide_maker.py (sequence) [temperature kT = 1.0] [xml_fn = PRIME_peptide].')
 
 date               = time.strftime('%X %x %Z')
