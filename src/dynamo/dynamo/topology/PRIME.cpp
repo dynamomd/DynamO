@@ -145,6 +145,11 @@ namespace dynamo {
 	  }
 
 	ranges.push_back(shared_ptr<IDRange>(new IDRangeRange(startID, ID)));
+
+	//If we're starting a new chain, skip at least three residue
+	//ID's (so that all special cases for intra-molecule
+	//interactions cannot happen between molecules)
+	residue += 3;
       }
   }
 
