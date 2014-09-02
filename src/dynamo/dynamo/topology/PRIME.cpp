@@ -31,6 +31,7 @@ namespace dynamo {
   constexpr double TPRIME::_PRIME_well_diameters[];
   constexpr double TPRIME::_PRIME_well_depths[];
   constexpr double TPRIME::_PRIME_SC_BB_bond_lengths[];
+  constexpr double TPRIME::_PRIME_HB_aux_min_distances[];
 
   const std::vector<std::string> TPRIME::PRIME_site_names {"NH", "CH", "CO", "A", "C", "D", "E", "F", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"};
 
