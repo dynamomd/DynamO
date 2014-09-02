@@ -146,9 +146,9 @@ namespace dynamo {
     double inner_diameter; //0 if its a hard sphere
     double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
 
-    //IDs of the main NH-CO pair for HB interactions
-    size_t NH_ID = 0;
-    size_t CO_ID = 0;
+    //ResIDs of the main NH-CO pair for HB interactions
+    size_t NH_res = 0;
+    size_t CO_res = 0;
 
     if (p1Data.bead_type > TPRIME::CO && p2Data.bead_type > TPRIME::CO ) //SC-SC interaction
       {
@@ -227,29 +227,29 @@ namespace dynamo {
 
                     //First try assuming pID1 is the main CO
                     //then the main NH is pID2+1 and has a resID of p2Data.residue+1
-                    NH_ID = pID2+1;
-                    CO_ID = pID1;
+                    NH_res = p2Data.residue + 1;
+                    CO_res = p1Data.residue;
 
                     if (p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::CO_END)
                       {
-                        if (abs( p1Data.residue - (p2Data.residue+1) ) > 3)
+                        if (abs( NH_res - CO_res ) > 3)
                           {
                             timeIndependentHBCriteria = true;
-                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,3);
+                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
                           }
 
                         //If time dependent criteria not met, try assuming pID2 is the main CO
                         //then the main NH is pID1+1 and has a resID of p1Data.residue+1
                         if (!timeDependentHBCriteria)
                           {
-                            NH_ID = pID1+1;
-                            CO_ID = pID2;
+                            NH_res = p1Data.residue + 1;
+                            CO_res = p2Data.residue;
 
-                            if (abs( (p1Data.residue+1) - p2Data.residue ) > 3)
+                            if (abs( NH_res - CO_res ) > 3)
                               {
                                 timeIndependentHBCriteria = true;
 
-                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,3);
+                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
                               }
                           }
 
@@ -264,14 +264,14 @@ namespace dynamo {
                     // this is the primary NH-CO pair.
                     outer_diameter = TPRIME::_PRIME_HB_well_diameter;
 
-                    NH_ID = pID2;
-                    CO_ID = pID1;
+                    NH_res = p2Data.residue;
+                    CO_res = p1Data.residue;
 
                     if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                         (abs(p1Data.residue - p2Data.residue) > 3) )
+                         (abs( NH_res - CO_res ) > 3) )
                       {
                         timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 0);
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 0);
                       }
 
                     if (timeDependentHBCriteria)
@@ -284,14 +284,14 @@ namespace dynamo {
                   {
                     outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
 
-                    NH_ID = pID2-1;
-                    CO_ID = pID1;
+                    NH_res = p2Data.residue;
+                    CO_res = p1Data.residue;
 
                     if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                        (abs( p1Data.residue - p2Data.residue ) > 3) )
+                        (abs( NH_res - CO_res ) > 3) )
                       {
                         timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 4);
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 4);
                       }
 
                     if (timeDependentHBCriteria)
@@ -307,14 +307,14 @@ namespace dynamo {
                     // this is the primary NH-CO pair.
                     outer_diameter = TPRIME::_PRIME_HB_well_diameter;
 
-                    NH_ID = pID1;
-                    CO_ID = pID2;
+                    NH_res = p1Data.residue;
+                    CO_res = p2Data.residue;
 
                     if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                         (abs(p1Data.residue - p2Data.residue) > 3) )
+                         (abs( NH_res - CO_res ) > 3) )
                       {
                         timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,0);
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 0);
                       }
 
                     if (timeDependentHBCriteria)
@@ -327,14 +327,14 @@ namespace dynamo {
                   {
                     outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
 
-                    NH_ID = pID1-1;
-                    CO_ID = pID2;
+                    NH_res = p1Data.residue;
+                    CO_res = p2Data.residue;
 
                     if ( p2Data.location != TPRIME::CO_END && p1Data.location != TPRIME::NH_END &&
-                        (abs( p1Data.residue - p2Data.residue ) > 3) )
+                        (abs( NH_res - CO_res ) > 3) )
                       {
                         timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 4);
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 4);
                       }
 
                     if (timeDependentHBCriteria)
@@ -351,15 +351,15 @@ namespace dynamo {
 
                     //First try assuming p1 is the main NH
                     //then the main CO is pID2-1 and has a resID of p2Data.residue-1
-                    NH_ID = pID1;
-                    CO_ID = pID2-1;
+                    NH_res = p1Data.residue;
+                    CO_res = p2Data.residue - 1;
 
                     if (p1Data.location != TPRIME::NH_END && p2Data.location != TPRIME::NH_END)
                       {
-                        if (abs( p1Data.residue - (p2Data.residue-1) ) > 3)
+                        if (abs( NH_res - CO_res ) > 3)
                           {
                             timeIndependentHBCriteria = true;
-                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 2);
+                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 2);
                           }
 
                         //If time dependent criteria not met, try assuming p2 is the main NH
@@ -367,13 +367,13 @@ namespace dynamo {
                         if (!timeDependentHBCriteria)
                           {
 
-                            NH_ID = pID2;
-                            CO_ID = pID1-1;
+                            NH_res = p2Data.residue;
+                            CO_res = p1Data.residue - 1;
 
-                            if (abs( (p1Data.residue-1) - p2Data.residue ) > 3)
+                            if (abs( NH_res - CO_res ) > 3)
                               {
                                 timeIndependentHBCriteria = true;
-                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID, CO_ID, 2);
+                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 2);
                               }
                           }
 
@@ -387,15 +387,15 @@ namespace dynamo {
                   {
                     outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
 
-                    NH_ID = pID2-1;
-                    CO_ID = pID1;
+                    NH_res = p1Data.residue;
+                    CO_res = p2Data.residue;
 
                     //pID1 is the main CO. The main NH is pID2-1
                     if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                        (abs( p1Data.residue - p2Data.residue ) > 3) )
+                        (abs( NH_res - CO_res ) > 3) )
                       {
                         timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,1);
+                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 1);
                       }
 
                     if (timeDependentHBCriteria)
@@ -409,14 +409,14 @@ namespace dynamo {
                 //p1 must be CH, all other possibilities exhausted
                 outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
 
-                NH_ID = pID2;
-                CO_ID = pID1+1;
+                NH_res = p2Data.residue;
+                CO_res = p1Data.residue;
 
                 if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                    (abs( p1Data.residue - p2Data.residue ) > 3) )
+                    (abs( NH_res - CO_res ) > 3) )
                   {
                     timeIndependentHBCriteria = true;
-                    timeDependentHBCriteria = checkTimeDependentCriteria(NH_ID,CO_ID,1);
+                    timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 1);
                   }
 
                 if (timeDependentHBCriteria)
@@ -496,41 +496,47 @@ namespace dynamo {
       M_throw() << "Invalid bond_energy calculated, p1="<< pID1 << ", p2="<< pID2 << ", type1=" << p1Data.bead_type << ", type2="<< p2Data.bead_type;
 #endif
 
-    return std::make_tuple( outer_diameter, inner_diameter, bond_energy, NH_ID, CO_ID);
+    return std::make_tuple( outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
   }
 
   bool
-  IPRIME::checkTimeDependentCriteria(const size_t NH_ID, const size_t CO_ID, const size_t distance_i) const
+  IPRIME::checkTimeDependentCriteria(const size_t NH_res, const size_t CO_res, const size_t distance_i) const
   {
     //The 5 distance criteria are labelled 0 to 4, and the current pair's applicable number is distance_i.
     //NH_ID and CO_ID give the IDs of the central NH-CO pair in the candidate hydrogen bond.
 
-    bool satisfied = !(NH_HB_exists[ getBeadData(NH_ID).residue ]) && !(CO_HB_exists[ getBeadData(CO_ID).residue ]);
+    //bool satisfied = !(NH_HB_exists[ NH_res ]) && !(CO_HB_exists[ CO_res ]);
+    bool satisfied = true;
 
     //NH-CO
     if (satisfied && distance_i != 0)
       {
-        satisfied = isCaptured(NH_ID, CO_ID);
+        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
       }
     //NH-CH
     if (satisfied && distance_i != 1)
       {
-        satisfied = isCaptured(NH_ID, CO_ID-1);
+        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID)) );
       }
     //NH-NH
     if (satisfied && distance_i != 2)
       {
-        satisfied = isCaptured(NH_ID, CO_ID+1);
+        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+                                _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID)) );
       }
     //CO-CO
     if (satisfied && distance_i != 3)
       {
-        satisfied = isCaptured(NH_ID-1, CO_ID);
+        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID)),
+                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
       }
     //CO-CH
     if (satisfied && distance_i != 4)
       {
-        satisfied = isCaptured(NH_ID+1, CO_ID);
+        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID)),
+                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
       }
 
     return satisfied;
