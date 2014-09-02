@@ -517,25 +517,25 @@ namespace dynamo {
     //NH-CH
     if (satisfied && distance_i != 1)
       {
-        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
                                 _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID)) );
       }
     //NH-NH
     if (satisfied && distance_i != 2)
       {
-        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
                                 _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID)) );
       }
     //CO-CO
     if (satisfied && distance_i != 3)
       {
-        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID)),
+        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID)),
                                 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
       }
     //CO-CH
     if (satisfied && distance_i != 4)
       {
-        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID)),
+        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID)),
                                 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
       }
 
