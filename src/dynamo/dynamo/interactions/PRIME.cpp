@@ -505,8 +505,8 @@ namespace dynamo {
     //The 5 distance criteria are labelled 0 to 4, and the current pair's applicable number is distance_i.
     //NH_ID and CO_ID give the IDs of the central NH-CO pair in the candidate hydrogen bond.
 
-    //bool satisfied = !(NH_HB_exists[ NH_res ]) && !(CO_HB_exists[ CO_res ]);
-    bool satisfied = true;
+    bool satisfied = ( _HBondedNHs.find(NH_res) == _HBondedNHs.end() &&
+                       _HBondedCOs.find(CO_res) == _HBondedCOs.end() );
 
     //NH-CO
     if (satisfied && distance_i != 0)

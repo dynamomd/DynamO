@@ -70,15 +70,10 @@ namespace dynamo {
 
     std::shared_ptr<TPRIME> _topology;
 
-    /*! \brief Container which stores the residue ID's of pairs
-      currently in a Hydrogen bond. 
-
-      Note that the order of the residue is important!  If the pair
-      <1,2> is in _HBonds, it implies that the NH on residue 1 is
-      bonded to the CO on residue 2. If the pair <2,1> is in _HBonds
-      then the NH on residue 2 is bonded to the CO on residue 1.
+    /*! \brief Containers which store the residue IDs of sites
+      currently in a hydrogen bond; one for NH and one for COs.
     */
-    std::unordered_set<std::pair<size_t, size_t> > _HBonds;
+    std::unordered_set<size_t> _HBondedNHs, _HBondedCOs;
 
     double _PRIME_HB_strength;
   };
