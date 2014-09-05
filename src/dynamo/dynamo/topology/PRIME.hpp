@@ -18,9 +18,8 @@
 #pragma once
 #include <dynamo/topology/topology.hpp>
 #include <boost/bimap/bimap.hpp>
+#include <boost/bimap/unordered_set_of.hpp>
 #include <vector>
-
-using namespace ::boost::bimaps;
 
 namespace dynamo {
   class TPRIME: public Topology
@@ -240,15 +239,19 @@ namespace dynamo {
     enum BeadLocation { NH_END, MID, CO_END };
 
     struct BeadData {
-      BeadData(PRIME_site_type t, size_t r, BeadLocation e): 
+      BeadData(PRIME_site_type t, size_t r, BeadLocation e = MID): 
 	bead_type(t), residue(r), location(e) {}
+
+      //Define sorting for storing in maps (note location does not affect the sorting order!)
       bool operator<(const BeadData& op) const { return bead_type<op.bead_type || (!(op.bead_type<bead_type) && (residue<op.residue)); }
+      bool operator==(const BeadData& op) const { return (residue == op.residue) && (bead_type == op.bead_type); }
+
       PRIME_site_type bead_type;
       size_t residue;
       BeadLocation location;
     };
     
-    typedef bimap<set_of<size_t>, set_of<BeadData> > BeadTypeMap;
+    typedef boost::bimaps::bimap<boost::bimaps::unordered_set_of<size_t>, boost::bimaps::unordered_set_of<BeadData> > BeadTypeMap;
 
     TPRIME(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
 
@@ -278,5 +281,21 @@ namespace dynamo {
     std::shared_ptr<BeadTypeMap> _types;
     std::vector<std::pair<size_t, std::string> > _configData;
     virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+
+  inline size_t hash_value(const dynamo::TPRIME::BeadData& x) {
+    std::size_t hash_value = 0;
+    boost::hash_combine(hash_value, x.residue);
+    boost::hash_combine(hash_value, x.bead_type);
+    return  hash_value;
+  }
+}
+
+namespace std {
+  template <> struct hash<dynamo::TPRIME::BeadData>
+  {
+    size_t operator()(const dynamo::TPRIME::BeadData& x) const {
+      return dynamo::hash_value(x);
+    }
   };
 }
