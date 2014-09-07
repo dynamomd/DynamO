@@ -148,6 +148,10 @@ namespace dynamo {
       std::swap(p1Data, p2Data);
     }
 
+    //ResIDs of the main NH-CO pair for HB interactions
+    size_t NH_res = 0;
+    size_t CO_res = 0;
+    
     double outer_diameter; //Either the outer well diameter, or the hard-sphere diameter
     double inner_diameter; //0 if its a hard sphere
     double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
@@ -212,10 +216,6 @@ namespace dynamo {
           default:
 	    {
             //Backbone-backbone hard-sphere or hydrogen bond interaction
-
-	    //ResIDs of the main NH-CO pair for HB interactions
-	    size_t NH_res = 0;
-	    size_t CO_res = 0;
 
             //Split the criteria based on time-dependence. If the time-independent criteria are met,
             //we want to track the pair's capture state and evaluate the time-dependent criteria.
