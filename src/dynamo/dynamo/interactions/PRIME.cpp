@@ -152,10 +152,6 @@ namespace dynamo {
     double inner_diameter; //0 if its a hard sphere
     double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
 
-    //ResIDs of the main NH-CO pair for HB interactions
-    size_t NH_res = 0;
-    size_t CO_res = 0;
-
     if (p1Data.bead_type > TPRIME::CO) //SC-SC interaction (as p2Data.bead_type >= p1Data.bead_type)
       {
         inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
@@ -214,7 +210,22 @@ namespace dynamo {
 	    }
             break;
           default:
+	    {
             //Backbone-backbone hard-sphere or hydrogen bond interaction
+
+	    //ResIDs of the main NH-CO pair for HB interactions
+	    size_t NH_res = 0;
+	    size_t CO_res = 0;
+
+	    //Get the particle ID's of the NH, CH, and CO beads in the
+	    //residues of particle 1 and particle 2.
+	    const size_t res1_NH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, p1Data.residue));
+	    const size_t res1_CH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, p1Data.residue));
+	    const size_t res1_CO_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, p1Data.residue));
+
+	    const size_t res2_NH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, p2Data.residue));
+	    const size_t res2_CH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, p2Data.residue));
+	    const size_t res2_CO_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, p2Data.residue));
 
             //Split the criteria based on time-dependence. If the time-independent criteria are met,
             //we want to track the pair's capture state and evaluate the time-dependent criteria.
@@ -440,7 +451,7 @@ namespace dynamo {
                 outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
                 bond_energy = std::numeric_limits<double>::infinity();
               }
-
+	    }
             break;
           };
       }
@@ -448,20 +459,10 @@ namespace dynamo {
       {
         if (p1Data.residue == p2Data.residue) //They are [pseudo]bonded on the same residue
           {
-            if (p1Data.bead_type <= TPRIME::CO) //p1 is BB, p2 is SC
-              {
-                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
-                                      * (1.0 - TPRIME::_PRIME_bond_tolerance);
-                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
-                                      * (1.0 + TPRIME::_PRIME_bond_tolerance);
-              }
-            else //p2 is BB, p1 is SC
-              {
-                  inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.bead_type + p1Data.bead_type ]
-                                      * (1.0 - TPRIME::_PRIME_bond_tolerance);
-                  outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p2Data.bead_type + p1Data.bead_type ]
-                                      * (1.0 + TPRIME::_PRIME_bond_tolerance);
-              }
+	    inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
+	      * (1.0 - TPRIME::_PRIME_bond_tolerance);
+	    outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
+	      * (1.0 + TPRIME::_PRIME_bond_tolerance);
             bond_energy = -std::numeric_limits<double>::infinity();
           }
         else
@@ -479,21 +480,15 @@ namespace dynamo {
 	      }
 
             //Check for cases where it could be a "close" interaction
-            if (p2Data.residue - 1 ==  p1Data.residue) //p1 is on the residue before p2
-              {
-                  if ((p1Data.bead_type > TPRIME::CO && p2Data.bead_type == TPRIME::NH) || (p2Data.bead_type > TPRIME::CO && p1Data.bead_type == TPRIME::CO))
-                    {
-                      inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-                      outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-                    }
-              }
-            else if (p2Data.residue + 1 == p1Data.residue) //p2 is on the residue after p1
-              {
-                  if ((p2Data.bead_type > TPRIME::CO && p1Data.bead_type == TPRIME::NH) || (p1Data.bead_type > TPRIME::CO && p2Data.bead_type == TPRIME::CO))
-                    {
-                      inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-                      outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-                    }
+            if ((p2Data.residue - 1 ==  p1Data.residue) && (p1Data.bead_type == TPRIME::CO))
+              { //p1 is on the residue before p2
+		inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+		outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+	      }
+            else if ((p2Data.residue + 1 == p1Data.residue) && (p1Data.bead_type == TPRIME::NH))
+              { //p2 is on the residue after p1
+		inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+		outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
               }
           }
       }
