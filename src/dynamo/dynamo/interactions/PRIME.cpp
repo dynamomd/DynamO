@@ -137,10 +137,16 @@ namespace dynamo {
   }
 
   std::tuple<double, double, double, size_t, size_t>
-  IPRIME::getInteractionParameters(const size_t pID1, const size_t pID2) const
+  IPRIME::getInteractionParameters(size_t pID1, size_t pID2) const
   {
-    const TPRIME::BeadData p1Data = getBeadData(pID1);
-    const TPRIME::BeadData p2Data = getBeadData(pID2);
+    TPRIME::BeadData p1Data = getBeadData(pID1);
+    TPRIME::BeadData p2Data = getBeadData(pID2);
+    
+    //Ensure that the first bead has the lowest bead_type (it simplifies the logic later)
+    if (p1Data.bead_type > p2Data.bead_type) {
+      std::swap(pID1, pID2);
+      std::swap(p1Data, p2Data);
+    }
 
     double outer_diameter; //Either the outer well diameter, or the hard-sphere diameter
     double inner_diameter; //0 if its a hard sphere
@@ -150,13 +156,13 @@ namespace dynamo {
     size_t NH_res = 0;
     size_t CO_res = 0;
 
-    if (p1Data.bead_type > TPRIME::CO && p2Data.bead_type > TPRIME::CO ) //SC-SC interaction
+    if (p1Data.bead_type > TPRIME::CO) //SC-SC interaction (as p2Data.bead_type >= p1Data.bead_type)
       {
         inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
         outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
         bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.bead_type + p2Data.bead_type];
       }
-    else if (p1Data.bead_type <= TPRIME::CO && p2Data.bead_type <= TPRIME::CO) //BB-BB interaction
+    else if (p2Data.bead_type <= TPRIME::CO) //BB-BB interaction (as p1Data.bead_type <= p2Data.bead_type)
       {
         const size_t loc1 = p1Data.bead_type + 3 * p1Data.residue;
         const size_t loc2 = p2Data.bead_type + 3 * p2Data.residue;
@@ -198,12 +204,14 @@ namespace dynamo {
                   bond_energy    = -std::numeric_limits<double>::infinity();
                 }
               else
-                //Close backbone-backbone hard-sphere interaction
-                inner_diameter = 0.0;
-                outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ]
-                                    * TPRIME::_PRIME_near_diameter_scale_factor;
-                bond_energy = std::numeric_limits<double>::infinity();
-            }
+		{
+		  //Close backbone-backbone hard-sphere interaction
+		  inner_diameter = 0.0;
+		  outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ]
+		    * TPRIME::_PRIME_near_diameter_scale_factor;
+		  bond_energy = std::numeric_limits<double>::infinity();
+		}
+	    }
             break;
           default:
             //Backbone-backbone hard-sphere or hydrogen bond interaction
