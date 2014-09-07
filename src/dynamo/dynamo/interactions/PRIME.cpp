@@ -217,16 +217,6 @@ namespace dynamo {
 	    size_t NH_res = 0;
 	    size_t CO_res = 0;
 
-	    //Get the particle ID's of the NH, CH, and CO beads in the
-	    //residues of particle 1 and particle 2.
-	    const size_t res1_NH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, p1Data.residue));
-	    const size_t res1_CH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, p1Data.residue));
-	    const size_t res1_CO_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, p1Data.residue));
-
-	    const size_t res2_NH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, p2Data.residue));
-	    const size_t res2_CH_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, p2Data.residue));
-	    const size_t res2_CO_pID = _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, p2Data.residue));
-
             //Split the criteria based on time-dependence. If the time-independent criteria are met,
             //we want to track the pair's capture state and evaluate the time-dependent criteria.
             //If the time-dependent criteria are met, we want to turn the energy of the interaction on.
@@ -238,86 +228,43 @@ namespace dynamo {
             //Determine if HB
             //If the time-independent criteria are met, it's not a hard-sphere and we track pairs.
             //If the time-dependent criteria are met, the bond_energy is nonzero
-            if (p1Data.bead_type == TPRIME::CO)
-              {
-                if (p2Data.bead_type == TPRIME::CO)
-                  {
-                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+            if ((p1Data.bead_type == TPRIME::CO) && (p2Data.bead_type == TPRIME::CO))
+	      {
+		outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
 
-                    //First try assuming pID1 is the main CO
-                    //then the main NH is pID2+1 and has a resID of p2Data.residue+1
-                    NH_res = p2Data.residue + 1;
-                    CO_res = p1Data.residue;
+		//First try assuming pID1 is the main CO
+		//then the main NH is pID2+1 and has a resID of p2Data.residue+1
+		NH_res = p2Data.residue + 1;
+		CO_res = p1Data.residue;
 
-                    if (p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::CO_END)
-                      {
-                        if (abs( NH_res - CO_res ) > 3)
-                          {
-                            timeIndependentHBCriteria = true;
-                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
-                          }
+		if (p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::CO_END)
+		  {
+		    if (abs( NH_res - CO_res ) > 3)
+		      {
+			timeIndependentHBCriteria = true;
+			timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
+		      }
 
-                        //If time dependent criteria not met, try assuming pID2 is the main CO
-                        //then the main NH is pID1+1 and has a resID of p1Data.residue+1
-                        if (!timeDependentHBCriteria)
-                          {
-                            NH_res = p1Data.residue + 1;
-                            CO_res = p2Data.residue;
+		    //If time dependent criteria not met, try assuming pID2 is the main CO
+		    //then the main NH is pID1+1 and has a resID of p1Data.residue+1
+		    if (!timeDependentHBCriteria)
+		      {
+			NH_res = p1Data.residue + 1;
+			CO_res = p2Data.residue;
 
-                            if (abs( NH_res - CO_res ) > 3)
-                              {
-                                timeIndependentHBCriteria = true;
+			if (abs( NH_res - CO_res ) > 3)
+			  {
+			    timeIndependentHBCriteria = true;
 
-                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
-                              }
-                          }
+			    timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
+			  }
+		      }
 
-                        if (timeDependentHBCriteria)
-                          {
-                            bond_energy = _PRIME_HB_strength;
-                          }
-                      }
-                  }
-                else if (p2Data.bead_type == TPRIME::NH)
-                  {
-                    // this is the primary NH-CO pair.
-                    outer_diameter = TPRIME::_PRIME_HB_well_diameter;
-
-                    NH_res = p2Data.residue;
-                    CO_res = p1Data.residue;
-
-                    if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                         (abs( NH_res - CO_res ) > 3) )
-                      {
-                        timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 0);
-                      }
-
-                    if (timeDependentHBCriteria)
-                      {
-                        bond_energy = -_PRIME_HB_strength;
-                      }
-
-                  }
-                else if (p2Data.bead_type == TPRIME::CH)
-                  {
-                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-
-                    NH_res = p2Data.residue;
-                    CO_res = p1Data.residue;
-
-                    if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                        (abs( NH_res - CO_res ) > 3) )
-                      {
-                        timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 4);
-                      }
-
-                    if (timeDependentHBCriteria)
-                      {
-                        bond_energy = _PRIME_HB_strength;
-                      }
-                  }
+		    if (timeDependentHBCriteria)
+		      {
+			bond_energy = _PRIME_HB_strength;
+		      }
+		  }
               }
             else if (p2Data.bead_type == TPRIME::CO)
               {
@@ -423,26 +370,6 @@ namespace dynamo {
                       }
                   }
               }
-            else if (p2Data.bead_type == TPRIME::NH)
-              {
-                //p1 must be CH, all other possibilities exhausted
-                outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-
-                NH_res = p2Data.residue;
-                CO_res = p1Data.residue;
-
-                if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                    (abs( NH_res - CO_res ) > 3) )
-                  {
-                    timeIndependentHBCriteria = true;
-                    timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 1);
-                  }
-
-                if (timeDependentHBCriteria)
-                  {
-                    bond_energy = _PRIME_HB_strength;
-                  }
-              }
 
             if (!timeIndependentHBCriteria)
               {
@@ -492,7 +419,6 @@ namespace dynamo {
               }
           }
       }
-
 
 #ifdef DYNAMO_DEBUG
     if (bond_energy == 0.0)
