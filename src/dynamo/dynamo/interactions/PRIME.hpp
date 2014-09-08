@@ -21,6 +21,8 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/PRIME.hpp>
 #include <dynamo/interactions/captures.hpp>
+#include <boost/bimap/bimap.hpp>
+#include <boost/bimap/unordered_set_of.hpp>
 
 namespace dynamo {
   class IPRIME: public ICapture
@@ -70,10 +72,20 @@ namespace dynamo {
 
     std::shared_ptr<TPRIME> _topology;
 
-    /*! \brief Containers which store the residue IDs of sites
-      currently in a hydrogen bond; one for NH and one for COs.
+    /*! \brief Containers which stores the pairs of NH and CO
+        particles currently within a H-Bond.
+
+	The first index is the ID of the NH particle, the second is
+	the ID of the CO particle.
     */
-    std::unordered_set<size_t> _HBondedNHs, _HBondedCOs;
+    struct NH_res_ID {};
+    struct CO_res_ID {};
+    typedef boost::bimaps::bimap<boost::bimaps::unordered_set_of<boost::bimaps::tagged<size_t, NH_res_ID> >, 
+				 boost::bimaps::unordered_set_of<boost::bimaps::tagged<size_t, CO_res_ID> >,
+				 boost::bimaps::unordered_set_of_relation<> >
+    HbondMapType;
+    
+    HbondMapType _HBonds;
 
     double _PRIME_HB_strength;
   };

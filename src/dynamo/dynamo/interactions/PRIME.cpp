@@ -434,41 +434,36 @@ namespace dynamo {
     //The 5 distance criteria are labelled 0 to 4, and the current pair's applicable number is distance_i.
     //NH_ID and CO_ID give the IDs of the central NH-CO pair in the candidate hydrogen bond.
 
-    bool satisfied = ( _HBondedNHs.find(NH_res) == _HBondedNHs.end() &&
-                       _HBondedCOs.find(CO_res) == _HBondedCOs.end() );
+    //Check if the pair are already bonded
+    if (_HBonds.find(HbondMapType::value_type(NH_res, CO_res)) != _HBonds.end())
+      return true; //They are!
 
-    //NH-CO
-    if (satisfied && distance_i != 0)
-      {
-        satisfied = isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
-      }
-    //NH-CH
-    if (satisfied && distance_i != 1)
-      {
-        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID)) );
-      }
-    //NH-NH
-    if (satisfied && distance_i != 2)
-      {
-        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-                                _topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID)) );
-      }
-    //CO-CO
-    if (satisfied && distance_i != 3)
-      {
-        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID)),
-                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
-      }
-    //CO-CH
-    if (satisfied && distance_i != 4)
-      {
-        satisfied = !isCaptured( _topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID)),
-                                _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)) );
-      }
+    //Check if either pair are already within a H-Bond
+    if (_HBonds.by<NH_res_ID>().count(NH_res) || _HBonds.by<CO_res_ID>().count(CO_res))
+      return false; //At least one residue is already bonded, so this pair cannot form.
+      
+    //Search for reasons NOT to allow the bond
+    if ((distance_i != 0) && !isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+					 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID))))
+      return false;
+    
+    if ((distance_i != 1) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID))))
+      return false;
 
-    return satisfied;
+    if ((distance_i != 2) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+					_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID))))
+      return false;
+
+    if ((distance_i != 3) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID)),
+					_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID))))
+      return false;
+
+    if ((distance_i != 4) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res, TPRIME::MID)),
+					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID))))
+      return false;
+    
+    return true;
   }
 
   IntEvent
