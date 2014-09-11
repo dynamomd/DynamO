@@ -148,19 +148,14 @@ namespace dynamo {
       std::swap(p1Data, p2Data);
     }
 
-    //ResIDs of the main NH-CO pair for HB interactions
-    size_t NH_res = 0;
-    size_t CO_res = 0;
-    
-    double outer_diameter; //Either the outer well diameter, or the hard-sphere diameter
-    double inner_diameter; //0 if its a hard sphere
-    double bond_energy = 0.0; //+inf if its a hard sphere, -inf if its a bond.
+    const size_t no_HB_res = std::numeric_limits<size_t>::max();
 
     if (p1Data.bead_type > TPRIME::CO) //SC-SC interaction (as p2Data.bead_type >= p1Data.bead_type)
       {
-        inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
-        outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
-        bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.bead_type + p2Data.bead_type];
+        const double inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
+        const double outer_diameter = TPRIME::_PRIME_well_diameters[ 22 * p1Data.bead_type + p2Data.bead_type];
+        const double bond_energy    = TPRIME::_PRIME_well_depths[ 22 * p1Data.bead_type + p2Data.bead_type];
+	return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
       }
     else if (p2Data.bead_type <= TPRIME::CO) //BB-BB interaction (as p1Data.bead_type <= p2Data.bead_type)
       {
@@ -175,21 +170,21 @@ namespace dynamo {
           case 0:
             M_throw() << "Invalid backbone distance of 0";
           case 1:
-            {//Every type of this interaction is a bonded interaction
-              inner_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
-                                  * (1.0 - TPRIME::_PRIME_bond_tolerance);
-              outer_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
-                                  * (1.0 + TPRIME::_PRIME_bond_tolerance);
-              bond_energy    = -std::numeric_limits<double>::infinity();
+            {
+	      //Every type of this interaction is a bonded interaction
+              const double inner_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.bead_type + p2Data.bead_type] * (1.0 - TPRIME::_PRIME_bond_tolerance);
+              const double outer_diameter = TPRIME::_PRIME_BB_bond_lengths[3 * p1Data.bead_type + p2Data.bead_type] * (1.0 + TPRIME::_PRIME_bond_tolerance);
+              const double bond_energy    = -std::numeric_limits<double>::infinity();
+	      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
             }
             break;
           case 2:
-            {//Every type of this interaction is a pseudobond interaction
-              inner_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
-                                  * (1.0 - TPRIME::_PRIME_bond_tolerance);
-              outer_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.bead_type + p2Data.bead_type]
-                                  * (1.0 + TPRIME::_PRIME_bond_tolerance);
-              bond_energy    = -std::numeric_limits<double>::infinity();
+            {
+	      //Every type of this interaction is a pseudobond interaction
+              const double inner_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.bead_type + p2Data.bead_type] * (1.0 - TPRIME::_PRIME_bond_tolerance);
+              const double outer_diameter = TPRIME::_PRIME_pseudobond_lengths[3 * p1Data.bead_type + p2Data.bead_type] * (1.0 + TPRIME::_PRIME_bond_tolerance);
+              const double bond_energy = -std::numeric_limits<double>::infinity();
+	      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
             }
             break;
           case 3:
@@ -197,206 +192,123 @@ namespace dynamo {
               //Check if this is the special pseudobond
               if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CH))
                 {
-                  inner_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length
-                                      * (1.0 - TPRIME::_PRIME_bond_tolerance);
-                  outer_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length
-                                      * (1.0 + TPRIME::_PRIME_bond_tolerance);
-                  bond_energy    = -std::numeric_limits<double>::infinity();
+                  const double inner_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length * (1.0 - TPRIME::_PRIME_bond_tolerance);
+                  const double outer_diameter = TPRIME::_PRIME_CH_CH_pseudobond_length * (1.0 + TPRIME::_PRIME_bond_tolerance);
+                  const double bond_energy = -std::numeric_limits<double>::infinity();
+		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
                 }
               else
 		{
 		  //Close backbone-backbone hard-sphere interaction
-		  inner_diameter = 0.0;
-		  outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ]
-		    * TPRIME::_PRIME_near_diameter_scale_factor;
-		  bond_energy = std::numeric_limits<double>::infinity();
+		  const double inner_diameter = 0.0;
+		  const double outer_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type] * TPRIME::_PRIME_near_diameter_scale_factor;
+		  const double bond_energy = std::numeric_limits<double>::infinity();
+		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
 		}
 	    }
             break;
           default:
 	    {
-            //Backbone-backbone hard-sphere or hydrogen bond interaction
+	      //Determine if HB interactions are present or not
+	      //If the time-independent criteria are met, it's not a hard-sphere and we track distances.
+	      if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::CO_END) && (p2Data.location != TPRIME::NH_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+		{
+		  const size_t NH_res = p1Data.residue;
+		  const size_t CO_res = p2Data.residue;
+		  const double inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
+		  const double outer_diameter = TPRIME::_PRIME_HB_well_diameter;
+		  const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 0) ? -_PRIME_HB_strength : 0;
+		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		}
+	      else if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CO) && (p2Data.location != TPRIME::CO_END) && (p1Data.location != TPRIME::NH_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+		{
+		  const size_t NH_res = p1Data.residue;
+		  const size_t CO_res = p2Data.residue;
+		  const double inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
+		  const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		  const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 4) ? _PRIME_HB_strength : 0;
+		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		}
+	      else if ((p1Data.bead_type == TPRIME::CO) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::CO_END) && (p2Data.location != TPRIME::CO_END))
+		{
+		  if (abs(int(p2Data.residue + 1) - int(p1Data.residue)) > 3)
+		    {
+		      const size_t NH_res = p2Data.residue + 1;
+		      const size_t CO_res = p1Data.residue;
+		      const double inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
+		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		      const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 3) ? _PRIME_HB_strength : 0;
+		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		    }
 
-            //Split the criteria based on time-dependence. If the time-independent criteria are met,
-            //we want to track the pair's capture state and evaluate the time-dependent criteria.
-            //If the time-dependent criteria are met, we want to turn the energy of the interaction on.
-            bool timeIndependentHBCriteria = false;
-            bool timeDependentHBCriteria = false;
+		  if (std::abs(int(p1Data.residue + 1) - int(p2Data.residue)) > 3)
+		    {
+		      const size_t NH_res = p1Data.residue + 1;
+		      const size_t CO_res = p2Data.residue;
+		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		      const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 3) ? _PRIME_HB_strength : 0;
+		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		    }
+		}
+	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::NH) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::NH_END))
+		{
+		  //First try assuming p1 is the main NH
+		  //then the main CO is pID2-1 and has a resID of p2Data.residue-1
 
-            inner_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
-
-            //Determine if HB
-            //If the time-independent criteria are met, it's not a hard-sphere and we track pairs.
-            //If the time-dependent criteria are met, the bond_energy is nonzero
-            if ((p1Data.bead_type == TPRIME::CO) && (p2Data.bead_type == TPRIME::CO))
-	      {
-		outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-
-		//First try assuming pID1 is the main CO
-		//then the main NH is pID2+1 and has a resID of p2Data.residue+1
-		NH_res = p2Data.residue + 1;
-		CO_res = p1Data.residue;
-
-		if (p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::CO_END)
-		  {
-		    if (abs( NH_res - CO_res ) > 3)
-		      {
-			timeIndependentHBCriteria = true;
-			timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
-		      }
-
-		    //If time dependent criteria not met, try assuming pID2 is the main CO
-		    //then the main NH is pID1+1 and has a resID of p1Data.residue+1
-		    if (!timeDependentHBCriteria)
-		      {
-			NH_res = p1Data.residue + 1;
-			CO_res = p2Data.residue;
-
-			if (abs( NH_res - CO_res ) > 3)
-			  {
-			    timeIndependentHBCriteria = true;
-
-			    timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 3);
-			  }
-		      }
-
-		    if (timeDependentHBCriteria)
-		      {
-			bond_energy = _PRIME_HB_strength;
-		      }
-		  }
-              }
-            else if (p2Data.bead_type == TPRIME::CO)
-              {
-                if (p1Data.bead_type == TPRIME::NH)
-                  {
-                    // this is the primary NH-CO pair.
-                    outer_diameter = TPRIME::_PRIME_HB_well_diameter;
-
-                    NH_res = p1Data.residue;
-                    CO_res = p2Data.residue;
-
-                    if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                         (abs( NH_res - CO_res ) > 3) )
-                      {
-                        timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 0);
-                      }
-
-                    if (timeDependentHBCriteria)
-                      {
-                        bond_energy = -_PRIME_HB_strength;
-                      }
-
-                  }
-                else if (p1Data.bead_type == TPRIME::CH)
-                  {
-                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-
-                    NH_res = p1Data.residue;
-                    CO_res = p2Data.residue;
-
-                    if ( p2Data.location != TPRIME::CO_END && p1Data.location != TPRIME::NH_END &&
-                        (abs( NH_res - CO_res ) > 3) )
-                      {
-                        timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 4);
-                      }
-
-                    if (timeDependentHBCriteria)
-                      {
-                        bond_energy = _PRIME_HB_strength;
-                      }
-                  }
-              }
-            else if (p1Data.bead_type == TPRIME::NH)
-              {
-                if (p2Data.bead_type == TPRIME::NH)
-                  {
-                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-
-                    //First try assuming p1 is the main NH
-                    //then the main CO is pID2-1 and has a resID of p2Data.residue-1
-                    NH_res = p1Data.residue;
-                    CO_res = p2Data.residue - 1;
-
-                    if (p1Data.location != TPRIME::NH_END && p2Data.location != TPRIME::NH_END)
-                      {
-                        if (abs( NH_res - CO_res ) > 3)
-                          {
-                            timeIndependentHBCriteria = true;
-                            timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 2);
-                          }
-
-                        //If time dependent criteria not met, try assuming p2 is the main NH
-                        //then the main CO is pID1-1 and has a resID of p1Data.residue-1
-                        if (!timeDependentHBCriteria)
-                          {
-
-                            NH_res = p2Data.residue;
-                            CO_res = p1Data.residue - 1;
-
-                            if (abs( NH_res - CO_res ) > 3)
-                              {
-                                timeIndependentHBCriteria = true;
-                                timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 2);
-                              }
-                          }
-
-                        if (timeDependentHBCriteria)
-                          {
-                            bond_energy = _PRIME_HB_strength;
-                          }
-                      }
-                  }
-                else if (p2Data.bead_type == TPRIME::CH)
-                  {
-                    outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-
-                    NH_res = p1Data.residue;
-                    CO_res = p2Data.residue;
-
-                    //pID1 is the main CO. The main NH is pID2-1
-                    if ( p1Data.location != TPRIME::CO_END && p2Data.location != TPRIME::NH_END &&
-                        (abs( NH_res - CO_res ) > 3) )
-                      {
-                        timeIndependentHBCriteria = true;
-                        timeDependentHBCriteria = checkTimeDependentCriteria(NH_res, CO_res, 1);
-                      }
-
-                    if (timeDependentHBCriteria)
-                      {
-                        bond_energy = _PRIME_HB_strength;
-                      }
-                  }
-              }
-
-            if (!timeIndependentHBCriteria)
-              {
-                //It's a hard-sphere interaction
-                inner_diameter = 0.0;
-                outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
-                bond_energy = std::numeric_limits<double>::infinity();
-              }
+		  if (std::abs(int(p1Data.residue) - int(p2Data.residue - 1)) > 3)
+		    {
+		      const size_t NH_res = p1Data.residue;
+		      const size_t CO_res = p2Data.residue - 1;
+		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		      const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 2) ? _PRIME_HB_strength : 0;
+		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		    }
+		  
+		  if (std::abs(int(p2Data.residue) - int(p1Data.residue - 1)) > 3)
+		    {
+		      const size_t NH_res = p2Data.residue;
+		      const size_t CO_res = p1Data.residue - 1;
+		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		      const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 2) ? _PRIME_HB_strength : 0;
+		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		    }
+		}
+	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CH) && (p1Data.location != TPRIME::CO_END) && (p2Data.location != TPRIME::NH_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+		{		
+		  const size_t NH_res = p1Data.residue;
+		  const size_t CO_res = p2Data.residue;
+		  const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+		  const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		  const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 1) ? _PRIME_HB_strength : 0;
+		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+		}
+	      break;
 	    }
-            break;
           };
+
+	//It's a standard hard-sphere interaction (no HB interactions)
+	const double inner_diameter = 0.0;
+	const double outer_diameter = TPRIME::_PRIME_diameters[ 22 * p1Data.bead_type + p2Data.bead_type ];
+	const double bond_energy = std::numeric_limits<double>::infinity();
+	return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
       }
     else //BB-SC interaction
       {
         if (p1Data.residue == p2Data.residue) //They are [pseudo]bonded on the same residue
           {
-	    inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
-	      * (1.0 - TPRIME::_PRIME_bond_tolerance);
-	    outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ]
-	      * (1.0 + TPRIME::_PRIME_bond_tolerance);
-            bond_energy = -std::numeric_limits<double>::infinity();
+	    const double inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ] * (1.0 - TPRIME::_PRIME_bond_tolerance);
+	    const double outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ] * (1.0 + TPRIME::_PRIME_bond_tolerance);
+            const double bond_energy = -std::numeric_limits<double>::infinity();
+	    return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
           }
         else
           {
-            inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
-            outer_diameter = TPRIME::_PRIME_well_diameters[22 * p1Data.bead_type + p2Data.bead_type];
-            bond_energy    = TPRIME::_PRIME_well_depths[22 * p1Data.bead_type + p2Data.bead_type];
+            double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+            double outer_diameter = TPRIME::_PRIME_well_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+            double bond_energy = TPRIME::_PRIME_well_depths[22 * p1Data.bead_type + p2Data.bead_type];
 
 	    if (bond_energy == 0)
 	      { 
@@ -417,15 +329,12 @@ namespace dynamo {
 		inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
 		outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
               }
+
+	    return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
           }
       }
 
-#ifdef DYNAMO_DEBUG
-    if (bond_energy == 0.0)
-      M_throw() << "Invalid bond_energy calculated, p1="<< pID1 << ", p2="<< pID2 << ", type1=" << p1Data.bead_type << ", type2="<< p2Data.bead_type;
-#endif
-
-    return std::make_tuple( outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
+    M_throw() << "Missing return statement in getInteractionParameter!";
   }
 
   bool
@@ -435,7 +344,7 @@ namespace dynamo {
     //NH_ID and CO_ID give the IDs of the central NH-CO pair in the candidate hydrogen bond.
 
     //Check if the pair are already bonded
-    if (_HBonds.find(HbondMapType::value_type(NH_res, CO_res)) != _HBonds.end())
+    if (_HBonds.count(HbondMapType::value_type(NH_res, CO_res)))
       return true; //They are!
 
     //Check if either pair are already within a H-Bond
