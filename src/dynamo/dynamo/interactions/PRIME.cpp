@@ -211,7 +211,7 @@ namespace dynamo {
 	    {
 	      //Determine if HB interactions are present or not
 	      //If the time-independent criteria are met, it's not a hard-sphere and we track distances.
-	      if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::CO_END) && (p2Data.location != TPRIME::NH_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+	      if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
 		{
 		  const size_t NH_res = p1Data.residue;
 		  const size_t CO_res = p2Data.residue;
@@ -220,7 +220,7 @@ namespace dynamo {
 		  const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 0) ? -_PRIME_HB_strength : 0;
 		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
 		}
-	      else if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CO) && (p2Data.location != TPRIME::CO_END) && (p1Data.location != TPRIME::NH_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+	      else if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
 		{
 		  const size_t NH_res = p1Data.residue;
 		  const size_t CO_res = p2Data.residue;
@@ -276,7 +276,7 @@ namespace dynamo {
 		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
 		    }
 		}
-	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CH) && (p1Data.location != TPRIME::CO_END) && (p2Data.location != TPRIME::NH_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CH) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
 		{		
 		  const size_t NH_res = p1Data.residue;
 		  const size_t CO_res = p2Data.residue;
