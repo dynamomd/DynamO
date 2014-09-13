@@ -255,26 +255,39 @@ namespace dynamo {
 		{
 		  //First try assuming p1 is the main NH
 		  //then the main CO is pID2-1 and has a resID of p2Data.residue-1
-
-		  if (std::abs(int(p1Data.residue) - int(p2Data.residue - 1)) > 3)
+		
+		  const size_t NH_res = p1Data.residue;
+		  const size_t CO_res = p2Data.residue - 1;
+		
+		  if ( (std::abs(int(p1Data.residue) - int(p2Data.residue - 1)) > 3) && checkTimeDependentCriteria(NH_res, CO_res, 2) )
 		    {
-		      const size_t NH_res = p1Data.residue;
-		      const size_t CO_res = p2Data.residue - 1;
 		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
 		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-		      const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 2) ? _PRIME_HB_strength : 0;
+		      const double bond_energy = _PRIME_HB_strength;
 		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
 		    }
-		  
+		
+		  NH_res = p2Data.residue;
+		  CO_res = p1Data.residue - 1;
+		
 		  if (std::abs(int(p2Data.residue) - int(p1Data.residue - 1)) > 3)
 		    {
-		      const size_t NH_res = p2Data.residue;
-		      const size_t CO_res = p1Data.residue - 1;
 		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
 		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
 		      const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 2) ? _PRIME_HB_strength : 0;
 		      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
 		    }
+
+                  NH_res = p1Data.residue;
+                  CO_res = p2Data.residue - 1;
+
+                  if (std::abs(int(p1Data.residue) - int(p2Data.residue - 1)) > 3)
+                    {
+		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
+		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
+		      return std::make_tuple(outer_diameter, inner_diameter, 0.0, NH_res, CO_res);
+                    }
+
 		}
 	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CH) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
 		{		
