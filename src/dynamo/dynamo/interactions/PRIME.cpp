@@ -56,7 +56,11 @@ namespace dynamo {
     if (!_topology)
       M_throw() << "For \"" << getName() << "\", Topology is not a PRIME topology.";
 
-    ICapture::loadCaptureMap(XML);   
+    ICapture::loadCaptureMap(XML);
+
+    if (XML.hasNode("HBonds"))
+      for (magnet::xml::Node node = XML.getNode("HBonds").findNode("Bond"); node.valid(); ++node)
+	_HBonds.insert(HbondMapType::value_type(node.getAttribute("NH").as<size_t>(), node.getAttribute("CO").as<size_t>()));
   }
 
   void 
@@ -64,6 +68,8 @@ namespace dynamo {
   {
     Interaction::initialise(nID);
     ICapture::initCaptureMap();
+
+    //Need to initialise the HBond map!
   }
 
   size_t
@@ -471,11 +477,15 @@ namespace dynamo {
 	{
 	  EDat = Sim->dynamics->SphereWellEvent(iEvent, -bond_energy, outer_diameter * outer_diameter, 1);
 	  if (EDat.getType() != BOUNCE) {
+	    //The particles have entered the well
 	    if ((NH_res != no_HB_res) && (CO_res != no_HB_res) && (bond_energy != 0))
 	      {
+		//This is an interaction as part of the formation or breaking of a H-Bond 
 		if (bond_energy < 0)
+		  //Its the formation of the NH-CO bond
 		  formHBond(NH_res, CO_res);
 		else
+		  //Its the breaking of a minimum distance criteria
 		  breakHBond(NH_res, CO_res);
 	      }
 	    ICapture::add(p1, p2);
@@ -487,11 +497,15 @@ namespace dynamo {
 	{
 	  EDat = Sim->dynamics->SphereWellEvent(iEvent, bond_energy, outer_diameter * outer_diameter, 0);
 	  if (EDat.getType() != BOUNCE) {
+	    //The particles are leaving the well
 	    if ((NH_res != no_HB_res) && (CO_res != no_HB_res) && (bond_energy != 0))
-	      {//This is a Hbond event
+	      {
+		//This is an interaction as part of the formation or breaking of a H-Bond 
 		if (bond_energy < 0)
+		  //Its a NH-CO pair separating and breaking the bond
 		  breakHBond(NH_res, CO_res);
 		else
+		  //Its a minimum distance constraint becoming satisfied, causing a H-Bond forming
 		  formHBond(NH_res, CO_res);
 	      }
 	    ICapture::remove(p1, p2);
@@ -507,9 +521,18 @@ namespace dynamo {
 
   void 
   IPRIME::formHBond(const size_t NH_res, const size_t CO_res) {
+    dout << "FORMING A BOND!" << std::endl;
+    auto retval = _HBonds.insert(HbondMapType::value_type(NH_res, CO_res));
+    if (retval.second == false)
+      M_throw() << "Failed to form a HBond";
   }
+
   void 
   IPRIME::breakHBond(const size_t NH_res, const size_t CO_res) {
+    dout << "BREAKING A BOND!" << std::endl;
+    size_t deleted_count = _HBonds.erase(HbondMapType::value_type(NH_res, CO_res));
+    if (deleted_count == 0)
+      M_throw() << "Failed to break a HBond";
   }
 
   bool 
@@ -612,7 +635,15 @@ namespace dynamo {
         << magnet::xml::attr("Topology") << _topology->getName()
         << magnet::xml::attr("HBStrength") << _PRIME_HB_strength
         << *range;
-
+    
     ICapture::outputCaptureMap(XML);
+    
+    XML << magnet::xml::tag("HBonds");
+    for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
+      XML << magnet::xml::tag("Bond")
+	  << magnet::xml::attr("NH")  << iter->first
+	  << magnet::xml::attr("CO")  << iter->second
+	  << magnet::xml::endtag("Bond");
+    XML << magnet::xml::endtag("HBonds");
   }
 }
