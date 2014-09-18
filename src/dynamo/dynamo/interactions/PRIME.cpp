@@ -443,6 +443,9 @@ namespace dynamo {
     const double outer_diameter = std::get<0>(interaction_data),
       inner_diameter = std::get<1>(interaction_data),
       bond_energy = std::get<2>(interaction_data);
+    const size_t NH_res = std::get<3>(interaction_data);
+    const size_t CO_res = std::get<4>(interaction_data);
+    const size_t no_HB_res = std::numeric_limits<size_t>::max();
 
     /*Handle the different types of interactions that can occur.*/
     PairEventData EDat;
@@ -467,13 +470,32 @@ namespace dynamo {
       case STEP_IN:
 	{
 	  EDat = Sim->dynamics->SphereWellEvent(iEvent, -bond_energy, outer_diameter * outer_diameter, 1);
-	  if (EDat.getType() != BOUNCE) ICapture::add(p1, p2);
+	  if (EDat.getType() != BOUNCE) {
+	    if ((NH_res != no_HB_res) && (CO_res != no_HB_res) && (bond_energy != 0))
+	      {
+		if (bond_energy < 0)
+		  formHBond(NH_res, CO_res);
+		else
+		  breakHBond(NH_res, CO_res);
+	      }
+	    ICapture::add(p1, p2);
+	  }
+	  
 	  break;
 	}
       case STEP_OUT:
 	{
 	  EDat = Sim->dynamics->SphereWellEvent(iEvent, bond_energy, outer_diameter * outer_diameter, 0);
-	  if (EDat.getType() != BOUNCE) ICapture::remove(p1, p2);
+	  if (EDat.getType() != BOUNCE) {
+	    if ((NH_res != no_HB_res) && (CO_res != no_HB_res) && (bond_energy != 0))
+	      {//This is a Hbond event
+		if (bond_energy < 0)
+		  breakHBond(NH_res, CO_res);
+		else
+		  formHBond(NH_res, CO_res);
+	      }
+	    ICapture::remove(p1, p2);
+	  }
 	  break;
 	}
       default:
@@ -481,6 +503,13 @@ namespace dynamo {
       }
 
     return EDat;
+  }
+
+  void 
+  IPRIME::formHBond(const size_t NH_res, const size_t CO_res) {
+  }
+  void 
+  IPRIME::breakHBond(const size_t NH_res, const size_t CO_res) {
   }
 
   bool 

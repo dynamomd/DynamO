@@ -61,6 +61,9 @@ namespace dynamo {
       return _topology->getBeadInfo(particleID);
     }
 
+    void formHBond(const size_t NH_res, const size_t CO_res);
+    void breakHBond(const size_t NH_res, const size_t CO_res);
+
     /*! \brief Calculates the interaction parameters for the passed pair.
 
       \return This pair has the interaction diameter as the first
