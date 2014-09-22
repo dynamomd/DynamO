@@ -69,9 +69,10 @@ try:
         if len(sequence) > 33:
             sys.exit('33 residues is currently the maximum length for this generator.')
 
-except (ValueError, IndexError):
+except (ValueError, IndexError) as e:
+    print 'Run as ./peptide_maker.py (sequence) [temperature kT = 1.0] [xml_fn = PRIME_peptide].'
+    print ''
     raise
-    sys.exit('Run as ./peptide_maker.py (sequence) [temperature kT = 1.0] [xml_fn = PRIME_peptide].')
 
 date               = time.strftime('%X %x %Z')
 box_size           = 200
