@@ -53,7 +53,8 @@ include_directories(${PROJECT_SOURCE_DIR}/src/ext_include)
 ### Magnet library
 function(magnet_test name) #Registers a magnet unit-test
   add_executable(magnet_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/magnet/tests/${name}.cpp)
-  target_link_libraries(magnet_${name}_exe ${Boost_LIBRARIES})
+  target_link_libraries(magnet_${name}_exe ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  set_target_properties(magnet_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
   add_test(magnet_${name} magnet_${name}_exe)
 endfunction(magnet_test)
 
@@ -85,7 +86,7 @@ magnet_test(offcenterspheres)
 ### DynamO
 file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
 add_library(dynamo STATIC ${dynamo_SRC})
-target_link_libraries(dynamo ${Boost_LIBRARIES})
+target_link_libraries(dynamo ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
 if(SIZEOF_SIZE_T LESS 8)
   message(STATUS "libJudy support disabled (no 64 bit support).")
@@ -123,7 +124,8 @@ endif()
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
   add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp)
-  target_link_libraries(dynamo_${name}_exe dynamo)
+  target_link_libraries(dynamo_${name}_exe dynamo ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  set_target_properties(dynamo_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
   add_test(dynamo_${name} dynamo_${name}_exe)
 endfunction(dynamo_test)
 

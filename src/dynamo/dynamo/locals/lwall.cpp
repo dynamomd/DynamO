@@ -100,6 +100,8 @@ namespace dynamo {
   void 
   LWall::outputXML(magnet::xml::XmlStream& XML) const
   {
+    if (!_e)
+      M_throw() << "e is unset!";
     XML << magnet::xml::attr("Type") << "Wall" 
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Elasticity") << _e->getName()

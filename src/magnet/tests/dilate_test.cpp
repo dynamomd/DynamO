@@ -1,5 +1,4 @@
 #define BOOST_TEST_MODULE Dilate_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <magnet/math/dilated_int.hpp>
 #include <random>
