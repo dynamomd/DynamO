@@ -1,5 +1,4 @@
 #define BOOST_TEST_MODULE JudyContainer_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 #include <magnet/containers/judy.hpp>

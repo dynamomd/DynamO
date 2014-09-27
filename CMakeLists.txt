@@ -8,7 +8,12 @@ include(CheckCXXCompilerFlag)
 enable_testing() #Enable build of test executables and 'make test' command
 project (DynamO) #Project name
 
-########## SUPPORT TESTING
+##########   DEBUG/RELEASE MODE FLAGS
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall -fstack-protector-all")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+link_libraries(debug dl)
+
+########## COMPILER SUPPORT TESTS
 #C++11/C++0x support
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 if(COMPILER_SUPPORTS_CXX11)
@@ -22,27 +27,21 @@ else()
   endif()
 endif()
 
-#Boost support
+# Boost support
 find_package(Boost 1.46 REQUIRED COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
 if(NOT Boost_FOUND)
   message(SEND_ERROR "Cannot build any programs, boost library is missing.")
 endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
-find_package(PkgConfig)
-find_package(OpenGL)
-find_package(GLUT)
-find_package(GLEW)
-pkg_check_modules(GTKMM gtkmm-2.4)
-pkg_check_modules(PNG libpng)
+# Determine the system thread library and link all targets
+find_package(Threads)
+link_libraries(${CMAKE_THREAD_LIBS_INIT})
 
-find_package(PythonInterp 2.7)
+# Test for libraries required for the visualiser
 
-check_include_files(Judy.h JUDY_H_AVAILABLE)
-check_library_exists(Judy  Judy1FreeArray "" JUDY_LIB_AVAILABLE)
-CHECK_TYPE_SIZE(size_t SIZEOF_SIZE_T)
+# Test for libjudy requirements
 
-find_package( Threads )
 ########## HEADER DIRECTORIES
 include_directories(${PROJECT_SOURCE_DIR}/src/dynamo/)
 include_directories(${PROJECT_SOURCE_DIR}/src/coil/)
@@ -74,10 +73,8 @@ magnet_test(vector_test)
 magnet_test(quaternion_test)
 magnet_test(dilate_test)
 magnet_test(splinetest)
-if((JUDY_H_AVAILABLE AND JUDY_LIB_AVAILABLE) AND (SIZEOF_SIZE_T LESS 8))
-  magnet_test(judy_test)
-  target_link_libraries(magnet_judy_test_exe Judy)
-endif()
+
+
 magnet_test(plane_intersection)
 magnet_test(triangle_intersection)
 magnet_test(intersection_genalg)
@@ -86,12 +83,17 @@ magnet_test(offcenterspheres)
 ### DynamO
 file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
 add_library(dynamo STATIC ${dynamo_SRC})
-target_link_libraries(dynamo ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+target_link_libraries(dynamo ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY} )
 
+check_include_files(Judy.h JUDY_H_AVAILABLE)
+check_library_exists(Judy  Judy1FreeArray "" JUDY_LIB_AVAILABLE)
+CHECK_TYPE_SIZE(size_t SIZEOF_SIZE_T)
 if(SIZEOF_SIZE_T LESS 8)
   message(STATUS "libJudy support disabled (no 64 bit support).")
 elseif(JUDY_H_AVAILABLE AND JUDY_LIB_AVAILABLE) 
   message(STATUS "Enabling libJudy support.")
+  magnet_test(judy_test)
+  target_link_libraries(magnet_judy_test_exe Judy)
   add_definitions(-DYNAMO_JUDY)
   target_link_libraries(dynamo Judy)
 else()
@@ -112,6 +114,7 @@ dynamo_exe(dynahist_rw)
 #dynamo_exe(dynapotential)
 
 # scripts
+find_package(PythonInterp 2.7)
 if(PYTHONINTERP_FOUND)
   install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport DESTINATION bin)
   install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynamo2xyz    DESTINATION bin)
@@ -145,6 +148,12 @@ dynamo_test(thermalisedwalls_test)
 
 ### Coil
 # configuration
+find_package(PkgConfig)
+find_package(OpenGL)
+find_package(GLUT)
+find_package(GLEW)
+pkg_check_modules(GTKMM gtkmm-2.4)
+pkg_check_modules(PNG libpng)
 if(OPENGL_FOUND)
   message(STATUS "OpenGL found.")
   if(GTKMM_FOUND)

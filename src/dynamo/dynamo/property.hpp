@@ -358,25 +358,6 @@ namespace dynamo {
       simulation, as the typical method for adding a Property to the
       PropertyStore is using the \ref getProperty methods.
      */
-    inline Value push(Property* newProp)
-    {
-      if (dynamic_cast<NumericProperty*>(newProp))
-	{
-	  _numericProperties.push_back(Value(newProp));
-	  return _numericProperties.back();
-	}    
-    
-      _namedProperties.push_back(Value(newProp));
-      return _namedProperties.back();
-    }
-
-    /*! \brief Method for pushing constructed properties into the
-      PropertyStore.
-     
-      This method should only be used when dynamod is building a
-      simulation, as the typical method for adding a Property to the
-      PropertyStore is using the \ref getProperty methods.
-     */
     template<class T>
     inline Value push(shared_ptr<T> newProp)
     {
@@ -384,7 +365,7 @@ namespace dynamo {
 	{
 	  _numericProperties.push_back(Value(newProp));
 	  return _numericProperties.back();
-	}    
+	}
     
       _namedProperties.push_back(Value(newProp));
       return _namedProperties.back();

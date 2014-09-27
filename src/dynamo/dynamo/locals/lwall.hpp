@@ -22,6 +22,7 @@
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/Surface.hpp>
 #endif 
+#include <memory>
 
 namespace dynamo {
   class LWall: public Local, public CoilRenderObj
