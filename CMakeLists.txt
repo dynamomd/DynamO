@@ -1,8 +1,16 @@
 cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 
 ##########   OPTIONS
-enable_testing() #Enable build of test executables and 'make test' command
 project(DynamO) #Project name
+enable_testing() #Enable build of test executables and 'make test' command
+set(CPACK_GENERATOR DEB RPM)
+set(CPACK_PACKAGE_NAME "dynamo")
+set(CPACK_PACKAGE_VERSION_MAJOR 1)
+set(CPACK_PACKAGE_VERSION_MINOR 6)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_PACKAGE_CONTACT "support@dynamomd.org")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An event-driven particle simulation tool.")
+include(CPack) #Enable build of packages
 
 ##########   RELEASE MODE
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
