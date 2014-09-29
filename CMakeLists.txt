@@ -141,10 +141,20 @@ if(JUDY_SUPPORT)
   magnet_test(judy_test)
 endif(JUDY_SUPPORT)
 
+#Test for AV
+find_package(AVCodec)
+if(AVCodec_FOUND)
+  #Note, avcodec has multiple headers, perhaps set up a config.h file?
+  link_libraries(${AVCodec_LIBRARIES})
+  include_directories(${AVCodec_INCLUDE_DIRS})
+  add_definitions(-DMAGNET_FFMPEG_SUPPORT)
+endif()
+
 ### Coil
 # configuration
 if(VISUALIZER_SUPPORT)
   message(STATUS "Visualiser dependencies satisfied.")
+  
   # Coil library
   file(GLOB_RECURSE coil_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/coil/*.cpp)
   add_library(coil STATIC ${coil_SRC})
@@ -154,10 +164,11 @@ endif()
 
 ### DynamO
 file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
-add_library(dynamo OBJECT ${dynamo_SRC})
+add_library(dynamo STATIC ${dynamo_SRC})
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
-  add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp $<TARGET_OBJECTS:dynamo>)
+  add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)
+  target_link_libraries(${name} dynamo)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION bin)
 endfunction(dynamo_exe)
 dynamo_exe(dynarun)
@@ -166,7 +177,8 @@ dynamo_exe(dynahist_rw)
 #dynamo_exe(dynacollide)
 #dynamo_exe(dynapotential)
 if(VISUALIZER_SUPPORT)
-  add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp $<TARGET_OBJECTS:dynamo>)
+  add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
+  target_link_libraries(dynavis dynamo)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
 endif()
 
@@ -183,8 +195,8 @@ endif()
 
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
-  add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp $<TARGET_OBJECTS:dynamo>)
-  target_link_libraries(dynamo_${name}_exe ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp)
+  target_link_libraries(dynamo_${name}_exe dynamo ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
   set_target_properties(dynamo_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
   add_test(dynamo_${name} dynamo_${name}_exe)
 endfunction(dynamo_test)
