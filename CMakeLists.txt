@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 
 ##########   OPTIONS
 project(DynamO) #Project name
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
 enable_testing() #Enable build of test executables and 'make test' command
 set(CPACK_GENERATOR DEB RPM)
 set(CPACK_PACKAGE_NAME "dynamo")
@@ -22,15 +24,19 @@ link_libraries(debug dl)
 ########## COMPILER SUPPORT TESTS
 #C++11/C++0x support
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
+check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORT_CXX11)
+if(COMPILER_SUPPORT_CXX11)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 else()
-  check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-  if(COMPILER_SUPPORTS_CXX0X)
+  check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORT_CXX0X)
+  if(COMPILER_SUPPORT_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    check_cxx_source_compiles("int main(int, const char**) {for(int x: {0,1,2,3}) return x;}" CXX0X_RANGE_BASED_FOR)
+    if(NOT CXX0X_RANGE_BASED_FOR)
+      message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has limited C++11 support. You must install a more modern C++ compiler.")
+    endif()
   else()
-    message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++0x/C++11 support. Please use a more modern C++ compiler.")
+    message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. You must install a more modern C++ compiler.")
   endif()
 endif()
 
