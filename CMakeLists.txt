@@ -160,6 +160,8 @@ if(VISUALIZER_SUPPORT)
   add_library(coil STATIC ${coil_SRC})
   link_libraries(coil)
   add_definitions(-DDYNAMO_visualiser)
+  add_executable(coilvol ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/programs/coilvol.cpp)
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/coilvol DESTINATION bin)
 endif()
 
 ### DynamO
