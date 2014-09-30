@@ -11,7 +11,7 @@
 
 include(LibFindMacros)
 
-libfind_package(AVCodec AVUtil)
+libfind_package(AVCodec AVUtil )
 
 # TODO: pkg-config extra deps: libraw1394 theora vorbisenc
 
