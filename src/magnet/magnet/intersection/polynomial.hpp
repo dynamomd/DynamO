@@ -17,6 +17,7 @@
 
 #pragma once
 #include <algorithm>
+#include <array>
 #include <magnet/math/cubic.hpp>
 #include <magnet/math/bisect.hpp>
 
