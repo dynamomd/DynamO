@@ -42,5 +42,7 @@ find_library(AVCodec_LIBRARY
   PATHS ${AVCodec_PKGCONF_LIBRARY_DIRS}
   )
 
+set(AVCodec_PROCESS_INCLUDES AVCodec_INCLUDE_DIR AVUtil_INCLUDE_DIRS)
+set(AVCodec_PROCESS_LIBS AVCodec_LIBRARY AVUtil_LIBRARIES)
 libfind_process(AVCodec)
 

@@ -1,6 +1,5 @@
 #define BOOST_TEST_MODULE Scheduler_Sorter_test
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/BC/include.hpp>
 #include <dynamo/ranges/include.hpp>

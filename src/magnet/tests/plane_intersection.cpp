@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE Plane_Intersection_Tests
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <iostream>
 #include <random>

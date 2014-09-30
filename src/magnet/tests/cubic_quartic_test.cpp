@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE Cubic_Quartic_test
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <magnet/math/quartic.hpp>
 #include <complex>
 

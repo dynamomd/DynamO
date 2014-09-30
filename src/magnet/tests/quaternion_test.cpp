@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE Quaternion_test
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <magnet/math/quaternion.hpp>
 #include <magnet/math/matrix.hpp>
 #include <iostream>

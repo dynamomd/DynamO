@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE JudyContainer_test
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <iostream>
 #include <magnet/containers/judy.hpp>
 #include <cmath>

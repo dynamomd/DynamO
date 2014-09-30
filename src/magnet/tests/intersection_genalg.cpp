@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE Intersection_GeneralAlgorithm_Tests
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <magnet/intersection/generic_algorithm.hpp>
 #include <magnet/intersection/polynomial.hpp>
 #include <magnet/intersection/parabola_sphere.hpp>

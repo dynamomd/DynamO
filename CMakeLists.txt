@@ -41,12 +41,18 @@ else()
 endif()
 
 # Boost support
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.46 REQUIRED COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
 if(NOT Boost_FOUND)
   message(SEND_ERROR "Cannot build DynamO as the required boost libraries are missing.")
 endif()
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+
+#BZip2 support required for boost iostreams
+find_package(BZip2 REQUIRED)
+include_directories(${BZIP2_INCLUDE_DIR})
+link_libraries(${BZIP2_LIBRARIES})
 
 # Determine the supported system thread library and link to it
 find_package(Threads)
@@ -112,8 +118,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/ext_include)
 ### Magnet library
 function(magnet_test name) #Registers a magnet unit-test
   add_executable(magnet_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/magnet/tests/${name}.cpp)
-  target_link_libraries(magnet_${name}_exe ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-  set_target_properties(magnet_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
+  target_link_libraries(magnet_${name}_exe)
   add_test(magnet_${name} magnet_${name}_exe)
 endfunction(magnet_test)
 
@@ -198,7 +203,7 @@ endif()
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
   add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp)
-  target_link_libraries(dynamo_${name}_exe dynamo ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  target_link_libraries(dynamo_${name}_exe dynamo)
   set_target_properties(dynamo_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
   add_test(dynamo_${name} dynamo_${name}_exe)
 endfunction(dynamo_test)
