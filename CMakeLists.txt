@@ -142,7 +142,7 @@ if(JUDY_SUPPORT)
 endif(JUDY_SUPPORT)
 
 #Test for AV
-find_package(AVCodec)
+find_package(AVCodec QUIET)
 if(AVCodec_FOUND)
   #Note, avcodec has multiple headers, perhaps set up a config.h file?
   link_libraries(${AVCodec_LIBRARIES})
