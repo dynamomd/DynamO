@@ -73,9 +73,9 @@ endif()
 
 # Visualiser support
 find_package(PkgConfig)
-find_package(OpenGL)
-find_package(GLUT)
-find_package(GLEW)
+find_package(OpenGL QUIET)
+find_package(GLUT QUIET)
+find_package(GLEW QUIET)
 pkg_check_modules(GTKMM gtkmm-2.4)
 pkg_check_modules(PNG libpng)
 set(VISUALIZER_SUPPORT FALSE)
