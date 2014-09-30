@@ -1,26 +1,28 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-#
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
-#
-# Modified to make a template file for a multi-binary package with separated
-# build-arch and build-indep targets  by Bill Allombert 2001
 
-# Uncomment this to turn on verbose mode.
-export DH_VERBOSE=1
+BUILDDIR = build_dir
 
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
+# secondly called by launchpad
+build:
+	mkdir $(BUILDDIR);
+	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX=../debian/tmp/usr ..
+	make -C $(BUILDDIR)
 
-%:
-	dh $@
+# thirdly called by launchpad
+binary: binary-indep binary-arch
 
-# Disable testing of the build
-override_dh_auto_test: 
+binary-indep:
+	# nothing to be done
 
-#override_dh_auto_install:
-#        $(MAKE) DESTDIR=$$(pwd)/debian/tmp install
+binary-arch:
+	cd $(BUILDDIR); cmake -P cmake_install.cmake
+	mkdir debian/tmp/DEBIAN
+	dpkg-gencontrol -pgreet-the-world
+	dpkg --build debian/tmp ..
+
+# firstly called by launchpad
+clean:
+	rm -f build
+	rm -rf $(BUILDDIR)
+
+.PHONY: binary binary-arch binary-indep clean
