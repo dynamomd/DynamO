@@ -10,6 +10,7 @@ Build-Depends: debhelper (>= 8.0.0),
  libglew1.6-dev, 
  libavcodec-dev,
  libjudy-dev,
+ libxmu-dev,
  cmake
 Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
