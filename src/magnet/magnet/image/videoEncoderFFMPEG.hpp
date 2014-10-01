@@ -31,6 +31,7 @@ extern "C" {
 #endif
 #include <libavcodec/avcodec.h>
 #include <libavutil/mem.h>
+#include <libavutil/opt.h>
 }
 
 namespace magnet {
@@ -43,12 +44,11 @@ namespace magnet {
     public:
       ~VideoEncoderFFMPEG() { close(); }
 
-      void open(std::string filename, const size_t width, const size_t height, size_t fps = 25)
+      void open(std::string filename, const size_t width, const size_t height, int fps = 25)
       {
 	if (_outputFile.is_open())
 	  M_throw() << "Trying to open a video file when one is already being outputted!";
     
-      	_outputBufferSize = 10000000;
 	_frameCounter = 0;
 	_fps = fps;
 	_inputWidth = width;
@@ -74,45 +74,39 @@ namespace magnet {
 	    _codec = avcodec_find_encoder(AV_CODEC_ID_MPEG2VIDEO);
 	    if (!_codec) 
 	      {
-		std::cerr << "\nWARNING: Cannot open a MPEG2 codec! On a very bad day we drop to MPEG1.\n";
+		std::cerr << "\nWARNING: Cannot open a MPEG2 codec either! Dropping to MPEG1, quality of results will be poor.\n";
 		_codec = avcodec_find_encoder(AV_CODEC_ID_MPEG1VIDEO);
+		if (!_codec)
+		  M_throw() << "Failed to find a suitable codec for encoding video";
 	      }
 	  }
 
 	_context = avcodec_alloc_context3(_codec);
-
+	if (!_context)
+	  M_throw() << "Failed to allocate a video encoding context";
+	
 	//Codec parameters -> Move to the dictionary approach sometime
-	_context->bit_rate = 500000;
+	_context->bit_rate = 400000;
 	_context->width = _videoWidth;
 	_context->height = _videoHeight;
-	_context->time_base.num = 1;
-	_context->time_base.den = _fps;
+	_context->time_base = (AVRational){1,fps};
 	_context->pix_fmt = PIX_FMT_YUV420P;
-	//Make the buffer and rates as large as needed
-	_context->rc_max_rate = 0;
-	_context->rc_buffer_size = 0;
+	_context->max_b_frames=1;
 	if (_h264)
-	  {
-	    _context->max_b_frames=0;
-	    _context->profile= FF_PROFILE_H264_BASELINE;
-	    _context->level = 10;
-	    _context->gop_size = _fps;
-	    _context->max_qdiff = 4;
-	    _context->qmin = 10;
-	    _context->qmax=51;
-	    _context->qcompress=0.6;
-	    _context->keyint_min=10;
-	    _context->trellis=0;
-	  }
+	  av_opt_set(_context->priv_data, "preset", "medium", 0);
     
-	if (avcodec_open2(_context, _codec, NULL) < 0) 
+	if (avcodec_open2(_context, _codec, NULL) < 0)
 	  M_throw() << "Could not open the video codec context";
 
 	//Setup the frame/picture descriptor, this holds pointers to the
 	//various channel data and spacings.
 	_picture = avcodec_alloc_frame();
-	//We use malloc for good reason, the library may realloc any
-	//time it likes! (the picture should stay the same though)
+	if (!_picture)
+	  M_throw() << "Failed to allocate frame/picture for video encoding.";
+	
+	//We use normal malloc for a good reason, the library may
+	//realloc its memory any time it likes, so we don't give it
+	//control over this.
 	_pictureBuffer = reinterpret_cast<uint8_t*>(malloc((size * 3) / 2));
 	_picture->data[0] = &(_pictureBuffer[0]);
 	_picture->data[1] = _picture->data[0] + size;
@@ -120,10 +114,6 @@ namespace magnet {
 	_picture->linesize[0] = _videoWidth;
 	_picture->linesize[1] = _videoWidth / 2;
 	_picture->linesize[2] = _videoWidth / 2;
-    
-	//Allocate a reasonably large buffer for the output packets
-	//We use malloc for good reason, the library may realloc any time it likes!
-	_outputBuffer = reinterpret_cast<uint8_t*>(malloc(_outputBufferSize));
     
 	_outputFile.open(filename.c_str(), std::ios_base::out | std::ios_base::binary  | std::ios_base::binary);
 	if (!_outputFile.is_open())  
@@ -162,10 +152,16 @@ namespace magnet {
 	if (_h264)
 	  _picture->pts = (90000 / _fps) * (_frameCounter++);
 
-	/* encode the image and write out any data returned from the encoder */
-	int out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBufferSize, _picture);
-	if (out_size < 0) M_throw() << "Failed to encode a frame of video";
-	_outputFile.write(reinterpret_cast<const char*>(&(_outputBuffer[0])), out_size);
+	AVPacket packet;
+	av_init_packet(&packet);
+	packet.data = NULL;
+	packet.size = 0;
+	int got_output;
+	int ret = avcodec_encode_video2(_context, &packet, _picture, &got_output);
+	if (ret < 0) M_throw() << "Failed to encode a frame of video.";
+	if (got_output)
+	  _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
+	av_free_packet(&packet);
       }
 
       void close()
@@ -173,22 +169,24 @@ namespace magnet {
 	if (!_outputFile.is_open()) return;
 
 	/* get the delayed frames */
-	int out_size;
-	while((out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBufferSize, NULL)))
-	  _outputFile.write(reinterpret_cast<const char*>(&(_outputBuffer[0])), out_size);
-
+	AVPacket packet;
+	int ret, got_output = 0;
+	do {
+	  ret = avcodec_encode_video2(_context, &packet, NULL, &got_output);
+	  if (ret < 0)
+	    M_throw() << "Error encoding end frames.";
+	  if (got_output)
+	    _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
+	} while(got_output);
+	  
 	/* add sequence end code to have a real mpeg file */
-	_outputBuffer[0] = 0x00;
-	_outputBuffer[1] = 0x00;
-	_outputBuffer[2] = 0x01;
-	_outputBuffer[3] = 0xb7; 
-	_outputFile.write(reinterpret_cast<const char*>(&(_outputBuffer[0])), 4);
+	const uint8_t endcode[] = {0,0,1,0xb7};
+	_outputFile.write(reinterpret_cast<const char*>(endcode), sizeof(endcode));
 	_outputFile.close();
 
 	avcodec_close(_context);
 	av_free(_context);
 	av_free(_picture);
-	free(_outputBuffer);
 	free(_pictureBuffer);
       }
 

@@ -155,6 +155,8 @@ namespace dynamo {
 		  <<", Unknown Engine Number Selected"; 
       }
   
+    if (_enableVisualisation)
+      _engine->enableVisualisation();
     _engine->initialisation();
   }
 

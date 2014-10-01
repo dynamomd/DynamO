@@ -15,10 +15,10 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An event-driven particle simulation tool.
 include(CPack) #Enable build of packages
 
 ##########   RELEASE MODE
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
 ##########   DEBUG MODE
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall -fstack-protector-all")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall -O2")
 link_libraries(debug dl)
 
 ########## COMPILER SUPPORT TESTS
@@ -71,7 +71,7 @@ if(SIZEOF_SIZE_T LESS 8)
 elseif(JUDY_H_AVAILABLE AND JUDY_LIB_AVAILABLE) 
   message(STATUS "Enabling libJudy support.")
   set(LIBJUDY_SUPPORT TRUE)
-  add_definitions(-DYNAMO_JUDY)
+  add_definitions(-DDYNAMO_JUDY)
   link_libraries(Judy)
 else()
   message(STATUS "libJudy header/library missing.")
@@ -164,7 +164,7 @@ if(VISUALIZER_SUPPORT)
   file(GLOB_RECURSE coil_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/coil/*.cpp)
   add_library(coil STATIC ${coil_SRC})
   link_libraries(coil)
-  add_definitions(-DDYNAMO_visualiser)
+  add_definitions(-DDYNAMO_visualizer)
   add_executable(coilvol ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/programs/coilvol.cpp)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/coilvol DESTINATION bin)
 endif()
@@ -172,10 +172,10 @@ endif()
 ### DynamO
 file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
 add_library(dynamo STATIC ${dynamo_SRC})
+link_libraries(dynamo)
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
   add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)
-  target_link_libraries(${name} dynamo)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION bin)
 endfunction(dynamo_exe)
 dynamo_exe(dynarun)
@@ -185,7 +185,7 @@ dynamo_exe(dynahist_rw)
 #dynamo_exe(dynapotential)
 if(VISUALIZER_SUPPORT)
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
-  target_link_libraries(dynavis dynamo)
+  set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
 endif()
 
@@ -203,7 +203,6 @@ endif()
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
   add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp)
-  target_link_libraries(dynamo_${name}_exe dynamo)
   set_target_properties(dynamo_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
   add_test(dynamo_${name} dynamo_${name}_exe)
 endfunction(dynamo_test)

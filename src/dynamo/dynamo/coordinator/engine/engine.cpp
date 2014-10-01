@@ -63,6 +63,7 @@ namespace dynamo {
     outputFormat(outputFile),
     _SIGINT(false),
     _SIGTERM(false),
+    _loadVisualiser(false),
     threads(tp)
   {}
 
