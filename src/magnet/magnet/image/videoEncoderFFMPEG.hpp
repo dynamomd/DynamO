@@ -159,9 +159,10 @@ namespace magnet {
 	int got_output;
 	int ret = avcodec_encode_video2(_context, &packet, _picture, &got_output);
 	if (ret < 0) M_throw() << "Failed to encode a frame of video.";
-	if (got_output)
+	if (got_output) {
 	  _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
-	av_free_packet(&packet);
+	  av_free_packet(&packet);
+	}
       }
 
       void close()
@@ -170,14 +171,18 @@ namespace magnet {
 
 	/* get the delayed frames */
 	AVPacket packet;
-	int ret, got_output = 0;
-	do {
-	  ret = avcodec_encode_video2(_context, &packet, NULL, &got_output);
+	av_init_packet(&packet);
+	packet.data = NULL;
+	packet.size = 0;
+	for (int got_output = 1; got_output;) {
+	  int ret = avcodec_encode_video2(_context, &packet, NULL, &got_output);
 	  if (ret < 0)
 	    M_throw() << "Error encoding end frames.";
-	  if (got_output)
+	  if (got_output) {
 	    _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
-	} while(got_output);
+	    av_free_packet(&packet);
+	  }
+	} 
 	  
 	/* add sequence end code to have a real mpeg file */
 	const uint8_t endcode[] = {0,0,1,0xb7};
@@ -188,6 +193,7 @@ namespace magnet {
 	av_free(_context);
 	av_free(_picture);
 	free(_pictureBuffer);
+	_outputFile.close();
       }
 
   
