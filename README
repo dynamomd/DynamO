@@ -7,17 +7,15 @@ INSTALLATION
 ------------
 
 Please see tutorial 1 on the DynamO website for a full description on
-how to build DynamO. A quick summary is:
+how to build DynamO. A quick summary is
 
+     mkdir build-dir
+     cd build-dir
+     cmake ../
      make
-
-And the executables will be installed into the bin subdirectory of the
-dynamo source code. If you want to install the executables to
-/usr/bin, run
-
      sudo make install
 
-Please pay attention to the output of the make commands, as this scans
+Please pay attention to the output of the cmake commands, as this scans
 for required dependencies and will warn you if it is unable to build
 DynamO!
 
