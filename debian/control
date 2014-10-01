@@ -16,28 +16,12 @@ Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
 Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 
-Package: dynamo-core
+Package: dynamomd
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}, python-numpy,
+  python-matplotlib
+Recommends: libavcodec-extra-53
 Description: The core simulator programs for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
- wide range of tools and models built in. It also includes a world
- class visualisation package for particulate systems.
-
-Package: dynamo-visualisation
-Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Recommends: libavcodec-extra-53
-Description: The visualisation program for DynamO, the event-driven molecular dynamics simulator.
- DynamO is a modern event-driven molecular dynamics simulator with a
- wide range of tools and models built in. It also includes a world
- class visualisation package for particulate systems.
-
-Package: dynamo-tools
-Architecture: all
-Depends: python-numpy,
-  python-matplotlib
-Description: Data processing tools for DynamO, the event-driven molecular dynamics simulator.
- DynamO is a modern event-driven molecular dynamics simulator with a
- wide range of tools and models built in. It also includes a world
- class visualisation package for particulate systems.
+ wide range of tools and models built in. It also includes a visualisation 
+ package for particulate systems. 
