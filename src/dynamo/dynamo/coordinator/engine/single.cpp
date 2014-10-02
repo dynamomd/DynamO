@@ -100,7 +100,8 @@ namespace dynamo {
     setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
 
 #ifdef DYNAMO_visualizer
-    simulation.systems.push_back(shared_ptr<System>(new SVisualizer(&simulation, vm["config-file"].as<std::vector<std::string> >()[0], simulation.lastRunMFT)));
+    if (_loadVisualiser)
+      simulation.systems.push_back(shared_ptr<System>(new SVisualizer(&simulation, vm["config-file"].as<std::vector<std::string> >()[0], simulation.lastRunMFT)));
 #endif
 
     if (vm.count("snapshot"))
@@ -115,7 +116,6 @@ namespace dynamo {
 
     if (vm.count("ticker-period"))
       simulation.setTickerPeriod(vm["ticker-period"].as<double>());
-
   }
 
   void

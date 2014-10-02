@@ -48,6 +48,8 @@ namespace dynamo {
     Coordinator() {}
 
   public:
+    void enableVisualisation() { _enableVisualisation = true; }
+
 
     /*! \brief This is how the singleton Coordinator class is
         accessed.
@@ -123,5 +125,7 @@ namespace dynamo {
       dynarun process.
     */
     magnet::thread::ThreadPool _threads;
+    
+    bool _enableVisualisation;
   };
 }

@@ -18,7 +18,6 @@
 #pragma once
 
 #ifdef DYNAMO_visualizer
-
 #include <coil/clWindow.hpp>
 #include <dynamo/systems/system.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>

@@ -62,6 +62,9 @@ int main(int argc, char *argv[])
 	  }
 
       dynamo::Coordinator::get().parseOptions(args,argv);
+#ifdef DYNAMO_loadvisualiser
+      dynamo::Coordinator::get().enableVisualisation();
+#endif
       dynamo::Coordinator::get().initialise();
       dynamo::Coordinator::get().runSimulation();
       dynamo::Coordinator::get().outputData();

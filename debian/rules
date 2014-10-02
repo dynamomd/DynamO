@@ -20,7 +20,7 @@ binary-indep:
 binary-arch:
 	cd $(BUILDDIR); cmake -P cmake_install.cmake
 	mkdir debian/tmp/DEBIAN
-	dpkg-gencontrol -pgreet-the-world
+	dpkg-gencontrol -pdynamomd
 	dpkg --build debian/tmp ..
 
 # firstly called by launchpad
