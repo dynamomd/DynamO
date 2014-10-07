@@ -167,8 +167,6 @@ namespace dynamo {
   shared_ptr<coil::RenderObj>
   LOscillatingPlate::getCoilRenderObj() const
   {
-    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
-
     if (!_renderObj)
       {
 	Vector axis3 = nhat / nhat.nrm();
@@ -190,8 +188,8 @@ namespace dynamo {
 	   << axis3[1] << ", "
 	   << axis3[2] << ", 0";
 
-	axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
-	axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
+	axis1 *= Sim->primaryCellSize[1] / axis1.nrm();
+	axis2 *= Sim->primaryCellSize[2] / axis2.nrm();
 
 	_renderObj.reset(new coil::RSurface("Oscillating wall", 10, 
 					    rw0 - 0.5 * (axis1 + axis2), 

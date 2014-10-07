@@ -5,6 +5,8 @@ project(DynamO) #Project name
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 enable_testing() #Enable build of test executables and 'make test' command
+include(CTest)
+
 set(CPACK_GENERATOR DEB RPM)
 set(CPACK_PACKAGE_NAME "dynamo")
 set(CPACK_PACKAGE_VERSION_MAJOR 1)
@@ -31,7 +33,7 @@ else()
   check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORT_CXX0X)
   if(COMPILER_SUPPORT_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    check_cxx_source_compiles("int main(int, const char**) {for(int x: {0,1,2,3}) return x;}" CXX0X_RANGE_BASED_FOR)
+    check_cxx_source_compiles("int main(int, const char**) {int array[5] = {1,2,3,4,5}; for(int& x: array) x *= 2;}" CXX0X_RANGE_BASED_FOR)
     if(NOT CXX0X_RANGE_BASED_FOR)
       message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has limited C++11 support. You must install a more modern C++ compiler.")
     endif()
