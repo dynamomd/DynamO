@@ -12,7 +12,7 @@ set(CTEST_BUILD_NAME "linux-gcc-default")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CF_BUILD_CONFIGURATION "Release")
 
-set(CTEST_BUILD_FLAGS "-j8")
+set(CTEST_BUILD_FLAGS "-j1")
 set(CTEST_BUILD_OPTIONS "\"-DCTEST_BUILD_FLAGS:STRING=${CTEST_BUILD_FLAGS}\"")
 
 ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
