@@ -1,3 +1,9 @@
+##This is a script file to automate compilation and execution of
+##DynamO tests. This is used for continuous integration testing.
+
+#Please set the following to a description of the test system (i.e. CentOS6.5)
+set(CTEST_SITE "UserSite")
+set(CTEST_BUILD_NAME "linux-gcc-default")
 ##########################################################################
 # Site-specific setup
 ##########################################################################
@@ -5,9 +11,6 @@
 # Dashboard model (Continuous, Experimental, Nightly)
 set(CTEST_SOURCE_DIRECTORY "/home/mjki2mb2/CTest/dynamo/source")
 set(CTEST_BINARY_DIRECTORY "/home/mjki2mb2/CTest/dynamo/build")
-
-set(CTEST_SITE "UserSite")
-set(CTEST_BUILD_NAME "linux-gcc-default")
 
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CF_BUILD_CONFIGURATION "Release")
