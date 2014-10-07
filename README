@@ -7,7 +7,7 @@ INSTALLATION
 ------------
 
 Please see tutorial 1 on the DynamO website for a full description on
-how to build DynamO. A quick summary is
+how to compile DynamO. A quick summary is
 
      mkdir build-dir
      cd build-dir
@@ -15,9 +15,9 @@ how to build DynamO. A quick summary is
      make
      sudo make install
 
-Please pay attention to the output of the cmake commands, as this scans
-for required dependencies and will warn you if it is unable to build
-DynamO!
+Please pay attention to the output of the cmake and make commands, as
+this scans for required dependencies and will warn you if it is unable
+to build DynamO!
 
 DOCUMENTATION
 -------------
