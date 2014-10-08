@@ -18,6 +18,7 @@
 #pragma once
 #include <magnet/math/frenkelroot.hpp>
 #include <magnet/math/bisect.hpp>
+#include <array>
 #include <limits>
 
 namespace magnet {
