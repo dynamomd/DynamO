@@ -44,45 +44,13 @@ while (1)
  ctest_start("Continuous")
  ctest_update(RETURN_VALUE HAD_UPDATES)
  if(${HAD_UPDATES} GREATER 0)
+  ctest_submit(PARTS Update)
   ctest_configure()
+  ctest_submit(PARTS Configure)
   ctest_build()
+  ctest_submit(PARTS Build)
   ctest_test()
-  ctest_submit()
- endif()
- ctest_sleep( ${START_TIME} 60 ${CTEST_ELAPSED_TIME})
-endwhile()
-
-##########################################################################
-# Configuration
-##########################################################################
-
-# Initial cache entries
-set(CF_CONFIG_OPTIONS "\"-DCTEST_BUILD_FLAGS:STRING=${CTEST_BUILD_FLAGS}\" -DCMAKE_BUILD_TYPE:STRING=${CF_BUILD_TYPE}")
-set(CF_CONFIG_OPTIONS "${CF_CONFIG_OPTIONS} -DSITE:STRING=${CTEST_SITE}")
-
-# Assemble cmake command line
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} ${CF_CONFIG_OPTIONS}")
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} \"-G${CTEST_CMAKE_GENERATOR}\"")
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} \"${CTEST_SOURCE_DIRECTORY}\"")
-
-##########################################################################
-# Run the dashboard continuously
-##########################################################################
-while (True)
- set(START_TIME ${CTEST_ELAPSED_TIME})
- message(STATUS "Starting CTest")
- ctest_start(${MODEL})
- message(STATUS "Updating code")
- ctest_update(RETURN_VALUE HAD_UPDATES)
- message(STATUS "Checking for updates")
- if(${HAD_UPDATES} GREATER 0)
-    message(STATUS "Updates found, beginning build")
-   ctest_configure()
-   ctest_build()
-   ctest_test()
-   ctest_submit()
- else()
-    message(STATUS "No updates")
+  ctest_submit(PARTS Test)
  endif()
  ctest_sleep( ${START_TIME} 60 ${CTEST_ELAPSED_TIME})
 endwhile()
