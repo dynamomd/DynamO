@@ -2,7 +2,7 @@ Source: dynamo
 Section: science
 Priority: optional
 Maintainer: Marcus Bannerman <support@dynamomd.org>
-Build-Depends: debhelper (>= 8.0.0), 
+Build-Depends: debhelper, 
  libbz2-dev,
  libboost-all-dev,
  libgtkmm-2.4-dev, 
