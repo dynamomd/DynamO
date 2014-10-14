@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/lines.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
@@ -62,7 +61,7 @@ namespace dynamo {
 
   double ILines::maxIntDist() const { return _length->getMaxValue(); }
 
-  IntEvent 
+  Event
   ILines::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
@@ -85,33 +84,33 @@ namespace dynamo {
 	std::pair<bool, double> colltime = Sim->dynamics->getLineLineCollision(l, p1, p2, dt);
 
 	if (colltime.second == HUGE_VAL)
-	  return IntEvent(p1, p2, dt, NBHOOD_OUT, *this);
+	  return Event(p1, dt, INTERACTION, NBHOOD_OUT, ID, p2);
 
 	//Something happens in the time interval
 
 	if (colltime.first)
 	  //Its a collision!
-	  return IntEvent(p1, p2, colltime.second, CORE, *this);
+	  return Event(p1, colltime.second, INTERACTION, CORE, ID, p2);
 	else
 	  //Its a virtual event, we need to recalculate in a bit
-	  return IntEvent(p1, p2, colltime.second, VIRTUAL, *this);
+	  return Event(p1, colltime.second, INTERACTION, VIRTUAL, ID, p2);
       }
     else 
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l);
 	if (dt != HUGE_VAL)
-	  return IntEvent(p1, p2, dt, NBHOOD_IN, *this);
+	  return Event(p1, dt, INTERACTION, NBHOOD_IN, ID, p2);
       }
 
-    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
   }
 
   PairEventData
-  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  ILines::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     PairEventData retval;
 
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case CORE:
 	{
@@ -126,20 +125,20 @@ namespace dynamo {
 	{
 	  ICapture::add(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       case VIRTUAL:
 	{
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       default:

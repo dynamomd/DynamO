@@ -18,7 +18,6 @@
 #include <dynamo/globals/include.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>

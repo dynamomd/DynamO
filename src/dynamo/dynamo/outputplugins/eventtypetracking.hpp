@@ -24,26 +24,16 @@ namespace dynamo
 {
   class Simulation;
   class Interaction;
-  class GlobalEvent;
   class System;
-  class LocalEvent;
-  class IntEvent;
 
   namespace EventTypeTracking {
   
     //! Keeps the type of event (interaction etc) and the ID num
-    typedef std::pair<size_t, EEventType> classKey;
+    typedef std::pair<size_t, EventSource> classKey;
 
     std::string getName(const classKey&, const dynamo::Simulation*);
-
     std::string getClass(const classKey&);
 
-    classKey getClassKey(const IntEvent&);
-
-    classKey getClassKey(const System&);
-
-    classKey getClassKey(const GlobalEvent&);
-
-    classKey getClassKey(const LocalEvent&);
+    classKey getClassKey(const Event&);
   }
 }

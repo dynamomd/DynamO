@@ -7,7 +7,8 @@
 #include <dynamo/species/point.hpp>
 #include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
+#include <dynamo/schedulers/sorters/CBTFEL.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/squarebond.hpp>
@@ -47,7 +48,7 @@ void init(dynamo::Simulation& Sim)
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
+  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
   Sim.primaryCellSize = dynamo::Vector{50, 50, 50};
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareBond(&Sim, bondinner, bondouter / bondinner, elasticity, new dynamo::IDPairRangeChains(0, N - 1, N), "Bonds")));
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareWell(&Sim, diameter, lambda, welldepth, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));

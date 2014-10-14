@@ -20,7 +20,6 @@
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/locals/trianglemesh.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

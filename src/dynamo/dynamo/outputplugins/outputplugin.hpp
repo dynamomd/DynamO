@@ -17,18 +17,16 @@
 
 #pragma once
 #include <dynamo/base.hpp>
+#include <dynamo/eventtypes.hpp>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
-  class IntEvent;
-  class GlobalEvent;
   struct XMLNode;
   class PairEventData;
   class ParticleEventData;
   class NEventData;
   class System;
-  class LocalEvent;
   class IDRange;
 
   class OutputPlugin: public dynamo::SimBase_const
@@ -40,13 +38,7 @@ namespace dynamo {
   
     virtual void initialise() = 0;
   
-    virtual void eventUpdate(const IntEvent&, const PairEventData&) = 0;
-  
-    virtual void eventUpdate(const GlobalEvent&, const NEventData&) = 0;
-
-    virtual void eventUpdate(const LocalEvent&, const NEventData&) = 0;
-
-    virtual void eventUpdate(const System&, const NEventData&, const double&) = 0;
+    virtual void eventUpdate(const Event&, const NEventData&) = 0;
   
     virtual void output(magnet::xml::XmlStream&);
   

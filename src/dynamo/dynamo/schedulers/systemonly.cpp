@@ -16,10 +16,10 @@
 */
 
 #include <dynamo/schedulers/systemonly.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRangeNone.hpp>
 #include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <cmath> //for huge val
 
 namespace dynamo {
@@ -44,10 +44,7 @@ namespace dynamo {
       M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
     sorter->clear();
-    sorter->resize(Sim->N()+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N()+1, 0);  
-    sorter->init();
+    sorter->init(Sim->N()+1);
     rebuildSystemEvents();
   }
 
@@ -61,10 +58,7 @@ namespace dynamo {
       M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
     sorter->clear();
-    sorter->resize(Sim->N()+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N()+1, 0);  
-    sorter->rebuild();
+    sorter->init(Sim->N() + 1);
     rebuildSystemEvents();
 #endif
   }

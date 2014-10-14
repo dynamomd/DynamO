@@ -7,7 +7,8 @@
 #include <dynamo/species/point.hpp>
 #include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
+#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
@@ -16,7 +17,7 @@
 #include <random>
 
 std::mt19937 RNG;
-typedef dynamo::FELBoundedPQ<dynamo::PELMinMax<3> > DefaultSorter;
+typedef dynamo::BoundedPQFEL<dynamo::MinMaxPEL<3> > DefaultSorter;
 
 dynamo::Vector getRandVelVec()
 {

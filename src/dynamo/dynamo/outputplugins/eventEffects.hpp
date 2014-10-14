@@ -35,13 +35,7 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-    virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-    virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const Event&, const NEventData&);
 
     void output(magnet::xml::XmlStream &);
 

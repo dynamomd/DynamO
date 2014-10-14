@@ -15,13 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/locals/local.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/BC/BC.hpp>
 

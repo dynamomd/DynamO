@@ -15,11 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dynamo/outputplugins/trajectory.hpp>
-
 #include <dynamo/units/units.hpp>
-#include <dynamo/globals/globEvent.hpp>
-#include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/BC/BC.hpp>
@@ -87,76 +83,19 @@ namespace dynamo {
   }
 
   void 
-  OPTrajectory::eventUpdate(const IntEvent& eevent, 
-			    const PairEventData& pdat)
-  {
-    logfile << std::setw(8) << Sim->eventCount
-	    << " INTERACTION " << eevent.getInteractionID()
-	    << " TYPE " << eevent.getType()
-	    << " t " << std::setw(5) << Sim->systemTime / Sim->units.unitTime() 
-	    << " dt " << std::setw(5) << eevent.getdt() / Sim->units.unitTime();
-
-    logfile << " deltaP1 < ";
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      logfile << std::setw(7) 
-	      << ((eevent.getParticle1ID() < eevent.getParticle2ID())? -1 : 1) 
-	* pdat.impulse[iDim] << " ";
-
-    logfile << " >";
-  
-    printData(eevent.getParticle1ID(),
-	      eevent.getParticle2ID());
-  
-    logfile << "\n";
-  }
-
-  void 
-  OPTrajectory::eventUpdate(const GlobalEvent& eevent, 
-			    const NEventData& SDat)
-  {
-    logfile << std::setw(8) << Sim->eventCount
-	    << " GLOBAL " << eevent.getGlobalID()
-	    << " TYPE " << eevent.getType()
-	    << " t " << Sim->systemTime / Sim->units.unitTime() 
-	    << " dt " << eevent.getdt() / Sim->units.unitTime()
-	    << "\n";
-
-    for (const ParticleEventData& pData : SDat.L1partChanges)
-      {
-	const Particle& part = Sim->particles[pData.getParticleID()];
-	logfile << "    1PEvent p1 " << part.getID();
-	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
-	delP /= Sim->units.unitMomentum();
-	Vector pos = part.getPosition() / Sim->units.unitLength();
-	Vector oldv = pData.getOldVel() / Sim->units.unitVelocity();
-	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
-	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
-      }
-  
-    for (const PairEventData& pData : SDat.L2partChanges)
-      {
-	logfile << "    2PEvent";
-
-	printData(pData.particle1_.getParticleID(),
-		  pData.particle2_.getParticleID());
-
-	logfile << "\n";
-      }
-  }
-
-  void 
-  OPTrajectory::eventUpdate(const LocalEvent& eevent, 
-			    const NEventData& SDat)
+  OPTrajectory::eventUpdate(const Event& eevent, const NEventData& SDat)
   {
     logfile << std::setw(8) << Sim->eventCount 
-	    << " LOCAL " << eevent.getLocalID()
-	    << " TYPE " << eevent.getType()
+	    << " " <<  eevent._source 
+	    << " " << eevent._sourceID
+	    << " TYPE " << eevent._type
 	    << " t " << Sim->systemTime / Sim->units.unitTime() 
-	    << " dt " << eevent.getdt() / Sim->units.unitTime()
-	    << "\n";
+	    << " dt " << eevent._dt / Sim->units.unitTime()
+      ;
 
     for (const ParticleEventData& pData : SDat.L1partChanges)
       {
+	logfile << "|";
 	const Particle& part = Sim->particles[pData.getParticleID()];
 	logfile << "    1PEvent p1 " << part.getID();
 	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
@@ -166,50 +105,14 @@ namespace dynamo {
 	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
 	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
-
-    for (const PairEventData& pData : SDat.L2partChanges)
-      {
-	logfile << "    2PEvent";
-      
-	printData(pData.particle1_.getParticleID(),
-		  pData.particle2_.getParticleID());
-      
-	logfile << "\n";
-      }
-  }
-
-  void 
-  OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat, 
-			    const double& dt)
-  {
-    logfile << std::setw(8) << Sim->eventCount
-	    << " SYSTEM " << sys.getID()
-	    << " TYPE " << sys.getType()
-	    << " t " << Sim->systemTime / Sim->units.unitTime() 
-	    << " dt " << dt / Sim->units.unitTime()
-	    << "\n";
-
-    for (const ParticleEventData& pData : SDat.L1partChanges)
-      {
-	const Particle& part = Sim->particles[pData.getParticleID()];
-	logfile << "    1PEvent p1 " << part.getID();
-	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
-	delP /= Sim->units.unitMomentum();
-	Vector pos = part.getPosition() / Sim->units.unitLength();	
-	Vector oldv = pData.getOldVel() / Sim->units.unitVelocity();
-	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
-	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
-      }
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
-	logfile << "    2PEvent";
-      
+	logfile << "|";
 	printData(pData.particle1_.getParticleID(),
 		  pData.particle2_.getParticleID());
-      
-	logfile << "\n";
       }
+    logfile << "\n";
   }
 
   void 

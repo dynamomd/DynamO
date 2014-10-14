@@ -21,7 +21,9 @@
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
+#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/species/include.hpp>
 #include <dynamo/globals/include.hpp>
 #include <dynamo/interactions/include.hpp>
@@ -46,7 +48,7 @@
 #include <memory>
 
 namespace dynamo {
-  typedef FELBoundedPQ<PELMinMax<3> > DefaultSorter;
+  typedef BoundedPQFEL<MinMaxPEL<3> > DefaultSorter;
 
   namespace {
     struct speciesData 
@@ -2939,7 +2941,7 @@ namespace dynamo {
 	  Sim->primaryCellSize = Vector{2 * R + 1, 2 * R + 1, double(depth)};
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
+	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CBTFEL<HeapPEL>()));
 	  
 	  incline *= M_PI /180.0;
 	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector{0, -cos(incline), sin(incline)}, elasticV));

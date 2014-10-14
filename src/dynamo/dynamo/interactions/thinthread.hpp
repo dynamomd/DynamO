@@ -33,9 +33,9 @@ namespace dynamo {
      */
     virtual size_t captureTest(const Particle&, const Particle&) const { return false; }
 
-    virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual Event getEvent(const Particle&, const Particle&) const;
   
-    virtual PairEventData runEvent(Particle&, Particle&, const IntEvent&);
+    virtual PairEventData runEvent(Particle&, Particle&, Event);
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
   };

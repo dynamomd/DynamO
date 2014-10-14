@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/schedulers/neighbourlist.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/simulation.hpp>
@@ -25,7 +24,6 @@
 #include <dynamo/globals/cellsShearing.hpp>
 #include <dynamo/systems/nblistCompressionFix.hpp>
 #include <dynamo/locals/local.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/ranges/IDRangeRange.hpp>
 #include <dynamo/BC/include.hpp>
 #include <magnet/xmlreader.hpp>

@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/dumbbells.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/units/units.hpp>
@@ -117,7 +116,7 @@ namespace dynamo {
     return maxdist1 + maxdist2;
   }
 
-  IntEvent 
+  Event
   IDumbbells::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
@@ -136,7 +135,7 @@ namespace dynamo {
     if (!isCaptured(p1, p2))
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, max_dist);
-	return IntEvent(p1, p2, dt, (dt != HUGE_VAL) ? NBHOOD_IN : NONE, *this);
+	return Event(p1, dt, INTERACTION, (dt != HUGE_VAL) ? NBHOOD_IN : NONE, ID, p2);
       }
     
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -197,19 +196,19 @@ namespace dynamo {
 
     //Check if they miss each other
     if (current.second == HUGE_VAL)
-      return IntEvent(p1, p2, t_max, NBHOOD_OUT, *this);
+      return Event(p1, t_max, INTERACTION, NBHOOD_OUT, ID, p2);
     
     //Something happens in the time interval
-    return IntEvent(p1, p2, current.second, current.first ? CORE : VIRTUAL, *this);
+    return Event(p1, current.second, INTERACTION, current.first ? CORE : VIRTUAL, ID, p2);
   }
 
 
   PairEventData
-  IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IDumbbells::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     PairEventData retval;
 
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case CORE:
 	{
@@ -269,7 +268,7 @@ namespace dynamo {
 	  if (fcurrent == HUGE_VAL)
 	    {
 	      retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	      iEvent.setType(VIRTUAL);
+	      iEvent._type = VIRTUAL;
 	      break;
 	    }
 
@@ -308,20 +307,20 @@ namespace dynamo {
 	{
 	  ICapture::add(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       case VIRTUAL:
 	{
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       default:

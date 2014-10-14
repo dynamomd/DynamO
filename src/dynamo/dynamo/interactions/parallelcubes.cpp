@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/parallelcubes.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
@@ -62,7 +61,7 @@ namespace dynamo {
     return diam * diam * diam; 
   }
 
-  IntEvent 
+  Event
   IParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
   { 
 #ifdef DYNAMO_DEBUG
@@ -79,13 +78,13 @@ namespace dynamo {
     const double dt = Sim->dynamics->CubeCubeInRoot(p1, p2, _diameter->getProperty(p1, p2));
 
     if (dt != HUGE_VAL)
-      return IntEvent(p1, p2, dt, CORE, *this);
+      return Event(p1, dt, INTERACTION, CORE, ID, p2);
   
-    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
   }
 
   PairEventData
-  IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IParallelCubes::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     ++Sim->eventCount;
     return Sim->dynamics->parallelCubeColl(iEvent, _e->getProperty(p1, p2), _diameter->getProperty(p1, p2));

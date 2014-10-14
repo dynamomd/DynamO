@@ -17,13 +17,11 @@
 */
 
 #include <dynamo/dynamics/newtonian.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/overlap/point_prism.hpp>
 #include <magnet/overlap/point_cube.hpp>
@@ -378,10 +376,10 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e, const double&, const EEventType& eType) const
+  DynNewtonian::SmoothSpheresColl(Event& event, const double& e, const double&, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
     updateParticlePair(particle1, particle2);  
     PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
 
@@ -415,10 +413,10 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::parallelCubeColl(const IntEvent& event, const double& e, const double&, const EEventType& eType) const
+  DynNewtonian::parallelCubeColl(Event& event, const double& e, const double&, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
 
     updateParticlePair(particle1, particle2);
 
@@ -637,14 +635,14 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double &, size_t) const
+  DynNewtonian::SphereWellEvent(Event& event, const double& deltaKE, const double &, size_t) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
 
     updateParticlePair(particle1, particle2);  
 
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event.getType());
+    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event._type);
     
     Sim->BCs->applyBC(retVal.rij,retVal.vijold);
   
@@ -666,7 +664,7 @@ namespace dynamo {
   
     if ((deltaKE < 0) && (sqrtArg < 0))
       {
-	event.setType(BOUNCE);
+	event._type = BOUNCE;
 	retVal.setType(BOUNCE);
 	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
@@ -1064,15 +1062,15 @@ namespace dynamo {
 
 
   PairEventData 
-  DynNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
+  DynNewtonian::runLineLineCollision(Event& eevent, const double& elasticity, const double& length) const
   {
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    Particle& particle1 = Sim->particles[eevent.getParticle1ID()];
-    Particle& particle2 = Sim->particles[eevent.getParticle2ID()];
+    Particle& particle1 = Sim->particles[eevent._particle1ID];
+    Particle& particle2 = Sim->particles[eevent._particle2ID];
     updateParticlePair(particle1, particle2);  
     PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), CORE);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
@@ -1116,13 +1114,13 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
+  DynNewtonian::RoughSpheresColl(Event& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
   {
     if (!hasOrientationData())
       M_throw() << "Cannot use tangential coefficients of inelasticity without orientational data/species";
 
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
 
     updateParticlePair(particle1, particle2);  
     PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);

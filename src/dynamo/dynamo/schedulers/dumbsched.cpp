@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/schedulers/dumbsched.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>

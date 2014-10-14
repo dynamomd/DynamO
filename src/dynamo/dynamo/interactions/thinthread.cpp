@@ -20,7 +20,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -55,9 +54,8 @@ namespace dynamo {
     ICapture::loadCaptureMap(XML);   
   }
 
-  IntEvent
-  IThinThread::getEvent(const Particle &p1, 
-			const Particle &p2) const 
+  Event
+  IThinThread::getEvent(const Particle &p1, const Particle &p2) const 
   {
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics->isUpToDate(p1))
@@ -73,31 +71,31 @@ namespace dynamo {
     const double d = _diameter->getProperty(p1, p2);
     const double l = _lambda->getProperty(p1, p2);
 
-    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
 
     if (isCaptured(p1, p2))
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, CORE, *this);
+	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
-	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
+	if (retval._dt > dt)
+	  retval = Event(p1, dt, INTERACTION, STEP_OUT, ID, p2);
       }
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, CORE, *this);
+	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
       }
 
     return retval;
   }
 
   PairEventData
-  IThinThread::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IThinThread::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     ++Sim->eventCount;
 
@@ -112,7 +110,7 @@ namespace dynamo {
     const double wd = _wellDepth->getProperty(p1, p2);
 
     PairEventData retVal;
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case CORE:
 	{

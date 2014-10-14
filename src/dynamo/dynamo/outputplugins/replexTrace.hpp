@@ -27,13 +27,7 @@ namespace dynamo {
   public:
     OPReplexTrace(const dynamo::Simulation*, const magnet::xml::Node&);
 
-    void eventUpdate(const IntEvent&, const PairEventData&) {}
-
-    void eventUpdate(const GlobalEvent&, const NEventData&) {}
-
-    void eventUpdate(const LocalEvent&, const NEventData&) {}
-
-    void eventUpdate(const System&, const NEventData&, const double&) {}
+    void eventUpdate(const Event&, const NEventData&) {}
 
     virtual void initialise() { addPoint(); }
 

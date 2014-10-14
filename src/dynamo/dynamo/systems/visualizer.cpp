@@ -57,21 +57,23 @@ namespace dynamo {
   void
   SVisualizer::runEvent()
   {
+    Event event = getEvent();
     //Dont rewind in time, the -HUGE_VAL time is only used to ensure
     //the event takes place before any event, including negative time events.
-    if (dt == -HUGE_VAL) dt = 0;
-  
+    if (event._dt == -HUGE_VAL)
+      event._dt = 0;
+    
     //Actually move forward the system time
-    Sim->systemTime += dt;
-    Sim->ptrScheduler->stream(dt);
+    Sim->systemTime += event._dt;
+    Sim->ptrScheduler->stream(event._dt);
     //dynamics must be updated first
-    Sim->stream(dt);
+    Sim->stream(event._dt);
 
     if (_window->dynamoParticleSync())
       Sim->dynamics->updateAllParticles();
 
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, NEventData(), dt);
+      Ptr->eventUpdate(event, NEventData());
   
     for (shared_ptr<System>& system : Sim->systems)
       {
@@ -168,7 +170,6 @@ namespace dynamo {
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 4);
     _particleData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
-    _particleData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
     _particleData->addAttribute("ID", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_COLOUR, 1);
 
     _particleData->setPeriodicVectors(Vector{Sim->primaryCellSize[0], 0, 0},
@@ -238,8 +239,6 @@ namespace dynamo {
     //Check if the system is compressing and adjust the radius scaling factor
     std::vector<GLfloat>& posdata = (*_particleData)["Position"];
     std::vector<GLfloat>& veldata = (*_particleData)["Velocity"];
-    std::vector<GLfloat>& eventCounts = (*_particleData)["Event Count"];
-    const std::vector<size_t>& simEventCounts = Sim->ptrScheduler->getEventCounts();
     
     for (const Particle& p : Sim->particles)
       {
@@ -253,9 +252,6 @@ namespace dynamo {
 	    veldata[3 * p.getID() + i] = vel[i];
 	  }
 
-	eventCounts[p.getID()] = 0;
-	if (!simEventCounts.empty())
-	  eventCounts[p.getID()] = simEventCounts[p.getID()];
       }
 
     if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
@@ -295,7 +291,6 @@ namespace dynamo {
 
     (*_particleData)["Position"].flagNewData();
     (*_particleData)["Velocity"].flagNewData();
-    (*_particleData)["Event Count"].flagNewData();
   }
 }
 #endif

@@ -39,26 +39,25 @@ namespace dynamo {
   void
   SystHalt::runEvent()
   {
-    double locdt = dt;
+    Event event = getEvent();
   
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(dt))
+    if (std::isnan(event._dt))
       M_throw() << "A NAN system event time has been found";
 #endif
     
-    Sim->systemTime += locdt;
+    Sim->systemTime += event._dt;
     
-    Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(event._dt);
   
     //dynamics must be updated first
-    Sim->stream(locdt);
+    Sim->stream(event._dt);
 
     NEventData SDat;
-
     Sim->_sigParticleUpdate(SDat);
     
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, SDat, locdt); 
+      Ptr->eventUpdate(event, SDat);
   
     Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
   }

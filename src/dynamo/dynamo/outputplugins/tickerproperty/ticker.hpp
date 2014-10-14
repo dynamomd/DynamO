@@ -32,10 +32,7 @@ namespace dynamo {
     OPTicker(const dynamo::Simulation*, const char*);
 
     //Non virtual to warn if you use them,
-    void eventUpdate(const IntEvent&, const PairEventData&) {}
-    void eventUpdate(const GlobalEvent&, const NEventData&) {}
-    void eventUpdate(const LocalEvent&, const NEventData&) {}
-    void eventUpdate(const System&, const NEventData&, const double&) {}
+    void eventUpdate(const Event&, const NEventData&) {}
 
     virtual void output(magnet::xml::XmlStream&) {}
 

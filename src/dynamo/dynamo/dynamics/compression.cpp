@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/dynamics/compression.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
@@ -78,10 +77,10 @@ namespace dynamo {
 
 
   PairEventData 
-  DynCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
+  DynCompression::SmoothSpheresColl(Event& event, const double& e, const double& d2, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
     updateParticlePair(particle1, particle2);  
     PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
@@ -109,12 +108,12 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2, size_t) const
+  DynCompression::SphereWellEvent(Event& event, const double& deltaKE, const double& d2, size_t) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
     updateParticlePair(particle1, particle2);  
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event.getType());
+    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event._type);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
@@ -133,7 +132,7 @@ namespace dynamo {
     const double sqrtArg = std::pow(retVal.rvdot + growthVel, 2)  + 2.0 * deltaKE / mu;
     if ((deltaKE < 0) && (sqrtArg < 0))
       {
-	event.setType(BOUNCE);
+	event._type = BOUNCE;
 	retVal.setType(BOUNCE);
 
 	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot + growthVel));
@@ -207,9 +206,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynCompression::parallelCubeColl(const IntEvent&,
-				 const double&, const double&,
-				 const EEventType&) const
+  DynCompression::parallelCubeColl(Event&, const double&, const double&, const EEventType&) const
   { M_throw() << "Not Implemented"; }
 
 

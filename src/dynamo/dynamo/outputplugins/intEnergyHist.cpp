@@ -34,28 +34,9 @@ namespace dynamo {
   }
 
   void 
-  OPIntEnergyHist::eventUpdate(const IntEvent &event, 
-			    const PairEventData &) 
+  OPIntEnergyHist::eventUpdate(const Event& event, const NEventData&)
   {
-    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event.getdt());
-  }
-
-  void 
-  OPIntEnergyHist::eventUpdate(const GlobalEvent &event, const NEventData&) 
-  {
-    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event.getdt());
-  }
-
-  void 
-  OPIntEnergyHist::eventUpdate(const LocalEvent &event, const NEventData&) 
-  {
-    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event.getdt());
-  }
-
-  void 
-  OPIntEnergyHist::eventUpdate(const System&, const NEventData&, const double& dt)
-  {
-    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), dt);
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event._dt);
   }
 
   void 
@@ -157,6 +138,5 @@ namespace dynamo {
       
       }
     XML << magnet::xml::endtag("EnergyHist");
-
   }
 }

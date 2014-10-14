@@ -33,7 +33,7 @@ namespace dynamo {
   
     virtual ~GWaker() {}
 
-    virtual GlobalEvent getEvent(const Particle &) const;
+    virtual Event getEvent(const Particle &) const;
 
     virtual void runEvent(Particle&, const double);
 

@@ -58,19 +58,19 @@ namespace dynamo {
   void 
   SysDSMCSpheres::runEvent()
   {
-    double locdt = dt;
+    Event event = getEvent();
   
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(locdt))
-      M_throw() << "A NAN system event time has been found";
+    if (std::isnan(event._dt))
+      M_throw() << "A NAN system event time has been found " << event;
 #endif
     
-    Sim->systemTime += locdt;
+    Sim->systemTime += event._dt;
     
-    Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(event._dt);
   
     //dynamics must be updated first
-    Sim->stream(locdt);
+    Sim->stream(event._dt);
     dt = tstep;
 
     std::normal_distribution<> norm_sampler;
@@ -82,8 +82,9 @@ namespace dynamo {
     //each collision as though its a separate event (to prevent
     //accumilating the changes).
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, NEventData(), locdt);
-
+      Ptr->eventUpdate(event, NEventData());
+    event._dt = 0;
+    
     //Find the likely maximum number of interacting pairs. The
     //addition of the random variable is a neat way to randomly pick
     //an extra pair to, on average, pick the correct number of
@@ -118,7 +119,7 @@ namespace dynamo {
 	    Sim->_sigParticleUpdate(SDat);
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-	      Ptr->eventUpdate(*this, SDat, 0.0);
+	      Ptr->eventUpdate(event, SDat);
 	  }
       }
 

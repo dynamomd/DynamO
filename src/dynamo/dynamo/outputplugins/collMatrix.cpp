@@ -31,78 +31,29 @@ namespace dynamo {
   void 
   OPCollMatrix::initialise()
   {
-    lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, eventKey(classKey(0, NONE), NONE)));
+    lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, eventKey(classKey(0, NOSOURCE), NONE)));
   }
 
   OPCollMatrix::~OPCollMatrix()
   {}
 
   void 
-  OPCollMatrix::eventUpdate(const IntEvent& iEvent, const PairEventData&)
-  {
-    newEvent(iEvent.getParticle1ID(), iEvent.getType(), 
-	     getClassKey(iEvent));
-
-    newEvent(iEvent.getParticle2ID(), iEvent.getType(), 
-	     getClassKey(iEvent));
-  }
-
-
-  void 
-  OPCollMatrix::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
+  OPCollMatrix::eventUpdate(const Event& event, const NEventData& SDat)
   {
     for (const ParticleEventData& pData : SDat.L1partChanges)
-      newEvent(pData.getParticleID(), pData.getType(), 
-	       getClassKey(globEvent));  
+      newEvent(pData.getParticleID(), pData.getType(), getClassKey(event));  
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
-	newEvent(pData.particle1_.getParticleID(), 
-		 pData.getType(), getClassKey(globEvent));
-
-	newEvent(pData.particle2_.getParticleID(), 
-		 pData.getType(), getClassKey(globEvent));
+	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(event));
+	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(event));
       }
   }
-
-  void 
-  OPCollMatrix::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
-  {
-    for (const ParticleEventData& pData : SDat.L1partChanges)
-      newEvent(pData.getParticleID(), 
-	       pData.getType(), getClassKey(localEvent));  
-  
-    for (const PairEventData& pData : SDat.L2partChanges)
-      {
-	newEvent(pData.particle1_.getParticleID(), 
-		 pData.getType(), getClassKey(localEvent));
-
-	newEvent(pData.particle2_.getParticleID(),
-		 pData.getType(), getClassKey(localEvent));
-      }
-  }
-
-  void 
-  OPCollMatrix::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
-  {
-    for (const ParticleEventData& pData : SDat.L1partChanges)
-      newEvent(pData.getParticleID(), pData.getType(), getClassKey(sysEvent));
-  
-    for (const PairEventData& pData : SDat.L2partChanges)
-      {
-	newEvent(pData.particle1_.getParticleID(), 
-		 pData.getType(), getClassKey(sysEvent));
-
-	newEvent(pData.particle2_.getParticleID(), 
-		 pData.getType(), getClassKey(sysEvent));  
-      } 
-  }
-
 
   void 
   OPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
   {
-    if (lastEvent[part].second.first.second != NONE)
+    if (lastEvent[part].second.first.second != NOSOURCE)
       {
 	counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part].second)];
       

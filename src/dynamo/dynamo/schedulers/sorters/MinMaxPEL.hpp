@@ -17,22 +17,43 @@
 
 #pragma once
 #include <dynamo/eventtypes.hpp>
-#include <vector>
-#include <algorithm>
+#include <magnet/containers/MinMaxHeap.hpp>
+#include <string>
 
 namespace dynamo {
-  class HeapPEL {
-    std::vector<Event> _store;
+  /*! A MinMax heap used for Particle Event Lists
+
+    There is a trick used here to speed up comparisons between
+    MinMaxHeaps.  The top element is set to HUGE_VAL, whenever the
+    queue is cleared, or pop'd empty. This means no conditional logic
+    is required to deal with the comparison of empty queues.
+  */
+  template<size_t Size>
+  class MinMaxPEL
+  {
+    magnet::containers::MinMaxHeap<Event, Size> _store;
   public:
     static const bool partial_invalidate_support = false;
-    
-    inline void push(Event e) {
-      _store.push_back(e);
-      std::push_heap(_store.begin(), _store.end(), std::greater<Event>());
+
+    MinMaxPEL() {
+      clear();
+    }
+
+    inline void push(const Event& e) {
+      if (!_store.full())
+	_store.insert(e);
+      else 
+	{
+	  if (e < _store.bottom())
+	    _store.replaceMax(e);
+	  _store.unsafe_bottom()._type = RECALCULATE;
+	  _store.unsafe_bottom()._source = SCHEDULER;
+	}
     }
 
     inline void clear() {
-      _store.clear();
+      _store.clear(); 
+      (*_store.begin()) = Event();
     }
 
     inline size_t size() const {
@@ -43,28 +64,26 @@ namespace dynamo {
       return _store.empty();
     }
 
-    inline void pop() {
-      std::pop_heap(_store.begin(), _store.end(), std::greater<Event>());
-      _store.pop_back();
+    inline void pop() { 
+      _store.pop();
+      if (_store.empty()) 
+	clear(); 
     }
 
     inline Event top() const {
-      if (!empty())
-	return _store.front();
-      else
-	return Event();
+      return *_store.begin();
     }
 
-    inline bool operator>(const HeapPEL& FEL) const {
-      return top() > FEL.top();
+    inline bool operator>(const MinMaxPEL& o) const {  
+      return top() > o.top();
     }
 
-    inline bool operator<(const HeapPEL& FEL) const {
-      return top() < FEL.top();
+    inline bool operator<(const MinMaxPEL& o) const {  
+      return top() < o.top();
     }
   
     inline void stream(const double dt) {
-      for (Event& event : _store)
+      for(Event& event : _store)
 	event._dt -= dt;
     }
 
@@ -73,11 +92,11 @@ namespace dynamo {
 	event._dt *= scale;
     }
 
-    inline void swap(HeapPEL& rhs) {
-      std::swap(_store, rhs._store);
+    inline void swap(MinMaxPEL& rhs) {
+      _store.swap(rhs._store);
     }
 
     static inline std::string name()
-    { return "Heap"; }
+    { return "MinMax" + std::to_string(Size); }
   };
 }

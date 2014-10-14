@@ -25,33 +25,12 @@
 #include <dynamo/systems/visualizer.hpp>
 #include <dynamo/systems/sleep.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
 namespace dynamo {
-  bool 
-  System::operator<(const IntEvent& iEvent) const
-  {
-    return dt < iEvent.getdt();
-  }
-
-  bool 
-  System::operator<(const GlobalEvent& gEvent) const
-  {
-    return dt < gEvent.getdt();
-  }
-
-  bool 
-  System::operator<(const System& sEvent) const
-  {
-    return dt < sEvent.dt;
-  }
-
-
   System::System(dynamo::Simulation* tmp):
     SimBase(tmp, "SystemInteraction"),
     dt(HUGE_VAL)

@@ -81,12 +81,13 @@ namespace dynamo {
   }
 
   void 
-  OPContactMap::eventUpdate(const IntEvent &event, const PairEventData &eventdata) 
+  OPContactMap::eventUpdate(const Event &event, const NEventData&) 
   {
-    stream(event.getdt());
+    stream(event._dt);
+    if (event._source != INTERACTION) return;
 
-    if (event.getInteractionID() == _interaction->getID())
-      if ((event.getType() == STEP_IN) || (event.getType() == STEP_OUT))
+    if (event._sourceID == _interaction->getID())
+      if ((event._type == STEP_IN) || (event._type == STEP_OUT))
 	mapChanged(true);
   }
 
@@ -119,18 +120,6 @@ namespace dynamo {
     mapChanged(false);
     other_map.mapChanged(false);
   }
-
-  void 
-  OPContactMap::eventUpdate(const GlobalEvent &event, const NEventData&) 
-  { stream(event.getdt()); }
-
-  void 
-  OPContactMap::eventUpdate(const LocalEvent &event, const NEventData&) 
-  { stream(event.getdt()); }
-
-  void 
-  OPContactMap::eventUpdate(const System&, const NEventData&, const double& dt)
-  { stream(dt); }
 
   void
   OPContactMap::periodicOutput()

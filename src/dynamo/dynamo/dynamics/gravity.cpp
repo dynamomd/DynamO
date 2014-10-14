@@ -16,13 +16,11 @@
 */
 
 #include <dynamo/dynamics/gravity.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/globals/ParabolaSentinel.hpp>
 #include <dynamo/units/units.hpp>
@@ -461,11 +459,11 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
-				       const double& d2, const EEventType& eType) const
+  DynGravity::SmoothSpheresColl(Event& event, const double& ne,
+				const double& d2, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
 
     updateParticlePair(particle1, particle2);  
 
@@ -505,10 +503,10 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynGravity::RoughSpheresColl(const IntEvent& event, const double& ne, const double& net, const double& d1, const double& d2, const EEventType& eType) const
+  DynGravity::RoughSpheresColl(Event& event, const double& ne, const double& net, const double& d1, const double& d2, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
 
     updateParticlePair(particle1, particle2);  
 

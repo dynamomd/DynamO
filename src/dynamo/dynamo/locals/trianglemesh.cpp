@@ -18,7 +18,6 @@
 #include <dynamo/locals/trianglemesh.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -30,7 +29,7 @@ namespace dynamo {
     Local(tmp, "LocalWall")
   { operator<<(XML); }
 
-  LocalEvent 
+  Event 
   LTriangleMesh::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -54,16 +53,16 @@ namespace dynamo {
 	if (t < tmin) { tmin = t; triangleid = id; }
       }
 
-    return LocalEvent(part, tmin.first, WALL, *this, 8 * triangleid + tmin.second);
+    return Event(part, tmin.first, LOCAL, WALL, ID, 8 * triangleid + tmin.second);
   }
 
   void
-  LTriangleMesh::runEvent(Particle& part, const LocalEvent& iEvent) const
+  LTriangleMesh::runEvent(Particle& part, const Event& iEvent) const
   { 
     ++Sim->eventCount;
   
-    const size_t triangleID = iEvent.getExtraData() / Dynamics::T_COUNT;
-    const size_t trianglepart = iEvent.getExtraData() % Dynamics::T_COUNT;
+    const size_t triangleID = iEvent._additionalData1 / Dynamics::T_COUNT;
+    const size_t trianglepart = iEvent._additionalData1 % Dynamics::T_COUNT;
 
     const TriangleElements& elem = _elements[triangleID];
   

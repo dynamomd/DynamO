@@ -16,13 +16,11 @@
 */
 
 #include <dynamo/dynamics/multicanonical_contactmap.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -97,14 +95,14 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonianMCCMap::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double &, size_t newstate) const
+  DynNewtonianMCCMap::SphereWellEvent(Event& event, const double& deltaKE, const double &, size_t newstate) const
   {
-    Particle& particle1 = Sim->particles[event.getParticle1ID()];
-    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
 
     updateParticlePair(particle1, particle2);  
 
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event.getType());
+    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event._type);
     
     Sim->BCs->applyBC(retVal.rij,retVal.vijold);
   
@@ -132,7 +130,7 @@ namespace dynamo {
     double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
     if ((MCDeltaKE < 0) && (sqrtArg < 0))
       {
-	event.setType(BOUNCE);
+	event._type = BOUNCE;
 	retVal.setType(BOUNCE);
 	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }

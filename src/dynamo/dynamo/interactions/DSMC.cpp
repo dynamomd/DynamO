@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/DSMC.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
@@ -58,7 +57,7 @@ namespace dynamo {
 
   double IDSMC::maxIntDist() const { return _length->getMaxValue(); }
 
-  IntEvent 
+  Event
   IDSMC::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
@@ -76,43 +75,43 @@ namespace dynamo {
     if (isCaptured(p1, p2))
       {
 	double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l);
-	return IntEvent(p1, p2, dt, NBHOOD_OUT, *this);
+	return Event(p1, dt, INTERACTION, NBHOOD_OUT, ID, p2);
       }
     else 
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l);
 	if (dt != HUGE_VAL)
-	  return IntEvent(p1, p2, dt, NBHOOD_IN, *this);
+	  return Event(p1, dt, INTERACTION, NBHOOD_IN, ID, p2);
       }
     
-    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
   }
 
   PairEventData
-  IDSMC::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IDSMC::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     PairEventData retval;
 
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case NBHOOD_IN:
 	{
 	  ICapture::add(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       case VIRTUAL:
 	{
 	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent.setType(VIRTUAL);
+	  iEvent._type = VIRTUAL;
 	  break;
 	}
       default:

@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
@@ -81,7 +80,7 @@ namespace dynamo {
     return diam * diam * diam * M_PI / 6.0; 
   }
 
-  IntEvent 
+  Event 
   IHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
   { 
 #ifdef DYNAMO_DEBUG
@@ -99,13 +98,13 @@ namespace dynamo {
     const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
     if (dt != HUGE_VAL)
-      return IntEvent(p1, p2, dt, CORE, *this);
+      return Event(p1, dt, INTERACTION, CORE, ID, p2);
   
-    return IntEvent(p1,p2,HUGE_VAL, NONE, *this);  
+    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
   }
 
   PairEventData
-  IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IHardSphere::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     ++Sim->eventCount;
 

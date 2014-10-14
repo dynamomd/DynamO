@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/cells.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
@@ -75,7 +74,7 @@ namespace dynamo {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   }
 
-  GlobalEvent 
+  Event
   GCells::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -86,7 +85,7 @@ namespace dynamo {
     //Sim->dynamics->updateParticle(part); is not required as we
     //compensate for the delay using
     //Sim->dynamics->getParticleDelay(part)
-    return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID()), part), _cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
+    return Event(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID()), part), _cellDimension) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void
@@ -130,8 +129,7 @@ namespace dynamo {
   
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
-    Sim->ptrScheduler->pushEvent(part, getEvent(part));
-    Sim->ptrScheduler->sort(part);
+    Sim->ptrScheduler->pushEvent(getEvent(part));
     _sigCellChange(part, oldCellIndex);
   }
 

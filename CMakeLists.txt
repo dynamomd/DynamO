@@ -21,10 +21,11 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An event-driven particle simulation tool.
 include(CPack) #Enable build of packages
 
 ##########   RELEASE MODE
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 
 ##########   DEBUG MODE
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall -g")
+
 link_libraries(debug dl)
 
 ########## COMPILER SUPPORT TESTS
@@ -231,3 +232,4 @@ dynamo_test(polymer_test)
 dynamo_test(swingspheres_test)
 dynamo_test(squarewellwall_test)
 dynamo_test(thermalisedwalls_test)
+dynamo_test(event_sorters_test)

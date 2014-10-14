@@ -21,8 +21,6 @@
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo {
-  class IntEvent;
-  class GlobalEvent;
   class NEventData;
 
   class System: public dynamo::SimBase
@@ -40,23 +38,17 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
 
-    bool operator<(const IntEvent&) const;
-
-    bool operator<(const GlobalEvent&) const;
-
-    bool operator<(const System&) const;
-  
-    double getdt() const { return dt; }
+    Event getEvent() const { return Event(std::numeric_limits<size_t>::max(), dt, SYSTEM, type, ID); }
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   
     static shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::Simulation*);
-  
+    
     void setName(const std::string& tmp) { sysName = tmp; }
 
     const std::string& getName() const { return sysName; }
 
-    EEventType getType() const { return type; }
+    inline double getdt() const { return dt; }
 
     inline const size_t& getID() const { return ID; }
 

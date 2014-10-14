@@ -18,6 +18,7 @@
 #pragma once
 
 #include <dynamo/base.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <magnet/math/vector.hpp>
 #include <string>
@@ -25,9 +26,7 @@
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
 namespace dynamo {
-  class IntEvent;
   class NEventData;
-  class LocalEvent;
 
   /*! \brief Represents 1-particle event sources which are Local in space.
    *
@@ -49,9 +48,9 @@ namespace dynamo {
 
     bool isInteraction(const Particle&) const;
 
-    virtual LocalEvent getEvent(const Particle&) const = 0;
+    virtual Event getEvent(const Particle&) const = 0;
 
-    virtual void runEvent(Particle&, const LocalEvent&) const = 0;
+    virtual void runEvent(Particle&, const Event&) const = 0;
   
     virtual void initialise(size_t nID)  { ID = nID; }
 

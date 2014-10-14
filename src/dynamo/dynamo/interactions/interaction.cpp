@@ -17,7 +17,6 @@
 
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/interactions/include.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
@@ -34,10 +33,9 @@ namespace dynamo {
   { range = shared_ptr<IDPairRange>(IDPairRange::getClass(XML.getNode("IDPairRange"), Sim)); }
 
   bool 
-  Interaction::isInteraction(const IntEvent &coll) const
+  Interaction::isInteraction(const Event& coll) const
   { 
-    return isInteraction(Sim->particles[coll.getParticle1ID()],
-			 Sim->particles[coll.getParticle2ID()]); 
+    return isInteraction(Sim->particles[coll._particle1ID], Sim->particles[coll._particle2ID]); 
   }
 
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 

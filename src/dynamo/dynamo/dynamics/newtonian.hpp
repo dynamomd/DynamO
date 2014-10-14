@@ -47,10 +47,10 @@ namespace dynamo {
     virtual std::pair<bool,double> getPointPlateCollision(const Particle& np1, const Vector& nrw0, const Vector& nhat, const double& Delta, const double& Omega, const double& Sigma, const double& t, bool) const;
     virtual ParticleEventData runOscilatingPlate(Particle& part, const Vector& rw0, const Vector& nhat, double& delta, const double& omega0, const double& sigma, const double& mass, const double& e, double& t, bool strongPlate) const;
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
-    virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType& eType) const;
+    virtual PairEventData SmoothSpheresColl(Event&, const double&, const double&, const EEventType& eType) const;
     virtual bool DSMCSpheresTest(Particle&, Particle&, double&, const double&, Vector) const;
     virtual PairEventData DSMCSpheresRun(Particle&, Particle&, const double&, Vector) const;
-    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
+    virtual PairEventData SphereWellEvent(Event&, const double&, const double&, size_t) const;
     virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
     virtual std::pair<double, Dynamics::TriangleIntersectingPart> getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const;
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;
@@ -60,10 +60,10 @@ namespace dynamo {
     virtual ParticleEventData randomGaussianEvent(Particle&, const double&, const size_t) const;
     virtual NEventData multibdyCollision(const IDRange&, const IDRange&, const double&, const EEventType&) const;
     virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const;
-    virtual PairEventData parallelCubeColl(const IntEvent& event, const double& e, const double& d, const EEventType& eType = CORE) const;
+    virtual PairEventData parallelCubeColl(Event& event, const double& e, const double& d, const EEventType& eType = CORE) const;
     virtual std::pair<bool, double> getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const;
-    virtual PairEventData runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const;
-    virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
+    virtual PairEventData runLineLineCollision(Event& eevent, const double& elasticity, const double& length) const;
+    virtual PairEventData RoughSpheresColl(Event& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
     virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const;
 
   protected:

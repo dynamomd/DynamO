@@ -20,7 +20,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -116,7 +115,7 @@ namespace dynamo {
     return (*_potential)[capstat - 1].second * energy_scale;
   }
 
-  IntEvent
+  Event
   IStepped::getEvent(const Particle &p1, const Particle &p2) const
   {
   
@@ -135,26 +134,26 @@ namespace dynamo {
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
     const double length_scale = _lengthScale->getProperty(p1, p2);
 
-    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
     if (step_bounds.first != 0)
       {//Test for the inner step capture
 	const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, step_bounds.first * length_scale);
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, STEP_IN, *this);
+	  retval = Event(p1, dt, INTERACTION, STEP_IN, ID, p2);
       }
 
     if (!std::isinf(step_bounds.second))
       {//Test for the outer step capture
 	const double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, step_bounds.second * length_scale);
-	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
+	if (retval._dt > dt)
+	  retval = Event(p1, dt, INTERACTION, STEP_OUT, ID, p2);
       }
     
     return retval;
   }
 
   PairEventData
-  IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IStepped::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     ++Sim->eventCount;
 
@@ -167,7 +166,7 @@ namespace dynamo {
     size_t new_step_ID;
     size_t edge_ID;
     double diameter;
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case STEP_OUT:
 	{

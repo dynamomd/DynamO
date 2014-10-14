@@ -43,19 +43,19 @@ namespace dynamo {
   void 
   SysUmbrella::runEvent()
   {
-    double locdt = dt;
+    Event event = getEvent();
   
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(locdt))
+    if (std::isnan(event._dt))
       M_throw() << "A NAN system event time has been found";
 #endif
   
-    Sim->systemTime += locdt;
+    Sim->systemTime += event._dt;
   
-    Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(event._dt);
   
     //dynamics must be updated first
-    Sim->stream(locdt);
+    Sim->stream(event._dt);
 
     ++Sim->eventCount;
 
@@ -88,7 +88,7 @@ namespace dynamo {
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, SDat, locdt); 
+      Ptr->eventUpdate(event, SDat); 
   }
 
   void

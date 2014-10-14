@@ -7,7 +7,8 @@
 #include <dynamo/species/point.hpp>
 #include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
+#include <dynamo/schedulers/sorters/CBTFEL.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/squarewell.hpp>
@@ -39,7 +40,7 @@ void init(dynamo::Simulation& Sim)
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodicExceptX(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
+  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));
 
   Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, 1.0, dynamo::Vector{1, 0, 0}, dynamo::Vector{-3, 0, 0}, "LowWall", new dynamo::IDRangeAll(&Sim))));

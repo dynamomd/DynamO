@@ -18,6 +18,8 @@
 #pragma once
 
 #include <dynamo/base.hpp>
+#include <dynamo/eventtypes.hpp>
+#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <string>
 #include <limits>
@@ -27,8 +29,6 @@ namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
   class IDRange;
-  class PairEventData;
-  class IntEvent;
   class Species;
 
   /*! \brief This class is the base interface for Interation classes.
@@ -71,11 +71,11 @@ namespace dynamo {
     /*! \brief Calculate if and when an event is to occur between two
         particles.
      */
-    virtual IntEvent getEvent(const Particle &, const Particle &) const = 0;
+    virtual Event getEvent(const Particle &, const Particle &) const = 0;
 
     /*! \brief Run the dynamics of an event which is occuring now.
      */
-    virtual PairEventData runEvent(Particle&, Particle&, const IntEvent&) = 0;
+    virtual PairEventData runEvent(Particle&, Particle&, Event) = 0;
 
     /*! \brief Return the maximum distance at which two particles may interact using this Interaction.
     
@@ -125,7 +125,7 @@ namespace dynamo {
     /*! \brief Tests if this interaction may have been used for the
         passed interaction event (IntEvent).
      */
-    bool isInteraction(const IntEvent &) const;
+    bool isInteraction(const Event&) const;
 
     /*! \brief Returns the "name" of the interaction used in
         name-based look-ups.

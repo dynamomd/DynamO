@@ -18,7 +18,6 @@
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -55,7 +54,7 @@ namespace dynamo {
 		<< "': To use a rough wall, you must have orientation data for the particles in your configuration file";
   }
   
-  LocalEvent 
+  Event 
   LRoughWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -63,11 +62,11 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, r), WALL, *this);
+    return Event(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, r), LOCAL, WALL, ID);
   }
 
   void
-  LRoughWall::runEvent(Particle& part, const LocalEvent& iEvent) const
+  LRoughWall::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
 

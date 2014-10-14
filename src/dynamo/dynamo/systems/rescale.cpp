@@ -74,14 +74,14 @@ namespace dynamo {
   void 
   SysRescale::runEvent()
   {
-    double locdt = dt;
+    Event event = getEvent();
 
-    Sim->systemTime += locdt;
+    Sim->systemTime += event._dt;
   
-    Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(event._dt);
   
     //dynamics must be updated first
-    Sim->stream(locdt);
+    Sim->stream(event._dt);
   
     ++Sim->eventCount;
     
@@ -117,7 +117,7 @@ namespace dynamo {
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, SDat, locdt); 
+      Ptr->eventUpdate(event, SDat); 
 
     dt = _timestep;
 

@@ -18,7 +18,6 @@
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -32,7 +31,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  LocalEvent 
+  Event 
   LWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -42,11 +41,11 @@ namespace dynamo {
 
     double colldist = 0.5 * _diameter->getProperty(part);
 
-    return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, colldist), WALL, *this);
+    return Event(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, colldist), LOCAL, WALL, ID);
   }
 
   void
-  LWall::runEvent(Particle& part, const LocalEvent& iEvent) const
+  LWall::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
 

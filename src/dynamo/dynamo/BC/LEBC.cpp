@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

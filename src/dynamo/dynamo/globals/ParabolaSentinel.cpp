@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/ParabolaSentinel.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -33,14 +32,12 @@ namespace dynamo {
     dout << "ParabolaSentinel Loaded" << std::endl;
   }
 
-  GlobalEvent 
+  Event
   GParabolaSentinel::getEvent(const Particle& part) const
   {
     Sim->dynamics->updateParticle(Sim->particles[part.getID()]);
 
-    return GlobalEvent(part, Sim->dynamics
-		       ->getParabolaSentinelTime(part), 
-		       RECALCULATE_PARABOLA, *this);
+    return Event(part, Sim->dynamics->getParabolaSentinelTime(part), GLOBAL, RECALCULATE_PARABOLA, ID);
   }
 
   void 
@@ -48,11 +45,11 @@ namespace dynamo {
   {
     Sim->dynamics->updateParticle(part);
 
-    GlobalEvent iEvent(getEvent(part));
+    Event iEvent = getEvent(part);
 
-    iEvent.setType(VIRTUAL);
+    iEvent._type = VIRTUAL;
 
-    if (iEvent.getdt() == HUGE_VAL)
+    if (iEvent._dt == HUGE_VAL)
       {
 	//We've numerically drifted slightly passed the parabola, so
 	//just reschedule the particles events, no need to enforce anything
@@ -61,16 +58,15 @@ namespace dynamo {
       }
 
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(iEvent.getdt()))
-      M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
-		<< iEvent.stringData(Sim);
+    if (std::isnan(iEvent._dt))
+      M_throw() << "A NAN Interaction collision time has been found when recalculating this global";
 #endif
 
-    Sim->systemTime += iEvent.getdt();
+    Sim->systemTime += iEvent._dt;
     
-    Sim->ptrScheduler->stream(iEvent.getdt());
+    Sim->ptrScheduler->stream(iEvent._dt);
   
-    Sim->stream(iEvent.getdt());
+    Sim->stream(iEvent._dt);
 
     NEventData EDat = Sim->dynamics->enforceParabola(part);
   

@@ -34,9 +34,9 @@ namespace dynamo {
 
     virtual ~LOscillatingPlate() {}
 
-    virtual LocalEvent getEvent(const Particle&) const;
+    virtual Event getEvent(const Particle&) const;
 
-    virtual void runEvent(Particle&, const LocalEvent&) const;
+    virtual void runEvent(Particle&, const Event&) const;
   
     virtual void operator<<(const magnet::xml::Node&);
 

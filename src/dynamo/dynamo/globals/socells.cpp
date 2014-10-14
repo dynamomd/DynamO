@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/socells.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
@@ -57,7 +56,7 @@ namespace dynamo {
     globName = XML.getAttribute("Name");	
   }
 
-  GlobalEvent 
+  Event 
   GSOCells::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -79,13 +78,7 @@ namespace dynamo {
 	ID /= cuberootN;
       }
 
-    return GlobalEvent(part,
-		       Sim->dynamics->
-		       getSquareCellCollision2
-		       (part, CellOrigin,
-			cellDimension)
-		       -Sim->dynamics->getParticleDelay(part),
-		       CELL, *this);
+    return Event(part, Sim->dynamics->getSquareCellCollision2(part, CellOrigin, cellDimension) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void
@@ -110,23 +103,21 @@ namespace dynamo {
 
     size_t cellDirection = abs(cellDirectionInt) - 1;
 
-    GlobalEvent iEvent(getEvent(part));
+    Event iEvent = getEvent(part);
 
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(iEvent.getdt()))
-      M_throw() << "A NAN Interaction collision time has been found"
-		<< iEvent.stringData(Sim);
+    if (std::isnan(iEvent._dt))
+      M_throw() << "A NAN Interaction collision time has been found";
   
-    if (iEvent.getdt() == HUGE_VAL)
-      M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-		<< iEvent.stringData(Sim);
+    if (iEvent._dt == HUGE_VAL)
+      M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n";
 #endif
 
-    Sim->systemTime += iEvent.getdt();
+    Sim->systemTime += iEvent._dt;
     
-    Sim->ptrScheduler->stream(iEvent.getdt());
+    Sim->ptrScheduler->stream(iEvent._dt);
   
-    Sim->stream(iEvent.getdt());
+    Sim->stream(iEvent._dt);
 
     Vector vNorm({0,0,0});
 
@@ -146,7 +137,6 @@ namespace dynamo {
   
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
-
   }
 
   void 

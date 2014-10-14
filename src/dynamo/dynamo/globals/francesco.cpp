@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/francesco.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -82,9 +81,9 @@ namespace dynamo {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   }
 
-  GlobalEvent 
+  Event 
   GFrancesco::getEvent(const Particle& part) const {
-    return GlobalEvent(part, _eventTimes[part] - Sim->systemTime, GAUSSIAN, *this);
+    return Event(part, _eventTimes[part] - Sim->systemTime, GLOBAL, GAUSSIAN, ID);
   }
 
   void 
@@ -92,7 +91,7 @@ namespace dynamo {
   {
     const double dt = _eventTimes[part] - Sim->systemTime;
     _eventTimes[part] = HUGE_VAL;
-    GlobalEvent iEvent(part, dt, GAUSSIAN, *this);
+    Event iEvent(part, dt, GLOBAL, GAUSSIAN, ID);
     
     Sim->systemTime += dt;
     Sim->ptrScheduler->stream(dt);

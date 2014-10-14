@@ -18,7 +18,6 @@
 #include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -35,7 +34,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  LocalEvent 
+  Event
   LCylinder::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -44,12 +43,12 @@ namespace dynamo {
 #endif
 
     double colldist = 0.5 * _diameter->getProperty(part) + _cyl_radius;
-    
-    return LocalEvent(part, Sim->dynamics->getCylinderWallCollision(part, vPosition, vAxis, colldist), WALL, *this);
+
+    return Event(part, Sim->dynamics->getCylinderWallCollision(part, vPosition, vAxis, colldist), LOCAL, WALL, ID);
   }
 
   void
-  LCylinder::runEvent(Particle& part, const LocalEvent& iEvent) const
+  LCylinder::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
 

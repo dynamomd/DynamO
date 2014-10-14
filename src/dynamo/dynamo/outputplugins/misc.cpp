@@ -172,47 +172,15 @@ namespace dynamo {
   }
 
   void
-  OPMisc::eventUpdate(const IntEvent& eevent, const PairEventData& PDat)
+  OPMisc::eventUpdate(const Event& eevent, const NEventData& NDat)
   {
-    stream(eevent.getdt());
-    eventUpdate(PDat);
-    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
-    counterdata.count += 2;
-  }
-
-  void
-  OPMisc::eventUpdate(const GlobalEvent& eevent, const NEventData& NDat)
-  {
-    stream(eevent.getdt());
+    stream(eevent._dt);
     eventUpdate(NDat);
-    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
+    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent._type)];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
     for (const ParticleEventData& pData : NDat.L1partChanges)
       counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
-
-  void
-  OPMisc::eventUpdate(const LocalEvent& eevent, const NEventData& NDat)
-  {
-    stream(eevent.getdt());
-    eventUpdate(NDat);
-    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
-    counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
-    for (const ParticleEventData& pData : NDat.L1partChanges)
-      counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
-  }
-
-  void
-  OPMisc::eventUpdate(const System& eevent, const NEventData& NDat, const double& dt)
-  {
-    stream(dt);
-    eventUpdate(NDat);
-    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
-    counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
-    for (const ParticleEventData& pData : NDat.L1partChanges)
-      counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
-  }
-
   void
   OPMisc::stream(double dt)
   {

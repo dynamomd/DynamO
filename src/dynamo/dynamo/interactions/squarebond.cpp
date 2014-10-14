@@ -21,7 +21,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -133,10 +132,9 @@ namespace dynamo {
     return retval;
   }
   
-  IntEvent 
-  ISquareBond::getEvent(const Particle &p1, 
-			const Particle &p2) const 
-  {    
+  Event
+  ISquareBond::getEvent(const Particle &p1, const Particle &p2) const 
+  {
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
@@ -151,33 +149,33 @@ namespace dynamo {
     const double d = _diameter->getProperty(p1, p2);
     const double l = _lambda->getProperty(p1, p2);
 
-    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
 
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
     if (dt != HUGE_VAL)
-      retval = IntEvent(p1, p2, dt, CORE, *this);
+      retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
 
     dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
-    if (retval.getdt() > dt)
-      retval = IntEvent(p1, p2, dt, BOUNCE, *this);
+    if (retval._dt > dt)
+      retval = Event(p1, dt, INTERACTION, BOUNCE, ID, p2);
   
     return retval;
   }
 
   PairEventData
-  ISquareBond::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  ISquareBond::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     ++Sim->eventCount;
 
 #ifdef DYNAMO_DEBUG
-    if ((iEvent.getType() != BOUNCE) && (iEvent.getType() != CORE))
+    if ((iEvent._type != BOUNCE) && (iEvent._type != CORE))
       M_throw() << "Unknown type found";
 #endif
 
     const double d = _diameter->getProperty(p1, p2);
     const double d2 = d * d;
     const double e = _e->getProperty(p1, p2);
-    return Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, iEvent.getType());
+    return Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, iEvent._type);
   }
     
   void 

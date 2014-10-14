@@ -21,7 +21,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -193,9 +192,8 @@ namespace dynamo {
     return Sim->dynamics->sphereOverlap(p1, p2, l * d) > 0;
   }
 
-  IntEvent 
-  ISWSequence::getEvent(const Particle &p1, 
-			const Particle &p2) const 
+  Event 
+  ISWSequence::getEvent(const Particle &p1, const Particle &p2) const 
   {    
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics->isUpToDate(p1))
@@ -217,35 +215,35 @@ namespace dynamo {
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL)
-	  return IntEvent(p1, p2, dt, CORE, *this);
+	  return Event(p1, dt, INTERACTION, CORE, ID, p2);
 	else
-	  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+	  return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
       }
 	
     if (isCaptured(p1, p2))
       {
-	IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+	Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, CORE, *this);
+	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
       
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
-	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
+	if (retval._dt > dt)
+	  retval = Event(p1, dt, INTERACTION, STEP_OUT, ID, p2);
 	return retval;
       }
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
 	if (dt != HUGE_VAL)
-	  return IntEvent(p1, p2, dt, STEP_IN, *this);
+	  return Event(p1, dt, INTERACTION, STEP_IN, ID, p2);
       }
     
-    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
   }
 
   PairEventData
-  ISWSequence::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  ISWSequence::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {  
     ++Sim->eventCount;
 
@@ -257,7 +255,7 @@ namespace dynamo {
     const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
     
     PairEventData retVal;
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case CORE:
 	{

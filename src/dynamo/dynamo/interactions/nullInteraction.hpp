@@ -37,9 +37,9 @@ namespace dynamo {
 
     virtual double getExcludedVolume(size_t) const { return 0; }
 
-    virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual Event getEvent(const Particle&, const Particle&) const;
  
-    virtual PairEventData runEvent(Particle&, Particle&, const IntEvent&);
+    virtual PairEventData runEvent(Particle&, Particle&, Event);
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 

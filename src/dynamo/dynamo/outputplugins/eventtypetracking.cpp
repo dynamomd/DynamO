@@ -55,23 +55,9 @@ namespace dynamo {
 	}
     }
 
-    classKey getClassKey(const IntEvent& i)
+    classKey getClassKey(const Event& i)
     {
-      return classKey(i.getInteractionID(), INTERACTION);
-    }
-    classKey getClassKey(const System& s)
-    {
-      return classKey(s.getID(), SYSTEM);
-    }
-
-    classKey getClassKey(const GlobalEvent& g)
-    {
-      return classKey(g.getGlobalID(), GLOBAL);
-    }
-
-    classKey getClassKey(const LocalEvent& g)
-    {
-      return classKey(g.getLocalID(), LOCAL);
+      return classKey(i._sourceID, i._source);
     }
   }
 }

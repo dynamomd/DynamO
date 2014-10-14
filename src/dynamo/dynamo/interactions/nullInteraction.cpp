@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/nullInteraction.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -43,14 +42,14 @@ namespace dynamo {
     intName = XML.getAttribute("Name");
   }
 
-  IntEvent 
+  Event
   INull::getEvent(const Particle &p1, const Particle &p2) const 
   { 
-    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
   }
 
   PairEventData
-  INull::runEvent(Particle&, Particle&, const IntEvent&)
+  INull::runEvent(Particle&, Particle&, Event)
   { 
     M_throw() << "Null event trying to run a collision!"; 
   }

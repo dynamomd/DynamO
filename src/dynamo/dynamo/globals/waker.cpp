@@ -17,7 +17,6 @@
 */
 
 #include <dynamo/globals/waker.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
@@ -89,37 +88,37 @@ namespace dynamo {
       }
   }
 
-  GlobalEvent
+  Event
   GWaker::getEvent(const Particle& part) const
   {
     if (part.testState(Particle::DYNAMIC))
-      return GlobalEvent(part,  HUGE_VAL, NONE, *this);
+      return Event(part, HUGE_VAL, GLOBAL, NONE, ID);
     else
-      return GlobalEvent(part, _wakeTime, WAKEUP, *this);
+      return Event(part, _wakeTime, GLOBAL, WAKEUP, ID);
   }
 
   void 
   GWaker::runEvent(Particle& part, const double dt)
   {
-    GlobalEvent iEvent(getEvent(part));
-    iEvent.setdt(dt); //We only trust the schedulers time, as we don't
+    Event iEvent = getEvent(part);
+    iEvent._dt = dt; //We only trust the schedulers time, as we don't
     //track the motion of the system in Globals
   
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(iEvent.getdt()))
+    if (std::isnan(iEvent._dt))
       M_throw() << "A NAN Interaction collision time has been found"
-		<< iEvent.stringData(Sim);
+		<< iEvent;
   
-    if (iEvent.getdt() == HUGE_VAL)
+    if (iEvent._dt == HUGE_VAL)
       M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-		<< iEvent.stringData(Sim);
+		<< iEvent;
 #endif
 
-    Sim->systemTime += iEvent.getdt();
+    Sim->systemTime += iEvent._dt;
     
-    Sim->ptrScheduler->stream(iEvent.getdt());
+    Sim->ptrScheduler->stream(iEvent._dt);
   
-    Sim->stream(iEvent.getdt());
+    Sim->stream(iEvent._dt);
 
     Sim->dynamics->updateParticle(part);
 
@@ -133,7 +132,7 @@ namespace dynamo {
     for (const size_t& id1 : *ids)
       nblistCallback(part, id1);
   
-    ParticleEventData EDat(part, *Sim->species(part), iEvent.getType());
+    ParticleEventData EDat(part, *Sim->species(part), iEvent._type);
     
     std::normal_distribution<> norm_dist;
     Vector newVel{norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator)};

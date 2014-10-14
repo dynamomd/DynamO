@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/cellsShearing.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
@@ -55,7 +54,7 @@ namespace dynamo {
     reinitialise();
   }
 
-  GlobalEvent 
+  Event 
   GCellsShearing::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -65,7 +64,7 @@ namespace dynamo {
 
     //We do not inherit GCells get Event as the calcPosition thing done
     //for infinite systems is breaking it for shearing for some reason.
-    return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID())), _cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
+    return Event(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID())), _cellDimension) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void 
@@ -168,9 +167,7 @@ namespace dynamo {
     
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
-    Sim->ptrScheduler->pushEvent(part, getEvent(part));
-    Sim->ptrScheduler->sort(part);
-
+    Sim->ptrScheduler->pushEvent(getEvent(part));
     _sigCellChange(part, oldCellIndex);
   }
 

@@ -52,6 +52,7 @@ namespace dynamo {
   void 
   SysRotateGravity::runEvent()
   {
+    Event event = getEvent();
     double locdt = dt;
     Sim->systemTime += locdt;
     Sim->ptrScheduler->stream(locdt);
@@ -80,7 +81,7 @@ namespace dynamo {
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, SDat, locdt); 
+      Ptr->eventUpdate(event, SDat); 
 
     dt = _timestep;
     Sim->ptrScheduler->rebuildList();

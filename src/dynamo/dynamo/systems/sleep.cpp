@@ -218,20 +218,19 @@ namespace dynamo {
   void 
   SSleep::runEvent()
   {
-    double locdt = 0;
-
+    Event event = getEvent();
     dt = HUGE_VAL;
     
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(locdt))
-      M_throw() << "A NAN system event time has been found";
+    if (std::isnan(event._dt))
+      M_throw() << "A NAN system event time has been found " << event;
 #endif
   
-    Sim->systemTime += locdt;
-    Sim->ptrScheduler->stream(locdt);
+    Sim->systemTime += event._dt;
+    Sim->ptrScheduler->stream(event._dt);
   
     //dynamics must be updated first
-    Sim->stream(locdt);
+    Sim->stream(event._dt);
 
     //++Sim->eventCount;
 
@@ -296,6 +295,6 @@ namespace dynamo {
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
     
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(*this, SDat, locdt); 
+      Ptr->eventUpdate(event, SDat); 
   }
 }

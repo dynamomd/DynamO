@@ -17,9 +17,8 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/schedulers/sorters/sorter.hpp>
-#include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/globals/globEvent.hpp>
+#include <dynamo/schedulers/sorters/FEL.hpp>
+#include <magnet/math/vector.hpp>
 #include <magnet/function/delegate.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <memory>
@@ -30,7 +29,7 @@ namespace magnet { namespace xml { class Node; } }
 namespace dynamo {
   class Particle;
   class Event;
-
+  
   class Scheduler: public dynamo::SimBase
   {
   public:
@@ -49,7 +48,6 @@ namespace dynamo {
     {
       invalidateEvents(part);
       addEvents(part);
-      sort(part);
     }
 
     /*! \brief Retest for events for two particles.
@@ -76,13 +74,11 @@ namespace dynamo {
 
     void addEvents(Particle&);
 
-    void sort(const Particle&);
-
     void popNextEvent();
 
-    void pushEvent(const Particle&, const Event&);
+    void pushEvent(const Event&);
   
-    void stream(const double& dt) {  sorter->stream(dt); }
+    void stream(const double dt) { sorter->stream(dt); }
   
     void runNextEvent();
 
@@ -109,20 +105,8 @@ namespace dynamo {
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const = 0;
     virtual std::unique_ptr<IDRange> getParticleLocals(const Particle&) const = 0;
     
-    const std::vector<size_t>& getEventCounts() const { return eventCount; }
-
   protected:
-    /*! \brief Performs the lazy deletion algorithm to find the next
-      valid event in the queue.
-     
-      This is the lazy deletion scheme for interaction events. Any
-      event whose event counter mismatches the particles current event
-      counter is out of date and should be deleted.
-     */
-    void lazyDeletionCleanup();
-
     mutable shared_ptr<FEL> sorter;
-    mutable std::vector<size_t> eventCount;
   
     size_t _interactionRejectionCounter;
     size_t _localRejectionCounter;

@@ -8,7 +8,8 @@
 #include <dynamo/species/fixedCollider.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
+#include <dynamo/schedulers/sorters/CBTFEL.hpp>
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
@@ -38,7 +39,7 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.ranGenerator.seed(std::random_device()());
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector{0,-1,0}));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
+  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
   Sim.primaryCellSize = dynamo::Vector{52,52,52};
 
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeRange(0, 0), 1.0, "Bulk", 0)));

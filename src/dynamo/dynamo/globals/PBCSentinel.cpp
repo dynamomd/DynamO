@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/PBCSentinel.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -55,24 +54,22 @@ namespace dynamo {
     globName = XML.getAttribute("Name");	
   }
 
-  GlobalEvent 
+  Event 
   GPBCSentinel::getEvent(const Particle& part) const
   {
-    return GlobalEvent(part, Sim->dynamics
-		       ->getPBCSentinelTime(part, maxintdist),
-		       VIRTUAL, *this);
+    return Event(part, Sim->dynamics->getPBCSentinelTime(part, maxintdist), GLOBAL, VIRTUAL, ID);
   }
 
   void 
   GPBCSentinel::runEvent(Particle& part, const double dt)
   {
-    GlobalEvent iEvent(part, dt, VIRTUAL, *this);
+    Event iEvent(part, dt, GLOBAL, VIRTUAL, ID);
 
-    Sim->systemTime += iEvent.getdt();
+    Sim->systemTime += iEvent._dt;
     
-    Sim->ptrScheduler->stream(iEvent.getdt());
+    Sim->ptrScheduler->stream(iEvent._dt);
   
-    Sim->stream(iEvent.getdt());
+    Sim->stream(iEvent._dt);
 
     NEventData EDat(ParticleEventData(part, *Sim->species(part), VIRTUAL));
 

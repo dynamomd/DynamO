@@ -17,50 +17,49 @@
 
 #pragma once
 #include <dynamo/base.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
 
 namespace dynamo {
-  class IntEvent;
   class NEventData;
-  class GlobalEvent;
 
   /*! \brief Base class for Non-\ref Local single-particle events.
-   *
-   * A global event is a single particle event which cannot be optimized
-   * by using a neighbour list. In fact, neighbour lists are Global
-   * event types and have a specialization of the Global interface (\ref
-   * GNeighbourList).
+   
+    A global event is a single particle event which cannot be optimized
+    by using a neighbour list. In fact, neighbour lists are Global
+    event types and have a specialization of the Global interface (\ref
+    GNeighbourList).
    */
   class Global: public dynamo::SimBase
   {
   public:
     /*! \brief Constructor.
-     *
-     * \param sim A pointer to the root of the simulation data.
-     * \param name The name of the class (for formatted output).
-     * \param range The range of particles for which this interaction is
-     * valid (the default value of NULL indicates all particles are valid).
+     
+      \param sim A pointer to the root of the simulation data.
+      \param name The name of the class (for formatted output).
+      \param range The range of particles for which this interaction is
+      valid (the default value of NULL indicates all particles are valid).
      */
     Global(dynamo::Simulation* sim, std::string name, IDRange* range = NULL);
   
     /*! \brief Returns true if the Global applies to the passed
-     * particle.
+      particle.
      */
     bool isInteraction(const Particle&) const;
 
     /*! \brief Returns the next calculated event for the passed
-     * particle.
+      particle.
      */
-    virtual GlobalEvent getEvent(const Particle &) const = 0;
+    virtual Event getEvent(const Particle &) const = 0;
 
     /*! \brief Executes the event for a particle.
-     * 
-     * \param p The particle which is about to undergo an interaction.
-     * \param dt The time the scheduler thinks this particles Global
-     * event will occur in.
+      
+      \param p The particle which is about to undergo an interaction.
+      \param dt The time the scheduler thinks this particles Global
+      event will occur in.
      */
     virtual void runEvent(Particle& p, const double dt) = 0;
 
@@ -69,12 +68,12 @@ namespace dynamo {
     virtual void initialise(size_t nID)  { ID=nID; }
 
     /*! \brief Helper function for saving an XML representation of this
-     * class.
+      class.
      */
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Global&);
 
     /*! \brief Constructs a derived Global class according to the passed
-     * XML Node.
+      XML Node.
      */
     static shared_ptr<Global> getClass(const magnet::xml::Node&, dynamo::Simulation*);
 

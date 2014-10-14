@@ -28,7 +28,6 @@ namespace dynamo {
   class PairEventData;
   class ParticleEventData;
   class NEventData;
-  class IntEvent;
   class Event;
 
   /*! \brief Provides the primitivve event-detection and processing
@@ -347,7 +346,7 @@ namespace dynamo {
       \param eevent Description of the scheduled event
       \return Collision data
      */    
-    virtual PairEventData runLineLineCollision(const IntEvent& eevent,
+    virtual PairEventData runLineLineCollision(Event& eevent,
 					       const double& elasticity, 
 					       const double& length) const;
   
@@ -474,7 +473,7 @@ namespace dynamo {
       \param eType A way of setting the collision type from CORE to BOUNCE etc.
       \return The collision data.
      */  
-    virtual PairEventData SmoothSpheresColl(const IntEvent& event, 
+    virtual PairEventData SmoothSpheresColl(Event& event, 
 					    const double& e, 
 					    const double& d2, 
 					    const EEventType& eType = CORE
@@ -490,7 +489,7 @@ namespace dynamo {
       \param eType A way of setting the collision type from CORE to BOUNCE etc.
       \return The collision data.
      */  
-    virtual PairEventData RoughSpheresColl(const IntEvent& event, 
+    virtual PairEventData RoughSpheresColl(Event& event, 
 					   const double& e, 
 					   const double& et, 
 					   const double& d1, 
@@ -507,7 +506,7 @@ namespace dynamo {
       \param eType A way of setting the collision type from CORE to BOUNCE etc.
       \return The collision data
      */
-    virtual PairEventData parallelCubeColl(const IntEvent& event,
+    virtual PairEventData parallelCubeColl(Event& event,
 					   const double& e, const double& d,
 					   const EEventType& eType = CORE) const;
 
@@ -551,10 +550,7 @@ namespace dynamo {
       \param newstate The new state of the particle pair.
       \return The event data.
      */  
-    virtual PairEventData SphereWellEvent(const IntEvent& event, 
-					  const double& deltaKE, 
-					  const double& d2,
-					  const size_t newstate) const = 0;
+    virtual PairEventData SphereWellEvent(Event& event, const double& deltaKE, const double& d2, const size_t newstate) const = 0;
 
     /*! \brief Reassigns the velocity componets of a particle from a
       Gaussian.

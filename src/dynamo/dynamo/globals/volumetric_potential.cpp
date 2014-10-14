@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/globals/volumetric_potential.hpp>
-#include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
@@ -59,17 +58,17 @@ namespace dynamo {
     const int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, calcPosition(oldCellIndex, part), _cellDimension));
     const size_t cellDirection = abs(cellDirectionInt) - 1;
 
-    GlobalEvent iEvent(getEvent(part));
+    Event iEvent = getEvent(part);
 
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(iEvent.getdt()))
+    if (std::isnan(iEvent._dt))
       M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
-		<< iEvent.stringData(Sim);
+		<< iEvent;
 #endif
 
-    Sim->systemTime += iEvent.getdt();
-    Sim->ptrScheduler->stream(iEvent.getdt());  
-    Sim->stream(iEvent.getdt());
+    Sim->systemTime += iEvent._dt;
+    Sim->ptrScheduler->stream(iEvent._dt);
+    Sim->stream(iEvent._dt);
 
     //Calculate which cell the particle might end up in
     const auto oldCellCoord = _ordering.toCoord(oldCellIndex);

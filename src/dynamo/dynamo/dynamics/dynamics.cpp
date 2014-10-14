@@ -84,14 +84,11 @@ namespace dynamo {
   }
 
   PairEventData 
-  Dynamics::runLineLineCollision(const IntEvent&,
-				    const double&, const double&) const
+  Dynamics::runLineLineCollision(Event&, const double&, const double&) const
   { M_throw() << "Not implemented for this Dynamics."; }
   
   std::pair<bool, double>
-  Dynamics::getLineLineCollision(const double, 
-				    const Particle&, const Particle&,
-				    double) const
+  Dynamics::getLineLineCollision(const double, const Particle&, const Particle&, double) const
   { M_throw() << "Not implemented for this Dynamics."; }
 
   std::pair<bool, double> 
@@ -252,10 +249,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  Dynamics::parallelCubeColl(const IntEvent& event, 
-				const double& e, 
-				const double& d,
-				const EEventType& eType) const
+  Dynamics::parallelCubeColl(Event& event, const double& e, const double& d, const EEventType& eType) const
   { M_throw() << "Not Implemented"; }
 
   std::pair<bool,double>
@@ -298,18 +292,13 @@ namespace dynamo {
   }
 
   PairEventData 
-  Dynamics::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
+  Dynamics::RoughSpheresColl(Event& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
   {
     M_throw() << "Not Implemented, you need rotational dynamics";
   }
 
   ParticleEventData 
-  Dynamics::runRoughWallCollision(Particle& part, 
-				     const Vector & vNorm,
-				     const double& e,
-				     const double& et,
-				     const double& r
-				     ) const
+  Dynamics::runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const
   {
     M_throw() << "Not Implemented, you need rotational dynamics";
   }

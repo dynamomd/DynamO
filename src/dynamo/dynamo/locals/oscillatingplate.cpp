@@ -17,7 +17,6 @@
 
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -45,7 +44,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  LocalEvent 
+  Event 
   LOscillatingPlate::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
@@ -67,13 +66,13 @@ namespace dynamo {
     if (eventData.second == HUGE_VAL)
       type = NONE;
   
-    return LocalEvent(part, eventData.second, type, *this);
+    return Event(part, eventData.second, LOCAL, type, ID);
   }
 
 
 
   void
-  LOscillatingPlate::runEvent(Particle& part, const LocalEvent& iEvent) const
+  LOscillatingPlate::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
   

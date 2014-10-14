@@ -7,7 +7,8 @@
 #include <dynamo/species/point.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
+#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
@@ -16,6 +17,7 @@
 #include <random>
 
 std::mt19937 RNG;
+typedef dynamo::BoundedPQFEL<dynamo::MinMaxPEL<3> > DefaultSorter;
 
 dynamo::Vector getRandVelVec()
 {
@@ -52,7 +54,7 @@ void init(dynamo::Simulation& Sim, const double density)
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector{0, -1, 0}));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELBoundedPQ<dynamo::PELMinMax<3> >()));
+  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(&Sim, "D", elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), "M", "Bulk", 0)));

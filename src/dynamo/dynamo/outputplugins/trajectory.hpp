@@ -29,13 +29,7 @@ namespace dynamo {
   
     ~OPTrajectory() {}
 
-    void eventUpdate(const IntEvent&, const PairEventData&);
-
-    void eventUpdate(const GlobalEvent&, const NEventData&);
-
-    void eventUpdate(const LocalEvent&, const NEventData&);
-  
-    void eventUpdate(const System&, const NEventData&, const double&);
+    void eventUpdate(const Event&, const NEventData&);
 
     virtual void replicaExchange(OutputPlugin&)
     { M_throw() << "This output plugin hasn't been prepared for changes of system"; }

@@ -61,7 +61,7 @@ namespace dynamo {
   public:
     DynNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node&);
 
-    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
+    virtual PairEventData SphereWellEvent(Event&, const double&, const double&, size_t) const;
     virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const;
     virtual void initialise();
 

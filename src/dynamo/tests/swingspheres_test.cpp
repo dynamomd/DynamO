@@ -8,7 +8,8 @@
 #include <dynamo/species/fixedCollider.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
+#include <dynamo/schedulers/sorters/CBTFEL.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
@@ -43,7 +44,7 @@ void init(dynamo::Simulation& Sim)
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector{0, -1, 0}, 0, 0.01));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
+  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
 
   dynamo::shared_ptr<dynamo::ParticleProperty> D(new dynamo::ParticleProperty(N, dynamo::Property::Units::Length(), "D", 1.0));
   dynamo::shared_ptr<dynamo::ParticleProperty> M(new dynamo::ParticleProperty(N, dynamo::Property::Units::Mass(), "M", 1.0));

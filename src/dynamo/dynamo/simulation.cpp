@@ -243,7 +243,7 @@ namespace dynamo
     status = INITIALISED;
   }
 
-  IntEvent 
+  Event 
   Simulation::getEvent(const Particle& p1, const Particle& p2) const
   {
     for (const shared_ptr<Interaction>& ptr : interactions)

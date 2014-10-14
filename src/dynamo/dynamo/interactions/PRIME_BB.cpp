@@ -20,7 +20,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -228,7 +227,7 @@ namespace dynamo {
     return std::make_pair(diameter, bonded);
   }
 
-  IntEvent
+  Event
   IPRIME_BB::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
@@ -253,26 +252,29 @@ namespace dynamo {
     //diameter*(1+-_PRIME_bond_tolerance). If not, its a hard core
     //interaction at the diameter.
 
-    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
     if (bonded)
       {
         double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter * (1.0 - _PRIME_bond_tolerance));
-        if (dt != HUGE_VAL) retval = IntEvent(p1, p2, dt, CORE, *this);
+        if (dt != HUGE_VAL) 
+	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
 
         dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, diameter * (1.0 + _PRIME_bond_tolerance));
-        if (retval.getdt() > dt) retval = IntEvent(p1, p2, dt, BOUNCE, *this);
+        if (retval._dt > dt)
+	  retval = Event(p1, dt, INTERACTION, BOUNCE, ID, p2);
       }
     else
       {
         double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter);
-        if (dt != HUGE_VAL) retval = IntEvent(p1, p2, dt, CORE, *this);
+        if (dt != HUGE_VAL) 
+	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
       }
 
     return retval;
   }
 
   PairEventData
-  IPRIME_BB::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
+  IPRIME_BB::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
     ++Sim->eventCount;
 
@@ -283,7 +285,7 @@ namespace dynamo {
 
     /*Handle the different types of interactions that can occur.*/
     PairEventData EDat;
-    switch (iEvent.getType())
+    switch (iEvent._type)
       {
       case CORE:
         { //This is either a core for a unbonded or a bonded pair. For
@@ -295,7 +297,7 @@ namespace dynamo {
           if (bonded) coreD = diameter * (1.0 - _PRIME_bond_tolerance);
 
           //Finally, run the event
-          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent.getType());
+          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent._type);
         }
         break;
       case BOUNCE:
@@ -306,7 +308,7 @@ namespace dynamo {
           //As this is the outer bond event, we know its diameter to
           //be:
           double bounceD = diameter * (1.0 + _PRIME_bond_tolerance);
-          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, bounceD * bounceD, iEvent.getType());
+          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, bounceD * bounceD, iEvent._type);
           break;
         }
       default:
