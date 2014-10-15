@@ -21,6 +21,9 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, python-numpy,
   python-matplotlib
 Recommends: libavcodec-extra-53
+Provides: dynamo-core, dynamo-tools, dynamo-visualisation
+Replaces: dynamo-core, dynamo-tools, dynamo-visualisation
+Conflicts: dynamo-core, dynamo-tools, dynamo-visualisation
 Description: The core simulator programs for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a visualisation 
