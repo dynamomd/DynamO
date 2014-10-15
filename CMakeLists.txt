@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
 
 ##########   OPTIONS
 project(DynamO) #Project name
+set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 enable_testing() #Enable build of test executables and 'make test' command
