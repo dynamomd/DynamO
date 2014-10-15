@@ -44,7 +44,7 @@ endif()
 
 # Boost support
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.46 QUIET COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
+find_package(Boost 1.46 COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
 if(NOT Boost_FOUND)
   message(STATUS "Cannot find a static installation of boost, trying a dynamic version")
   set(Boost_USE_STATIC_LIBS OFF)
@@ -86,9 +86,9 @@ endif()
 
 # Visualiser support
 find_package(PkgConfig)
-find_package(OpenGL QUIET)
-find_package(GLUT QUIET)
-find_package(GLEW QUIET)
+find_package(OpenGL)
+find_package(GLUT)
+find_package(GLEW)
 pkg_check_modules(GTKMM gtkmm-2.4)
 pkg_check_modules(PNG libpng)
 set(VISUALIZER_SUPPORT FALSE)
@@ -154,7 +154,7 @@ if(JUDY_SUPPORT)
 endif(JUDY_SUPPORT)
 
 #Test for AV
-find_package(AVCodec QUIET)
+find_package(AVCodec)
 if(AVCodec_FOUND)
   #Note, avcodec has multiple headers, perhaps set up a config.h file?
   link_libraries(${AVCodec_LIBRARIES})
