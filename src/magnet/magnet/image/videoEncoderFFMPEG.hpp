@@ -201,8 +201,6 @@ namespace magnet {
       AVCodecContext* _context;
       AVFrame* _picture;
       std::ofstream _outputFile;
-      uint8_t* _outputBuffer;
-      size_t _outputBufferSize;
       uint8_t* _pictureBuffer;
 
       size_t _videoWidth, _videoHeight;

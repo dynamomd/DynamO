@@ -21,995 +21,300 @@
 
 namespace magnet {
   namespace math {
-    // define default MatrixExpression, which is the Matrix type
-    template <>
-    class MatrixExpression<>
-    {
+    template<class T = double, size_t N = 3>
+    class NMatrix : public std::array<T, N * N> {
+      typedef std::array<T, N * N> Base;
     public:
-      double xx, xy, xz,                         // elements of the matrix
-	yx, yy, yz,
-	zx, zy, zz;
+      inline NMatrix() { Base::fill(T()); }
 
-      inline MatrixExpression<>():
-      xx(0), xy(0), xz(0),
-      yx(0), yy(0), yz(0),
-      zx(0), zy(0), zz(0) 
-      {}
-
-      inline MatrixExpression
-      (double a, double b, double c,
-       double d, double e, double f,
-       double g, double h, double i) :
-	xx(a), xy(b), xz(c),
-	yx(d), yy(e), yz(f),
-	zx(g), zy(h), zz(i)
-      {}
+      NMatrix(std::initializer_list<T> _list) {
+	if (_list.size() > N * N)
+	  throw std::length_error("initializer list too long");
       
-      std::pair<std::array<Vector, 3>, std::array<double, 3> > 
-      symmetric_eigen_decomposition() const
-      {
-#ifdef MAGNET_DEBUG
-	for (int i = 0; i < 3; i++)
-	  for (int j = 0; j < 3; j++)
-	    if (operator()(i,j) != operator()(i,j))
-	      M_throw() << "Cannot perform an eigen decomposition of a matrix which is not symmetric using this function!";
-#endif
+	size_t i = 0;
+	auto it = _list.begin();
+	for (; it != _list.end(); ++i, ++it)
+	  operator()(i) = *it;
 
-	double V[3][3];
-	double d[3];
-	double e[3];
-	for (int i = 0; i < 3; i++)
-	  for (int j = 0; j < 3; j++)
-	    V[i][j] = operator()(i,j);
-	
-	detail::tred2(V, d, e);
-	detail::tql2(V, d, e);
-
-	std::array<double, 3> eigenvals = {{d[0], d[1], d[2]}};
-	std::array<Vector, 3> eigenvecs 
-	  = {{Vector(V[0][0], V[1][0], V[2][0]),
-	      Vector(V[0][1], V[1][1], V[2][1]),
-	      Vector(V[0][2], V[1][2], V[2][2])}};
-	//Now output the eigenvectors and eigenvalues
-	return std::make_pair(eigenvecs, eigenvals);
+	for (; i < N * N; ++i)
+	  operator()(i) = 0.0;
+      }
+      
+      inline T tr() const { 
+	T sum(0);
+	for (size_t i(0); i < N; ++i)
+	  sum += operator()(i, i);
+	return sum;
       }
 
-
-      template<class A,int B,class C>
-      inline MatrixExpression(const MatrixExpression<A,B,C>&e):
-	xx(e.template eval<0,0>()), xy(e.template eval<0,1>()), xz(e.template eval<0,2>()),
-	yx(e.template eval<1,0>()), yy(e.template eval<1,1>()), yz(e.template eval<1,2>()),
-	zx(e.template eval<2,0>()), zy(e.template eval<2,1>()), zz(e.template eval<2,2>())
-      {}
-
-      // set all elements to zero
-      inline void zero()
-      { xx = xy = xz = yx = yy = yz = zx = zy = zz = 0; }
-
-      inline void one() // turn into an identity matrix
-      { xx = yy = zz = 1; xy = xz = yx = yz = zx = zy = 0; }
-
-      inline void reorthogonalize();             // Gramm-Schmidt
-    
-      inline double nrm2() const // norm squared
-      { 
-	return SQR(xx)+SQR(xy)+SQR(xz)
-	  +SQR(yx)+SQR(yy)+SQR(yz)
-	  +SQR(zx)+SQR(zy)+SQR(zz);
+      static inline NMatrix<T, N> identity() {
+	NMatrix retval;
+	for (size_t i(0); i < N; ++i)
+	  retval(i,i) = T(1);
+	return retval;
       }
 
-      inline double tr() const { return xx+yy+zz; }  // trace
-
-      // determininant
-      inline double det() const
-      { return xx*(yy*zz-yz*zy)+xy*(yz*zx-yx*zz)+xz*(yx*zy-yy*zx); }
-  
-
-      // norm
-      inline double nrm() const 
-      {
-	double biggestRow1=std::max(std::max(std::abs(xx), std::abs(xy)), std::abs(xz));
-	double biggestRow2=std::max(std::max(std::abs(yx), std::abs(yy)), std::abs(yz));
-	double biggestRow3=std::max(std::max(std::abs(zx), std::abs(zy)), std::abs(zz));
-	double biggest = std::max(std::max(biggestRow1, biggestRow2), biggestRow3);
-	if (biggest!=0) 
-	  return biggest*(double)(std::sqrt(SQR(xx/biggest)
-					    +SQR(xy/biggest)
-					    +SQR(xz/biggest)
-					    +SQR(yx/biggest)
-					    +SQR(yy/biggest)
-					    +SQR(yz/biggest)
-					    +SQR(zx/biggest)
-					    +SQR(zy/biggest)
-					    +SQR(zz/biggest)));
-	else 
-	  return 0;
+      NMatrix<T,N> transpose() const {
+	NMatrix<T,N> retval;
+	for (size_t i(0); i < N; ++i)
+	  for (size_t j(0); j < N; ++j)
+	    retval(i,j) = operator()(j,i);
+	return retval;
       }
 
-      static inline Matrix identity() { return Matrix(1,0,0,0,1,0,0,0,1); }
+      inline T& operator()(size_t i, size_t j) { 
+	return *(Base::begin() + N * i + j); 
+      }
+      inline const T& operator() (size_t i, size_t j) const { 
+	return *(Base::begin() + N * i + j); 
+      }
 
-      static inline Matrix crossProduct(const Vector v) { return Matrix(0,-v[2],v[1], v[2],0,-v[0], -v[1],v[0],0); }
+      inline T& operator() (size_t i) { 
+	return *(Base::begin() + i); 
+      }
+      inline const T& operator() (size_t i) const { 
+	return *(Base::begin() + i); 
+      }
 
-      // access to elements through parenthesis
-      inline double& operator()(int i, int j) { return *(&xx+3*i+j); }
-      inline const double& operator() (int i, int j) const { return *(&xx+3*i+j); }  
-
-      inline double& operator() (int i) { return *(&xx+i); }  
-      inline const double& operator() (int i) const { return *(&xx+i); }  
-
-      inline bool operator==(const MatrixExpression& omat) const
+      inline bool operator==(const NMatrix& omat) const
       {
-	for (size_t i(0); i < 9; ++i)
+	for (size_t i(0); i < N * N; ++i)
 	  if (operator()(i) != omat(i))
 	    return false;
-
 	return true;
       }
 
-      inline VectorExpression<MatrixExpression<>,ops::RowOp,Base> row(int i);// return i-th row   
-  
-      inline VectorExpression<MatrixExpression<>,ops::ColumnOp,Base> column(int j); // return j-th column
-
-      // set the elements of a row equal to those of a vector
-      template<class A, int B, class C> inline 
-      void setRow(const int i, const VectorExpression<A,B,C> &e)
-      {
-	switch(i) {
-	case 0: xx = e.template eval<0>(); xy = e.template eval<1>(); xz = e.template eval<2>(); break;
-	case 1: yx = e.template eval<0>(); yy = e.template eval<1>(); yz = e.template eval<2>(); break;
-	case 2: zx = e.template eval<0>(); zy = e.template eval<1>(); zz = e.template eval<2>(); break;
-	}
+      inline NVector<T,N> row(size_t j){
+	NVector<T,N> retval;
+	for (size_t i(0); i < N; ++i)
+	  retval = operator()(j,i);
+	return retval;
       }
 
-      // set the elements of a column equal to those of a vector
-      template<class A, int B, class C> inline 
-      void setColumn(const int j, const VectorExpression<A,B,C>&e)
-      {
-	switch(j) {
-	case 0: xx = e.template eval<0>(); yx = e.template eval<1>(); zx = e.template eval<2>(); break;
-	case 1: xy = e.template eval<0>(); yy = e.template eval<1>(); zy = e.template eval<2>(); break;
-	case 2: xz = e.template eval<0>(); yz = e.template eval<1>(); zz = e.template eval<2>(); break;
-	}
+      inline NVector<T,N> column(size_t j){
+	NVector<T,N> retval;
+	for (size_t i(0); i < N; ++i)
+	  retval = operator()(i,j);
+	return retval;
       }
 
-      inline MatrixExpression<>& operator*=(const double d);  // multiply by number
-      inline MatrixExpression<>& operator/=(const double d);  // divide by number
-
-      template<class A,int B,class C> inline     // assign MatrixExpression
-      MatrixExpression<>& 
-      operator=(const MatrixExpression<A,B,C>& e);   
-
-      template<class A,int B,class C> inline 
-      MatrixExpression<>& 
-      operator+=(const MatrixExpression<A,B,C>& e);//add a MatrixExpression
-
-      template<class A,int B,class C> inline 
-      MatrixExpression<>& 
-      operator-=(const MatrixExpression<A,B,C> &e);//subtract MatrixExpression
-
-      template<class A,int B,class C> inline 
-      MatrixExpression<>& 
-      operator*=(const MatrixExpression<A,B,C> &m);//multiply MatrixExpression
-
-      template<int I,int J> inline double eval() const; //evaluate components
-    };
-
-    // passive access to the elements through eval
-    template <> inline double MatrixExpression<>::eval<0,0>() const { return xx; }
-    template <> inline double MatrixExpression<>::eval<0,1>() const { return xy; }
-    template <> inline double MatrixExpression<>::eval<0,2>() const { return xz; }
-    template <> inline double MatrixExpression<>::eval<1,0>() const { return yx; }
-    template <> inline double MatrixExpression<>::eval<1,1>() const { return yy; }
-    template <> inline double MatrixExpression<>::eval<1,2>() const { return yz; }
-    template <> inline double MatrixExpression<>::eval<2,0>() const { return zx; }
-    template <> inline double MatrixExpression<>::eval<2,1>() const { return zy; }
-    template <> inline double MatrixExpression<>::eval<2,2>() const { return zz; }
-
-
-    // operator+ takes two matrix expressions and returns an appropriate
-    // matrix expression
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >
-    operator+(const MatrixExpression<A,B,C> & a, 
-	      const MatrixExpression<D,E,F> & b);
-
-    // operator- takes two matrix expressions and returns an appropriate
-    // matrix expression
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >
-    operator- (const MatrixExpression<A,B,C> & a,
-	       const MatrixExpression<D,E,F> & b);
-
-    // operator* takes two matrix expressions and returns an appropriate
-    // matrix expression
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> >
-    operator*(const MatrixExpression<A,B,C> & a, 
-	      const MatrixExpression<D,E,F> & b);
-
-    // operator* takes a matrix expressions and a vector expression, and
-    // returns an appropriate vector expression
-    template<class A,int B,class C,class D,int E,class F>
-    inline VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> >
-    operator*(const MatrixExpression<A,B,C> & a, 
-	      const VectorExpression<D,E,F> & b);
-
-    // operator* takes a scalar and a matrix expression, and returns an
-    // appropriate matrix expression
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    operator* (double b, 
-	       const MatrixExpression<A,B,C> & a);
-
-    // operator* takes a matrix expression and a scalar, and returns an
-    // appropriate matrix expression
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    operator* (const MatrixExpression<A,B,C> & a, 
-	       double b);
-
-    // operator/ takes a matrix expression and a scalar, and returns an
-    // appropriate matrix expression
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    operator/ (const MatrixExpression<A,B,C> & a, 
-	       double b);
-
-    // unary operator- takes a matrix expression and returns an
-    // appropriate matrix expression
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base >
-    operator- (const MatrixExpression<A,B,C> & a);
-
-    // Transpose function, takes a matrix expression and returns an
-    // appropriate matrix expression
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base> 
-    Transpose(const MatrixExpression<A,B,C> & a);
-
-    // Dyadic function, takes two vector expressions and returns an
-    // appropriate matrix expression
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> > 
-    Dyadic(const VectorExpression<A,B,C> & a, 
-	   const VectorExpression<D,E,F> & b);
-
-    // Inverse of a matrix
-    inline MatrixExpression<> Inverse(const MatrixExpression<> &M);
-
-    // rotation matrix around vector V by an angle V.nrm()
-    inline MatrixExpression<> Rodrigues(const Vector &V);
-
-    //                                           
-    // member functions of the basic Matrix type 
-    //                                           
-
-    // assignment from an expression
-    template<class A,int B,class C>
-    inline MatrixExpression<>& MatrixExpression<>:: operator=(const MatrixExpression<A,B,C> &e)
-    {
-      double newvals[3][3] 
-	= {{e.template eval<0,0>(), e.template eval<0,1>(), e.template eval<0,2>()},
-	   {e.template eval<1,0>(), e.template eval<1,1>(), e.template eval<1,2>()},
-	   {e.template eval<2,0>(), e.template eval<2,1>(), e.template eval<2,2>()}};
-
-      xx = newvals[0][0]; xy = newvals[0][1]; xz = newvals[0][2];
-      yx = newvals[1][0]; yy = newvals[1][1]; yz = newvals[1][2];
-      zx = newvals[2][0]; zy = newvals[2][1]; zz = newvals[2][2];
-      return *this;
-    }
-
-    // multiply-by assignment from an expression
-    inline MatrixExpression<>& MatrixExpression<>:: operator*=(const double d)
-    {
-      xx *= d;  xy *= d;  xz *= d;
-      yx *= d;  yy *= d;  yz *= d;
-      zx *= d;  zy *= d;  zz *= d;
-      return *this;
-    }
-    // divide-by assignment from an expression
-    inline MatrixExpression<>& MatrixExpression<>:: operator/=(const double d)
-    {
-      xx /= d;  xy /= d;  xz /= d;
-      yx /= d;  yy /= d;  yz /= d;
-      zx /= d;  zy /= d;  zz /= d;
-      return *this;
-    }
-
-    // add-to assignment from an expression
-    template<class A,int B,class C>
-    inline MatrixExpression<>& MatrixExpression<>:: operator+=(const MatrixExpression<A,B,C> &e)
-    { return (*this = *this + e); }
-  
-    // subtract-from assignment from an expression
-    template<class A,int B,class C>
-    inline MatrixExpression<>& MatrixExpression<>:: operator-=(const MatrixExpression<A,B,C> &e)
-    { return (*this = *this - e); }
-
-    // multiply-by-matrix assignment from an expression
-    template<class A,int B,class C>
-    inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression<A,B,C> & m)
-    {
-      MatrixExpression<> rhs(*this * m);
-      return (*this = rhs);
-    }
-
-
-    // to access the elements of a matrix expression
-#define MATPARENTHESIS operator()(const int _i, const int _j) const	\
-    {									\
-      switch(_i){							\
-      case 0: switch(_j){						\
-	case 0: return eval<0,0>();					\
-	case 1: return eval<0,1>();					\
-	case 2: return eval<0,2>();					\
-	default: return 0;						\
-	}								\
-      case 1: switch(_j){						\
-	case 0: return eval<1,0>();					\
-	case 1: return eval<1,1>();					\
-	case 2: return eval<1,2>();					\
-	default: return 0;						\
-	}								\
-      case 2: switch(_j){						\
-	case 0: return eval<2,0>();					\
-	case 1: return eval<2,1>();					\
-	case 2: return eval<2,2>();					\
-	default: return 0;						\
-	}								\
-      default: return 0;						\
-      }									\
-    }
-
-
-    // to get the norm of a matrix
-#define MATNRM nrm() const					\
-    {								\
-      double xx=eval<0,0>(), xy=eval<0,1>(), xz=eval<0,2>();	\
-      double yx=eval<1,0>(), yy=eval<1,1>(), yz=eval<1,2>();	\
-      double zx=eval<2,0>(), zy=eval<2,1>(), zz=eval<2,2>();	\
-      double absval;						\
-      double biggest=xx<0?-xx:xx;				\
-      absval=xy<0?-xy:xy;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=xz<0?-xz:xz;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=yx<0?-yx:yx;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=yy<0?-yy:yy;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=yz<0?-yz:yz;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=zx<0?-zx:zx;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=zy<0?-zy:zy;					\
-      if (absval>biggest) biggest=absval;			\
-      absval=zz<0?-zz:zz;					\
-      if (absval>biggest) biggest=absval;			\
-      if (biggest!=0)						\
-	return biggest*(double)(sqrt(SQR(xx/biggest)		\
-				     +SQR(xy/biggest)		\
-				     +SQR(xz/biggest)		\
-				     +SQR(yx/biggest)		\
-				     +SQR(yy/biggest)		\
-				     +SQR(yz/biggest)		\
-				     +SQR(zx/biggest)		\
-				     +SQR(zy/biggest)		\
-				     +SQR(zz/biggest)));	\
-      else							\
-	return 0;						\
-    } 
-
-    // to get the norm squared of a matrix expression
-#define MATNRM2 nrm2() const					\
-    {								\
-      return SQR(eval<0,0>())+SQR(eval<0,0>())+SQR(eval<0,0>())	\
-        +SQR(eval<0,0>())+SQR(eval<0,0>())+SQR(eval<0,0>())	\
-        +SQR(eval<0,0>())+SQR(eval<0,0>())+SQR(eval<0,0>());	\
-    }
-
-    // to get the trace of a matrix expression
-#define MATTR tr() const				\
-    {							\
-      return eval<0,0>() + eval<1,1>() + eval<2,2>();	\
-    }
-
-    // to get the determinant of a matrix expression
-#define MATDET det() const						\
-    {									\
-      double xx=eval<0,0>(), xy=eval<0,1>(), xz=eval<0,2>();		\
-      double yx=eval<1,0>(), yy=eval<1,1>(), yz=eval<1,2>();		\
-      double zx=eval<2,0>(), zy=eval<2,1>(), zz=eval<2,2>();		\
-      return xx*(yy*zz-yz*zy)+xy*(yz*zx-yx*zz)+xz*(yx*zy-yy*zx);	\
-    }
-
-    // to get the i-th row of a matrix expression
-    // note: the class of the matrix expression has to be defined in CLASS
-#define MATROW VectorExpression<CLASS,ops::RowOp,Base> row(int i) const \
-    {									\
-      return VectorExpression<CLASS,ops::RowOp,Base>( *this, i );	\
-    }
-
-    // to get the j-th column of a matrix expression
-    // note: the class of the matrix expression has to be defined in CLASS
-#define MATCOLUMN VectorExpression<CLASS,ops::ColumnOp,Base> column(int j) const \
-    {									\
-      return VectorExpression<CLASS,ops::ColumnOp,Base>( *this, j );	\
-    }
-
-
-    // Expression template class for '+' between two MatrixExpressions
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Matrix
-    template<class A,int B,class C,class D,int E,class F>
-    class MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(), element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS 
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::PlusOp,MatrixExpression<D,E,F> >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      { 
-	return a->template eval<I,J>() + b->template eval<I,J>(); 
-      }
-
-      // constructor
-      inline 
-      MatrixExpression(const MatrixExpression<A,B,C> & _a, 
-		       const MatrixExpression<D,E,F> & _b)
-	: a(&_a), b(&_b) {}
-
-    private:
-      // store pointers to the sub-expressions
-      const MatrixExpression<A,B,C> * a;
-      const MatrixExpression<D,E,F> * b;
-    };
-
-
-    // Expression template class for '-' between two MatrixExpressions
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Matrix
-    template<class A,int B,class C,class D,int E,class F>
-    class MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(), and
-      // element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::MinusOp,MatrixExpression<D,E,F> >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      { 
-	return a->template eval<I,J>() - b->template eval<I,J>(); 
-      }
-
-      // constructor
-      inline 
-      MatrixExpression(const MatrixExpression<A,B,C>& _a, 
-		       const MatrixExpression<D,E,F>& _b)
-	: a(&_a), b(&_b) {}
-
-    private:
-      // store pointers to the sub-expressions
-      const MatrixExpression<A,B,C> * a;
-      const MatrixExpression<D,E,F> * b;
-    };
-
-
-    // Expression template class for '*' between a MatrixExpression and a double
-    //
-    // A and C are classes, B is an operator
-    // if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
-    template<class A,int B,class C>
-    class MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    {
-    public:
-  
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
-      // element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::TimesOp,double >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // constructor
-      inline 
-      MatrixExpression(const MatrixExpression<A,B,C> & _a, 
-		       double _b) 
-	: a(&_a), b(_b) {}
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      { return a->template eval<I,J>() * b; }
-
-      inline MatrixExpression & operator* (double c)
-      {
-	b *= c;
+      NMatrix<T,N>& operator*=(const T d) {
+	for (size_t i(0); i < N * N; ++i)
+	  Base::operator[](i) *= d;
 	return *this;
       }
 
-      inline MatrixExpression & operator/ (double c)
-      {
-	b /= c;
+      NMatrix<T,N>& operator/=(const T d) {
+	for (size_t i(0); i < N * N; ++i)
+	  Base::operator[](i) /= d;
 	return *this;
       }
 
-    private:
-      // store the double and a pointer to the sub-MatrixExpression
-      const MatrixExpression<A,B,C>* a;
-      double b;
-
-      template<class D,int E,class F> 
-      friend MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double >&
-      operator* (double b, MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double > &a);
-
-      template<class D,int E,class F> 
-      friend MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double >&
-      operator/ (double b, MatrixExpression < MatrixExpression<D,E,F>, ops::TimesOp, double > &a);
-    };
-
-
-    // Expression template class for '*' between two MatrixExpressions
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Matrix
-    template<class A,int B,class C,class D,int E,class F>
-    class MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
-      // element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression<MatrixExpression<A,B,C>,ops::TimesOp,MatrixExpression<D,E,F> >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      {
-	return  a->template eval<I,0>() * b->template eval<0,J>()
-          + a->template eval<I,1>() * b->template eval<1,J>()
-          + a->template eval<I,2>() * b->template eval<2,J>();
+      NMatrix<T,N>& operator+=(const NMatrix<T,N> M) {
+	for (size_t i(0); i < N * N; ++i)
+	  Base::operator[](i) += M(i);
+	return *this;
       }
 
-      // constructor
-      inline MatrixExpression(const MatrixExpression<A,B,C>&_a, 
-			      const MatrixExpression<D,E,F>&_b) 
-	: a(&_a), b(&_b) {}
-
-    private:
-      // store pointers to the sub-expressions
-      const MatrixExpression<A,B,C>* a;
-      const MatrixExpression<D,E,F>* b;
-    };
-
-    // Expression template class for unary '-' acting on a MatrixExpression 
-    //
-    // A and C are classes, B is an operator
-    // if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
-    template<class A,int B,class C>
-    class MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
-      // element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression< MatrixExpression<A,B,C>, ops::NegativeOp, Base >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      {
-	return  - a->template eval<I,J>;
+      NMatrix<T,N>& operator-=(const NMatrix<T,N> M) {
+	for (size_t i(0); i < N * N; ++i)
+	  Base::operator[](i) -= M(i);
+	return *this;
       }
 
-      // constructor
-      inline MatrixExpression(const MatrixExpression<A,B,C> &_a) 
-	: a(&_a) {}
-
-    private:
-      // store pointer to the sub-expression
-      const MatrixExpression<A,B,C> * a;
-    };
-
-
-    // Expression template class for transpose function 
-    //
-    // A and C are classes, B is an operator
-    // if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
-    template<class A,int B,class C>
-    class MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
-      // element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression< MatrixExpression<A,B,C>, ops::TransposeOp, Base >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      {
-	return  a->template eval<J,I>();
+      NMatrix<T,N>& operator*=(const NMatrix<T,N> M) {
+	return *this = *this * M;
       }
 
-      // constructor
-      inline 
-      MatrixExpression(const MatrixExpression<A,B,C> &_a) 
-	: a(&_a) {}
-
-    private:
-      // store pointer to the sub-expression
-      const MatrixExpression<A,B,C> * a;
-    };
-
-
-    // Expression template class for Dyadic operation between two VectorExpressions
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
-    template<class A,int B,class C,class D,int E,class F>
-    class MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm(),(*this).te(), (*this).det(),
-      // element access (*this)(i,j)
-      inline double MATNRM2
-      inline double MATNRM
-      inline double MATDET
-      inline double MATTR
-      inline double MATPARENTHESIS
-
-      // define row and column access as if they were Vectors
-      // CLASS is used in the MATROW and MATCOLUMN macros
-#define CLASS MatrixExpression< VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> >
-      inline MATROW
-      inline MATCOLUMN
-#undef CLASS
-
-      // define what this operation evaluates to  
-      template <int I, int J> inline double eval() const
-      {
-	return a->template eval<I>() * b->template eval<J>();
+      NMatrix<T,N> operator-() const {
+	NMatrix<T,N> retval;
+	for (size_t i(0); i < N*N; ++i)
+	  retval(i) = -operator()(i);
+	return retval;
       }
 
-      // constructor
-      inline 
-      MatrixExpression(const VectorExpression<A,B,C> & _a, 
-		       const VectorExpression<D,E,F> & _b) 
-	: a(&_a), b(&_b) {}
-
-    private:
-      // store pointers to the sub-expressions
-      const VectorExpression<A,B,C> * a;
-      const VectorExpression<D,E,F> * b;
+      std::string toString() const
+      {
+	std::ostringstream os;
+	os << std::setprecision(std::numeric_limits<double>::digits10 + 2) << "<";
+	for (size_t i(0); i < N * N - 1; ++i)
+	  os << Base::operator[](i) << ",";
+	os << Base::operator[](N * N - 1) << ">";
+	return os.str();
+      }
     };
 
+    template<class T, size_t N>
+    T determinant(const NMatrix<T,N>& M)
+    { static_assert(!N, "Determinant not implemented for this dimension of Matrix"); }
 
-    // Expression template class for row operation acting on a MatrixExpression 
-    //
-    // A and C are classes, B is an operator
-    // if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
-    template<class A,int B,class C>
-    class VectorExpression < MatrixExpression<A,B,C>, ops::RowOp, Base >
+    template<class T>
+    T determinant(const NMatrix<T,1>& M) {
+      return M(0,0);
+    }
+
+    template<class T>
+    T determinant(const NMatrix<T,2>& M) {
+      return M(0,0) * M(1,1) - M(0,1) * M(1,0);
+    }
+
+    template<class T>
+    T determinant(const NMatrix<T,3>& M) {
+      return 
+	M(0,0) * (M(1,1) * M(2,2) - M(1,2) * M(2,1))+
+	M(0,1) * (M(1,2) * M(2,0) - M(1,0) * M(2,2))+
+	M(0,2) * (M(1,0) * M(2,1) - M(1,1) * M(2,0));
+    }
+
+    template<class T>
+    T determinant(const NMatrix<T,4>& M) {
+      return
+	M(0,3)*M(1,2)*M(2,1)*M(3,0) - M(0,2)*M(1,3)*M(2,1)*M(3,0) - M(0,3)*M(1,1)*M(2,2)*M(3,0) + M(0,1)*M(1,3)*M(2,2)*M(3,0)+
+	M(0,2)*M(1,1)*M(2,3)*M(3,0) - M(0,1)*M(1,2)*M(2,3)*M(3,0) - M(0,3)*M(1,2)*M(2,0)*M(3,1) + M(0,2)*M(1,3)*M(2,0)*M(3,1)+
+	M(0,3)*M(1,0)*M(2,2)*M(3,1) - M(0,0)*M(1,3)*M(2,2)*M(3,1) - M(0,2)*M(1,0)*M(2,3)*M(3,1) + M(0,0)*M(1,2)*M(2,3)*M(3,1)+
+	M(0,3)*M(1,1)*M(2,0)*M(3,2) - M(0,1)*M(1,3)*M(2,0)*M(3,2) - M(0,3)*M(1,0)*M(2,1)*M(3,2) + M(0,0)*M(1,3)*M(2,1)*M(3,2)+
+	M(0,1)*M(1,0)*M(2,3)*M(3,2) - M(0,0)*M(1,1)*M(2,3)*M(3,2) - M(0,2)*M(1,1)*M(2,0)*M(3,3) + M(0,1)*M(1,2)*M(2,0)*M(3,3)+
+	M(0,2)*M(1,0)*M(2,1)*M(3,3) - M(0,0)*M(1,2)*M(2,1)*M(3,3) - M(0,1)*M(1,0)*M(2,2)*M(3,3) + M(0,0)*M(1,1)*M(2,2)*M(3,3);
+    }
+
+    template<class T, size_t N>
+    NMatrix<T,N>adjoint(const NMatrix<T,N>& M)
+    { static_assert(!N, "Adjoint not implemented for this dimension of Matrix"); }
+
+    template<class T>
+    NMatrix<T,1>adjoint(const NMatrix<T,1>& M)
+    { return NMatrix<T,1>{1}; }
+
+    template<class T>
+    NMatrix<T,2>adjoint(const NMatrix<T,2>& M)
+    { return NMatrix<T,2>{M(1,1), -M(0,1), -M(1,0), M(0,0)}; }
+
+    template<class T>
+    NMatrix<T,3>adjoint(const NMatrix<T,3>& M)
+    { 
+      return NMatrix<T,3>{(M(1,1)*M(2,2)-M(1,2)*M(2,1)), -(M(0,1)*M(2,2)-M(0,2)*M(2,1)),  (M(0,1)*M(1,2)-M(0,2)*M(1,1)),
+	  -(M(1,0)*M(2,2)-M(1,2)*M(2,0)),  (M(0,0)*M(2,2)-M(0,2)*M(2,0)), -(M(0,0)*M(1,2)-M(0,2)*M(1,0)),
+	  (M(1,0)*M(2,1)-M(1,1)*M(2,0)), -(M(0,0)*M(2,1)-M(0,1)*M(2,0)),  (M(0,0)*M(1,1)-M(0,1)*M(1,0))};
+    }
+
+    template<class T>
+    NMatrix<T,4>adjoint(const NMatrix<T,4>& M)
     {
-    public:
+      NMatrix<T,4> R;
+      R(0,0) = M(1,2)*M(2,3)*M(3,1) - M(1,3)*M(2,2)*M(3,1) + M(1,3)*M(2,1)*M(3,2) - M(1,1)*M(2,3)*M(3,2) - M(1,2)*M(2,1)*M(3,3) + M(1,1)*M(2,2)*M(3,3);
+      R(0,1) = M(0,3)*M(2,2)*M(3,1) - M(0,2)*M(2,3)*M(3,1) - M(0,3)*M(2,1)*M(3,2) + M(0,1)*M(2,3)*M(3,2) + M(0,2)*M(2,1)*M(3,3) - M(0,1)*M(2,2)*M(3,3);
+      R(0,2) = M(0,2)*M(1,3)*M(3,1) - M(0,3)*M(1,2)*M(3,1) + M(0,3)*M(1,1)*M(3,2) - M(0,1)*M(1,3)*M(3,2) - M(0,2)*M(1,1)*M(3,3) + M(0,1)*M(1,2)*M(3,3);
+      R(0,3) = M(0,3)*M(1,2)*M(2,1) - M(0,2)*M(1,3)*M(2,1) - M(0,3)*M(1,1)*M(2,2) + M(0,1)*M(1,3)*M(2,2) + M(0,2)*M(1,1)*M(2,3) - M(0,1)*M(1,2)*M(2,3);
+      R(1,0) = M(1,3)*M(2,2)*M(3,0) - M(1,2)*M(2,3)*M(3,0) - M(1,3)*M(2,0)*M(3,2) + M(1,0)*M(2,3)*M(3,2) + M(1,2)*M(2,0)*M(3,3) - M(1,0)*M(2,2)*M(3,3);
+      R(1,1) = M(0,2)*M(2,3)*M(3,0) - M(0,3)*M(2,2)*M(3,0) + M(0,3)*M(2,0)*M(3,2) - M(0,0)*M(2,3)*M(3,2) - M(0,2)*M(2,0)*M(3,3) + M(0,0)*M(2,2)*M(3,3);
+      R(1,2) = M(0,3)*M(1,2)*M(3,0) - M(0,2)*M(1,3)*M(3,0) - M(0,3)*M(1,0)*M(3,2) + M(0,0)*M(1,3)*M(3,2) + M(0,2)*M(1,0)*M(3,3) - M(0,0)*M(1,2)*M(3,3);
+      R(1,3) = M(0,2)*M(1,3)*M(2,0) - M(0,3)*M(1,2)*M(2,0) + M(0,3)*M(1,0)*M(2,2) - M(0,0)*M(1,3)*M(2,2) - M(0,2)*M(1,0)*M(2,3) + M(0,0)*M(1,2)*M(2,3);
+      R(2,0) = M(1,1)*M(2,3)*M(3,0) - M(1,3)*M(2,1)*M(3,0) + M(1,3)*M(2,0)*M(3,1) - M(1,0)*M(2,3)*M(3,1) - M(1,1)*M(2,0)*M(3,3) + M(1,0)*M(2,1)*M(3,3);
+      R(2,1) = M(0,3)*M(2,1)*M(3,0) - M(0,1)*M(2,3)*M(3,0) - M(0,3)*M(2,0)*M(3,1) + M(0,0)*M(2,3)*M(3,1) + M(0,1)*M(2,0)*M(3,3) - M(0,0)*M(2,1)*M(3,3);
+      R(2,2) = M(0,1)*M(1,3)*M(3,0) - M(0,3)*M(1,1)*M(3,0) + M(0,3)*M(1,0)*M(3,1) - M(0,0)*M(1,3)*M(3,1) - M(0,1)*M(1,0)*M(3,3) + M(0,0)*M(1,1)*M(3,3);
+      R(2,3) = M(0,3)*M(1,1)*M(2,0) - M(0,1)*M(1,3)*M(2,0) - M(0,3)*M(1,0)*M(2,1) + M(0,0)*M(1,3)*M(2,1) + M(0,1)*M(1,0)*M(2,3) - M(0,0)*M(1,1)*M(2,3);
+      R(3,0) = M(1,2)*M(2,1)*M(3,0) - M(1,1)*M(2,2)*M(3,0) - M(1,2)*M(2,0)*M(3,1) + M(1,0)*M(2,2)*M(3,1) + M(1,1)*M(2,0)*M(3,2) - M(1,0)*M(2,1)*M(3,2);
+      R(3,1) = M(0,1)*M(2,2)*M(3,0) - M(0,2)*M(2,1)*M(3,0) + M(0,2)*M(2,0)*M(3,1) - M(0,0)*M(2,2)*M(3,1) - M(0,1)*M(2,0)*M(3,2) + M(0,0)*M(2,1)*M(3,2);
+      R(3,2) = M(0,2)*M(1,1)*M(3,0) - M(0,1)*M(1,2)*M(3,0) - M(0,2)*M(1,0)*M(3,1) + M(0,0)*M(1,2)*M(3,1) + M(0,1)*M(1,0)*M(3,2) - M(0,0)*M(1,1)*M(3,2);
+      R(3,3) = M(0,1)*M(1,2)*M(2,0) - M(0,2)*M(1,1)*M(2,0) + M(0,2)*M(1,0)*M(2,1) - M(0,0)*M(1,2)*M(2,1) - M(0,1)*M(1,0)*M(2,2) + M(0,0)*M(1,1)*M(2,2);
+      return R;
+    }
 
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
+    template<class T, size_t N>
+    NMatrix<T,N> inverse(const NMatrix<T,N>& M) {
+      T det = determinant(M);
+      if (det == 0) return NMatrix<T,N>::identity();
+      return adjoint(M) * (1 / det);
+    }
 
-      // define what this operation evaluates to  
-      template <const int J> inline double eval() const
-      {
-	switch(i) {
-	case 0: return a->template eval<0,J>();
-	case 1: return a->template eval<1,J>();
-	case 2: return a->template eval<2,J>();
-	default: 
-	  return 0; // should never happen
+    template<class T, size_t N>
+    NMatrix<T,N> operator+(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
+      NMatrix<T,N> retval;
+      for (size_t i(0); i < N*N; ++i)
+	retval(i) = A(i) + B(i);
+      return retval;
+    }
+
+    template<class T, size_t N>
+    NMatrix<T,N> operator-(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
+      NMatrix<T,N> retval;
+      for (size_t i(0); i < N*N; ++i)
+	retval(i) = A(i) - B(i);
+      return retval;
+    }
+
+    template<class T, class U, size_t N>
+    NMatrix<T,N> operator*(const NMatrix<T,N>& A, const U& B) {
+      NMatrix<T,N> retval;
+      for (size_t i(0); i < N*N; ++i)
+	retval(i) = A(i) * B;
+      return retval;
+    }
+    template<class T, class U, size_t N>
+    NMatrix<T,N> operator*(const U& B, const NMatrix<T,N>& A) {
+      return A * B;
+    }
+
+    template<class T, size_t N>
+    NMatrix<T,N> operator*(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
+      NMatrix<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	for (size_t j(0); j < N; ++j) {
+	  T sum(0);
+	  for (size_t k(0); k < N; ++k)
+	    sum += A(i, k) * B(k, j);
+	  retval(i,j) = sum;
 	}
+      return retval;
+    }
+
+    template<class T, size_t N>
+    NVector<T,N> operator*(const NMatrix<T,N>& A, const NVector<T,N>& B) {
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i) {
+	T sum(0);
+	for (size_t j(0); j < N; ++j)
+	  sum += A(i, j) * B[j];
+	retval[i] = sum;
       }
+      return retval;
+    }
 
-      // constructor
-      inline 
-      VectorExpression(const MatrixExpression<A,B,C> & _a,
-		       int _i) 
-	: a(&_a), i(_i) {}
+    template<class T, size_t N>
+    NVector<T,N> operator*(const NVector<T,N>& A, const NMatrix<T,N>& B) {
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i) {
+	T sum(0);
+	for (size_t j(0); j < N; ++j)
+	  sum += B[j] * A(j, i);
+	retval[i] = sum;
+      }
+      return retval;
+    }
 
-    private:
-      // store pointer to the sub-expression and the index i
-      const MatrixExpression<A,B,C> * a;
-      const int i;
-    };
+    template<class T, class U, size_t N>
+    NMatrix<T,N> operator/(const NMatrix<T,N>& A, const U& B) {
+      NMatrix<T,N> retval;
+      for (size_t i(0); i < N*N; ++i)
+	retval(i) = A(i) / B;
+      return retval;
+    }
 
-
-    // Expression template class for column operation acting on a MatrixExpression 
-    //
-    // A and C are classes, B is an operator
-    // if B=ops::NoOp and A=C=Base, the sub-expression is actually a Matrix
-    template<class A,int B,class C>
-    class VectorExpression < MatrixExpression<A,B,C>, ops::ColumnOp, Base>
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
-
-      // define what this operation evaluates to  
-      template <const int I> inline double eval() const
-      {
-	switch(j) {
-	case 0: return a->template eval<I,0>();
-	case 1: return a->template eval<I,1>();
-	case 2: return a->template eval<I,2>();
-	default: 
-	  return 0; // should never happen
+    template<class T, size_t N>
+    NMatrix<T,N> Dyadic(const NVector<T,N>& A, const NVector<T,N>& B) {
+      NMatrix<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	for (size_t j(0); j < N; ++j) {
+	  retval(i,j) = A[i] * B[j];
 	}
-      }
-
-      // constructor
-      inline 
-      VectorExpression(const MatrixExpression<A,B,C> & _a, 
-		       int _j) 
-	:  a(&_a), j(_j) {}
-
-    private:
-      // store pointer to the sub-expression and the index j
-      const MatrixExpression<A,B,C> * a;
-      const int j;
-    };
-
-
-    // Expression template class for '*' between a MatrixExpression and a
-    // VectorExpression
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Matrix
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
-    template<class A,int B,class C,class D,int E,class F>
-    class VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression <D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
-
-      // define what this operation evaluates to  
-      template <int I> inline double eval() const
-      {
-	return  a->template eval<I,0>() * b->template eval<0>()
-          + a->template eval<I,1>() * b->template eval<1>()
-          + a->template eval<I,2>() * b->template eval<2>();
-      }
-
-      // constructor
-      inline 
-      VectorExpression(const MatrixExpression<A,B,C> &_a, 
-		       const VectorExpression <D,E,F> &_b) 
-	: a(&_a), b(&_b) {}
-
-    private:
-      // store pointers to the sub-expressions
-      const MatrixExpression<A,B,C> * a;
-      const VectorExpression<D,E,F> * b;
-    };
-
-    // Matrix + Matrix
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >
-    operator+ (const MatrixExpression<A,B,C> & a, 
-	       const MatrixExpression<D,E,F> & b)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::PlusOp, MatrixExpression<D,E,F> >(a,b);
+      return retval;
     }
 
-    // Matrix - Matrix
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >
-    operator- (const MatrixExpression<A,B,C> & a, 
-	       const MatrixExpression<D,E,F> & b)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::MinusOp, MatrixExpression<D,E,F> >(a, b);
-    }
-
-    // double * Matrix
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    operator* (double b, 
-	       const MatrixExpression<A,B,C> & a)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >(a, b);
-    }
-
-    // Matrix * double
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    operator* (const MatrixExpression<A,B,C> & a, 
-	       double b)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >(a, b);
-    }
-
-    // Matrix / double
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >
-    operator/ (const MatrixExpression<A,B,C> & a, 
-	       double b)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >(a, 1.0/b);
-    }
-
-    // Matrix * double * double
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >&
-    operator* (double b, MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double > &a)
-    { 
-      a.b *= b; 
-      return a; 
-    }
-
-    // Matrix * double / double
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double >&
-    operator/ (double b, MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, double > &a)
-    { 
-      a.b /= b; 
-      return a; 
-    }
-
-    // Matrix * Matrix
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> >
-    operator*(const MatrixExpression<A,B,C> & a, 
-	      const MatrixExpression<D,E,F> & b)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::TimesOp, MatrixExpression<D,E,F> > (a, b);
-    }
-
-    // -Matrix 
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base >
-    operator- (const MatrixExpression<A,B,C> & a)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::NegativeOp, Base > (a);
-    }
-
-    // Matrix * Vector
-    template<class A,int B,class C,class D,int E,class F>
-    inline VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> >
-    operator*(const MatrixExpression<A,B,C> & a, 
-	      const VectorExpression<D,E,F> & b)
-    { 
-      return VectorExpression < MatrixExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> > (a, b);
-    }
-
-    //
-    // Implementation of the row and column member functions of MatrixExpression
-    //
-
-    inline VectorExpression<MatrixExpression<>,ops::RowOp,Base> 
-    MatrixExpression<>::row(int i)
-    {
-      return VectorExpression<MatrixExpression<>,ops::RowOp,Base>(*this,i);
-    }
-
-    inline VectorExpression<MatrixExpression<>,ops::ColumnOp,Base> 
-    MatrixExpression<>::column(int j)
-    {
-      return VectorExpression<MatrixExpression<>,ops::ColumnOp,Base>(*this,j);
-    }
-
-    // Can now implement Gramm-Schmidt orthogonalization of the rows of the matrix
-    inline void Matrix::reorthogonalize()
-    {
-      double z;
-      int num=10;
-      while ( fabs(det()-1) > 1E-16 && --num) {
-	z = 1/row(0).nrm();   
-	xx *= z;    
-	xy *= z;    
-	xz *= z;    
-	z = xx*yx + xy*yy + xz*yz;          
-	yx -= z*xx; 
-	yy -= z*xy; 
-	yz -= z*xz; 
-	z = 1/row(1).nrm();                
-	yx *= z;  
-	yy *= z;  
-	yz *= z;        
-	zx = xy*yz - xz*yy;                 
-	zy = xz*yx - xx*yz;
-	zz = xx*yy - xy*yx;
-	z = 1/row(2).nrm();                
-	zx *= z;  
-	zy *= z;  
-	zz *= z;        
-      }
-    }
-
-    // the inverse of a matrix
-    inline MatrixExpression<> Inverse(const MatrixExpression<> &M) 
-    {
-      double d = 1/M.det();
-      return MatrixExpression<>(
-				(M.yy*M.zz-M.yz*M.zy)*d, -(M.xy*M.zz-M.xz*M.zy)*d,  (M.xy*M.yz-M.xz*M.yy)*d,
-				-(M.yx*M.zz-M.yz*M.zx)*d,  (M.xx*M.zz-M.xz*M.zx)*d, -(M.xx*M.yz-M.xz*M.yx)*d,
-				(M.yx*M.zy-M.yy*M.zx)*d, -(M.xx*M.zy-M.xy*M.zx)*d,  (M.xx*M.yy-M.xy*M.yx)*d);
+    template<class T>
+    inline NMatrix<T,3> cross(const NVector<T,3> &v) {
+      return NMatrix<T,3>{0, -v[2] , v[1], 
+	  v[2], 0, -v[0],
+	  -v[1], v[0], 0};
     }
 
     /*! \brief Calculate a rotation matrix from a vector which encodes
@@ -1018,57 +323,65 @@ namespace magnet {
 	This is a right-handed expression, so all rotation axis are
 	expected to be right handed.
      */
-    inline MatrixExpression<> Rodrigues(const Vector &V) 
+    template<class T>
+    inline NMatrix<T,3> Rodrigues(const NVector<T,3> &v)
     {
-      double theta = V.nrm();
-      if (theta == 0) return Matrix::identity();
+      const T theta = v.nrm();
+      if (theta == 0)
+	return NMatrix<T,3>::identity();
 
-      Vector axis = V / theta;
-      return Matrix::identity() + std::sin(theta) * Matrix::crossProduct(axis) + (1-std::cos(theta)) * (Dyadic(axis,axis) - Matrix::identity());
+      const NVector<T,3> axis = v / theta;
+
+      return NMatrix<T,3>::identity()
+	+ std::sin(theta) * cross(axis) 
+	+ (1 - std::cos(theta)) * (Dyadic(axis, axis) - NMatrix<T,3>::identity());
     }
 
-    // transpose of a matrix
-    template<class A,int B,class C>
-    inline MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base >
-    Transpose (const MatrixExpression<A,B,C> & a)
-    { 
-      return MatrixExpression < MatrixExpression<A,B,C>, ops::TransposeOp, Base > (a);
-    }
 
-    // dyadic product of two vectors
-    template<class A,int B,class C,class D,int E,class F>
-    inline MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> >
-    Dyadic (const VectorExpression<A,B,C> & a, 
-	    const VectorExpression<D,E,F> & b)
-    { 
-      return MatrixExpression < VectorExpression<A,B,C>, ops::DyadicOp, VectorExpression<D,E,F> > (a,b);
+    inline std::pair<std::array<NVector<double,3>, 3>, std::array<double, 3> > 
+    symmetric_eigen_decomposition(const NMatrix<double,3>& M)
+    {
+#ifdef MAGNET_DEBUG
+      for (int i = 0; i < 3; i++)
+	for (int j = 0; j < 3; j++)
+	  if (M(i,j) != M(j,i))
+	    M_throw() << "Cannot perform an eigen decomposition of a matrix which is not symmetric using this function!";
+#endif
+      
+      double V[3][3];
+      double d[3];
+      double e[3];
+      for (int i = 0; i < 3; i++)
+	for (int j = 0; j < 3; j++)
+	  V[i][j] = M(i,j);
+      
+      detail::tred2(V, d, e);
+      detail::tql2(V, d, e);
+      
+      std::array<double, 3> eigenvals = {{d[0], d[1], d[2]}};
+      std::array<NVector<double, 3>, 3> eigenvecs = {{NVector<double,3>{V[0][0], V[1][0], V[2][0]},
+						     NVector<double,3>{V[0][1], V[1][1], V[2][1]},
+						     NVector<double,3>{V[0][2], V[1][2], V[2][2]}}};
+      //Now output the eigenvectors and eigenvalues
+      return std::make_pair(eigenvecs, eigenvals);
     }
-
-#undef MATNRM
-#undef MATNRM2
-#undef MATPARENTHESIS
-#undef MATTR
-#undef MATDET
-#undef MATROW
-#undef MATCOLUMN
 
     // vectors
-    template<class A, int B, class C>
-    inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-					      const MatrixExpression<A,B,C> & t )
+    template<class T, size_t N>
+    inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const NMatrix<T,N> & A)
     {
       char name[2] = "x";
 
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      for (size_t iDim = 0; iDim < N; ++iDim)
 	{
 	  name[0] = 'x'+iDim;
 	  XML << magnet::xml::tag(name);
       
-	  for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	  for (size_t jDim = 0; jDim < N; ++jDim)
 	    {
 	      char name2[2] = "x";
 	      name2[0] = 'x'+jDim;
-	      XML << magnet::xml::attr(name2) << t(iDim,jDim);
+	      XML << magnet::xml::attr(name2) << A(iDim,jDim);
 	    }
 
 	  XML << magnet::xml::endtag(name);
@@ -1077,12 +390,10 @@ namespace magnet {
       return XML;
     }
 
-    inline
-    MatrixExpression<>& 
-    operator<<(MatrixExpression<>& data, const magnet::xml::Node& XML)
+    template<class T, size_t N>
+    NMatrix<T,N>& operator<<(NMatrix<T,N>& data, const magnet::xml::Node& XML)
     {
       char name[2] = "x";
-  
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	{
 	  name[0] = 'x'+iDim;
@@ -1095,41 +406,42 @@ namespace magnet {
 	      data(iDim,jDim) = XML.getNode(name).getAttribute(name2).as<double>();
 	    }
 	}
-
       return data;
     }
 
-    template<>
-    inline Matrix elementwiseMultiply<Matrix>(const Matrix& A, const Matrix& B)
+    template<class T, size_t N>
+    inline NMatrix<T,N> elementwiseMultiply(const NMatrix<T, N>& A, const NMatrix<T,N>& B)
     { 
-      Matrix retval;
+      NMatrix<T,N> retval;
       for (size_t i(0); i < 3; ++i)
 	for (size_t j(0); j < 3; ++j)
 	  retval(i,j) = A(i,j) * B(i, j);
       return retval;
     }
     
-    template<>
-    inline Matrix elementwiseMin<Matrix>(const Matrix& A, const Matrix& B)
+    template<class T, size_t N>
+    inline NMatrix<T,N> elementwiseMin(const NMatrix<T,N>& A, const NMatrix<T,N>& B)
     { 
-      Matrix retval;
+      NMatrix<T,N> retval;
       for (size_t i(0); i < 3; ++i)
 	for (size_t j(0); j < 3; ++j)
 	  retval(i,j) = std::min(A(i,j), B(i, j));
       return retval;
     }
 
-    template<>
-    inline Matrix elementwiseMax<Matrix>(const Matrix& A, const Matrix& B)
+    template<class T, size_t N>
+    inline NMatrix<T, N> elementwiseMax(const NMatrix<T,N>& A, const NMatrix<T,N>& B)
     { 
-      Matrix retval;
+      NMatrix<T,N> retval;
       for (size_t i(0); i < 3; ++i)
 	for (size_t j(0); j < 3; ++j)
 	  retval(i,j) = std::max(A(i,j), B(i, j));
       return retval;
     }
+
+    typedef NMatrix<> Matrix;
   }
 }
 
-namespace coil { typedef ::magnet::math::Matrix Matrix; }
-namespace dynamo { typedef ::magnet::math::Matrix Matrix; }
+namespace coil { typedef ::magnet::math::NMatrix<> Matrix; }
+namespace dynamo { typedef ::magnet::math::NMatrix<> Matrix; }

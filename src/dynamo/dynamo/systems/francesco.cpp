@@ -86,7 +86,7 @@ namespace dynamo {
 
     //Locate surrounding particles, and calculate the average direction
     size_t n = 0;
-    Vector avgV(0,0,0);
+    Vector avgV{0,0,0};
     std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
     for (size_t ID2 : *ids)
       {

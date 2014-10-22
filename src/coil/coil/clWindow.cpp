@@ -166,28 +166,28 @@ namespace coil {
 
       _refXml->get_widget("CamPlusXbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(1,0,0)));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{1,0,0}));
 
       _refXml->get_widget("CamPlusYbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,1,0)));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,1,0}));
 
       _refXml->get_widget("CamPlusZbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,1)));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,0,1}));
 
 
       _refXml->get_widget("CamNegXbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(-1,0,0)));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{-1,0,0}));
 
       _refXml->get_widget("CamNegYbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,-1,0)));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,-1,0}));
 
       _refXml->get_widget("CamNegZbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,-1)));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,0,-1}));
     }
 
     {
@@ -585,11 +585,11 @@ namespace coil {
     if (_readyFlag) return;
 
     double light_distance = 3;
-    Vector look_at = Vector(0, 0, 0);
-    Vector up = Vector(0,1,0);
+    Vector look_at = Vector{0, 0, 0};
+    Vector up = Vector{0,1,0};
     
     {
-      std::shared_ptr<RLight> light(new RLight("Light", Vector(0, 1, 0) * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light", Vector{0, 1, 0} * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
@@ -674,7 +674,7 @@ namespace coil {
 	M_throw() << "An exception was thrown while initialising GTK\n"
 		  << err.what() << "\n";
       }
-
+    
     _readyFlag = true;
   }
 
@@ -760,7 +760,7 @@ namespace coil {
     if (_selectedObject && (_cameraMode == ROTATE_POINT))
       {
 	std::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	_camera.setRotatePoint(magnet::math::Vector(vec[0], vec[1], vec[2]));
+	_camera.setRotatePoint(magnet::math::Vector{vec[0], vec[1], vec[2]});
       }
 
     float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;
@@ -803,7 +803,7 @@ namespace coil {
     else
       {
 	const double eyedist = 6.5;
-	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
+	Vector eyeDisplacement{0.5 * eyedist, 0, 0};
 
 	Gtk::ComboBox* stereoMode;
 	_refXml->get_widget("StereoMode", stereoMode);
@@ -912,6 +912,7 @@ namespace coil {
     ++_frameCounter; 
     _lastFrameTime = _currFrameTime;
     _frameRenderTime = glutGet(GLUT_ELAPSED_TIME) - _currFrameTime;
+    //M_throw() << "Abort render!";
   }
 
   void 
@@ -1017,7 +1018,7 @@ namespace coil {
 	_shadowLightShader["positionTex"] = 2;
 	_shadowLightShader["shadowTex"] = 7;
 	_shadowLightShader["shadowMatrix"]
-	  = light->getShadowTextureMatrix() * _camera.getViewMatrix().inverse();
+	  = light->getShadowTextureMatrix() * inverse(_camera.getViewMatrix());
 	_shadowLightShader["samples"] = GLint(_samples);
 	_shadowLightShader["lightColor"] = light->getLightColor();
 	_shadowLightShader["lightSpecularExponent"] = light->getSpecularExponent();
@@ -1262,7 +1263,7 @@ namespace coil {
     if (_selectedObject)
       {
 	std::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	vec = camera.project(Vector(vec[0], vec[1], vec[2]));
+	vec = camera.project(Vector{vec[0], vec[1], vec[2]});
 	_cairo_screen.drawCursor(vec[0], vec[1], 5);
 	_cairo_screen.drawTextBox(vec[0] + 5, vec[1] + 5, 
 				  _selectedObject->getCursorText(_selectedObjectID), 
@@ -1519,7 +1520,7 @@ namespace coil {
 	  //of the cursor
 	  std::array<GLfloat, 4> vec 
 	    = _selectedObject->getCursorPosition(_selectedObjectID);
-	  const magnet::math::Vector origin(vec[0], vec[1], vec[2]);
+	  const magnet::math::Vector origin{vec[0], vec[1], vec[2]};
 	  const magnet::math::Vector camdir = _camera.getCameraDirection();
 	  const magnet::math::Vector campos = _camera.getPosition();
 	  const magnet::math::Vector rij = origin - campos;
@@ -2037,7 +2038,7 @@ namespace coil {
   void
   CLGLWindow::addLightCallback()
   {
-    std::shared_ptr<RLight> light(new RLight("Light", Vector(0, 1, 0) * 50 / _camera.getRenderScale(), Vector(0, 0, 0), 8.0, 10000.0f, Vector(0,1,0), _camera.getRenderScale()));
+    std::shared_ptr<RLight> light(new RLight("Light", Vector{0, 1, 0} * 50 / _camera.getRenderScale(), Vector{0, 0, 0}, 8.0, 10000.0f, Vector{0,1,0}, _camera.getRenderScale()));
     _renderObjsTree._renderObjects.push_back(light);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();
@@ -2432,8 +2433,8 @@ namespace coil {
   void 
   CLGLWindow::rescaleCameraCallback()
   {
-    magnet::math::Vector min(HUGE_VAL,HUGE_VAL,HUGE_VAL);
-    magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL);
+    magnet::math::Vector min{HUGE_VAL,HUGE_VAL,HUGE_VAL};
+    magnet::math::Vector max{-HUGE_VAL, -HUGE_VAL, -HUGE_VAL};
 
     for (auto& obj : _renderObjsTree._renderObjects)
       {
@@ -2492,6 +2493,6 @@ namespace coil {
   CLGLWindow::HeadReset()
   {
     //Assume the user is around 70cm from the screen
-    _camera.setEyeLocation(Vector(0, 0, 70));
+    _camera.setEyeLocation(Vector{0, 0, 70});
   }
 }

@@ -39,7 +39,7 @@ namespace dynamo {
         
       for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
 	{ 
-	  Vector  tmp(0,0,0);
+	  Vector  tmp{0,0,0};
 	  tmp[0] = -0.5 * walklength;
 	  tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
 
@@ -48,7 +48,7 @@ namespace dynamo {
 
       for (int iStep = pairchainlength; iStep != 0;)
 	{ 
-	  Vector tmp(0,0,0);
+	  Vector tmp{0,0,0};
 
 	  --iStep;
 	  tmp[0] = 0.5 * walklength;

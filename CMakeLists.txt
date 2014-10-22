@@ -1,8 +1,11 @@
 cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
+if (NOT CMAKE_BUILD_TYPE)
+  message(STATUS "No build type selected, default to Release")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+endif()
 
 ##########   OPTIONS
 project(DynamO) #Project name
-set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 enable_testing() #Enable build of test executables and 'make test' command
@@ -21,7 +24,7 @@ include(CPack) #Enable build of packages
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
 ##########   DEBUG MODE
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall -O2")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall")
 link_libraries(debug dl)
 
 ########## COMPILER SUPPORT TESTS

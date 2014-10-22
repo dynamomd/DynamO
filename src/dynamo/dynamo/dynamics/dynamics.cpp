@@ -339,7 +339,7 @@ namespace dynamo {
 	double I = Sim->species(Sim->particles[i])->getScalarMomentOfInertia(i);
 	
 	if (std::isinf(I))
-	  orientationData[i].angularVelocity = Vector(0,0,0);
+	  orientationData[i].angularVelocity = Vector{0,0,0};
 	else
 	  {
 	    orientationData[i].angularVelocity = Quaternion::initialDirector() ^ angVelCrossing;
@@ -365,8 +365,8 @@ namespace dynamo {
     if (particles.empty())
       M_throw() << "Cannot calculate the COM position and velocity from an empty IDRange";
     
-    Vector pos = Vector(0,0,0), 
-      vel = Vector(0,0,0);
+    Vector pos = Vector{0,0,0}, 
+      vel = Vector{0,0,0};
 
     Vector pos0 = Sim->particles[*(particles.begin())].getPosition(), 
       vel0 = Sim->particles[*(particles.begin())].getVelocity();

@@ -39,7 +39,7 @@ namespace dynamo {
     
       std::vector<Vector  > localsites;
 
-      Vector  x(0,0,0);
+      Vector  x{0,0,0};
 
       double direction(walklength);
     

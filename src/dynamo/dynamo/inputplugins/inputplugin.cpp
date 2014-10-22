@@ -74,7 +74,7 @@ namespace dynamo {
   {
     dout << "Zeroing Centre of Mass" << std::endl;
   
-    Vector com(0,0,0);  
+    Vector com{0,0,0};  
     double totmass = 0.0;
     for (const Particle& part : Sim->particles)  
       {

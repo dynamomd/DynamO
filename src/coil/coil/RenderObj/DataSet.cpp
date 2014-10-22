@@ -46,7 +46,7 @@ namespace coil {
 	}
   }
 
-  std::array<GLfloat, 4> 
+  magnet::math::NVector<GLfloat, 4>
   DataSetChild::getCursorPosition(uint32_t objID)
   {
     return _ds.getCursorPosition(objID); 
@@ -310,19 +310,18 @@ namespace coil {
     return os.str();
   }
 
-  std::array<GLfloat, 4>
+  magnet::math::NVector<GLfloat, 4>
   DataSet::getCursorPosition(uint32_t objID)
   {
     std::vector<GLfloat> pos = _positionSel->getValue(objID);
     pos.resize(3, 0);
-    std::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
-    return vec;
+    return magnet::math::NVector<GLfloat, 4>{pos[0], pos[1], pos[2], 1.0};
   }
 
   magnet::math::Vector 
   DataSet::getMinCoord() const
   {
-    magnet::math::Vector min(HUGE_VAL, HUGE_VAL, HUGE_VAL); 
+    magnet::math::Vector min{HUGE_VAL, HUGE_VAL, HUGE_VAL}; 
     for (const auto& child : _children)
       {
 	magnet::math::Vector child_min = child->getMinCoord();
@@ -335,7 +334,7 @@ namespace coil {
   magnet::math::Vector 
   DataSet::getMaxCoord() const
   {
-    magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL); 
+    magnet::math::Vector max{-HUGE_VAL, -HUGE_VAL, -HUGE_VAL}; 
     for (const auto& child : _children)
       {
 	magnet::math::Vector child_max = child->getMaxCoord();

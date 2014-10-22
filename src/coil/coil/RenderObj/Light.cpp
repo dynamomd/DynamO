@@ -354,7 +354,7 @@ namespace coil {
 	M_throw() << "isnan!" << vec.toString();
     }
 
-    lookAt(Vector(0,0,0));
+    lookAt(Vector{0,0,0});
 
     magnet::math::Vector vec = getPosition();
     if (std::isnan(vec[0]))

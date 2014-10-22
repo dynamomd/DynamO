@@ -55,7 +55,7 @@ namespace dynamo {
   
     struct counterData
     {
-      counterData():count(0), energyLoss(0), momentumChange(0,0,0) {}
+      counterData():count(0), energyLoss(0), momentumChange({0,0,0}) {}
       unsigned long count;
       double energyLoss;
       Vector  momentumChange;

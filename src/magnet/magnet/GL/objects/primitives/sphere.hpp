@@ -143,17 +143,17 @@ namespace magnet {
 	    //Iterate over each surface triangle
 	    for (int i(0); i < n_faces; ++i)
 	      {
-		math::Vector a(vertices[3 * faces[3*i + 0] + 0],
-			 vertices[3 * faces[3*i + 0] + 1],
-			 vertices[3 * faces[3*i + 0] + 2]);
+		math::Vector a{vertices[3 * faces[3*i + 0] + 0],
+		    vertices[3 * faces[3*i + 0] + 1],
+		    vertices[3 * faces[3*i + 0] + 2]};
 
-		math::Vector b(vertices[3 * faces[3*i + 1] + 0],
-			 vertices[3 * faces[3*i + 1] + 1],
-			 vertices[3 * faces[3*i + 1] + 2]);
+		math::Vector b{vertices[3 * faces[3*i + 1] + 0],
+		    vertices[3 * faces[3*i + 1] + 1],
+		    vertices[3 * faces[3*i + 1] + 2]};
 
-		math::Vector c(vertices[3 * faces[3*i + 2] + 0],
-			 vertices[3 * faces[3*i + 2] + 1],
-			 vertices[3 * faces[3*i + 2] + 2]);
+		math::Vector c{vertices[3 * faces[3*i + 2] + 0],
+		    vertices[3 * faces[3*i + 2] + 1],
+		    vertices[3 * faces[3*i + 2] + 2]};
 
 		volumeSum += (a | (b ^ c));
 	      }

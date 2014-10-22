@@ -39,7 +39,7 @@ namespace coil {
     /*! \brief Called when the object should be deleted. */
     virtual void request_delete();
 
-    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     virtual std::string getCursorText(uint32_t objID);
 
@@ -211,7 +211,7 @@ namespace coil {
         
     virtual std::string getCursorText(uint32_t objID);
 
-    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     Vector getPeriodicVectorX() const { return _periodicImageX; }
     Vector getPeriodicVectorY() const { return _periodicImageY; }

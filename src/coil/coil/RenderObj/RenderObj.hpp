@@ -164,7 +164,7 @@ namespace coil {
 	
 	\sa pickingRender()
      */
-    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID)
+    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
       M_throw() << "This object is not pickable";
     }
@@ -224,8 +224,8 @@ namespace coil {
     inline void setVisible(bool val = true) { _visible = val; }
     inline bool visible() const { return _visible; }
 
-    virtual magnet::math::Vector getMinCoord() const { return magnet::math::Vector(HUGE_VAL, HUGE_VAL, HUGE_VAL); }
-    virtual magnet::math::Vector getMaxCoord() const { return magnet::math::Vector(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL); }
+    virtual magnet::math::Vector getMinCoord() const { return magnet::math::Vector{HUGE_VAL, HUGE_VAL, HUGE_VAL}; }
+    virtual magnet::math::Vector getMaxCoord() const { return magnet::math::Vector{-HUGE_VAL, -HUGE_VAL, -HUGE_VAL}; }
 
     /*! \brief Sets the object's shadow casting.
 

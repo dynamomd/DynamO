@@ -35,21 +35,21 @@ void init(dynamo::Simulation& Sim)
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
-  Sim.primaryCellSize = dynamo::Vector(6.1, 10, 10);
+  Sim.primaryCellSize = dynamo::Vector{6.1, 10, 10};
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodicExceptX(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));
 
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, 1.0, dynamo::Vector(1, 0, 0), dynamo::Vector(-3, 0, 0), "LowWall", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, 1.0, dynamo::Vector{1, 0, 0}, dynamo::Vector{-3, 0, 0}, "LowWall", new dynamo::IDRangeAll(&Sim))));
 
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, 1.0, dynamo::Vector(-1, 0, 0), dynamo::Vector(3, 0, 0), "HighWall", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, 1.0, dynamo::Vector{-1, 0, 0}, dynamo::Vector{3, 0, 0}, "HighWall", new dynamo::IDRangeAll(&Sim))));
 
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareWell(&Sim, 1, 1.5, 1, 1, new dynamo::IDPairRangeAll(), "Bulk")));
 
-  Sim.particles.push_back(dynamo::Particle(dynamo::Vector(0.75, 0, 0), dynamo::Vector(2,0,0), Sim.particles.size()));
-  Sim.particles.push_back(dynamo::Particle(dynamo::Vector(-0.75, 0, 0), dynamo::Vector(-2,0,0), Sim.particles.size()));
+  Sim.particles.push_back(dynamo::Particle(dynamo::Vector{0.75, 0, 0}, dynamo::Vector{2,0,0}, Sim.particles.size()));
+  Sim.particles.push_back(dynamo::Particle(dynamo::Vector{-0.75, 0, 0}, dynamo::Vector{-2,0,0}, Sim.particles.size()));
 
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 

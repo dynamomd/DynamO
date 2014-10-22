@@ -152,8 +152,8 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	  std::vector<Vector>
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -228,8 +228,7 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -368,7 +367,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
@@ -416,7 +415,7 @@ namespace dynamo {
 	  sysPack.initialise();
 
 	  //Drop them in the middle of the sim
-	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector(0,0,0)));
+	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector{0,0,0}));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	
@@ -480,7 +479,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
@@ -515,15 +514,14 @@ namespace dynamo {
 	  //Figure out how many units there are
 	  UCell* tmpPtr = standardPackingHelper(new UParticle());
 	  tmpPtr->initialise();
-	  size_t NUnitSites = tmpPtr->placeObjects(Vector(0,0,0)).size();
+	  size_t NUnitSites = tmpPtr->placeObjects(Vector{0,0,0}).size();
 	  delete tmpPtr;
 
-	  double diamScale = pow(vm["density"].as<double>()
-				 / (NUnitSites * NUnit), double(1.0 / 3.0));
+	  double diamScale = pow(vm["density"].as<double>() / (NUnitSites * NUnit), double(1.0 / 3.0));
 
 
 	  //Now set the size of the system
-	  Sim->primaryCellSize = Vector(1,1,1) / diamScale;
+	  Sim->primaryCellSize = Vector{1,1,1} / diamScale;
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions() / diamScale;
 
@@ -554,12 +552,12 @@ namespace dynamo {
 	  packptr->initialise();
 
 	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.clear();
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position / diamScale, 
 		      getRandVelVec() * Sim->units.unitVelocity(),
@@ -581,7 +579,7 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
-	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -608,7 +606,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
@@ -675,8 +673,7 @@ namespace dynamo {
 	  sysPack.initialise();
 
 	  //Drop them in the middle of the sim
-	  std::vector<Vector  > latticeSites
-	    (sysPack.placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector{0,0,0}));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -701,7 +698,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
@@ -719,8 +716,7 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle(), true));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	  std::vector<Vector>latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  //Cut off the x periodic boundaries
@@ -740,15 +736,15 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(1,0,0), Vector(-Sim->primaryCellSize[0] / 2 - 0.5 * particleDiam, 0, 0), "LowWall", new IDRangeAll(Sim))));
-	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(-1,0,0), Vector(Sim->primaryCellSize[0] / 2 + 0.5 * particleDiam, 0, 0), "HighWall", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector{1,0,0}, Vector{-Sim->primaryCellSize[0] / 2 - 0.5 * particleDiam, 0, 0}, "LowWall", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector{-1,0,0}, Vector{Sim->primaryCellSize[0] / 2 + 0.5 * particleDiam, 0, 0}, "HighWall", new IDRangeAll(Sim))));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
@@ -797,8 +793,7 @@ namespace dynamo {
 	  sysPack.initialise();
 
 	  //Drop them in the middle of the sim
-	  std::vector<Vector  > latticeSites
-	    (sysPack.placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector{0,0,0}));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -857,8 +852,7 @@ namespace dynamo {
 
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector>latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  double massFrac = 0.001, sizeRatio = 0.1;
 	  size_t Na=100;
@@ -917,12 +911,11 @@ namespace dynamo {
 	    }
 	  //Pack of lines
 	  //Pack the system, determine the number of particles
-	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector (1,1,1), new UParticle());
+	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector{1,1,1}, new UParticle());
 
 	  packroutine.initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packroutine.placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packroutine.placeObjects(Vector{0,0,0}));
 
 	  double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
 
@@ -943,7 +936,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  Sim->dynamics->initOrientations();
 	  break;
@@ -963,8 +956,8 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector>
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -999,7 +992,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
@@ -1026,8 +1019,8 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector>
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -1173,7 +1166,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
@@ -1189,9 +1182,9 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector (1,1,1), new UParticle());
+	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector{1,1,1}, new UParticle());
 	  packroutine.initialise();
-	  std::vector<Vector> latticeSites(packroutine.placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packroutine.placeObjects(Vector{0,0,0}));
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
@@ -1242,7 +1235,7 @@ namespace dynamo {
 	    packptr->initialise();
 
 	    std::vector<Vector  >
-	      latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	      latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	    nPart = latticeSites.size();
 	  }
@@ -1271,7 +1264,7 @@ namespace dynamo {
 	  packptr->initialise();
 
 	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeSingle(new IDRangeRange(0, nPartA - 1)), "AAInt")));
 
@@ -1315,7 +1308,7 @@ namespace dynamo {
 	  packptr->initialise();
 
 	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (latticeSites.size() % 2)
 	    M_throw() << "To make sure the system has zero momentum and +-1 velocities, you must"
@@ -1345,7 +1338,7 @@ namespace dynamo {
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
-	    (Particle(position, Vector(Sim->units.unitVelocity(), Sim->units.unitVelocity(), Sim->units.unitVelocity()), nParticles++));
+	      (Particle(position, Vector{Sim->units.unitVelocity(), Sim->units.unitVelocity(), Sim->units.unitVelocity()}, nParticles++));
 
 	  {
 	    std::uniform_real_distribution<> uniform_dist(-0.5,0.5);
@@ -1400,7 +1393,7 @@ namespace dynamo {
 	  //Pack the system, determine the number of particles
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
-	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -1607,7 +1600,7 @@ namespace dynamo {
 	  double Aspect =  xy / boxL;
 
 	  //Our simulation is set to be boxL X (1.1 * xy) X (1.1 * xy)
-	  Sim->primaryCellSize = Vector(1, 1.1 * Aspect, 1.1 * Aspect);
+	  Sim->primaryCellSize = Vector{1, 1.1 * Aspect, 1.1 * Aspect};
 
 	  //	Vector particleArea = Vector(0.5 * (L-2.0 * Sigma) / L ,
 	  //				     0.9 * Aspect, 0.9 * Aspect);
@@ -1616,10 +1609,10 @@ namespace dynamo {
 	  //				    0, 0);
 
 	  //The area in which we can place particle centers
-	  Vector particleArea = Vector(L / boxL, xy / boxL, xy / boxL);
+	  Vector particleArea = Vector{L / boxL, xy / boxL, xy / boxL};
 
 	  //The system starts at a full extention
-	  Vector particleCOM = Vector(Delta / boxL, 0, 0);
+	  Vector particleCOM = Vector{Delta / boxL, 0, 0};
 
 	  UCell* sysPack;
 	  if (!vm.count("i1"))
@@ -1661,13 +1654,13 @@ namespace dynamo {
 	  double particleDiam = 1.0 / boxL;
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, ParticleInelas, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect - 0.5 * particleDiam),"Plate2", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector{0,0,1}, Vector{0, 0, -0.5 * Aspect - 0.5 * particleDiam},"Plate2", new IDRangeAll(Sim))));
 
-	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect + 0.5 * particleDiam), "Plate3", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector{0,0,-1}, Vector{0, 0, +0.5 * Aspect + 0.5 * particleDiam}, "Plate3", new IDRangeAll(Sim))));
 	  
-	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,+1,0), Vector(0, -0.5 * Aspect - 0.5 * particleDiam, 0), "Plate4", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector{0,+1,0}, Vector{0, -0.5 * Aspect - 0.5 * particleDiam, 0}, "Plate4", new IDRangeAll(Sim))));
 
-	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,-1,0), Vector(0, +0.5 * Aspect + 0.5 * particleDiam, 0), "Plate5", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector{0,-1,0}, Vector{0, +0.5 * Aspect + 0.5 * particleDiam, 0}, "Plate5", new IDRangeAll(Sim))));
 
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
 	  Sim->units.setUnitLength(particleDiam);
@@ -1690,7 +1683,7 @@ namespace dynamo {
 	  if (vm.count("b1"))
 	    strongPlate = true;
 
-	  Sim->locals.push_back(shared_ptr<Local>(new LOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0, 0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles, "Plate1", new IDRangeAll(Sim), 0.0, strongPlate)));
+	  Sim->locals.push_back(shared_ptr<Local>(new LOscillatingPlate(Sim, Vector{0,0,0}, Vector{1,0,0}, Omega0, 0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles, "Plate1", new IDRangeAll(Sim), 0.0, strongPlate)));
 	  break;
 	}
       case 20:
@@ -1708,7 +1701,7 @@ namespace dynamo {
 	    }
 
 	  //Pack the system, determine the number of particles
-	  size_t N = std::unique_ptr<UCell>(standardPackingHelper(new UParticle()))->placeObjects(Vector(0,0,0)).size();
+	  size_t N = std::unique_ptr<UCell>(standardPackingHelper(new UParticle()))->placeObjects(Vector{0,0,0}).size();
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -1732,7 +1725,7 @@ namespace dynamo {
 	  packptr->initialise();
 
 	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeAll(), "Bulk")));
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
@@ -1765,7 +1758,7 @@ namespace dynamo {
 	  packptr->initialise();
 	
 	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
@@ -1779,7 +1772,7 @@ namespace dynamo {
 				    / latticeSites.size(), double(1.0 / 3.0));
 
 	  Sim->units.setUnitLength(particleDiam);
-	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector{0,-Sim->units.unitAcceleration(),0}));
 
 	  double elasticity = 1.0;
 
@@ -1795,8 +1788,8 @@ namespace dynamo {
 	  //initialised touching the wall and to insert the wall just
 	  //inside the primary image
 	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, 1.0, particleDiam, Vector(0,1,0), 
-					   Vector(0, - 0.5 * Sim->primaryCellSize[1] - 0.5 * particleDiam, 0),
+				(new LWall(Sim, 1.0, particleDiam, Vector{0,1,0},
+					   Vector{0, - 0.5 * Sim->primaryCellSize[1] - 0.5 * particleDiam, 0},
 					   "GroundPlate", new IDRangeAll(Sim))));
 	
 	  unsigned long nParticles = 0;
@@ -1837,13 +1830,13 @@ namespace dynamo {
 	  double Sr = 1.0; //Radial spacing
 	  const double elasticV = 1.0;
 
-	  Sim->primaryCellSize = Vector(1,1,1);
+	  Sim->primaryCellSize = Vector{1,1,1};
 	
 	  double particleDiam = std::min(1 / (2 * R + 1), 1 / (H + 1));
 
 	  Sim->units.setUnitLength(particleDiam);
 	  Sim->dynamics = shared_ptr<Dynamics>
-	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
+	    (new DynGravity(Sim, Vector{0,-Sim->units.unitAcceleration(),0}, elasticV * Sim->units.unitVelocity()));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
 	
@@ -1858,10 +1851,7 @@ namespace dynamo {
 	      double deltaPhi = 2 * M_PI / Nr;
 	    
 	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		funnelSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
-							    circle * deltaZ,
-							    r * std::cos(radialstep * deltaPhi))
-				      - Vector(0,0.5,0));
+		funnelSites.push_back(particleDiam * Vector{r * std::sin(radialstep * deltaPhi), circle * deltaZ, r * std::cos(radialstep * deltaPhi)} - Vector{0,0.5,0});
 	    }
 
 	  for (size_t circle(0); particleDiam * ((circle+1) * Sv + Nv * deltaZ - 0.5) - 0.5 < 0.4; ++circle)
@@ -1871,10 +1861,7 @@ namespace dynamo {
 	      double deltaPhi = 2 * M_PI / Nr;
 	    
 	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		funnelSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
-							    (circle+1) * Sv + Nv * deltaZ,
-							    r * std::cos(radialstep * deltaPhi))
-				      - Vector(0,0.5,0));
+		funnelSites.push_back(particleDiam * Vector{r * std::sin(radialstep * deltaPhi), (circle+1) * Sv + Nv * deltaZ, r * std::cos(radialstep * deltaPhi)} - Vector{0,0.5,0});
 	    }
 
 	  //Build a list of the dynamic particles
@@ -1888,10 +1875,7 @@ namespace dynamo {
 		double deltaPhi = 2 * M_PI / Nr;
 	      
 		for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		  dynamicSites.push_back(particleDiam * Vector(r * std::sin(radialstep * deltaPhi),
-							       (circle+1) * Sv + Nv * deltaZ,
-							       r * std::cos(radialstep * deltaPhi))
-					 - Vector(0,0.5,0));
+		  dynamicSites.push_back(particleDiam * Vector{r * std::sin(radialstep * deltaPhi), (circle+1) * Sv + Nv * deltaZ, r * std::cos(radialstep * deltaPhi)} - Vector{0,0.5,0});
 	      }
 
 
@@ -1902,7 +1886,7 @@ namespace dynamo {
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
 	  for (const Vector & position : funnelSites)
-	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+	    Sim->particles.push_back(Particle(position, Vector{0, 0, 0}, nParticles++));
 
 	  for (const Vector & position : dynamicSites)
 	    {
@@ -1968,7 +1952,7 @@ namespace dynamo {
 
 	  //Drop them in the middle of the sim
 	  std::vector<Vector  > latticeSites(sysPack.placeObjects
-					     (Vector (0,0,0)));
+					     (Vector{0,0,0}));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	
@@ -2502,7 +2486,7 @@ namespace dynamo {
 	  if (vm.count("f5"))
 	    wakeTime = vm["f5"].as<double>();
 
-	  Sim->primaryCellSize = Vector(1,1,1);
+	  Sim->primaryCellSize = Vector{1,1,1};
 	
 	  double Rmax = 0.01999;
 	  double l= 4;
@@ -2510,11 +2494,11 @@ namespace dynamo {
 
 	  Sim->units.setUnitLength(particleDiam);
 
-	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity(), tc * Sim->units.unitTime()));
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector{0,-Sim->units.unitAcceleration(),0}, elasticV * Sim->units.unitVelocity(), tc * Sim->units.unitTime()));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
-	  Vector move(0,0,-0.1);
+	  Vector move({0,0,-0.1});
 	  double factor = particleDiam / Rmax;
 	  double x,y,z;
 
@@ -2532,10 +2516,7 @@ namespace dynamo {
 	      double deltaPhi = 2 * M_PI / Nr;
 	    
 	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		funnelSites.push_back(factor * Vector(r * std::sin(radialstep * deltaPhi),
-						      circle * deltaZ + 0.0052,
-						      r * std::cos(radialstep * deltaPhi))
-				      - move);
+		funnelSites.push_back(factor * Vector{r * std::sin(radialstep * deltaPhi), circle * deltaZ + 0.0052, r * std::cos(radialstep * deltaPhi)} - move);
 	    }
 
 	  spacing = 2.1 * particleDiam / factor;	
@@ -2546,7 +2527,7 @@ namespace dynamo {
 	      x=cos(i*2*M_PI/16)*0.11;
 	      y=-sin(i*2*M_PI/16)*0.11-k*0.02+0.05;
 	      z=k*0.02 *2 - 0.1;
-	      funnelSites.push_back(factor * Vector(x,y,z) - move);
+	      funnelSites.push_back(factor * Vector{x,y,z} - move);
 	    }
 	  }
 
@@ -2556,7 +2537,7 @@ namespace dynamo {
 	      x=k*2*Rmax+0.02;
 	      y=i*2*Rmax+0.08;
 	      z=-0.18;
-	      funnelSites.push_back(factor * Vector(x,y,z) - move);
+	      funnelSites.push_back(factor * Vector{x,y,z} - move);
 	    }
 	  }
 	
@@ -2569,7 +2550,7 @@ namespace dynamo {
 		x=sin(i*2*M_PI/Nr)*r;
 		y=-0.68+k*0.04001;
 		z=-cos(i*2*M_PI/Nr)*r+0.46;
-		funnelSites.push_back(factor * Vector(x,y,z) - move);
+		funnelSites.push_back(factor * Vector{x,y,z} - move);
 	      }
 	    }
 	  }
@@ -2579,20 +2560,20 @@ namespace dynamo {
 	      x=sin(i*2*M_PI/Nr)*r;
 	      y=-0.68+k*0.04001;
 	      z=-cos(i*2*M_PI/Nr)*r+0.46;
-	      funnelSites.push_back(factor * Vector(x,y,z) - move);
+	      funnelSites.push_back(factor * Vector{x,y,z} - move);
 	    }
 	  }
 	
 	  //Box bottom
 	  y = -0.72;
-	  funnelSites.push_back(factor * Vector(0, y, 0.46) - move);
+	  funnelSites.push_back(factor * Vector{0, y, 0.46} - move);
 	  for (double lr = spacing; lr < r + spacing; lr += spacing)
 	    {
 	      size_t Nr = static_cast<size_t>(M_PI / std::asin(spacing / (2 * lr)));
 	      for(size_t i=0; i<Nr;i++) {
 		x=cos(i*2*M_PI/Nr)*lr;
 		z=sin(i*2*M_PI/Nr)*lr + 0.46;
-		funnelSites.push_back(factor * Vector(x,y,z) - move);
+		funnelSites.push_back(factor * Vector{x,y,z} - move);
 	      }
 	    }
 
@@ -2602,7 +2583,7 @@ namespace dynamo {
 	      x=cos(i*2*M_PI/46)*0.30;
 	      z=sin(i*2*M_PI/46)*0.30;
 	      y=0.35 + spacing * j;
-	      funnelSites.push_back(factor * Vector(x,y,z) - move);
+	      funnelSites.push_back(factor * Vector{x,y,z} - move);
 	    }
 
 	  //Clear out overlapping funnel particles
@@ -2636,7 +2617,7 @@ namespace dynamo {
 		for(size_t i=0; i<Nr;i++) {
 		  x=cos(i*2*M_PI/Nr)*r;
 		  z=sin(i*2*M_PI/Nr)*r;
-		  dynamicSites.push_back(factor * Vector(x,y,z) - move);
+		  dynamicSites.push_back(factor * Vector{x,y,z} - move);
 		}
 	    }
 	  //	for(int i=0;i<dim;i++){
@@ -2667,7 +2648,7 @@ namespace dynamo {
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
 	  for (const Vector & position : funnelSites)
-	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+	    Sim->particles.push_back(Particle(position, Vector{0, 0, 0}, nParticles++));
 
 	  for (const Vector & position : dynamicSites)
 	    {
@@ -2709,7 +2690,7 @@ namespace dynamo {
 	  packptr->initialise();
 
 	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -2825,7 +2806,7 @@ namespace dynamo {
 	  packptr->initialise();
 
 	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -2887,13 +2868,13 @@ namespace dynamo {
 
 	  Sim->dynamics->initOrientations();
 	  if (twoD) {
-	    Vector rotationAxis(0,0,0);
+	    Vector rotationAxis{0,0,0};
 	    rotationAxis[unusedDimension] = 1;
 	    std::normal_distribution<> dist(0, 1);
 	    for (size_t i(0); i < Sim->particles.size(); ++i)
 	      {
 		auto& data = Sim->dynamics->getRotData(i);
-		Vector orientation(0,0,0);
+		Vector orientation{0,0,0};
 		orientation[(unusedDimension + 1) % 3] = dist(Sim->ranGenerator);
 		orientation[(unusedDimension + 2) % 3] = dist(Sim->ranGenerator);
 		data.orientation = magnet::math::Quaternion::fromToVector(orientation.normal());
@@ -2955,20 +2936,20 @@ namespace dynamo {
 
 	  Sim->units.setUnitLength(diameter);
 
-	  Sim->primaryCellSize = Vector(2 * R + 1, 2 * R + 1, depth);
+	  Sim->primaryCellSize = Vector{2 * R + 1, 2 * R + 1, double(depth)};
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
 	  
 	  incline *= M_PI /180.0;
-	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector(0, -cos(incline), sin(incline)), elasticV));
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector{0, -cos(incline), sin(incline)}, elasticV));
 	  
 	  if (et == 1.0)
 	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
 	  else
 	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, et, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "GravityRotator", 1.0 / (RPT * steps_per_rotation), 2 * M_PI * RPT, Vector(0, 0, 1))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "GravityRotator", 1.0 / (RPT * steps_per_rotation), 2 * M_PI * RPT, Vector{0, 0, 1})));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -2979,7 +2960,7 @@ namespace dynamo {
 	      const double deltaPhi = 2 * M_PI / Nr;
 	    
 	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		funnelSites.push_back(Vector(R * std::sin(radialstep * deltaPhi), R * std::cos(radialstep * deltaPhi), circle * diameter));
+		funnelSites.push_back(Vector{R * std::sin(radialstep * deltaPhi), R * std::cos(radialstep * deltaPhi), circle * diameter});
 	    }
 
 	  //Build a list of the dynamic particles
@@ -2991,7 +2972,7 @@ namespace dynamo {
 		const double deltaPhi = 2 * M_PI / Nr;
 		
 		for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		  dynamicSites.push_back(Vector(circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos));
+		  dynamicSites.push_back(Vector{circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos});
 	      }
 
 	  Sim->addSpecies(shared_ptr<Species>(new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size() - 1), "FunnelParticles", 0)));
@@ -3005,7 +2986,7 @@ namespace dynamo {
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
 	  for (const Vector& position: funnelSites)
-	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+	    Sim->particles.push_back(Particle(position, Vector{0, 0, 0}, nParticles++));
 
 	  for (const Vector & position : dynamicSites)
 	    {
@@ -3050,7 +3031,7 @@ namespace dynamo {
   {
     UCell* sysPack;
 
-    Vector  boxDimensions(1,1,1);
+    Vector  boxDimensions{1,1,1};
 
     if (vm.count("rectangular-box") || forceRectangular)
       {

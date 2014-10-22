@@ -37,15 +37,15 @@ void init(dynamo::Simulation& Sim, const double density)
 
   const double elasticity = 1.0;
 
-  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{7,7,7}}, dynamo::Vector(1,1,1), new dynamo::UParticle()));
+  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{7,7,7}}, dynamo::Vector{1,1,1}, new dynamo::UParticle()));
   packptr->initialise();
-  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector(0,0,0)));
+  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector{0,0,0}));
 
-  Sim.primaryCellSize = dynamo::Vector(1,1,1);
+  Sim.primaryCellSize = dynamo::Vector{1,1,1};
 
   double particleDiam = std::cbrt(density / latticeSites.size());
 
-  Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector(0, -particleDiam, 0)));
+  Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector{0, -particleDiam, 0}));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
@@ -53,7 +53,7 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));
   Sim.units.setUnitLength(particleDiam);
 
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, particleDiam, dynamo::Vector(0, 1, 0), dynamo::Vector(0, - 0.5 * Sim.primaryCellSize[1] - 0.5 * particleDiam, 0), "GroundPlate", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, 1.0, particleDiam, dynamo::Vector{0, 1, 0}, dynamo::Vector{0, - 0.5 * Sim.primaryCellSize[1] - 0.5 * particleDiam, 0}, "GroundPlate", new dynamo::IDRangeAll(&Sim))));
   
   unsigned long nParticles = 0;
   Sim.particles.reserve(latticeSites.size());

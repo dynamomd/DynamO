@@ -30,10 +30,10 @@ namespace coil {
   {
   public:
     RLight(std::string name, magnet::math::Vector position, magnet::math::Vector lookAtPoint,
-	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector(0,1,0),
+	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector{0,1,0},
 	   GLfloat simLength = 25.0f, GLfloat size = 1.0):
       RenderObj(name),
-      Camera(1024, 1024, position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector(0,0,20)),
+      Camera(1024, 1024, position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0,0,20}),
       _intensity(1.0 / simLength),
       _specularExponent(32),
       _specularFactor(1),
@@ -88,8 +88,8 @@ namespace coil {
     */
     inline magnet::GL::GLMatrix getShadowTextureMatrix()
     {
-      return magnet::GL::GLMatrix::translate(magnet::math::Vector(0.5, 0.5, 0.5))
-	* magnet::GL::GLMatrix::scale(magnet::math::Vector(0.5, 0.5, 0.5))
+      return magnet::GL::translate(magnet::math::Vector{0.5, 0.5, 0.5})
+	* magnet::GL::scale(magnet::math::Vector{0.5, 0.5, 0.5})
 	* getProjectionMatrix()
 	* getViewMatrix();
     }
@@ -99,11 +99,10 @@ namespace coil {
     magnet::math::Vector getEyespacePosition(const magnet::GL::Camera& camera) const
     {
       magnet::math::Vector vec = getPosition();
-      std::array<GLfloat, 4> lightPos = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2]), 1.0f}};
-      std::array<GLfloat, 4> lightPos_eyespace
+      magnet::math::NVector<GLfloat, 4> lightPos = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2]), 1.0f}};
+      magnet::math::NVector<GLfloat, 4> lightPos_eyespace
 	= camera.getViewMatrix() * lightPos;
-      return magnet::math::Vector(lightPos_eyespace[0], lightPos_eyespace[1], 
-				  lightPos_eyespace[2]);
+      return magnet::math::Vector{lightPos_eyespace[0], lightPos_eyespace[1], lightPos_eyespace[2]};
     }
 
     virtual uint32_t pickableObjectCount()
@@ -112,11 +111,10 @@ namespace coil {
     virtual std::string getCursorText(uint32_t objID)
     { return _name; }
 
-    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID)
+    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
       magnet::math::Vector loc = getPosition();
-      std::array<GLfloat, 4> vec = {{GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2]), 1.0f}};
-      return vec;
+      return magnet::math::NVector<GLfloat, 4>{GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2]), 1.0f};
     }
 
     void setSize(double val);

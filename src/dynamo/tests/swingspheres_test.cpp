@@ -39,9 +39,9 @@ void init(dynamo::Simulation& Sim)
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
-  Sim.primaryCellSize = dynamo::Vector(60, 60, 60);
+  Sim.primaryCellSize = dynamo::Vector{60, 60, 60};
 
-  Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector(0, -1, 0), 0, 0.01));
+  Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector{0, -1, 0}, 0, 0.01));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
 
@@ -58,7 +58,7 @@ void init(dynamo::Simulation& Sim)
   
   for (size_t i(0); i < N; ++i)
     {
-      Sim.particles.push_back(dynamo::Particle(dynamo::Vector(i * 1.05, 0, 0), dynamo::Vector(0, 0, 0), Sim.particles.size()));
+      Sim.particles.push_back(dynamo::Particle(dynamo::Vector{i * 1.05, 0, 0}, dynamo::Vector{0, 0, 0}, Sim.particles.size()));
       D->getProperty(i) = 1;
       M->getProperty(i) = 1;
     }

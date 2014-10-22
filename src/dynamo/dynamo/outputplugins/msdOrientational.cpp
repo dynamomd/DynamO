@@ -94,7 +94,7 @@ namespace dynamo {
       acc_rotational_legendre1(0.0), acc_rotational_legendre2(0.0),
       cos_theta(0.0);
 
-    Vector displacement_term(0,0,0);
+    Vector displacement_term({0,0,0});
 
     const std::vector<Dynamics::rotData>& latest_rdat(Sim->dynamics->getCompleteRotData());
 

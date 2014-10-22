@@ -67,8 +67,8 @@ namespace coil {
 	  for (size_t i(0); i < elements; ++i)
 	    {
 	      //Convert the data to a quaternion
-	      Vector data(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]);
-	      magnet::math::Quaternion q = magnet::math::Quaternion::fromToVector(data.normal(), Vector(0,0,1));
+	      Vector data{attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]};
+	      magnet::math::Quaternion q = magnet::math::Quaternion::fromToVector(data.normal(), Vector{0,0,1});
 	      for (size_t j(0); j < 3; ++j)
 		glptr[4 * i + j] = q.imaginary()[j];
 	      glptr[4 * i + 3] = q.real();

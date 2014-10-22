@@ -152,7 +152,7 @@ namespace dynamo {
 	Vector orth1;
 	for (size_t i(0); i < NDIM; ++i)
 	  {
-	    orth1 = Vector(0,0,0);
+	    orth1 = Vector{0,0,0};
 	    orth1[i] = 1;
 	    orth1 = vNorm ^ orth1;
 	    if (orth1.nrm() != 0) { orth1 = orth1 / orth1.nrm(); break; }

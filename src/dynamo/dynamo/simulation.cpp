@@ -46,7 +46,7 @@ namespace dynamo
     endEventCount(100000),
     eventPrintInterval(50000),
     nextPrintEvent(0),
-    primaryCellSize(1,1,1),
+    primaryCellSize({1,1,1}),
     ranGenerator(std::random_device()()),
     lastRunMFT(0.0),
     simID(0),
@@ -581,7 +581,7 @@ namespace dynamo
   void 
   Simulation::setCOMVelocity(const Vector COMVelocity)
   {  
-    Vector sumMV(0,0,0);
+    Vector sumMV({0,0,0});
     long double sumMass(0);
 
     //Determine the momentum discrepancy vector

@@ -43,9 +43,9 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
   
-  dynamo::CURandom packroutine(N, dynamo::Vector(1,1,1), new dynamo::UParticle());
+  dynamo::CURandom packroutine(N, dynamo::Vector{1,1,1}, new dynamo::UParticle());
   packroutine.initialise();
-  std::vector<dynamo::Vector> latticeSites(packroutine.placeObjects(dynamo::Vector (0,0,0)));
+  std::vector<dynamo::Vector> latticeSites(packroutine.placeObjects(dynamo::Vector{0,0,0}));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
   double particleDiam = std::cbrt(density / N);
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ILines(&Sim, particleDiam, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));

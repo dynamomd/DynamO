@@ -93,11 +93,11 @@ namespace dynamo {
 	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy()
 	 << "\nNo. of Species " << Sim->species.size()
 	 << "\nSimulation box length "
-	 << Vector(Sim->primaryCellSize / Sim->units.unitLength()).toString()
+	 << (Sim->primaryCellSize / Sim->units.unitLength()).toString()
 	 << std::endl;
 
     Matrix kineticP;
-    Vector thermalConductivityFS(0, 0, 0);
+    Vector thermalConductivityFS({0, 0, 0});
     _speciesMomenta.clear();
     _speciesMomenta.resize(Sim->species.size());
     _speciesMasses.clear();
@@ -125,7 +125,7 @@ namespace dynamo {
 	thermalConductivityFS += part.getVelocity() * (Sim->dynamics->getParticleKineticEnergy(part) + _internalEnergy[part.getID()]);
       }
 
-    Vector sysMomentum(0, 0, 0);
+    Vector sysMomentum({0, 0, 0});
     _systemMass = 0;
     for (size_t i(0); i < Sim->species.size(); ++i)
       {
@@ -233,7 +233,7 @@ namespace dynamo {
 
   void OPMisc::eventUpdate(const NEventData& NDat)
   {
-    Vector thermalDel(0,0,0);
+    Vector thermalDel({0,0,0});
 
     for (const ParticleEventData& PDat : NDat.L1partChanges)
       {
@@ -299,7 +299,7 @@ namespace dynamo {
 	_thermalConductivity.addImpulse(thermalImpulse);
 
 	for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
-	  _thermalDiffusion[spid1].addImpulse(thermalImpulse, Vector(0,0,0));
+	  _thermalDiffusion[spid1].addImpulse(thermalImpulse, Vector{0,0,0});
 
 	thermalDel += part1.getVelocity() * p1E + part2.getVelocity() * p2E
 	  - PDat.particle1_.getOldVel() * (p1E - p1deltaE) - PDat.particle2_.getOldVel() * (p2E - p2deltaE);

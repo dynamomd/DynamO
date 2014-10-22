@@ -171,9 +171,9 @@ namespace dynamo {
     _particleData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
     _particleData->addAttribute("ID", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_COLOUR, 1);
 
-    _particleData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
-				      Vector(0, Sim->primaryCellSize[1], 0),
-				      Vector(0, 0, Sim->primaryCellSize[2]));
+    _particleData->setPeriodicVectors(Vector{Sim->primaryCellSize[0], 0, 0},
+				      Vector{0, Sim->primaryCellSize[1], 0},
+				      Vector{0, 0, Sim->primaryCellSize[2]});
 
     if (Sim->dynamics->hasOrientationData())
       {
@@ -231,7 +231,7 @@ namespace dynamo {
     
     shared_ptr<BCLeesEdwards> BC = std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
     if (BC)
-      _particleData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0), Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0), Vector(0, 0, Sim->primaryCellSize[2]));
+      _particleData->setPeriodicVectors(Vector{Sim->primaryCellSize[0], 0, 0}, Vector{BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0}, Vector{0, 0, Sim->primaryCellSize[2]});
 
 
     ///////////////////////POSITION DATA UPDATE

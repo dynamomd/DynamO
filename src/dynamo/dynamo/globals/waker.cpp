@@ -136,7 +136,7 @@ namespace dynamo {
     ParticleEventData EDat(part, *Sim->species(part), iEvent.getType());
     
     std::normal_distribution<> norm_dist;
-    Vector newVel(norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator));
+    Vector newVel{norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator)};
     newVel *= _wakeVelocity / newVel.nrm();
       
     part.getVelocity() = newVel;

@@ -42,11 +42,11 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
-  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{7,7,7}}, dynamo::Vector(L,L,L), new dynamo::UParticle()));
+  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{7,7,7}}, dynamo::Vector{L,L,L}, new dynamo::UParticle()));
 
   packptr->initialise();
-  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector(0,0,0)));
-  Sim.primaryCellSize = dynamo::Vector(L,L,L);
+  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector{0,0,0}));
+  Sim.primaryCellSize = dynamo::Vector{L,L,L};
 
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpFixedCollider(&Sim, new dynamo::IDRangeRange(0,1), "HeavySpheres", 0)));
 
@@ -63,8 +63,8 @@ void init(dynamo::Simulation& Sim, const double density)
   for (const dynamo::Vector & position : latticeSites)
     Sim.particles.push_back(dynamo::Particle(position, getRandVelVec() * Sim.units.unitVelocity(), nParticles++));
 
-  Sim.particles[0].getVelocity() = dynamo::Vector(0,0,0);
-  Sim.particles[1].getVelocity() = dynamo::Vector(-1,-1,0);
+  Sim.particles[0].getVelocity() = dynamo::Vector{0,0,0};
+  Sim.particles[1].getVelocity() = dynamo::Vector{-1,-1,0};
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 
   dynamo::InputPlugin(&Sim, "Rescaler").zeroMomentum();

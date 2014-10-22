@@ -42,7 +42,7 @@ namespace dynamo {
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       _cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / _ordering.getDimensions()[iDim];
     _cellDimension = _cellLatticeWidth;
-    _cellOffset = Vector(0,0,0);
+    _cellOffset = Vector{0,0,0};
 
     buildCells();
   }
@@ -79,7 +79,7 @@ namespace dynamo {
     const size_t newCellIndex = _ordering.toIndex(newCellCoord);
 
 
-    Vector vNorm(0,0,0);
+    Vector vNorm{0,0,0};
     vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : 1;
 
     NEventData EDat;
@@ -215,7 +215,7 @@ namespace dynamo {
     if (!_renderObj)
       M_throw() << "Initialising before the render object has been created";
 
-    context->queueTask(std::bind(&coil::RVolume::loadData, _renderObj.get(), _volumeData, _ordering.getDimensions(), Vector(Sim->primaryCellSize / Sim->units.unitLength())));
+    context->queueTask(std::bind(&coil::RVolume::loadData, _renderObj.get(), _volumeData, _ordering.getDimensions(), Vector{Sim->primaryCellSize / Sim->units.unitLength()}));
   }
 
   void

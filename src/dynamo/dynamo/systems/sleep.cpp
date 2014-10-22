@@ -149,7 +149,7 @@ namespace dynamo {
 	  {
 	    //If the dynamic particle is going to fall asleep, mark its impulse as 0
 	    if (sleepCondition(dp, g))
-	      stateChange[dp.getID()] = Vector(0,0,0);
+	      stateChange[dp.getID()] = Vector{0,0,0};
 	    continue;
 	  }
 
@@ -165,13 +165,13 @@ namespace dynamo {
 	    double massRatio = Sim->species(sp)->getMass(sp.getID()) 
 	      / Sim->species(dp)->getMass(dp.getID());
 
-	    stateChange[sp.getID()] = Vector(0,0,0);
+	    stateChange[sp.getID()] = Vector{0,0,0};
 	    stateChange[dp.getID()] = -sp.getVelocity() * massRatio;
 	  
 	    //Check if the sleep conditions match
 	    if ((sleepCondition(dp, g, -sp.getVelocity() * massRatio)))
 	      {
-		stateChange[dp.getID()] = Vector(0,0,0);
+		stateChange[dp.getID()] = Vector{0,0,0};
 		continue;
 	      }
 
@@ -186,7 +186,7 @@ namespace dynamo {
 	    if ((pdat.impulse.nrm() / Sim->species(dp)->getMass(dp.getID())) 
 		< _sleepVelocity)
 	      {
-		stateChange[dp.getID()] = Vector(0,0,0);
+		stateChange[dp.getID()] = Vector{0,0,0};
 		continue;
 	      }
 	    
@@ -194,7 +194,7 @@ namespace dynamo {
 	  }
 
 	//Finally, just wake up the static particle
-	stateChange[sp.getID()] = Vector(1,1,1);	
+	stateChange[sp.getID()] = Vector{1,1,1};
       }
 
     for (const PairEventData& pdat : PDat.L2partChanges)
@@ -273,7 +273,7 @@ namespace dynamo {
 	  case SLEEP:
 	    part.clearState(Particle::DYNAMIC);
 	  case RESLEEP:
-	    part.getVelocity() = Vector(0,0,0);
+	    part.getVelocity() = Vector{0,0,0};
 	    break;
 	  case CORRECT:
 	    part.getVelocity() += stateChange[part.getID()];

@@ -52,7 +52,7 @@ namespace dynamo {
     {
       std::vector<Vector> localsites;
     
-      Vector  start(0,0,0), tmp(0,0,0);
+      Vector start{0,0,0}, tmp{0,0,0};
     
       for (int iStep = 0; iStep < chainlength; ++iStep)
 	{      
@@ -81,7 +81,7 @@ namespace dynamo {
   
       //Centre the chain in the unit cell
       {
-	Vector offset(0,0,0);
+	Vector offset{0,0,0};
       
 	for (const Vector & vec : localsites)
 	  offset += vec;

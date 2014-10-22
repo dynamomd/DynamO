@@ -107,7 +107,7 @@ namespace dynamo {
     double acc = 0.0;
     for (const shared_ptr<IDRange>& molRange : Itop.getMolecules())
       {
-	Vector  origPos(0,0,0), currPos(0,0,0);
+	Vector origPos{0,0,0}, currPos{0,0,0};
 	double totmass = 0.0;
 	for (const unsigned long& ID : *molRange)
 	  {

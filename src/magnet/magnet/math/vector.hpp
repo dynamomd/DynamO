@@ -30,534 +30,185 @@ const size_t NDIM(3);
 
 namespace magnet {
   namespace math {
-    namespace {
-      template<typename T> inline T SQR(T a) { return a * a; }
-    }
-
-    // list of operators that can act of Vectors and/or Matrices
-    namespace ops {
-      enum {
-	NoOp,         // tag to indicate no operation
-	RowOp,        // tag to indicate row operation
-	ColumnOp,     // tag to indicate columns operation
-	PlusOp,       // tag for addition operator    
-	MinusOp,      // tag for subtraction operator
-	TimesOp,      // tag for multiplication operator
-	NegativeOp,   // tag for negation operator
-	TransposeOp,  // tag to indicate transpose
-	DyadicOp      // tag for dyadic operator
-      };
-    }
-
-    // define vector expressions and matrix expressions 
-    class Base;  
-    template<class A=Base,int B=ops::NoOp,class C=Base> class VectorExpression;
-    template<class A=Base,int B=ops::NoOp,class C=Base> class MatrixExpression;
-
-    // 'typedef' the defaults as the Vector and Matrix types
-    typedef VectorExpression<> Vector; 
-    typedef MatrixExpression<> Matrix;
-
-    // define default VectorExpression, which is the Vector type
-    template <>
-    class VectorExpression<>
-    {
+    template<class T = double, size_t N = 3>
+    class NVector : public std::array<T, N> {
+      typedef std::array<T, N> Base;
     public:
-      double _data[3];// elements of the vector
+      NVector() { Base::fill(T());}
+      NVector(std::initializer_list<T> _list) {
+	if (_list.size() > N)
+	  throw std::length_error("initializer list too long");
+      
+	size_t i = 0;
+	auto it = _list.begin();
+	for (; it != _list.end(); ++i, ++it)
+	  Base::operator[](i) = *it;
 
-      inline VectorExpression<>() { _data[0] = _data[1] = _data[2] = 0; }
-
-      // passive access to the elements through eval
-      template<int I> inline double eval() const { return _data[I]; }
-
-      inline VectorExpression (double a, double b, double c)
-      { operator()(0) = a; operator()(1) = b; operator()(2) = c; }
-
-      template<class T>
-      inline VectorExpression(const std::array<T, 3>& vec)
-      { for (size_t i(0); i < 3; ++i) operator()(i) = vec[i]; }
-
-      /*! \brief Constuctor from a vector expression.
-       */
-      template<class A,int B,class C> 
-      inline VectorExpression(const VectorExpression<A, B, C> &e)
-      { 
-	double newvals[3] = {e.template eval<0>(), e.template eval<1>(), e.template eval<2>()};
-	for (size_t i(0); i < 3; ++i) operator()(i) = newvals[i]; 
+	for (; i < N; ++i)
+	  Base::operator[](i) = 0.0;
       }
 
-      // assign zero to all elements
-      inline void zero() 
-      { for (size_t i(0); i < 3; ++i) operator()(i) = 0; }
-
-      inline double nrm2() const 
+      inline T nrm2() const 
       { 
-	double sum(0);
-	for (size_t i(0); i < 3; ++i) 
-	  sum += operator()(i) * operator()(i);
-	return sum; 
+	T sum(0);
+	for (const auto val : *this)
+	  sum += val * val;
+	return sum;
       }
 
-      inline double nrm() const
+      inline T nrm() const
       {
-	double biggest = maxElement();
-	double sqrbiggest = biggest * biggest;
-	double invsqrbiggest = 1.0 / sqrbiggest;
-	if (biggest!=0)
+	double max = std::abs(Base::operator[](0));
+	for (size_t i(1); i < N; ++i)
+	  max = std::max(max, std::abs(Base::operator[](i)));
+	if (max != 0)
 	  {
-	    double sum(0);
-	    for (size_t i(0); i < 3; ++i) 
-	      sum += invsqrbiggest * operator()(i) * operator()(i);
-	    return biggest * std::sqrt(sum);
+	    const T invsqrbiggest = 1.0 / (max * max);
+	    T sum(0);
+	    for (const auto val: *this)
+	      sum += invsqrbiggest * val * val;
+	    return max * std::sqrt(sum);
 	  }
 	else
 	  return 0;
       }
-      
-      inline VectorExpression<> normal() const {
-	double norm=nrm();
-	double inv_nrm = 1.0 / (norm + (norm==0));
-	return Vector((*this)[0] * inv_nrm, (*this)[1] * inv_nrm, (*this)[2] * inv_nrm);
+
+      inline NVector<T,N> normal() const {
+	const T norm = nrm();
+	const double inv_nrm = 1.0 / (norm + (norm==0));
+	NVector<T,N> retval(*this);
+	for (auto& val: retval)
+	  val *= inv_nrm;
+	return retval;
       }
 
       inline void normalise() {
 	*this = normal();
       }
 
-
-      inline double maxElement() const { return std::max(std::max(std::abs(_data[0]), std::abs(_data[1])), std::abs(_data[2])); }
-
-      inline double& operator()(size_t i) { return _data[i]; }
-      inline const double& operator()(size_t i) const { return _data[i]; }
-      inline double& operator[](size_t i) { return operator()(i); }
-      inline const double& operator[](size_t i) const { return operator()(i); }
-
-      inline bool operator==(const VectorExpression<>& ovec) const
+      inline bool operator==(const NVector<T,N>& ovec) const
       {
-	for (size_t i(0); i < 3; ++i)
-	  if (operator()(i) != ovec(i))
+	for (size_t i(0); i < N; ++i)
+	  if (Base::operator[](i) != ovec[i])
 	    return false;
 	return true;
       }
 
-      inline bool operator!=(const VectorExpression<>& ovec) const
+      inline bool operator!=(const NVector<T,N>& ovec) const
       {	return !operator==(ovec); }
 
-
-      /*! \brief Assignment of vector from a vector expression.
-       */
-      template<class A,int B,class C>
-      inline VectorExpression<>& operator=(const VectorExpression<A,B,C> &e)
-      { 
-	/* 
-	   Here, we take a copy of the expression result to stop
-	   expressions with *this vector on the RHS from having a race
-	   condition.
-	 */
-	double newvals[3] = {e.template eval<0>(), e.template eval<1>(), e.template eval<2>()};
-
-	for (size_t i(0); i < 3; ++i) operator()(i) = newvals[i];
-	return *this; 
-      }
-  
-      // addto-assignment from an expression
-      template<class A,int B,class C> 
-      inline VectorExpression<>& operator+=(const VectorExpression<A,B,C> &e)
+      template<class P>
+      inline NVector<T,N>& operator+=(const P& e)
       { return (*this = *this + e); }
-
-
-      // subtract-from assignment from an expression
-      template<class A,int B,class C> 
-      inline VectorExpression<>& operator-=(const VectorExpression<A,B,C> &e)
+      template<class P>
+      inline NVector<T,N>& operator-=(const P& e)
       { return (*this = *this - e); }
+      template<class P>
+      inline NVector<T,N>& operator*=(const P& e)
+      { return (*this = *this * e); }
+      template<class P>
+      inline NVector<T,N>& operator/=(const P& e)
+      { return (*this = *this / e); }
 
-      // multiply-by assignment from an expression
-      inline VectorExpression<>& operator*=(const double d)
-      { 
-	for (size_t i(0); i < 3; ++i) operator()(i) *= d;
-	return *this; 
-      }
-  
-      // divide-by assignment from an expression
-      inline VectorExpression<>& operator/=(const double d)
-      { return (*this *= (1.0/d)); }
-      
       std::string toString() const
       {
 	std::ostringstream os;
-	os << std::setprecision(std::numeric_limits<double>::digits10 + 2);
-	os << "<" << _data[0] << "," << _data[1] << "," << _data[2] << ">";
+	os << std::setprecision(std::numeric_limits<double>::digits10 + 2) << "<";
+	for (size_t i(0); i < N-1; ++i)
+	  os << Base::operator[](i) << ",";
+	os << Base::operator[](N-1) << ">";
 	return os.str();
       }
     };
-
-    // definition of vector-matrix operations:
-
-    // define body of const members function of VectorExpression
-
-    // to access the elements of a vector expression
-#define VECPARENTHESES operator()(const int _i) const	\
-    {							\
-      switch(_i){					\
-      case 0: return eval<0>();				\
-      case 1: return eval<1>();				\
-      case 2: return eval<2>();				\
-      default: return 0;				\
-      }							\
+    
+    template<class T, size_t N>
+    NVector<T,N> operator+(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
+      NVector<T,N> retval(vec1);
+      for (size_t i(0); i < N; ++i)
+	retval[i] += vec2[i];
+      return retval;
     }
 
-    // to get the norm of a vector
-#define VECNRM nrm() const				\
-    {							\
-      double x=eval<0>();				\
-      double y=eval<1>();				\
-      double z=eval<2>();				\
-      double biggest= std::max(std::max(std::abs(x), std::abs(y)), std::abs(z)); \
-      if (biggest!=0)					\
-	return biggest*(double)(std::sqrt(SQR(x/biggest)	\
-					  +SQR(y/biggest)	\
-					  +SQR(z/biggest)));	\
-      else							\
-	return 0;					\
+    template<class T, size_t N>
+    NVector<T,N> operator-(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
+      NVector<T,N> retval(vec1);
+      for (size_t i(0); i < N; ++i)
+	retval[i] -= vec2[i];
+      return retval;
     }
 
-    // to get the norm squared of a vector expression
-#define VECNRM2 nrm2() const					\
-    {								\
-      return SQR(eval<0>()) + SQR(eval<1>()) + SQR(eval<2>());	\
+    /*! \brief Outer product (cross) */
+    template<class T>
+    NVector<T,3> operator^(const NVector<T,3>& vec1, const NVector<T,3>& vec2) {
+      return NVector<T,3>{vec1[1] * vec2[2] - vec1[2] * vec2[1],
+	  vec1[2] * vec2[0] - vec1[0] * vec2[2],
+	  vec1[0] * vec2[1] - vec1[1] * vec2[0]
+	  };
     }
 
-    // Expression template class for '+'  between two VectorExpressions
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
-    template<class A,int B,class C,class D,int E,class F>
-    class VectorExpression<VectorExpression<A,B,C>,ops::PlusOp,VectorExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
-
-      // define what this operation evaluates to
-      template<int I> inline double eval() const
-      { 
-	return a->template eval<I>() + b->template eval<I>(); 
-      }
-
-      // constructor
-      inline VectorExpression(const VectorExpression<A,B,C>& _a,
-			      const VectorExpression<D,E,F>& _b)
-	: a(&_a), b(&_b) {}
-
-    private:
-      // pointers to the sub-expressions
-      const VectorExpression<A,B,C> * a;
-      const VectorExpression<D,E,F> * b;
-    };
-
-
-    // Expression template class for '-'  between two VectorExpressions
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
-    template<class A,int B,class C,class D,int E,class F>
-    class VectorExpression<VectorExpression<A,B,C>,ops::MinusOp,VectorExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
-
-      // define what this operation evaluates to
-      template <int I> inline double eval() const
-      { 
-	return a->template eval<I>() - b->template eval<I>(); 
-      }
-
-      // constructor
-      inline VectorExpression(const VectorExpression<A,B,C>& _a,
-			      const VectorExpression<D,E,F>& _b)
-	: a(&_a), b(&_b) {}
-
-    private:
-      // pointers to the sub-expressions 
-      const VectorExpression<A,B,C> * a;
-      const VectorExpression<D,E,F> * b;
-    };
-
-
-    // Expression template class for '^' between two VectorExpressions,
-    // i.e. their outer product
-    //
-    // A, C, D, and F are classes, B and E are Operators
-    // if B=ops::NoOp and A=C=Base, the first sub-expression is actually a Vector
-    // if E=ops::NoOp and D=F=Base, the second sub-expression is actually a Vector
-    template<class A,int B,class C,class D,int E,class F>
-    class VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, VectorExpression<D,E,F> >
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
- 
-      // define what this operation evaluates to
-      template <const int I> inline double eval() const
-      {
-	// despite its looks, a switch statement is actually quite efficient
-	switch (I) {
-	case 0:
-	  return a->template eval<1>() * b->template eval<2>() - a->template eval<2>() * b->template eval<1>();
-	case 1:
-	  return a->template eval<2>() * b->template eval<0>() - a->template eval<0>() * b->template eval<2>();
-	case 2:
-	  return a->template eval<0>() * b->template eval<1>() - a->template eval<1>() * b->template eval<0>();
-	default: 
-	  return 0; //should not happen
-	}
-      }
-
-      // constructor
-      inline VectorExpression(const VectorExpression<A,B,C>& _a,
-			      const VectorExpression<D,E,F>& _b)
-	: a(&_a), b(&_b) {}
-
-    private:
-      // pointers to the sub-expressions 
-      const VectorExpression<A,B,C> * a;
-      const VectorExpression<D,E,F> * b;
-    };
-
-
-    // Expression template class for '*' between a Vector and a double
-    //
-    // A and C are classes, B is an Operator
-    // if B=ops::NoOp and A=C=Base, the VectorExpression is actually a Vector
-    template<class A,int B,class C>
-    class VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2  
-      inline double VECNRM
-      inline double VECPARENTHESES
- 
-      // define what this operation evaluates to
-      template <int I> inline double eval() const
-      { 
-	return a->template eval<I>() * b; 
-      }
-
-      // optimize a second multiplication with a double
-      inline VectorExpression & operator* (double c)
-      {
-	b *= c;
-	return *this;
-      }
-
-      // optimize a subsequent division by a double
-      inline VectorExpression & operator/ (double c)
-      {
-	b /= c;
-	return *this;
-      }
-
-      // constructor
-      inline VectorExpression(const VectorExpression<A,B,C> & _a, 
-			      double _b) 
-	: a(&_a), b(_b) {}
-
-    private:
-      // pointer to the subexpression 
-      const VectorExpression<A,B,C>* a;
-      // the double to multiply with
-      double b;
-
-      // be-friend multiplication operators that optimize further double
-      // multiplication
-      template<class D,int E,class F> 
-      friend VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double >&
-      operator* (double b, VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double > &a);
-
-      template<class D,int E,class F> 
-      friend VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double >&
-      operator/ (double b, VectorExpression < VectorExpression<D,E,F>, ops::TimesOp, double > &a);
-
-    };
-
-
-    // Expression template class for unary '-' acting on a VectorExpression
-    //
-    // A and C are classes, B is an Operator
-    // if B=ops::NoOp and A=C=Base, the VectorExpression is actually a Vector
-    template<class A,int B,class C>
-    class VectorExpression<VectorExpression<A,B,C>, ops::NegativeOp, Base>
-    {
-    public:
-
-      // define (*this).nrm2(), (*this).nrm() and element access (*this)(i) 
-      inline double VECNRM2
-      inline double VECNRM
-      inline double VECPARENTHESES
-
-      // define what this operation evaluates to
-      template <int I> inline double eval() const
-      {
-	return  - a->template eval<I>();
-      }
-
-      // constructor
-      inline VectorExpression(const VectorExpression<A,B,C> & _a) 
-	: a(&_a) {}
-
-    private:
-      // store pointer to sub-expression
-      const VectorExpression<A,B,C> * a;
-
-    };
-    //
-    // definition of the operators
-    //
-
-    // Vector + Vector
-    template<class A,int B,class C,class D,int E,class F> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::PlusOp, VectorExpression<D,E,F> >
-    operator+ (const VectorExpression<A,B,C> & a, 
-	       const VectorExpression<D,E,F> & b)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::PlusOp, VectorExpression<D,E,F> >(a,b);
+    /*! \brief Scalar product (dot) */
+    template<class T, size_t N, class R>
+    NVector<T,N> operator*(const NVector<T,N>& vec1, const R& val) {
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = vec1[i] * val;
+      return retval;
+    }
+    template<class T, size_t N, class R>
+    NVector<T,N> operator*(const R& val, const NVector<T,N>& vec1) {
+      return vec1 * val;
     }
 
-    // Vector - Vector
-    template<class A,int B,class C,class D,int E,class F> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::MinusOp, VectorExpression<D,E,F> >
-    operator- (const VectorExpression<A,B,C> & a, 
-	       const VectorExpression<D,E,F> & b)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::MinusOp, VectorExpression<D,E,F> >(a, b);
+    template<class T, size_t N>
+    T operator*(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
+      T sum(0);
+      for (size_t i(0); i < N; ++i)
+	sum += vec1[i] * vec2[i];
+      return sum;
+    }
+    template<class T, size_t N>
+    T operator|(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
+      return vec1 * vec2;
     }
 
-    // Vector ^ Vector
-    template<class A,int B,class C,class D,int E,class F> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, VectorExpression< D,E,F> >
-    operator^ (const VectorExpression<A,B,C> & a, 
-	       const VectorExpression<D,E,F> & b)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, VectorExpression< D,E,F> > (a, b);
+    template<class T, size_t N, class R>
+    NVector<T,N> operator/(const NVector<T,N>& vec1, const R& val) {
+      return vec1 * (R(1)/val);
+    }
+    template<class T, size_t N, class R>
+    NVector<T,N> operator/(const R& val, const NVector<T,N>& vec1) {
+      return vec1 * (R(1)/val);
     }
 
-    // double * Vector
-    template<class A,int B,class C> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
-    operator* (double b, 
-	       const VectorExpression<A,B,C> & a)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>(a, b);
+    /*! \brief Unary negative */
+    template<class T, size_t N>
+    NVector<T,N> operator-(const NVector<T,N>& vec1) {
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = -vec1[i];
+      return retval;
     }
-
-    // Vector * double
-    template<class A,int B,class C> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
-    operator* (const VectorExpression<A,B,C> & a, 
-	       double b)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>(a, b);
-    }
-
-    // Vector / double
-    template<class A,int B,class C> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>
-    operator/ (const VectorExpression<A,B,C> & a, 
-	       double b)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>(a, 1.0/b);
-    }
-
-    // Vector * double * double
-    template<class A,int B,class C> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>&
-    operator*(double b,VectorExpression<VectorExpression<A,B,C>,ops::TimesOp,double>&a)
-    { 
-      a.b *= b; 
-      return a; 
-    }
-
-    // Vector * double / double
-    template<class A,int B,class C> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::TimesOp, double>&
-    operator/(double b,VectorExpression<VectorExpression<A,B,C>,ops::TimesOp,double>&a)
-    { 
-      a.b /= b; 
-      return a; 
-    }
-
-    // - Vector
-    template<class A,int B,class C> 
-    inline VectorExpression<VectorExpression<A,B,C>, ops::NegativeOp, Base>
-    operator-(const VectorExpression<A,B,C> & a)
-    { 
-      return VectorExpression<VectorExpression<A,B,C>, ops::NegativeOp, Base> (a);
-    }
-
-    // Vector | Vector
-    template<class A,int B,class C,class D,int E,class F>
-    inline double 
-    operator|(const VectorExpression<A,B,C> & a, 
-	      const VectorExpression<D,E,F> & b)
-    {
-      return 
-	a.template eval<0>()*b.template eval<0>() 
-	+ a.template eval<1>()*b.template eval<1>() 
-	+ a.template eval<2>()*b.template eval<2>();
-    }
-
-    // Vector * Vector
-    template<class A,int B,class C,class D,int E,class F>
-    inline double 
-    operator*(const VectorExpression<A,B,C> & a, const VectorExpression<D,E,F> & b)
-    {
-      return 
-	a.template eval<0>()*b.template eval<0>() 
-	+ a.template eval<1>()*b.template eval<1>() 
-	+ a.template eval<2>()*b.template eval<2>();
-    }
-
-    // vectors
-    template<class A, int B, class C>
-    inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-					      const VectorExpression<A,B,C> & t )
+    
+    template<class T, size_t N>
+    inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const NVector<T,N>& vec)
     {
       char name[2] = "x";
-  
-      for (size_t iDim = 0; iDim < NDIM; iDim++)
+      for (size_t i(0); i < N; i++)
 	{
-	  name[0]= 'x'+iDim; //Write the dimension
-	  XML << magnet::xml::attr(name) << t(iDim);
+	  name[0]= 'x'+i; //Write the dimension
+	  XML << magnet::xml::attr(name) << vec[i];
 	}
-  
       return XML;
     }
 
-    inline
-    VectorExpression<>& 
-    operator<<(VectorExpression<>& data, const magnet::xml::Node& XML)
+    template<class T, size_t N>
+    inline NVector<T,N>& operator<<(NVector<T,N>& data, const magnet::xml::Node& XML)
     {
-      for (size_t iDim = 0; iDim < NDIM; iDim++) 
+      for (size_t i(0); i < N; i++) 
 	{
 	  char name[2] = "x";
-	  name[0] = 'x' + iDim; //Write the name
-	  if (!XML.getAttribute(name).valid())
-	    name[0] = '0'+iDim;
-	  data[iDim] = XML.getAttribute(name).as<double>();
+	  name[0] = 'x'+i; //Write the name
+	  data[i] = XML.getAttribute(name).as<T>();
 	}
 
       return data;
@@ -567,28 +218,44 @@ namespace magnet {
     inline T elementwiseMultiply(const T& A, const T& B)
     { return A * B; }
     
-    template<>
-    inline Vector elementwiseMultiply<Vector>(const Vector& A, const Vector& B)
-    { return Vector(A[0] * B[0], A[1] * B[1], A[2] * B[2]); }
+    template<class T, size_t N>
+    inline NVector<T,N> elementwiseMultiply(const NVector<T,N>& A, const NVector<T,N>& B)
+    { 
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = A[i] * B[i];
+      return retval;
+    }
     
     template<class T>
     inline T elementwiseMin(const T& A, const T& B)
     { return std::min(A, B); }
 
-    template<>
-    inline Vector elementwiseMin<Vector>(const Vector& A, const Vector& B)
-    { return Vector(std::min(A[0], B[0]), std::min(A[1], B[1]), std::min(A[2], B[2])); }
-
+    template<class T, size_t N>
+    inline NVector<T,N> elementwiseMin(const NVector<T,N>& A, const NVector<T,N>& B)
+    { 
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = std::min(A[i], B[i]);
+      return retval;
+    }
+    
     template<class T>
     inline T elementwiseMax(const T& A, const T& B)
     { return std::max(A, B); }
 
-    template<>
-    inline Vector elementwiseMax<Vector>(const Vector& A, const Vector& B)
-    { return Vector(std::max(A[0], B[0]), std::max(A[1], B[1]), std::max(A[2], B[2])); }
+    template<class T, size_t N>
+    inline NVector<T,N> elementwiseMax(const NVector<T,N>& A, const NVector<T,N>& B)
+    { 
+      NVector<T,N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = std::max(A[i], B[i]);
+      return retval;
+    }
 
+    typedef NVector<double,3> Vector;
   }
 }
 
-namespace coil { typedef ::magnet::math::Vector Vector; }
-namespace dynamo { typedef ::magnet::math::Vector Vector; }
+namespace coil { typedef ::magnet::math::NVector<double,3> Vector; }
+namespace dynamo { typedef ::magnet::math::NVector<double,3> Vector; }

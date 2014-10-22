@@ -40,7 +40,7 @@ namespace dynamo {
   DynGravity::DynGravity(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     DynNewtonian(tmp),
     elasticV(0),
-    g(0, -1, 0),
+    g({0, -1, 0}),
     _tc(-HUGE_VAL)
   {
     if (XML.hasAttribute("ElasticV"))

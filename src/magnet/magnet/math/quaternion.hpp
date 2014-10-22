@@ -29,10 +29,10 @@ namespace magnet {
       double _real;
 
     public:
-      Quaternion(): _imaginary(0,0,0), _real(1) {}
+      Quaternion(): _imaginary({0,0,0}), _real(1) {}
 
       Quaternion(double r, double i, double j, double k):
-	_imaginary(i,j,k), _real(r) {}
+	_imaginary({i,j,k}), _real(r) {}
 
       Quaternion(double real, Vector imaginary):
 	_imaginary(imaginary), _real(real)
@@ -45,7 +45,7 @@ namespace magnet {
 	encoded direction. This function returns a default unit
 	reference vector.
        */
-      static Vector initialDirector() { return Vector(0,0,1); }
+      static Vector initialDirector() { return Vector{0,0,1}; }
 
       /*! \brief Create a quaternion from the cosine of the rotation
           angle and a rotation axis.
@@ -110,7 +110,7 @@ namespace magnet {
       /*! \brief Returns an identity quaternion.
        */
       static Quaternion identity() {
-	return Quaternion(1, Vector(0,0,0));
+	return Quaternion(1, Vector{0,0,0});
       }
 
       /*! \brief Half the rotation of the current quaternion (assuming
@@ -193,9 +193,9 @@ namespace magnet {
 	double zz = _imaginary[2] * _imaginary[2];
 	double zw = _imaginary[2] * _real;
 	
-	return Matrix(1 - 2 * ( yy + zz ), 2 * ( xy - zw ), 2 * ( xz + yw ),
-		      2 * ( xy + zw ), 1 - 2 * ( xx + zz ), 2 * ( yz - xw ),
-		      2 * ( xz - yw ), 2 * ( yz + xw ), 1 - 2 * ( xx + yy ));
+	return Matrix{1 - 2 * ( yy + zz ), 2 * ( xy - zw ), 2 * ( xz + yw ),
+	    2 * ( xy + zw ), 1 - 2 * ( xx + zz ), 2 * ( yz - xw ),
+	    2 * ( xz - yw ), 2 * ( yz + xw ), 1 - 2 * ( xx + yy )};
       }
     };
 

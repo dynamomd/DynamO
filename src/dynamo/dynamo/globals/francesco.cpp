@@ -102,7 +102,7 @@ namespace dynamo {
     NEventData EDat(ParticleEventData(part, *Sim->species(part), GAUSSIAN));
     
     //Kill the rotational motion
-    Sim->dynamics->getRotData(part).angularVelocity = Vector(0,0,0);
+    Sim->dynamics->getRotData(part).angularVelocity = Vector{0,0,0};
     //Reassign the linear motion
     part.getVelocity() = _vel * (Sim->dynamics->getRotData(part).orientation * magnet::math::Quaternion::initialDirector());
 

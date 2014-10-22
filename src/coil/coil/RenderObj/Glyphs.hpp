@@ -137,7 +137,7 @@ void main()
       return 0; 
     }
 
-    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     virtual std::string getCursorText(uint32_t objID);
 

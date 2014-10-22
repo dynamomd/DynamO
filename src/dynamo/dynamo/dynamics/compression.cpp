@@ -139,7 +139,7 @@ namespace dynamo {
 	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot + growthVel));
       }
     else if (deltaKE==0)
-      retVal.impulse = Vector(0,0,0);
+      retVal.impulse = Vector{0,0,0};
     else
       {	  
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);

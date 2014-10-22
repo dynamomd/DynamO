@@ -38,17 +38,16 @@ namespace coil {
 		       magnet::GL::GLMatrix projViewMatrix, 
 		       float x, float y, float z)
       {
-	std::array<GLfloat, 4> vec = {{x,y,z,1.0}};
+	magnet::math::NVector<GLfloat, 4> vec = {x,y,z,1.0};
 	vec = projViewMatrix * vec;
-	cairo.getContext()->move_to(0.5 + 0.5 * vec[0] / vec[3],
-				   0.5 - 0.5 * vec[1] / vec[3]);
+	cairo.getContext()->move_to(0.5 + 0.5 * vec[0] / vec[3], 0.5 - 0.5 * vec[1] / vec[3]);
       }
 
     void local_line_to(magnet::GL::objects::CairoSurface& cairo, 
 		       magnet::GL::GLMatrix projViewMatrix, 
 		       float x, float y, float z)
       {
-	std::array<GLfloat, 4> vec = {{x,y,z,1.0}};
+	magnet::math::NVector<GLfloat, 4> vec = {x,y,z,1.0};
 	vec = projViewMatrix * vec;
 	cairo.getContext()->line_to(0.5 + 0.5 * vec[0] / vec[3],
 				   0.5 - 0.5 * vec[1] / vec[3]);
@@ -76,10 +75,10 @@ namespace coil {
 	cairo.getContext()->save();
 	  
 	magnet::GL::GLMatrix projViewMatrix
-	  = magnet::GL::GLMatrix::perspective(45, 1, nearPlane, 1000)
-	  * magnet::GL::GLMatrix::translate(0, 0, -(nearPlane + axisScale))
+	  = magnet::GL::perspective(45, 1, nearPlane, 1000)
+	  * magnet::GL::translate(0, 0, -(nearPlane + axisScale))
 	  * camera.getViewRotationMatrix()
-	  * magnet::GL::GLMatrix::scale(axisScale, axisScale, axisScale);
+	  * magnet::GL::scale(axisScale, axisScale, axisScale);
 
 	//Scale to a 100x100 box
 	cairo.getContext()->translate(0, camera.getHeight()-100);
@@ -146,7 +145,7 @@ namespace coil {
 	context->setAttribute(Context::instanceOriginAttrIndex, 
 			      0.5 * camera.getScreenPlaneWidth(), 0, 
 			      -0.5 * camera.getScreenPlaneWidth(), 0);
-	context->rotation(M_PI / 2, Vector(0, 1, 0));  	
+	context->rotation(M_PI / 2, Vector{0, 1, 0});
 	_gridVertices.drawArray(magnet::GL::element_type::LINES); //Right side
 
 	context->setAttribute(Context::instanceOriginAttrIndex, 
@@ -155,7 +154,7 @@ namespace coil {
 	_gridVertices.drawArray(magnet::GL::element_type::LINES); //Left side
 
 	//Top and bottom
-	context->rotation(M_PI / 2, Vector(1, 0, 0));
+	context->rotation(M_PI / 2, Vector{1, 0, 0});
 	context->setAttribute(Context::instanceScaleAttrIndex,
 			      camera.getScreenPlaneWidth(),
 			      camera.getScreenPlaneWidth(), 1);

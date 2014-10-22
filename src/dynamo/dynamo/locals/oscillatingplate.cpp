@@ -170,11 +170,11 @@ namespace dynamo {
     if (!_renderObj)
       {
 	Vector axis3 = nhat / nhat.nrm();
-	Vector axis2(0,0,1);
+	Vector axis2{0,0,1};
       
 	for (size_t i(0); i < NDIM; ++i)
 	  {
-	    Vector tryaxis = Vector(0,0,0);
+	    Vector tryaxis = Vector{0,0,0};
 	    tryaxis[i] = 1;
 	    Vector tryaxis2 = axis3 ^ tryaxis;
 	  

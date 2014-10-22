@@ -205,7 +205,7 @@ namespace dynamo
      
       \param COMVelocity The target velocity for the COM of the system.
      */  
-    void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
+    void setCOMVelocity(const Vector COMVelocity = Vector{0,0,0});
 
     /*! \brief Validate the system state, returning a count of the possible errors/overlaps.
 

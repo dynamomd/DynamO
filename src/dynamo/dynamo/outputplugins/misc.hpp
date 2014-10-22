@@ -76,7 +76,7 @@ namespace dynamo {
     typedef std::pair<classKey, EEventType> CounterKey;
     struct CounterData
     {
-      CounterData(): count(0), netimpulse(0,0,0) {}
+      CounterData(): count(0), netimpulse({0,0,0}) {}
       size_t count;
       Vector netimpulse;
     };

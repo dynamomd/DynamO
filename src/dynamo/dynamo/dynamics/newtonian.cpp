@@ -45,7 +45,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_AAcube(r12, v12, 2 * Vector(d, d, d));
+    return magnet::intersection::ray_AAcube(r12, v12, 2 * Vector{d, d, d});
   }
 
   bool 
@@ -54,7 +54,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
-    return magnet::overlap::point_cube(r12, 2 * Vector(d, d, d));
+    return magnet::overlap::point_cube(r12, 2 * Vector{d, d, d});
   }
 
   double
@@ -445,7 +445,7 @@ namespace dynamo {
 	mu = 0.5;
       }
   
-    Vector collvec(0,0,0);
+    Vector collvec{0,0,0};
 
     if (retVal.rij[dim] < 0)
       collvec[dim] = -1;
@@ -468,7 +468,7 @@ namespace dynamo {
   NEventData 
   DynNewtonian::multibdyCollision(const IDRange& range1, const IDRange& range2, const double&, const EEventType& eType) const
   {
-    Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
+    Vector COMVel1, COMVel2, COMPos1, COMPos2;
   
     double structmass1(0), structmass2(0);
   
@@ -546,7 +546,7 @@ namespace dynamo {
   NEventData 
   DynNewtonian::multibdyWellEvent(const IDRange& range1, const IDRange& range2, const double&, const double& deltaKE, EEventType& eType) const
   {
-    Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
+    Vector  COMVel1, COMVel2, COMPos1, COMPos2;
   
     double structmass1(0), structmass2(0);
   
@@ -598,7 +598,7 @@ namespace dynamo {
     double R2 = rij.nrm2();
     double sqrtArg = rvdot * rvdot + 2.0 * R2 * deltaKE / mu;
 
-    Vector  dP(0,0,0);
+    Vector  dP;
 
     if ((deltaKE < 0) && (sqrtArg < 0))
       {
@@ -671,7 +671,7 @@ namespace dynamo {
 	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else if (deltaKE == 0)
-      retVal.impulse = Vector(0,0,0);
+      retVal.impulse = Vector{0,0,0};
     else
       {
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);

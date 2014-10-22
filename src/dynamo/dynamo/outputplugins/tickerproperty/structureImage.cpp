@@ -96,11 +96,11 @@ namespace dynamo {
 
 	Vector  lastpos(Sim->particles[*prange->begin()].getPosition());
       
-	Vector  masspos(0,0,0);
+	Vector  masspos{0,0,0};
 
 	double sysMass(0.0);
 
-	Vector  sumrij(0,0,0);
+	Vector  sumrij{0,0,0};
       
 	for (const size_t& pid : *prange)
 	  {

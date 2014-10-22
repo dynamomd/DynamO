@@ -44,7 +44,7 @@ namespace dynamo {
 
     void recalculateTime();
 
-    bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
+    bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector{0,0,0});
 
     shared_ptr<IDRange> _range;
     double _sleepDistance;

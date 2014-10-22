@@ -1,23 +1,31 @@
+/*  dynamo:- Event driven molecular dynamics simulator 
+    http://www.dynamomd.org
+    Copyright (C) 2013 Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #define BOOST_TEST_MODULE BinaryHardSphere_test
-#include <boost/test/included/unit_test.hpp>
-#include <dynamo/simulation.hpp>
-#include <dynamo/BC/include.hpp>
-#include <dynamo/ranges/include.hpp>
-#include <dynamo/ranges/IDRangeRange.hpp>
-#include <dynamo/inputplugins/cells/include.hpp>
-#include <dynamo/species/point.hpp>
-#include <dynamo/dynamics/newtonian.hpp>
-#include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
-#include <dynamo/inputplugins/include.hpp>
-#include <dynamo/inputplugins/compression.hpp>
-#include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/outputplugins/misc.hpp>
-#include <dynamo/outputplugins/msd.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <random>
 
 std::mt19937 RNG;
 typedef dynamo::FELBoundedPQ<dynamo::PELMinMax<3> > DefaultSorter;
+
+dynamo::Event randomEvent() {
+  Event retval;
+  retval
+}
 
 dynamo::Vector getRandVelVec()
 {
@@ -43,10 +51,10 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
-  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{10, 10, 10}}, dynamo::Vector{1, 1, 1}, new dynamo::UParticle()));
+  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{10, 10, 10}}, dynamo::Vector(1, 1, 1), new dynamo::UParticle()));
   packptr->initialise();
-  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector{0,0,0}));
-  Sim.primaryCellSize = dynamo::Vector{1,1,1};
+  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector(0,0,0)));
+  Sim.primaryCellSize = dynamo::Vector(1,1,1);
 
   double simVol = 1.0;
   for (size_t iDim = 0; iDim < NDIM; ++iDim)

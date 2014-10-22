@@ -97,7 +97,7 @@ namespace dynamo {
     ++ticksTaken;
 
     double longitudinal_projection(0.0), cos_theta(0.0);
-    Vector displacement_term(0,0,0);
+    Vector displacement_term{0,0,0};
 
     for (const Particle& part : Sim->particles)
       {

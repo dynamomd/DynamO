@@ -92,12 +92,12 @@ namespace dynamo {
     Vector  tmpVec;  
   
     molGyrationDat retVal;
-    retVal.MassCentre = Vector (0,0,0);
+    retVal.MassCentre = Vector{0,0,0};
 
     double totmass = Sim->species[Sim->particles[*(range->begin())]]->getMass(*(range->begin()));
     std::vector<Vector> relVecs;
     relVecs.reserve(range->size());
-    relVecs.push_back(Vector(0,0,0));
+    relVecs.push_back(Vector{0,0,0});
   
     //Walk along the chain
     for (IDRange::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
@@ -119,16 +119,15 @@ namespace dynamo {
 
     //Now determine the inertia tensor
     Matrix inertiaTensor;
-    inertiaTensor.zero();
 
-    for (Vector & vec : relVecs)
+    for (Vector& vec : relVecs)
       {
 	vec -= retVal.MassCentre;
 	inertiaTensor += Dyadic(vec, vec);
       }
 
     std::pair<std::array<Vector, 3>, std::array<double, 3> > result
-      = inertiaTensor.symmetric_eigen_decomposition();
+      = magnet::math::symmetric_eigen_decomposition(inertiaTensor);
 
     for (size_t i = 0; i < NDIM; i++)
       {	
@@ -148,7 +147,6 @@ namespace dynamo {
   OPRGyration::NematicOrderParameter(const std::list<Vector  >& molAxis)
   {
     Matrix Q;
-    Q.zero();
 
     for (const Vector & vec : molAxis)
       for (size_t i = 0; i < NDIM; i++)
@@ -167,9 +165,9 @@ namespace dynamo {
 	Q(j,i) = Q(i,j);
     
     std::pair<std::array<Vector, 3>, std::array<double, 3> > result
-      = Q.symmetric_eigen_decomposition();
+      = magnet::math::symmetric_eigen_decomposition(Q);
 
-    return Vector(result.second[0], result.second[1], result.second[2]);
+    return Vector{result.second[0], result.second[1], result.second[2]};
   }
 
   void 

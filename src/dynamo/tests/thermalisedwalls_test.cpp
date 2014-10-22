@@ -38,32 +38,32 @@ void init(dynamo::Simulation& Sim, const double density)
   const size_t cells = 7;
   const double wallkT = 1.0;
 
-  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{cells, cells, cells}}, dynamo::Vector(1,1,1), new dynamo::UParticle()));
+  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{cells, cells, cells}}, dynamo::Vector{1,1,1}, new dynamo::UParticle()));
   packptr->initialise();
-  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector(0,0,0)));
+  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector{0,0,0}));
   const size_t N = latticeSites.size();
   const double boxL = std::cbrt(N / density);
-  Sim.primaryCellSize = dynamo::Vector(boxL, boxL, boxL);
+  Sim.primaryCellSize = dynamo::Vector{boxL, boxL, boxL};
 
   dynamo::shared_ptr<dynamo::ParticleProperty> D(new dynamo::ParticleProperty(N, dynamo::Property::Units::Length(), "D", 1.0));
   dynamo::shared_ptr<dynamo::ParticleProperty> M(new dynamo::ParticleProperty(N, dynamo::Property::Units::Mass(), "M", 1.0));
   Sim._properties.push(D);
   Sim._properties.push(M);
 
-  Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector(0, -1, 0)));
+  Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynGravity(&Sim, dynamo::Vector{0, -1, 0}));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELBoundedPQ<dynamo::PELMinMax<3> >()));
 
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(&Sim, "D", elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), "M", "Bulk", 0)));
 
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector(1, 0, 0), dynamo::Vector(-0.5 * Sim.primaryCellSize[0] - 1, 0, 0), "XwallLow", new dynamo::IDRangeAll(&Sim))));
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector(-1, 0, 0), dynamo::Vector(0.5 * Sim.primaryCellSize[0] + 1, 0, 0), "XwallHigh", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector{1, 0, 0}, dynamo::Vector{-0.5 * Sim.primaryCellSize[0] - 1, 0, 0}, "XwallLow", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector{-1, 0, 0}, dynamo::Vector{0.5 * Sim.primaryCellSize[0] + 1, 0, 0}, "XwallHigh", new dynamo::IDRangeAll(&Sim))));
 
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector(0, 0, 1), dynamo::Vector(0, 0, -0.5 * Sim.primaryCellSize[2] - 1), "ZwallLow", new dynamo::IDRangeAll(&Sim))));
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector(0, 0, -1), dynamo::Vector(0, 0, 0.5 * Sim.primaryCellSize[2] + 1), "ZwallHigh", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector{0, 0, 1}, dynamo::Vector{0, 0, -0.5 * Sim.primaryCellSize[2] - 1}, "ZwallLow", new dynamo::IDRangeAll(&Sim))));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector{0, 0, -1}, dynamo::Vector{0, 0, 0.5 * Sim.primaryCellSize[2] + 1}, "ZwallHigh", new dynamo::IDRangeAll(&Sim))));
 
-  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector(0, 1, 0), dynamo::Vector(0, - 0.5 * Sim.primaryCellSize[1] - 1, 0), "GroundPlate", new dynamo::IDRangeAll(&Sim), wallkT)));
+  Sim.locals.push_back(dynamo::shared_ptr<dynamo::Local>(new dynamo::LWall(&Sim, elasticity, "D", dynamo::Vector{0, 1, 0}, dynamo::Vector{0, - 0.5 * Sim.primaryCellSize[1] - 1, 0}, "GroundPlate", new dynamo::IDRangeAll(&Sim), wallkT)));
   
   for (size_t i(0); i < latticeSites.size(); ++i)
     {

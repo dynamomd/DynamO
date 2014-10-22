@@ -98,9 +98,9 @@ namespace coil {
 	  outbuffer[x + (y + z* dim[1]) * dim[0]] = filebuffer[(x + (y + z * dim[1]) * dim[0]) * bytes];
 
     //size_t maxdim = std::max(dim[0], std::max(dim[1], dim[2]));
-    //_dimensions = Vector(double(dim[0]) / maxdim, double(dim[1]) / maxdim, double(dim[2]) / maxdim);
+    //_dimensions = Vector{double(dim[0]) / maxdim, double(dim[1]) / maxdim, double(dim[2]) / maxdim};
 
-    loadData(outbuffer, dim, Vector(1,1,1));
+    loadData(outbuffer, dim, Vector{1,1,1});
   }
 
 #ifdef COIL_TIFFSUPPORT
@@ -122,7 +122,7 @@ namespace coil {
 	    outbuffer[idx] = data.pixels[idx].r;
 	  }
 
-    loadData(outbuffer, dim, Vector(1,1,1));
+    loadData(outbuffer, dim, Vector{1,1,1});
   }
 #endif
 
@@ -139,7 +139,7 @@ namespace coil {
         for (size_t x(0); x < size; ++x)
           inbuffer[x + size * (y + size * z)] = std::sqrt(std::pow(x - size / 2.0, 2) + std::pow(y - size / 2.0, 2) + std::pow(z - size / 2.0, 2));
     
-    loadData(inbuffer, std::array<size_t, 3>{{size, size, size}}, Vector(1,1,1));
+    loadData(inbuffer, std::array<size_t, 3>{{size, size, size}}, Vector{1,1,1});
   }
 
   namespace {
@@ -182,13 +182,13 @@ namespace coil {
       for (int y(0); y < int(height); ++y)
 	for (int x(0); x < int(width); ++x)
 	  {
-	    Vector sample1(coordCalc(x - 1, y, z, width, height, depth, inbuffer),
-			   coordCalc(x, y - 1, z, width, height, depth, inbuffer),
-			   coordCalc(x, y, z - 1, width, height, depth, inbuffer));
-
-	    Vector sample2(coordCalc(x + 1, y, z, width, height, depth, inbuffer),
-			   coordCalc(x, y + 1, z, width, height, depth, inbuffer),
-			   coordCalc(x, y, z + 1, width, height, depth, inbuffer));
+	    Vector sample1{double(coordCalc(x - 1, y, z, width, height, depth, inbuffer)),
+		double(coordCalc(x, y - 1, z, width, height, depth, inbuffer)),
+		double(coordCalc(x, y, z - 1, width, height, depth, inbuffer))};
+	    
+	    Vector sample2{double(coordCalc(x + 1, y, z, width, height, depth, inbuffer)),
+		double(coordCalc(x, y + 1, z, width, height, depth, inbuffer)),
+		double(coordCalc(x, y, z + 1, width, height, depth, inbuffer))};
 	    
 	    //Do a central difference scheme
 	    Vector grad = sample1 - sample2;
@@ -284,10 +284,10 @@ namespace coil {
 	   iPtr = lights.begin(); iPtr != lights.end(); ++iPtr)
       {
 	light_positions.push_back((*iPtr)->getEyespacePosition(camera));
-	light_color.push_back(Vector((*iPtr)->getLightColor()));
-	light_factors.push_back(Vector(0.0, 
-				       (*iPtr)->getSpecularExponent(),
-				       (*iPtr)->getSpecularFactor()));
+	auto color = (*iPtr)->getLightColor();
+	Vector vcol{color[0], color[1], color[2]};
+	light_color.push_back(vcol);
+	light_factors.push_back(Vector{0.0, (*iPtr)->getSpecularExponent(),(*iPtr)->getSpecularFactor()});
       }
 
     _shader["lightPosition"] = light_positions;
@@ -306,9 +306,9 @@ namespace coil {
     Vector volumeMin = double(-0.5) * _dimensions;
     Vector volumeMax = double(+0.5) * _dimensions;
 
-    Vector invVolumeDimensions = Vector(1 / (volumeMax[0] - volumeMin[0]),
+    Vector invVolumeDimensions = Vector{1 / (volumeMax[0] - volumeMin[0]),
 					1 / (volumeMax[1] - volumeMin[1]),
-					1 / (volumeMax[2] - volumeMin[2]));
+					1 / (volumeMax[2] - volumeMin[2])};
 
     _shader["volumeMin"] = volumeMin;
     _shader["volumeMax"] = volumeMax;

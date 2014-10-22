@@ -34,7 +34,7 @@
 namespace dynamo {
   GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
     Global(nSim, "SingleOccupancyCells"),
-    cellDimension(1,1,1),
+    cellDimension({1,1,1}),
     cuberootN(0)
   {
     globName = name;
@@ -43,7 +43,7 @@ namespace dynamo {
 
   GSOCells::GSOCells(const magnet::xml::Node&XML, dynamo::Simulation* ptrSim):
     Global(ptrSim, "SingleOccupancyCells"),
-    cellDimension(1,1,1),
+    cellDimension({1,1,1}),
     cuberootN(0)
   {
     operator<<(XML);
@@ -128,7 +128,7 @@ namespace dynamo {
   
     Sim->stream(iEvent.getdt());
 
-    Vector vNorm(0,0,0);
+    Vector vNorm({0,0,0});
 
     Vector pos(part.getPosition()), vel(part.getVelocity());
 

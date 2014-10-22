@@ -47,7 +47,7 @@ namespace coil {
       }
   }
 
-  std::array<GLfloat, 4> 
+  magnet::math::NVector<GLfloat, 4>
   Glyphs::getCursorPosition(uint32_t objID)
   {
     return _ds.getCursorPosition(objID % _N);
@@ -167,7 +167,7 @@ namespace coil {
 		  for (int z(-_zimages); z <= _zimages; ++z)
 		    {
 		      Vector displacement = x * _ds.getPeriodicVectorX() + y * _ds.getPeriodicVectorY() + z * _ds.getPeriodicVectorZ();
-		      shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+		      shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::translate(displacement);
 
 		      if (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)
 		      	{
@@ -228,7 +228,7 @@ namespace coil {
 	for (int z(-_zimages); z <= _zimages; ++z)
 	  {
 	    Vector displacement = x * _ds.getPeriodicVectorX() + y * _ds.getPeriodicVectorY() + z * _ds.getPeriodicVectorZ();
-	    shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+	    shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::translate(displacement);
 	    _primitiveIndices.drawInstancedElements(getElementType(), _N);
 	  }
     shader.detach();
@@ -659,7 +659,7 @@ namespace coil {
 	maxs[i] += maxmovement;
       }
 
-    return magnet::math::Vector(maxs[0], maxs[1], maxs[2]);
+    return magnet::math::Vector{maxs[0], maxs[1], maxs[2]};
   }
 
   magnet::math::Vector 
@@ -680,6 +680,6 @@ namespace coil {
 	mins[i] -= maxmovement;
       }
 
-    return magnet::math::Vector(mins[0], mins[1], mins[2]);
+    return magnet::math::Vector{mins[0], mins[1], mins[2]};
   }
 }

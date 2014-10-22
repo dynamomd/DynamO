@@ -118,10 +118,10 @@ namespace dynamo {
       {
 	if (textoutput)
 	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the cylindrical wall."
-	       << "\nWall Position = " << Vector(vPosition / Sim->units.unitLength()).toString()
+	       << "\nWall Position = " << (vPosition / Sim->units.unitLength()).toString()
 	       << "\nWall Axis = " << vAxis.toString() << ", d = " << diam / Sim->units.unitLength()
-	       << "\nParticle Position = " << Vector(part.getPosition() / Sim->units.unitLength()).toString()
-	       << "\nSeparation Vector = " << Vector(pos / Sim->units.unitLength()).toString()
+	       << "\nParticle Position = " << (part.getPosition() / Sim->units.unitLength()).toString()
+	       << "\nSeparation Vector = " << (pos / Sim->units.unitLength()).toString()
 	       << "\nSeparation Distance = " << pos.nrm() / Sim->units.unitLength()
 	       << std::endl;
 	return true;
@@ -144,7 +144,7 @@ namespace dynamo {
 	const double radius = 2 * _cyl_radius / Sim->units.unitLength();
 	for (size_t i(0); i < verts.size() / 3; ++i)
 	  {
-	    Vector result = q * Vector(radius * verts[3*i+0], radius * verts[3*i+1], axis_length * verts[3*i+2]) + vPosition / Sim->units.unitLength();
+	    Vector result = q * Vector{radius * verts[3*i+0], radius * verts[3*i+1], axis_length * verts[3*i+2]} + vPosition / Sim->units.unitLength();
 	    verts[3*i+0] = result[0];
 	    verts[3*i+1] = result[1];
 	    verts[3*i+2] = result[2];

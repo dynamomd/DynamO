@@ -108,7 +108,7 @@ namespace dynamo {
 
   Vector
   BCLeesEdwards::getStreamVelocity(const Particle& part) const
-  { return Vector(part.getPosition()[1] * _shearRate, 0, 0); }
+  { return Vector{part.getPosition()[1] * _shearRate, 0, 0}; }
 
   Vector
   BCLeesEdwards::getPeculiarVelocity(const Particle& part) const

@@ -86,7 +86,7 @@ namespace dynamo {
     for (const shared_ptr<Topology>& topo : Sim->topology)
       for (const shared_ptr<IDRange>& range : topo->getMolecules())
       {
-	Vector  molCOM(0,0,0);
+	Vector  molCOM({0,0,0});
 	double molMass(0);
 
 	for (const size_t& ID : *range)
@@ -100,7 +100,7 @@ namespace dynamo {
 
 	for (size_t step(1); step < length; ++step)
 	  {
-	    Vector  molCOM2(0,0,0);
+	    Vector  molCOM2({0,0,0});
 	  
 	    for (const size_t& ID : *range)
 	      molCOM2 += posHistory[ID][step] 

@@ -41,16 +41,10 @@ namespace coil {
 	  size_t v1(_elements[3 * triangle + 0]),
 	    v2(_elements[3 * triangle + 1]),
 	    v3(_elements[3 * triangle + 2]);
-	
-	  Vector V1(_vertices[3 * v1 + 0],
-		    _vertices[3 * v1 + 1],
-		    _vertices[3 * v1 + 2]),
-	    V2(_vertices[3 * v2 + 0],
-	       _vertices[3 * v2 + 1],
-	       _vertices[3 * v2 + 2]),
-	    V3(_vertices[3 * v3 + 0],
-	       _vertices[3 * v3 + 1],
-	       _vertices[3 * v3 + 2]);
+	  
+	  Vector V1{_vertices[3 * v1 + 0], _vertices[3 * v1 + 1], _vertices[3 * v1 + 2]},
+	    V2{_vertices[3 * v2 + 0], _vertices[3 * v2 + 1], _vertices[3 * v2 + 2]},
+	      V3{_vertices[3 * v3 + 0], _vertices[3 * v3 + 1], _vertices[3 * v3 + 2]};
 
 	  Vector norm = (V2-V1)^(V3-V2);
 	

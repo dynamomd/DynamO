@@ -40,16 +40,16 @@ void init(dynamo::Simulation& Sim, const double density)
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
-  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUSC(std::array<long, 3>{{128, 128, 1}}, dynamo::Vector(1,1,1), new dynamo::UParticle()));
+  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUSC(std::array<long, 3>{{128, 128, 1}}, dynamo::Vector{1,1,1}, new dynamo::UParticle()));
   packptr->initialise();
-  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector(0,0,0)));
+  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector{0,0,0}));
   
   //As we're in 2D we need to take the square root
   double particleDiam = std::sqrt(density / latticeSites.size());
   Sim.units.setUnitLength(particleDiam);
   Sim.units.setUnitTime(particleDiam); 
 
-  Sim.primaryCellSize = dynamo::Vector(1, 1, 4 * particleDiam);
+  Sim.primaryCellSize = dynamo::Vector{1, 1, 4 * particleDiam};
   
   typedef std::pair<double,double> Step;
   std::vector<Step> steps;

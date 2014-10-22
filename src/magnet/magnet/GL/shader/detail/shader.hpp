@@ -122,23 +122,27 @@ namespace magnet {
 	  inline void operator=(const std::array<GLint, 4>& val)
 	  { if (test_assign(val)) uniform(4, 1,&(val[0])); }
 
-	  inline void operator=(const GLMatrix& val)
+	  inline void operator=(const GLMatrix& M)
 	  { 
-	    if (test_assign(val)) 
+	    if (test_assign(M)) 
 	      { 
+		std::array<GLfloat, 16> val;
+		for (size_t i(0); i < 4; ++i)
+		  for (size_t j(0); j < 4; ++j)
+		    val[i + 4 * j] = M(i,j);
 		glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); 
 		GL::detail::errorCheck(); 
 	      }
 	  }
 	
-	  inline void operator=(const math::Matrix& mat)
+	  inline void operator=(const math::Matrix& M)
 	  { 
-	    std::array<GLfloat, 9> val;
-	    for (size_t i(0); i < 3 * 3; ++i)
-	      val[i] = mat(i);
-	  
-	    if (test_assign(mat))
+	    if (test_assign(M))
 	      { 
+		std::array<GLfloat, 9> val;
+		for (size_t i(0); i < 3; ++i)
+		  for (size_t j(0); j < 3; ++j)
+		    val[i + 3 * j] = M(i,j);
 		glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); 
 		GL::detail::errorCheck(); 
 	      }
@@ -426,7 +430,6 @@ namespace magnet {
 			<< " not found in this shader, returning dummy uniform\n";
 #endif	      
 	    _uniformCache[uniformName].setHandle(uniformHandle);
-
 	    return _uniformCache[uniformName];
 	  }
 

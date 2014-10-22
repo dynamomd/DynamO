@@ -40,7 +40,7 @@ namespace dynamo {
     virtual std::vector<Vector  > placeObjects(const Vector & centre)
     {
       //Must be placed at zero for the mirroring to work correctly
-      std::vector<Vector  > retval(uc->placeObjects(Vector (0,0,0)));
+      std::vector<Vector  > retval(uc->placeObjects(Vector{0,0,0}));
 
       //Avoid dividing by zero, then distribute the images according to the fraction
       if (!(count1+count2) || (static_cast<double>(count1) / static_cast<double>(count1+count2) > fraction))

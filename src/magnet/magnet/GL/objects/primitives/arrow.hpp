@@ -100,7 +100,7 @@ namespace magnet {
 		GLfloat x = std::sin(angle);
 		GLfloat y = std::cos(angle);
 
-		math::Vector zaxis(0,0,1), radialaxis(x,y,0), edge(x,y,-1);
+		math::Vector zaxis{0,0,1}, radialaxis{x,y,0}, edge{x,y,-1};
 
 		edge /= edge.nrm();
 

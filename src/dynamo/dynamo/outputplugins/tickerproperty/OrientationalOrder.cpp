@@ -29,7 +29,7 @@
 namespace dynamo {
   OPOrientationalOrder::OPOrientationalOrder(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"OrientationalOrder"), 
-    _axis(1,0,0),
+    _axis({1,0,0}),
     _rg(1)
   {
     operator<<(XML);

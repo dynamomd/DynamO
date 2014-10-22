@@ -35,7 +35,7 @@ namespace dynamo {
   
     virtual std::vector<Vector> placeObjects(const Vector & centre)
     {
-      Vector tmp(0,0,0);
+      Vector tmp{0,0,0};
 
       std::vector<Vector> retval;
 

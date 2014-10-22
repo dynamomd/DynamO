@@ -48,13 +48,13 @@ void init(dynamo::Simulation& Sim)
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
-  Sim.primaryCellSize = dynamo::Vector(50, 50, 50);
+  Sim.primaryCellSize = dynamo::Vector{50, 50, 50};
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareBond(&Sim, bondinner, bondouter / bondinner, elasticity, new dynamo::IDPairRangeChains(0, N - 1, N), "Bonds")));
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareWell(&Sim, diameter, lambda, welldepth, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));
 
   for (size_t i = 0; i < N; ++i)
-    Sim.particles.push_back(dynamo::Particle(dynamo::Vector(0 + (bondinner + 0.95 * (bondouter - bondinner)) * i, 0, 0), getRandVelVec() * Sim.units.unitVelocity(), Sim.particles.size()));
+    Sim.particles.push_back(dynamo::Particle(dynamo::Vector{0 + (bondinner + 0.95 * (bondouter - bondinner)) * i, 0, 0}, getRandVelVec() * Sim.units.unitVelocity(), Sim.particles.size()));
 
   Sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&Sim, 0.001 / Sim.N(), kT, "Thermostat")));
 

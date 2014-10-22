@@ -15,7 +15,7 @@ std::uniform_real_distribution<double> dist01(0, 1);
 using namespace magnet::math;
 
 Vector random_vec() {
-  return Vector(normal_dist(RNG), normal_dist(RNG), normal_dist(RNG));
+  return Vector{normal_dist(RNG), normal_dist(RNG), normal_dist(RNG)};
 }
 
 Vector random_unit_vec() {

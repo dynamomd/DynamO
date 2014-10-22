@@ -47,7 +47,7 @@ void main()
   };
 
   public:
-    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions(1,1,1) {}
+    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions({1,1,1}) {}
   
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();

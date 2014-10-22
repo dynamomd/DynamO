@@ -63,7 +63,7 @@ namespace dynamo {
     {
       //Center the list of positions
       
-      Vector center(0,0,0);
+      Vector center{0,0,0};
       for (const Vector& vec : _list)
 	center += vec;
       

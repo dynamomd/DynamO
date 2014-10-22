@@ -43,10 +43,10 @@ void init(dynamo::Simulation& Sim, double density = 0.5)
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
-  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{7,7,7}}, dynamo::Vector(1,1,1), new dynamo::UParticle()));
+  std::unique_ptr<dynamo::UCell> packptr(new dynamo::CUFCC(std::array<long, 3>{{7,7,7}}, dynamo::Vector{1,1,1}, new dynamo::UParticle()));
   packptr->initialise();
-  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector(0,0,0)));
-  Sim.primaryCellSize = dynamo::Vector(1,1,1);
+  std::vector<dynamo::Vector> latticeSites(packptr->placeObjects(dynamo::Vector{0,0,0}));
+  Sim.primaryCellSize = dynamo::Vector{1,1,1};
 
   double simVol = 1.0;
   for (size_t iDim = 0; iDim < NDIM; ++iDim)

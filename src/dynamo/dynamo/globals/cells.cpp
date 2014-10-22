@@ -34,7 +34,7 @@
 namespace dynamo {
   GCells::GCells(dynamo::Simulation* nSim, const std::string& name):
     GNeighbourList(nSim, "CellNeighbourList"),
-    _cellDimension(1,1,1),
+    _cellDimension({1,1,1}),
     _inConfig(true),
     _oversizeCells(1.0),
     overlink(1)
@@ -45,7 +45,7 @@ namespace dynamo {
 
   GCells::GCells(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
     GNeighbourList(ptrSim, "CellNeighbourList"),
-    _cellDimension(1,1,1),
+    _cellDimension({1,1,1}),
     _inConfig(true),
     _oversizeCells(1.0),
     overlink(1)

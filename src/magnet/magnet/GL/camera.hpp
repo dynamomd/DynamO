@@ -77,18 +77,18 @@ namespace magnet {
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline Camera(size_t height = 600, 
 		    size_t width = 800,
-		    math::Vector position = math::Vector(0,0,5), 
-		    math::Vector lookAtPoint = math::Vector(0,0,0),
+		    math::Vector position = math::Vector{0,0,5}, 
+		    math::Vector lookAtPoint = math::Vector{0,0,0},
 		    GLfloat zNearDist = 8.0f, 
 		    GLfloat zFarDist = 10000.0f,
-		    math::Vector up = math::Vector(0,1,0),
+		    math::Vector up = math::Vector{0,1,0},
 		    GLfloat simLength = 3.0f,
-		    math::Vector eye_location = math::Vector(0, 0, 70)):
+		    math::Vector eye_location = math::Vector{0, 0, 70}):
 	_height(height),
 	_width(width),
 	_up(up.normal()),
-	_nearPlanePosition(0,0,0),
-	_rotatePoint(0,0,0),
+	_nearPlanePosition({0,0,0}),
+	_rotatePoint({0,0,0}),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_rotation(math::Quaternion::identity()),
@@ -128,14 +128,14 @@ namespace magnet {
 
 	//We now need to find the rotation into this target
 	//set. Starting with rotating the at vector into position.
-	_rotation = math::Quaternion::fromToVector(at,math::Vector(0,0,-1));
+	_rotation = math::Quaternion::fromToVector(at,math::Vector{0,0,-1});
 
 	//Figure out where the right vector now is, then rotate that
 	//into the correct position. This will not incorrectly "roll"
 	//the view as it is guaranteed that right is perpendicular to
 	//at, so up will be used as the rotation axis and will not
 	//move.
-	_rotation = math::Quaternion::fromToVector(right,_rotation * math::Vector(1,0,0)) * _rotation;
+	_rotation = math::Quaternion::fromToVector(right,_rotation * math::Vector{1,0,0}) * _rotation;
 	_rotation = _rotation.inverse();
 
 	//Finally, readjust the head position
@@ -144,7 +144,7 @@ namespace magnet {
 
       /*! \brief Get the rotation part of the getViewMatrix().
        */
-      inline GLMatrix getViewRotationMatrix() const { return _rotation.toMatrix(); }
+      inline GLMatrix getViewRotationMatrix() const { return promoteToGLMatrix(_rotation.toMatrix()); }
 
       inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
 
@@ -156,7 +156,7 @@ namespace magnet {
 	math::Vector cameraLocation = (getInvViewRotationMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
 	
 	//Setup the view matrix
-	return static_cast<GLMatrix>(_rotation.toMatrix()) * GLMatrix::translate(-cameraLocation);
+	return promoteToGLMatrix(_rotation.toMatrix()) * translate(-cameraLocation);
       }
 
       /*! \brief Generate a matrix that locates objects at the near
@@ -164,7 +164,7 @@ namespace magnet {
           screen). 
       */
       inline GLMatrix getViewPlaneMatrix() const
-      { return getViewMatrix() * GLMatrix::translate(_nearPlanePosition) * getInvViewRotationMatrix(); }
+      { return getViewMatrix() * translate(_nearPlanePosition) * promoteToGLMatrix(getInvViewRotationMatrix()); }
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
@@ -180,8 +180,8 @@ namespace magnet {
 	sideways /= _simLength;
 	upwards /= _simLength;
 
-	math::Vector at = _rotation.inverse() * math::Vector(0,0,-1); at.normalise();
-	math::Vector up = _rotation.inverse() * math::Vector(0,1,0); up.normalise();
+	math::Vector at = _rotation.inverse() * math::Vector{0,0,-1}; at.normalise();
+	math::Vector up = _rotation.inverse() * math::Vector{0,1,0}; up.normalise();
 	math::Vector right = at ^ up; right.normalise();
 
 	switch (_camMode)
@@ -325,13 +325,13 @@ namespace magnet {
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-	return GLMatrix::frustrum((-0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// left
-				  (+0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// right
-				  (-0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// bottom
-				  (+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
-				  _zNearDist / _simLength,//Near distance
-				  _zFarDist / _simLength,//Far distance
-				  zoffset);
+	return frustrum((-0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// left
+			(+0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// right
+			(-0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// bottom
+			(+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
+			_zNearDist / _simLength,//Near distance
+			_zFarDist / _simLength,//Far distance
+			zoffset);
       }
       
       /*! \brief Get the normal matrix.
@@ -342,7 +342,7 @@ namespace magnet {
         rendering.
        */
       inline math::Matrix getNormalMatrix() const 
-      { return Inverse(math::Matrix(getViewMatrix())); }
+      { return inverse(demoteToMatrix(getViewMatrix())); }
 
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const
@@ -379,11 +379,11 @@ namespace magnet {
 
       //! \brief Get the up direction of the camera.
       inline math::Vector getCameraUp() const 
-      { return getInvViewRotationMatrix() * math::Vector(0,1,0); } 
+      { return getInvViewRotationMatrix() * math::Vector{0,1,0}; } 
 
       //! \brief Get the direction the camera is pointing in
       inline math::Vector getCameraDirection() const 
-      { return getInvViewRotationMatrix() * math::Vector(0,0,-1); }
+      { return getInvViewRotationMatrix() * math::Vector{0,0,-1}; }
 
       //! \brief Get the height of the screen, in pixels.
       inline const size_t& getHeight() const { return _height; }
@@ -409,9 +409,9 @@ namespace magnet {
 	\return An array containing the x and y pixel locations,
 	followed by the depth and w value.
        */
-      std::array<GLfloat, 4> project(math::Vector invec) const
+      magnet::math::NVector<GLfloat, 4> project(math::Vector invec) const
       {
-	std::array<GLfloat, 4> vec = {{GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f}};
+	magnet::math::NVector<GLfloat, 4> vec = {GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f};
 	vec = getProjectionMatrix() * (getViewMatrix() * vec);
 	
 	for (size_t i(0); i < 3; ++i) vec[i] /= std::abs(vec[3]);
@@ -427,19 +427,18 @@ namespace magnet {
       math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
       {
 	//We need to calculate the ray from the camera
-	std::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
-				     1.0f - (2.0f * windowy) / getHeight(),
-				     depth, 1.0f}};
+	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
+					       1.0f - (2.0f * windowy) / getHeight(),
+					       depth, 1.0f};
 	//Unproject from NDC to camera coords
-	std::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
+	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
 	
 	//Perform the w divide
 	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
 	
 	//Unproject from camera to object space
-	std::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
-	
-	return magnet::math::Vector(w[0], w[1], w[2]);
+	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
+	return magnet::math::Vector{w[0], w[1], w[2]};
       }
 
       /*! \brief Used to convert mouse positions (including depth
@@ -448,11 +447,11 @@ namespace magnet {
       math::Vector unprojectToDirection(int windowx, int windowy) const
       {
 	//We need to calculate the ray from the camera
-	std::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
+	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
 				     1.0f - (2.0f * windowy) / getHeight(),
-				     0.0f, 1.0f}};
+				     0.0f, 1.0f};
 	//Unproject from NDC to camera coords
-	std::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
+	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
 	
 	//Perform the w divide
 	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
@@ -462,9 +461,9 @@ namespace magnet {
 	v[3] = 0;
 
 	//Unproject from camera to object space
-	std::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
+	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
 	
-	math::Vector vec(w[0], w[1], w[2]);
+	math::Vector vec{w[0], w[1], w[2]};
 	vec /= vec.nrm();
 	return vec;
       }
@@ -479,7 +478,7 @@ namespace magnet {
 	  the camera. It will look like the system is rotating but the
 	  camera is remaining fixed. The axis must be 
        */
-      void setUp(math::Vector newup, math::Vector axis = math::Vector(0,0,0))
+      void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0})
       {
 	newup.normalise();
 	if (axis.nrm2() != 0)

@@ -86,7 +86,7 @@ namespace dynamo {
     for (const shared_ptr<Topology>& topo : Sim->topology)
       for (const shared_ptr<IDRange>& range : topo->getMolecules())
 	{
-	  Vector COMvelocity(0,0,0);
+	  Vector COMvelocity({0,0,0});
 	  double molMass(0);
 	  
 	  for (const size_t& ID : *range)
@@ -100,7 +100,7 @@ namespace dynamo {
 	  
 	  for (size_t step(0); step < length; ++step)
 	    {
-	      Vector COMvelocity2(0,0,0);
+	      Vector COMvelocity2({0,0,0});
 	      
 	      for (const size_t& ID : *range)
 		COMvelocity2 += velHistory[ID][step] * Sim->species[Sim->particles[ID]]->getMass(ID);
