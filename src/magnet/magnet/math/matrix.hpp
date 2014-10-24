@@ -84,20 +84,6 @@ namespace magnet {
 	return true;
       }
 
-      inline NVector<T,N> row(size_t j){
-	NVector<T,N> retval;
-	for (size_t i(0); i < N; ++i)
-	  retval = operator()(j,i);
-	return retval;
-      }
-
-      inline NVector<T,N> column(size_t j){
-	NVector<T,N> retval;
-	for (size_t i(0); i < N; ++i)
-	  retval = operator()(i,j);
-	return retval;
-      }
-
       NMatrix<T,N>& operator*=(const T d) {
 	for (size_t i(0); i < N * N; ++i)
 	  Base::operator[](i) *= d;
