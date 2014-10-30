@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     SystHalt(dynamo::Simulation*, double, std::string);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

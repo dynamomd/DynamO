@@ -28,7 +28,7 @@ namespace dynamo {
 
     SysDSMCSpheres(dynamo::Simulation*, double, double, double, double, std::string, IDRange*, IDRange*);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

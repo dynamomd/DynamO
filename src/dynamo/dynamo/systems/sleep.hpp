@@ -31,7 +31,7 @@ namespace dynamo {
 
     SSleep(dynamo::Simulation*, std::string, IDRange*, double);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

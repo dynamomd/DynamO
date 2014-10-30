@@ -40,31 +40,14 @@ namespace dynamo {
     type = UMBRELLA;
   }
 
-  void 
+  NEventData
   SysUmbrella::runEvent()
   {
-    Event event = getEvent();
-  
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found";
-#endif
-  
-    Sim->systemTime += event._dt;
-  
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-
     ++Sim->eventCount;
-
     for (const size_t& id : *range1)
       Sim->dynamics->updateParticle(Sim->particles[id]);
-  
     for (const size_t& id : *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
-
     _histogram[_stepID] += Sim->systemTime - _lastSystemTime;
     _lastSystemTime = Sim->systemTime;
 
@@ -80,15 +63,7 @@ namespace dynamo {
     NEventData SDat(Sim->dynamics->multibdyWellEvent(*range1, *range2, 0.0, _potential->getEnergyChange(new_step_ID, _stepID) * _energyScale, etype));
 
     if (etype != BOUNCE) _stepID = new_step_ID;
-
-    Sim->_sigParticleUpdate(SDat);
-  
-    //Only 1ParticleEvents occur
-    for (const ParticleEventData& PDat : SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
-  
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, SDat); 
+    return SDat;
   }
 
   void

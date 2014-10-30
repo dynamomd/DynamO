@@ -39,35 +39,18 @@ namespace dynamo {
 	 << nPeriod / Sim->units.unitTime() << std::endl;
   }
 
-  void
+  NEventData
   SysTicker::runEvent()
   {
-    Event event = getEvent();
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found";
-#endif
-
-    Sim->systemTime += event._dt;
-
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-  
-    dt += period;
-  
+    dt += period;  
     //This is done here as most ticker properties require it
     Sim->dynamics->updateAllParticles();
-
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       {
 	shared_ptr<OPTicker> ptr = std::dynamic_pointer_cast<OPTicker>(Ptr);
 	if (ptr) ptr->ticker();
       }
-
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, NEventData());
+    return NEventData();
   }
 
   void 

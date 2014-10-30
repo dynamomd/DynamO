@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     SVisualizer(dynamo::Simulation*, std::string, double);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

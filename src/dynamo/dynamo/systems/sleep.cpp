@@ -215,27 +215,10 @@ namespace dynamo {
       }
   }
 
-  void 
+  NEventData
   SSleep::runEvent()
   {
-    Event event = getEvent();
-    dt = HUGE_VAL;
-    
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found " << event;
-#endif
-  
-    Sim->systemTime += event._dt;
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-
-    //++Sim->eventCount;
-
     NEventData SDat;
-
     typedef std::map<size_t, Vector>::value_type locPair;
     for (const locPair& p : stateChange)
       {
@@ -290,11 +273,6 @@ namespace dynamo {
     //will erroneously schedule itself again
     stateChange.clear(); 
     Sim->_sigParticleUpdate(SDat);
-
-    for (const ParticleEventData& PDat : SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
-    
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, SDat); 
+    return SDat;
   }
 }

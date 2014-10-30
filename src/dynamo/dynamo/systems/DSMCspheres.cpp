@@ -55,74 +55,51 @@ namespace dynamo {
     type = DSMC;
   }
 
-  void 
+  NEventData
   SysDSMCSpheres::runEvent()
   {
-    Event event = getEvent();
-  
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found " << event;
-#endif
-    
-    Sim->systemTime += event._dt;
-    
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
     dt = tstep;
-
     std::normal_distribution<> norm_sampler;
     std::uniform_real_distribution<> uniform_sampler;
     std::uniform_int_distribution<size_t> id1sampler(0, range1->size() - 1);
     std::uniform_int_distribution<size_t> id2sampler(0, range2->size() - 1);
-    
-    //Update all output plugins to the current time, we'll pass them
-    //each collision as though its a separate event (to prevent
-    //accumilating the changes).
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, NEventData());
-    event._dt = 0;
-    
+        
     //Find the likely maximum number of interacting pairs. The
     //addition of the random variable is a neat way to randomly pick
     //an extra pair to, on average, pick the correct number of
     //fractional pairs (thanks Severin!)
     const size_t nmax = static_cast<size_t>(0.5 * maxprob * range1->size() + uniform_sampler(Sim->ranGenerator));
 
+    NEventData retval;
+
     for (size_t n = 0; n < nmax; ++n)
       {
 	Particle& p1(Sim->particles[*(range1->begin() + id1sampler(Sim->ranGenerator))]);
-      
+	
 	size_t p2id = *(range2->begin() + id2sampler(Sim->ranGenerator));
-      
+	
 	//Find another particle which is not p1
 	while (p2id == p1.getID())
 	  p2id = *(range2->begin()+id2sampler(Sim->ranGenerator));
-      
+	
 	Particle& p2(Sim->particles[p2id]);
-      
+	
 	Sim->dynamics->updateParticlePair(p1, p2);
       
 	Vector rij;
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  rij[iDim] = norm_sampler(Sim->ranGenerator);
-      
+	
 	//This is the extra diameter term missing from the "factor" variable
 	rij *= diameter / rij.nrm();
       
 	if (Sim->dynamics->DSMCSpheresTest(p1, p2, maxprob, factor, rij))
 	  {
 	    ++Sim->eventCount;
-	    const PairEventData SDat(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij));
-	    Sim->_sigParticleUpdate(SDat);
-	    Sim->ptrScheduler->fullUpdate(p1, p2);
-	    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-	      Ptr->eventUpdate(event, SDat);
+	    retval.L2partChanges.push_back(PairEventData(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij)));
 	  }
       }
-
+    return retval;
   }
 
   void

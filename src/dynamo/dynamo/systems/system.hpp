@@ -32,13 +32,13 @@ namespace dynamo {
 
     inline void stream(const double& ndt) { dt -= ndt; }
 
-    virtual void runEvent() = 0;
+    virtual NEventData runEvent() = 0;
 
     virtual void initialise(size_t) = 0;
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
 
-    Event getEvent() const { return Event(std::numeric_limits<size_t>::max(), dt, SYSTEM, type, ID); }
+    Event getEvent() const { return Event(ID, dt, SYSTEM, type, ID); }
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   

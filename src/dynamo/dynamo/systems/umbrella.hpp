@@ -28,7 +28,7 @@ namespace dynamo {
   public:
     SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation*);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

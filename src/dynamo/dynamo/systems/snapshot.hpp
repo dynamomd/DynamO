@@ -26,7 +26,7 @@ namespace dynamo {
     SysSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
     SysSnapshot(dynamo::Simulation*, size_t, std::string, std::string, bool);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

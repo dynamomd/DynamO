@@ -65,25 +65,10 @@ namespace dynamo {
 	 << dt / Sim->units.unitTime() << std::endl;
   }
 
-  void
+  NEventData
   SysNBListCompressionFix::runEvent()
   {
-    Event event = getEvent();
-  
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found";
-#endif
-  
-    Sim->systemTime += event._dt;
-  
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-
-    GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->globals[cellID]));
-  
+    GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->globals[cellID]));  
     dout << "Rebuilding the neighbour list named " << nblist.getName()
 	 << "\nNColl = " << Sim->eventCount
 	 << "\nSys t = " << Sim->systemTime / Sim->units.unitTime() << std::endl;
@@ -93,12 +78,7 @@ namespace dynamo {
     dt = (nblist.getMaxSupportedInteractionLength()
 	  / initialSupportedRange - 1.0) / growthRate - Sim->systemTime;
 
-    NEventData SDat;
-
-    Sim->_sigParticleUpdate(SDat);
-    
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, SDat); 
+    return NEventData();
   }
 
   void 

@@ -68,36 +68,16 @@ namespace dynamo {
 	Sim->ptrScheduler->rebuildSystemEvents();
       }
   }
-
-  void
+  
+  NEventData
   SysSnapshot::runEvent()
   {
-    Event event = getEvent();
     if (_eventPeriod) 
-      {
-	event._dt = 0;
-	dt = HUGE_VAL;
-      }
+      dt = HUGE_VAL;
     else
       dt += _period;
 
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found";
-#endif
-    
-    Sim->systemTime += event._dt;
-
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-    
-    //This is done here as most ticker properties require it
     Sim->dynamics->updateAllParticles();
-
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, NEventData());
   
     std::string filename = magnet::string::search_replace("Snapshot."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter));
     filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->simID));
@@ -108,6 +88,7 @@ namespace dynamo {
     filename = magnet::string::search_replace("Snapshot.output."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter++));
     filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->simID));
     Sim->outputData(filename);
+    return NEventData();
   }
 
   void 

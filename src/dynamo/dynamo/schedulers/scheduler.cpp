@@ -227,6 +227,10 @@ namespace dynamo {
       M_throw() << "An event with no source has reached the top of the queue."
 	"\nThe simulation has run out of events! Aborting!";
 
+    //-inf values are special values for instant event.
+    if (next_event._dt == -HUGE_VAL)
+      next_event._dt = 0;
+
     switch (next_event._source)
       {
       case INTERACTION:
@@ -268,7 +272,9 @@ namespace dynamo {
 	    M_throw() << "The next PEL is empty, cannot perform the comparison to see if this event is out of sequence";
 #endif
 	  next_event = sorter->top();
-
+	  if (next_event._dt == -HUGE_VAL)
+	    next_event._dt = 0;
+	  
 	  //Here we see if the next FEL event is earlier than the one
 	  //about to be processed, we also count the amount of
 	  //rejections we perform (its a watchdog), as (in some minor
@@ -378,6 +384,7 @@ namespace dynamo {
 	}
       case SYSTEM:
 	{
+	  sorter->pop();
 	  //System events can use the value -HUGE_VAL to request
 	  //immediate processing, therefore, only NaN and +HUGE_VAL
 	  //values are invalid
@@ -388,9 +395,28 @@ namespace dynamo {
 		      << "\nParticle ID = " << next_event._particle1ID
 		      << "\nSystem (ID=" << next_event._sourceID << ")= " << Sim->systems[next_event._sourceID]->getName()
 	      ;
-	  Sim->systems[next_event._sourceID]->runEvent();
-	  //This saves the system events rebuilding themselves
-	  rebuildSystemEvents();
+	  
+	  Sim->systemTime += next_event._dt;
+	  stream(next_event._dt);
+	  Sim->stream(next_event._dt);
+
+	  const NEventData data = Sim->systems[next_event._sourceID]->runEvent();
+
+	  if (!data.L1partChanges.empty() || !data.L2partChanges.empty()) {
+	    Sim->_sigParticleUpdate(data);
+	    for (const auto& d1 : data.L1partChanges)
+	      this->fullUpdate(Sim->particles[d1.getParticleID()]);
+	    for (const auto& d2 : data.L2partChanges)
+	      this->fullUpdate(Sim->particles[d2.particle1_.getParticleID()], Sim->particles[d2.particle2_.getParticleID()]);
+	    
+	    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
+	      Ptr->eventUpdate(next_event, data);
+	  }
+
+	  const size_t systemParticleID = Sim->N();
+	  Event event = Sim->systems[next_event._sourceID]->getEvent();
+	  event._particle1ID = systemParticleID;
+	  sorter->push(event);
 	  break;
 	}
       default:

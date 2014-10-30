@@ -71,22 +71,11 @@ namespace dynamo {
       }
   }
 
-  void 
+  NEventData
   SysRescale::runEvent()
   {
-    Event event = getEvent();
-
-    Sim->systemTime += event._dt;
-  
-    Sim->ptrScheduler->stream(event._dt);
-  
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-  
     ++Sim->eventCount;
-    
-    double currentkT(Sim->dynamics->getkT()
-		     / Sim->units.unitEnergy());
+    const double currentkT(Sim->dynamics->getkT() / Sim->units.unitEnergy());
 
     dout << "Rescaling kT " << currentkT 
 	 << " To " << _kT / Sim->units.unitEnergy() <<  std::endl;
@@ -103,25 +92,11 @@ namespace dynamo {
     //this is the target velocity), otherwise it will drift with the
     //rescaling process
     Sim->setCOMVelocity();
-
     RealTime += (Sim->systemTime - LastTime) / std::exp(0.5 * scaleFactor);
-    
     LastTime = Sim->systemTime;
-    
     scaleFactor += std::log(currentkT);
-
-    Sim->_sigParticleUpdate(SDat);
-  
-    //Only 1ParticleEvents occur
-    for (const ParticleEventData& PDat : SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
-  
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, SDat); 
-
     dt = _timestep;
-
-    Sim->ptrScheduler->rebuildList();
+    return SDat;
   }
 
   void 

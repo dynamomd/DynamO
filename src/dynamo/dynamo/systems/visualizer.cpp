@@ -54,26 +54,11 @@ namespace dynamo {
     //dynamo classes have not been initialised.
   }
 
-  void
+  NEventData
   SVisualizer::runEvent()
   {
-    Event event = getEvent();
-    //Dont rewind in time, the -HUGE_VAL time is only used to ensure
-    //the event takes place before any event, including negative time events.
-    if (event._dt == -HUGE_VAL)
-      event._dt = 0;
-    
-    //Actually move forward the system time
-    Sim->systemTime += event._dt;
-    Sim->ptrScheduler->stream(event._dt);
-    //dynamics must be updated first
-    Sim->stream(event._dt);
-
     if (_window->dynamoParticleSync())
       Sim->dynamics->updateAllParticles();
-
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, NEventData());
   
     for (shared_ptr<System>& system : Sim->systems)
       {
@@ -91,6 +76,7 @@ namespace dynamo {
     //Now that the update has been performed, set up the next "tick"
     dt = _window->getUpdateInterval() * Sim->units.unitTime();
     _lastUpdate = boost::posix_time::microsec_clock::local_time();
+    return NEventData();
   }
 
   void

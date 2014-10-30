@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     SysNBListCompressionFix(dynamo::Simulation*, double, size_t);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
   

@@ -28,7 +28,7 @@ namespace dynamo {
 
     SysAndersen(dynamo::Simulation*, double, double, std::string);
   
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

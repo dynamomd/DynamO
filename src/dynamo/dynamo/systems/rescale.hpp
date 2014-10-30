@@ -36,7 +36,7 @@ namespace dynamo {
     SysRescale(const magnet::xml::Node& XML, dynamo::Simulation*);
     SysRescale(dynamo::Simulation*, size_t frequency, std::string name, double kT);
 
-    virtual void runEvent();
+    virtual NEventData runEvent();
 
     virtual void initialise(size_t);
 

@@ -49,25 +49,14 @@ namespace dynamo {
     sysName = name;
   }
 
-  void 
+  NEventData
   SysRotateGravity::runEvent()
   {
-    Event event = getEvent();
-    double locdt = dt;
-    Sim->systemTime += locdt;
-    Sim->ptrScheduler->stream(locdt);
-    Sim->stream(locdt);
-    //Does not increment the event counter
-    //++Sim->eventCount;
-
     NEventData SDat;
-
     for (const shared_ptr<Species>& species : Sim->species)
       for (const unsigned long& partID : *species->getRange())
       SDat.L1partChanges.push_back(ParticleEventData(Sim->particles[partID], *species, RECALCULATE));
-
     Sim->dynamics->updateAllParticles();
-    
     
     shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
     if (!dynamics)
@@ -77,14 +66,8 @@ namespace dynamo {
     Vector newg = magnet::math::Quaternion::fromAngleAxis(_angularvel * _timestep, _rotationaxis) *  dynamics->getGravityVector();
     dynamics->setGravityVector(newg.normal() * g);
 
-    for (const ParticleEventData& PDat : SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
-  
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, SDat); 
-
     dt = _timestep;
-    Sim->ptrScheduler->rebuildList();
+    return SDat;
   }
 
   void 

@@ -57,24 +57,11 @@ namespace dynamo {
     type = GAUSSIAN;
   }
 
-  void 
+  NEventData
   SysFrancesco::runEvent()
   {
-    Event event = getEvent();
     ++Sim->eventCount;
     ++eventCount;
-
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found";
-#endif
-    
-    Sim->systemTime += event._dt;
-    
-    Sim->ptrScheduler->stream(event._dt);
-  
-    Sim->stream(event._dt);
-
     dt = getGhostt();
 
     size_t step = std::uniform_int_distribution<size_t>(0, range->size() - 1)(Sim->ranGenerator);
@@ -105,12 +92,8 @@ namespace dynamo {
     std::normal_distribution<> norm_dist;
     double vel = std::abs(norm_dist(Sim->ranGenerator)) * factor;
     part.getVelocity() = avgV * vel;
-    Sim->_sigParticleUpdate(eventdata);
 
-    Sim->ptrScheduler->fullUpdate(part);
-  
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, eventdata);
+    return eventdata;
   }
 
   void 

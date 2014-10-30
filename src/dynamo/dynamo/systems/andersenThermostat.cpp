@@ -64,7 +64,7 @@ namespace dynamo {
     type = GAUSSIAN;
   }
 
-  void 
+  NEventData
   SysAndersen::runEvent()
   {
     ++Sim->eventCount;
@@ -77,34 +77,9 @@ namespace dynamo {
 	eventCount = 0;
       }
 
-    Event event = getEvent();
-  
-#ifdef DYNAMO_DEBUG 
-    if (std::isnan(event._dt))
-      M_throw() << "A NAN system event time has been found " << event;
-#endif
-    
-    Sim->systemTime += event._dt;
-    
-    Sim->ptrScheduler->stream(event._dt);
-  
-    Sim->stream(event._dt);
-
     dt = getGhostt();
-
-    size_t step = std::uniform_int_distribution<size_t>(0, range->size() - 1)(Sim->ranGenerator);
-
-    Particle& part(Sim->particles[*(range->begin()+step)]);
-
-    //Run the collision and catch the data
-    NEventData SDat(Sim->dynamics->randomGaussianEvent(part, sqrtTemp, dimensions));
-  
-    Sim->_sigParticleUpdate(SDat);
-
-    Sim->ptrScheduler->fullUpdate(part);
-  
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(event, SDat);
+    const size_t step = std::uniform_int_distribution<size_t>(0, range->size() - 1)(Sim->ranGenerator);
+    return Sim->dynamics->randomGaussianEvent(Sim->particles[*(range->begin() + step)], sqrtTemp, dimensions);
   }
 
   void 
