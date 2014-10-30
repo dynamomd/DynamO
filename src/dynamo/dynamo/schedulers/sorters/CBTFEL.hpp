@@ -126,7 +126,7 @@ namespace dynamo {
     }
 
     protected:
-    size_t _activeID = std::numeric_limits<size_t>::max();
+    size_t _activeID;
 
     virtual void flushChanges(const size_t ID = std::numeric_limits<size_t>::max()) {
       if ((_activeID != ID) && (_activeID !=std::numeric_limits<size_t>::max()))
