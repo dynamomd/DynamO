@@ -30,9 +30,8 @@ namespace dynamo {
   namespace detail {
     template<class PEL>
     struct BPQEntry : public PEL {
-      int next = -1;
-      int previous = -1;
-      int qIndex = -1;
+      BPQEntry(): next(-1), previous(-1), qIndex(-1) {}
+      size_t next, previous, qIndex;
     };
   }
 
@@ -43,8 +42,8 @@ namespace dynamo {
   private:
     //Bounded priority queue variables and types
 
-    std::vector<int> linearLists;
-    int currentIndex;
+    std::vector<size_t> linearLists;
+    size_t currentIndex;
 
     double scale;
     size_t nlists;
@@ -149,7 +148,7 @@ namespace dynamo {
 
 
     ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
-    inline void insertInEventQ(int p)
+    inline void insertInEventQ(const size_t p)
     {
       //If its already inserted, then delete it first
       if (Base::_Min[p].qIndex != -1)
@@ -162,9 +161,9 @@ namespace dynamo {
 
       const double box = scale * Base::_Min[p].top()._dt;
 
-      int i = (box > std::numeric_limits<int>::max())
+      size_t i = (box > std::numeric_limits<size_t>::max())
 	? (nlists + nlists) //Put this in the overflow list
-	: static_cast<int>(box); //You can use this as usual
+	: static_cast<size_t>(box); //You can use this as usual
     
       //This line makes negative time events possible without a segfault
       i = std::max(i, currentIndex);
@@ -184,7 +183,7 @@ namespace dynamo {
       else
 	{
 	  /* insert in linked list */
-	  int oldFirst = linearLists[i];
+	  size_t oldFirst = linearLists[i];
 	  Base::_Min[p].previous = -1;
 	  Base::_Min[p].next = oldFirst;
 	  linearLists[i]= p;
@@ -195,27 +194,27 @@ namespace dynamo {
 
     inline void processOverflowList()
     {
-      int e = linearLists[nlists];
+      size_t e = linearLists[nlists];
       linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
 
       size_t overflowEvents = 0;
       while(e!=-1)
 	{
 	  ++overflowEvents;
-	  int eNext = Base::_Min[e].next; /* save next */
+	  size_t eNext = Base::_Min[e].next; /* save next */
 	  insertInEventQ(e); /* try add to regular list now */
 	  e = eNext;
 	}
       exceptionCount += overflowEvents;
     }
 
-    inline void deleteFromEventQ(const int& e)
+    inline void deleteFromEventQ(const size_t e)
     {
       if(Base::_Min[e].qIndex == currentIndex)
 	Base::Delete(e); /* delete from pq */
       else if (Base::_Min[e].qIndex != -1) {
 	/* remove from linked list */
-	const int prev = Base::_Min[e].previous,
+	const size_t prev = Base::_Min[e].previous,
 	  next = Base::_Min[e].next;
 	if(prev == -1)
 	  linearLists[Base::_Min[e].qIndex] = Base::_Min[e].next;
@@ -264,7 +263,7 @@ namespace dynamo {
 	    }
 
 	  /* populate pq */
-	  for (int e = linearLists[currentIndex]; e != -1; e = Base::_Min[e].next)
+	  for (size_t e = linearLists[currentIndex]; e != -1; e = Base::_Min[e].next)
 	    Base::Insert(e);
 
 	  linearLists[currentIndex] = -1;

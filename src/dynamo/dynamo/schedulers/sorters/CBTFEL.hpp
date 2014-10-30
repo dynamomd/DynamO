@@ -33,7 +33,7 @@ namespace dynamo {
       clear();
       _streamFreq = _N = N;
       _CBT.resize(2 * N);
-      _Leaf.resize(N + 1, std::numeric_limits<unsigned long>::max());
+      _Leaf.resize(N + 1, std::numeric_limits<size_t>::max());
       _Min.resize(N + 1);
       _eventCount.resize(N, 0);
     }
@@ -132,11 +132,11 @@ namespace dynamo {
       if ((_activeID != ID) && (_activeID !=std::numeric_limits<size_t>::max()))
 	{
 	  if (_Min[_activeID + 1].empty() || (_Min[_activeID + 1].top()._dt == HUGE_VAL)) {
-	    if (_Leaf[_activeID + 1] != std::numeric_limits<unsigned long>::max()) {
+	    if (_Leaf[_activeID + 1] != std::numeric_limits<size_t>::max()) {
 	      Delete(_activeID + 1);
 	    }
 	  } else {
-	    if (_Leaf[_activeID + 1] == std::numeric_limits<unsigned long>::max()) {
+	    if (_Leaf[_activeID + 1] == std::numeric_limits<size_t>::max()) {
 	      Insert(_activeID + 1);
 	    }
 	    else {
@@ -147,23 +147,23 @@ namespace dynamo {
       _activeID = ID;
     }
   
-    std::vector<unsigned long> _CBT;
-    std::vector<unsigned long> _Leaf;
+    std::vector<size_t> _CBT;
+    std::vector<size_t> _Leaf;
     std::vector<PEL> _Min;
-    unsigned long _NP, _N, _streamFreq, _nUpdate;
+    size_t _NP, _N, _streamFreq, _nUpdate;
   
     double _pecTime;
   
     std::vector<size_t> _eventCount;
 
     ///////////////////////////BINARY TREE IMPLEMENTATION
-    inline void UpdateCBT(const unsigned int i)
+    inline void UpdateCBT(const size_t i)
     {
-      unsigned int f = _Leaf[i] / 2;
+      size_t f = _Leaf[i] / 2;
     
       for(; (f > 0) && (_CBT[f] == i); f /= 2) 
 	{
-	  unsigned int l = _CBT[f*2],
+	  size_t l = _CBT[f*2],
 	    r = _CBT[f*2+1];
 	  _CBT[f] = (_Min[r] > _Min[l]) ? l : r;
 	}
@@ -172,7 +172,7 @@ namespace dynamo {
       //the top of the tree
       for( ; f>0; f /= 2) 
 	{
-	  unsigned int w = _CBT[f], /* old winner */
+	  size_t w = _CBT[f], /* old winner */
 	    l = _CBT[f*2],
 	    r = _CBT[f*2+1];
 	
@@ -183,11 +183,11 @@ namespace dynamo {
     }
 
 
-    inline void Insert(const unsigned int& i)
+    inline void Insert(const size_t i)
     {
       if (_NP)
 	{
-	  int j = _CBT[_NP];
+	  size_t j = _CBT[_NP];
 	  _CBT[_NP*2] = j;
 	  _CBT[_NP*2+1] = i;
 	  _Leaf[j] = _NP*2;
@@ -203,11 +203,11 @@ namespace dynamo {
 	}
     }
   
-    inline void Delete(const unsigned int& i)
+    inline void Delete(const size_t i)
     {
       if (_NP < 2) { _CBT[1]=0; _Leaf[0]=1; --_NP; return; }
 
-      int l = _NP * 2 - 1;
+      size_t l = _NP * 2 - 1;
 
       if (_CBT[l-1] == i)
 	{
@@ -215,7 +215,7 @@ namespace dynamo {
 	  _CBT[l/2] = _CBT[l];
 	  UpdateCBT(_CBT[l]);
 	  --_NP;
-	  _Leaf[i] = std::numeric_limits<unsigned long>::max();
+	  _Leaf[i] = std::numeric_limits<size_t>::max();
 	  return;
 	}
 
@@ -231,7 +231,7 @@ namespace dynamo {
 	}
     
       --_NP;
-      _Leaf[i] = std::numeric_limits<unsigned long>::max();
+      _Leaf[i] = std::numeric_limits<size_t>::max();
     }
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
