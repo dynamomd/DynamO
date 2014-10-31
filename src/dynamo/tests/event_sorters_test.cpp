@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Sorters
-#include <boost/test/included/unit_test.hpp>
 #include <dynamo/eventtypes.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <boost/mpl/list.hpp>
 #include <random>
 std::mt19937 RNG;
 
