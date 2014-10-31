@@ -26,11 +26,13 @@
 #include <cmath>
 #include <iostream>
 
+static const size_t NO_LINK = std::numeric_limits<size_t>::max();
+
 namespace dynamo {
   namespace detail {
     template<class PEL>
     struct BPQEntry : public PEL {
-      BPQEntry(): next(-1), previous(-1), qIndex(-1) {}
+      BPQEntry(): next(NO_LINK), previous(NO_LINK), qIndex(NO_LINK) {}
       size_t next, previous, qIndex;
     };
   }
@@ -66,7 +68,7 @@ namespace dynamo {
       //Start with the FEL in CBT mode
       scale=0;
       nlists = 1;
-      linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for marking empty*/ 
+      linearLists.resize(nlists+1, NO_LINK); /*+1 for overflow, NO_LINK for marking empty*/ 
     }
 
     void clear()
@@ -133,13 +135,13 @@ namespace dynamo {
       //Mark all PELs as uninserted
       Base::_NP = 0;
       linearLists.clear();
-      linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for marking empty*/ 
+      linearLists.resize(nlists+1, NO_LINK); /*+1 for overflow, NO_LINK for marking empty*/ 
 
       //Now insert all PELs
       for (unsigned long i = 1; i <= Base::_N; i++) {
-	Base::_Min[i].qIndex = -1;
-	Base::_Min[i].next = -1;
-	Base::_Min[i].previous = -1;
+	Base::_Min[i].qIndex = NO_LINK;
+	Base::_Min[i].next = NO_LINK;
+	Base::_Min[i].previous = NO_LINK;
 	insertInEventQ(i);
       }
 
@@ -151,7 +153,7 @@ namespace dynamo {
     inline void insertInEventQ(const size_t p)
     {
       //If its already inserted, then delete it first
-      if (Base::_Min[p].qIndex != -1)
+      if (Base::_Min[p].qIndex != NO_LINK)
 	deleteFromEventQ(p);
 
       //Check that the Q is not empty or filled with events which will never happen
@@ -184,10 +186,10 @@ namespace dynamo {
 	{
 	  /* insert in linked list */
 	  size_t oldFirst = linearLists[i];
-	  Base::_Min[p].previous = -1;
+	  Base::_Min[p].previous = NO_LINK;
 	  Base::_Min[p].next = oldFirst;
 	  linearLists[i]= p;
-	  if(oldFirst != -1)
+	  if(oldFirst != NO_LINK)
 	    Base::_Min[oldFirst].previous = p;
 	}
     }
@@ -195,10 +197,10 @@ namespace dynamo {
     inline void processOverflowList()
     {
       size_t e = linearLists[nlists];
-      linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
+      linearLists[nlists] = NO_LINK; /* mark empty; we will treat all entries and may re-add some */
 
       size_t overflowEvents = 0;
-      while(e!=-1)
+      while(e!=NO_LINK)
 	{
 	  ++overflowEvents;
 	  size_t eNext = Base::_Min[e].next; /* save next */
@@ -212,20 +214,20 @@ namespace dynamo {
     {
       if(Base::_Min[e].qIndex == currentIndex)
 	Base::Delete(e); /* delete from pq */
-      else if (Base::_Min[e].qIndex != -1) {
+      else if (Base::_Min[e].qIndex != NO_LINK) {
 	/* remove from linked list */
 	const size_t prev = Base::_Min[e].previous,
 	  next = Base::_Min[e].next;
-	if(prev == -1)
+	if(prev == NO_LINK)
 	  linearLists[Base::_Min[e].qIndex] = Base::_Min[e].next;
 	else
 	  Base::_Min[prev].next = next;
 	
-	if(next != -1)
+	if(next != NO_LINK)
 	  Base::_Min[next].previous = prev;
       }
       
-      Base::_Min[e].qIndex = -1;
+      Base::_Min[e].qIndex = NO_LINK;
     }
 
     inline void orderNextEvent()
@@ -254,7 +256,7 @@ namespace dynamo {
 	      Base::_pecTime -= listWidth;
 		
 	      //Check if there are no events to schedule!
-	      if (no_events && (linearLists[nlists] == -1))
+	      if (no_events && (linearLists[nlists] == NO_LINK))
 		return;
 
 	      //Need to process this once per wrap so do it now 
@@ -263,10 +265,9 @@ namespace dynamo {
 	    }
 
 	  /* populate pq */
-	  for (size_t e = linearLists[currentIndex]; e != -1; e = Base::_Min[e].next)
+	  for (size_t e = linearLists[currentIndex]; e != NO_LINK; e = Base::_Min[e].next)
 	    Base::Insert(e);
-
-	  linearLists[currentIndex] = -1;
+	  linearLists[currentIndex] = NO_LINK;
 	}
     }
 
