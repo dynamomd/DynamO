@@ -76,6 +76,10 @@ namespace magnet {
 	  }
 	return sum;
       }
+
+      Real operator()(Real x) const {
+	return eval(x);
+      }
     };
 
     /* For all operations below we do not assume that we have a
@@ -158,8 +162,8 @@ namespace magnet {
       return retval;
     }
 
-    template<size_t N>
-    inline std::ostream& operator<<(std::ostream& os, const Polynomial<N>& poly) {
+    template<class Real, size_t N>
+    inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real>& poly) {
       os << poly[0];
       for (size_t i(1); i <= N; ++i) {
 	if (poly[i] == 0) continue;
@@ -174,6 +178,15 @@ namespace magnet {
 	if (i > 1) os << "^" << i;
       }
       return os;
+    }
+
+    template<class Real, size_t N>
+    inline Polynomial<N-1, Real> derivative(const Polynomial<N, Real>& f) {
+      Polynomial<N-1, Real> retval;
+      for (size_t i(0); i < N; ++i) {
+	retval[i] = f[i+1] * (1.0 / std::tgamma(i+1));
+      }
+      return retval;
     }
   }
 }

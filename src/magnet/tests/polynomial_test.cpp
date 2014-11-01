@@ -19,3 +19,16 @@ BOOST_AUTO_TEST_CASE( poly_multiplication )
   BOOST_CHECK_EQUAL(poly3[1], +2);
   BOOST_CHECK_EQUAL(poly3[2], -2);
 }
+
+BOOST_AUTO_TEST_CASE( poly_derivative )
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+  auto poly2 = 2.0 - x + x * x;
+  auto poly3 = derivative(poly2);
+  
+  BOOST_CHECK_EQUAL(poly3[0], -1);
+  BOOST_CHECK_EQUAL(poly3[1], 1);
+  BOOST_CHECK_EQUAL(poly3(0), -1);
+  BOOST_CHECK_EQUAL(poly3(1), 0);
+}
