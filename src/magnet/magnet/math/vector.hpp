@@ -113,10 +113,10 @@ namespace magnet {
       std::string toString() const
       {
 	std::ostringstream os;
-	os << std::setprecision(std::numeric_limits<double>::digits10 + 2) << "<";
+	os << std::setprecision(std::numeric_limits<double>::digits10 + 2) << "Vector{";
 	for (size_t i(0); i < N-1; ++i)
 	  os << Base::operator[](i) << ",";
-	os << Base::operator[](N-1) << ">";
+	os << Base::operator[](N-1) << "}";
 	return os.str();
       }
     };
@@ -251,6 +251,12 @@ namespace magnet {
       for (size_t i(0); i < N; ++i)
 	retval[i] = std::max(A[i], B[i]);
       return retval;
+    }
+
+    template<class Real, size_t N>
+    inline std::ostream& operator<<(std::ostream& os, const NVector<Real, N>& vec) {
+      os << vec.toString();
+      return os;
     }
 
     typedef NVector<double,3> Vector;

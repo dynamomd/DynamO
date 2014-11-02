@@ -55,7 +55,7 @@ namespace magnet {
 	  Base::operator[](i) = *it;
 
 	for (; i < Order+1; ++i)
-	  Base::operator[](i) = 0.0;
+	  Base::operator[](i) = Real();
       }
 
       template<size_t N, class Real2>

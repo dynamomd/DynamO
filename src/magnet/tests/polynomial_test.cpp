@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Polynomial_test
 #include <boost/test/included/unit_test.hpp>
 #include <magnet/math/polynomial.hpp>
+#include <magnet/math/vector.hpp>
 #include <cmath>
 
 bool err(double val, double expected)
@@ -32,6 +33,16 @@ BOOST_AUTO_TEST_CASE( poly_multiplication )
   BOOST_CHECK_EQUAL(poly3[0], -4);
   BOOST_CHECK_EQUAL(poly3[1], +2);
   BOOST_CHECK_EQUAL(poly3[2], -2);
+}
+
+BOOST_AUTO_TEST_CASE( poly_vector )
+{
+  using namespace magnet::math;
+  Polynomial<1, Vector> x{Vector(), Vector{1,1,1}};
+  Polynomial<0, Vector> C{Vector{1,1,1} * 0.3};
+  auto poly1 = x+C;
+  BOOST_CHECK_EQUAL(poly1[0], (Vector{1,1,1} * 0.3));
+  BOOST_CHECK_EQUAL(poly1[1], (Vector{1,1,1}));
 }
 
 BOOST_AUTO_TEST_CASE( poly_lower_order )
