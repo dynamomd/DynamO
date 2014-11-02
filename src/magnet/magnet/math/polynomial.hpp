@@ -29,12 +29,21 @@ namespace magnet {
     }
 
     template<size_t Order, class Real>
-    class Polynomial : private std::array<Real, Order+1>
+    class Polynomial : public std::array<Real, Order+1>
     {
       typedef std::array<Real, Order+1> Base;
     public:
       using Base::operator[];
       Polynomial() { Base::fill(Real()); };
+
+      Polynomial(const Polynomial<Order+1, Real>& poly) {
+#ifdef MAGNET_DEBUG
+	if (poly[Order] != 0) 
+	  M_throw() << "Trying to reduce the order of a polynomial with non-zero highest order coefficients!";
+#endif
+	std::copy(poly.begin(), poly.end()-1, Base::begin());
+      };
+      
       Polynomial(Real val) { Base::fill(Real()); Base::operator[](0) = val; }
       Polynomial(std::initializer_list<Real> _list) {
 	if (_list.size() > Order+1)
@@ -184,7 +193,7 @@ namespace magnet {
     inline Polynomial<N-1, Real> derivative(const Polynomial<N, Real>& f) {
       Polynomial<N-1, Real> retval;
       for (size_t i(0); i < N; ++i) {
-	retval[i] = f[i+1] * (1.0 / std::tgamma(i+1));
+	retval[i] = f[i+1] * (i+1);
       }
       return retval;
     }
