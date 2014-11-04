@@ -38,11 +38,16 @@ BOOST_AUTO_TEST_CASE( poly_multiplication )
 BOOST_AUTO_TEST_CASE( poly_vector )
 {
   using namespace magnet::math;
-  Polynomial<1, Vector> x{Vector(), Vector{1,1,1}};
-  Polynomial<0, Vector> C{Vector{1,1,1} * 0.3};
+  Polynomial<1, Vector> x{Vector(), Vector{1,2,3}};
+  Polynomial<0, Vector> C{Vector{3,2,1}};
   auto poly1 = x+C;
-  BOOST_CHECK_EQUAL(poly1[0], (Vector{1,1,1} * 0.3));
-  BOOST_CHECK_EQUAL(poly1[1], (Vector{1,1,1}));
+  BOOST_CHECK_EQUAL(poly1[0], (Vector{3,2,1}));
+  BOOST_CHECK_EQUAL(poly1[1], (Vector{1,2,3}));
+  
+  auto poly2 = poly1 * poly1;
+  BOOST_CHECK_EQUAL(poly2[0], 14);
+  BOOST_CHECK_EQUAL(poly2[1], 20);
+  BOOST_CHECK_EQUAL(poly2[2], 14);
 }
 
 BOOST_AUTO_TEST_CASE( poly_lower_order )
