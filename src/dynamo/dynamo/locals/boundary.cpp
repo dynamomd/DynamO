@@ -56,6 +56,10 @@ namespace dynamo {
 
     _origin << XML.getNode("Origin");
     _origin *= Sim->units.unitLength();
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    if (_diameter->getMaxValue() == 0)
+      M_throw() << "Cannot have a boundary with a diameter of zero";
+
     _amplitude = Vector();
     _freq = 0;
     _t_shift = 0;
@@ -88,7 +92,9 @@ namespace dynamo {
   LBoundary::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "Boundary"
-	<< magnet::xml::attr("Name") << localName;
+	<< magnet::xml::attr("Name") << localName
+	<< magnet::xml::attr("Diameter") << _diameter->getName()
+      ;
 
     if (_kT > 0)//If the kT is >0 the wall is thermalised
       XML << magnet::xml::attr("kT") << _kT / Sim->units.unitEnergy();
@@ -130,5 +136,29 @@ namespace dynamo {
     //  }
     return false;
   }
+
+#ifdef DYNAMO_visualizer
+  std::pair<std::vector<float>, std::vector<GLuint> > 
+  LBoundary::getTessalatedSurfaces() const {
+    std::vector<float> verts;
+    std::vector<GLuint> elems;
+    return std::make_pair(verts, elems);
+  }
+
+  shared_ptr<coil::RenderObj>
+  LBoundary::getCoilRenderObj() const
+  {
+    if (!_renderObj) {
+      auto triangles = getTessalatedSurfaces();
+      _renderObj.reset(new coil::RTriangleMesh(getName(), triangles.first, triangles.second));
+    }
+
+    return std::static_pointer_cast<coil::RenderObj>(_renderObj);
+  }
+
+  void
+  LBoundary::updateRenderData() const {
+  }
+#endif
 }
 

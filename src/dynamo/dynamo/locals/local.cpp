@@ -20,6 +20,7 @@
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/locals/trianglemesh.hpp>
+#include <dynamo/locals/boundary.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -54,6 +55,8 @@ namespace dynamo {
   {
     if (!XML.getAttribute("Type").getValue().compare("Wall"))
       return shared_ptr<Local>(new LWall(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("Boundary"))
+      return shared_ptr<Local>(new LBoundary(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("RoughWall"))
       return shared_ptr<Local>(new LRoughWall(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("TriangleMesh"))

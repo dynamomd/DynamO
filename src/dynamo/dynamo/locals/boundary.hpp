@@ -18,11 +18,34 @@
 #pragma once
 #include <dynamo/locals/local.hpp>
 #include <dynamo/simulation.hpp>
-#include <memory>
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/TriangleMesh.hpp>
+#endif 
 
 namespace dynamo {
   class LBoundary: public Local
   {
+    typedef enum {
+      PlanarWall,
+      Cylinder
+    } BoundaryObjectType;
+
+    struct BoundaryObject {
+      BoundaryObjectType _type;
+
+      //Relative position of the object
+      Vector _position;
+
+      //Orientation of the object
+      union {
+	Vector _normal;
+	Vector _axis;
+      };
+
+      //Dimensions of the object
+      Vector _dimensions;
+    };
+
   public:
     LBoundary(const magnet::xml::Node&, dynamo::Simulation*);
 
@@ -36,9 +59,21 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& part, bool textoutput = true) const;
 
+#ifdef DYNAMO_visualizer
+    std::pair<std::vector<float>, std::vector<GLuint> > getTessalatedSurfaces() const;
+    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual void updateRenderData() const;
+#endif
+
   protected:
+#ifdef DYNAMO_visualizer
+    mutable shared_ptr<coil::RTriangleMesh> _renderObj;
+#endif
+
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    shared_ptr<Property> _diameter;
+    std::vector<BoundaryObject> _objects;
     Vector  _origin;
     Vector  _amplitude;
     double _freq;
