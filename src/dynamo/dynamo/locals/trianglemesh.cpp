@@ -56,7 +56,7 @@ namespace dynamo {
     return Event(part, tmin.first, LOCAL, WALL, ID, 8 * triangleid + tmin.second);
   }
 
-  void
+  ParticleEventData
   LTriangleMesh::runEvent(Particle& part, const Event& iEvent) const
   { 
     ++Sim->eventCount;
@@ -138,15 +138,7 @@ namespace dynamo {
 	M_throw() << "Unhandled triangle sphere intersection type encountered";
       }
 
-    NEventData EDat(Sim->dynamics->runPlaneEvent(part, normal, _e->getProperty(part), 0.0));
-
-    Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event update the scheduler and plugins
-    Sim->ptrScheduler->fullUpdate(part);
-  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
+    return Sim->dynamics->runPlaneEvent(part, normal, _e->getProperty(part), 0.0);
   }
 
   void 

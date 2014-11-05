@@ -44,26 +44,14 @@ namespace dynamo {
     return Event(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, colldist), LOCAL, WALL, ID);
   }
 
-  void
+  ParticleEventData
   LWall::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
-
-    //Run the collision and catch the data
-
-    NEventData EDat;
     if (_sqrtT > 0)
-      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part));
+      return Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part));
     else
-      EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part), _diameter->getProperty(part));
-
-    Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event update the scheduler and plugins
-    Sim->ptrScheduler->fullUpdate(part);
-  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
+      return Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part), _diameter->getProperty(part));
   }
 
   void 

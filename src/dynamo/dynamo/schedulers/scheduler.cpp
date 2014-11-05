@@ -379,7 +379,11 @@ namespace dynamo {
 	  //dynamics must be updated first
 	  Sim->stream(iEvent._dt);
 	
-	  Sim->locals[localID]->runEvent(part, iEvent);
+	  const ParticleEventData data = Sim->locals[localID]->runEvent(part, iEvent);
+	  Sim->_sigParticleUpdate(data);	  
+	  Sim->ptrScheduler->fullUpdate(part);
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
+	    Ptr->eventUpdate(iEvent, data);
 	  break;
 	}
       case SYSTEM:

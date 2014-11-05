@@ -32,7 +32,7 @@ namespace dynamo {
 
     virtual void initialise(size_t nID);
 
-    virtual void runEvent(Particle&, const Event&) const;
+    virtual ParticleEventData runEvent(Particle&, const Event&) const;
   
     virtual void operator<<(const magnet::xml::Node&);
 

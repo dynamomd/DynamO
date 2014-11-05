@@ -47,21 +47,11 @@ namespace dynamo {
     return Event(part, Sim->dynamics->getCylinderWallCollision(part, vPosition, vAxis, colldist), LOCAL, WALL, ID);
   }
 
-  void
+  ParticleEventData
   LCylinder::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
-
-    //Run the collision and catch the data
-
-    NEventData EDat = Sim->dynamics->runCylinderWallCollision(part, vPosition, vAxis, _e->getProperty(part));
-    Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event update the scheduler and plugins
-    Sim->ptrScheduler->fullUpdate(part);
-  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
+    return Sim->dynamics->runCylinderWallCollision(part, vPosition, vAxis, _e->getProperty(part));
   }
 
   void 

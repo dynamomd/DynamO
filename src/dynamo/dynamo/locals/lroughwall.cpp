@@ -65,21 +65,11 @@ namespace dynamo {
     return Event(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, r), LOCAL, WALL, ID);
   }
 
-  void
+  ParticleEventData
   LRoughWall::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
-
-    //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runRoughWallCollision(part, vNorm, e, et, r));
-
-    Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event update the scheduler and plugins
-    Sim->ptrScheduler->fullUpdate(part);
-  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
+    return Sim->dynamics->runRoughWallCollision(part, vNorm, e, et, r);
   }
 
   void 

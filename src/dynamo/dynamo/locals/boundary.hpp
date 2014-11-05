@@ -17,19 +17,16 @@
 
 #pragma once
 #include <dynamo/locals/local.hpp>
-#include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
-#ifdef DYNAMO_visualizer
-# include <coil/RenderObj/TriangleMesh.hpp>
-#endif 
+#include <memory>
 
 namespace dynamo {
-  class LCylinder: public Local, public CoilRenderObj
+  class LBoundary: public Local
   {
   public:
-    LCylinder(const magnet::xml::Node&, dynamo::Simulation*);
+    LBoundary(const magnet::xml::Node&, dynamo::Simulation*);
 
-    virtual ~LCylinder() {}
+    virtual ~LBoundary() {}
 
     virtual Event getEvent(const Particle&) const;
 
@@ -39,23 +36,13 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& part, bool textoutput = true) const;
 
-#ifdef DYNAMO_visualizer
-    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-    virtual void updateRenderData() const;
-#endif
-
   protected:
-#ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RTriangleMesh> _renderObj;
-#endif
-
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    Vector vAxis;
-    Vector vPosition;
-    shared_ptr<Property> _diameter;
-    shared_ptr<Property> _e;
-    double _cyl_radius;
-    bool render;
+    Vector  _origin;
+    Vector  _amplitude;
+    double _freq;
+    double _t_shift;
+    double _kT;
   };
 }

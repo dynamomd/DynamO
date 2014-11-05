@@ -19,6 +19,7 @@
 
 #include <dynamo/base.hpp>
 #include <dynamo/eventtypes.hpp>
+#include <dynamo/1particleEventData.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <magnet/math/vector.hpp>
 #include <string>
@@ -50,7 +51,7 @@ namespace dynamo {
 
     virtual Event getEvent(const Particle&) const = 0;
 
-    virtual void runEvent(Particle&, const Event&) const = 0;
+    virtual ParticleEventData runEvent(Particle&, const Event&) const = 0;
   
     virtual void initialise(size_t nID)  { ID = nID; }
 

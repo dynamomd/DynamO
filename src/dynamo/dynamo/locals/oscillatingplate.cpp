@@ -71,29 +71,17 @@ namespace dynamo {
 
 
 
-  void
+  ParticleEventData
   LOscillatingPlate::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
   
     //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runOscilatingPlate
-		    (part, rw0, nhat, delta, omega0, sigma, mass, 
-		     e, timeshift, strongPlate));
+    ParticleEventData EDat(Sim->dynamics->runOscilatingPlate(part, rw0, nhat, delta, omega0, sigma, mass, e, timeshift, strongPlate));
 
     lastsystemTime = Sim->systemTime;
     lastID = part.getID();
-
-    Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event update the scheduler and plugins
-    //if (strongPlate) 
-    //  Sim->ptrScheduler->fullUpdate(part);
-    //else
-    Sim->ptrScheduler->rebuildList();
-
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
+    return EDat;
   }
 
   void 

@@ -45,7 +45,7 @@ namespace dynamo {
 
     virtual Event getEvent(const Particle&) const;
 
-    virtual void runEvent(Particle&, const Event&) const;
+    virtual ParticleEventData runEvent(Particle&, const Event&) const;
   
     virtual void operator<<(const magnet::xml::Node&);
 
