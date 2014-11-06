@@ -1,6 +1,16 @@
 ##This is a script file to automate compilation and execution of
 ##DynamO tests. This is used for continuous integration testing.
 
+#Select one of the following Dashboard modes
+#set(CTEST_MODE "Continuous")
+set(CTEST_MODE "Experimental")
+
+if("${CTEST_MODE}" STREQUAL "Continuous")
+  set(BRANCH "master")
+elseif("${CTEST_MODE}" STREQUAL "Experimental")
+  set(BRANCH "experimental")
+endif()
+
 #Please set the following to a description of the test system (i.e. CentOS6.5)
 set(CTEST_SITE "UserSite")
 set(CTEST_BUILD_NAME "linux-gcc-default")
@@ -8,9 +18,8 @@ set(CTEST_BUILD_NAME "linux-gcc-default")
 # Site-specific setup
 ##########################################################################
 
-# Dashboard model (Continuous, Experimental, Nightly)
-set(CTEST_SOURCE_DIRECTORY "/home/mjki2mb2/CTest/dynamo/source")
-set(CTEST_BINARY_DIRECTORY "/home/mjki2mb2/CTest/dynamo/build")
+set(CTEST_SOURCE_DIRECTORY "/home/mjki2mb2/CTest/dynamo/${BRANCH}/source")
+set(CTEST_BINARY_DIRECTORY "/home/mjki2mb2/CTest/dynamo/${BRANCH}/build")
 
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_BUILD_CONFIGURATION "Release")
@@ -26,6 +35,7 @@ find_program(CTEST_GIT_COMMAND NAMES git)
 #find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 #set(CTEST_MEMORYCHECK_SUPPRESSIONS_FILE ${CTEST_SOURCE_DIRECTORY}/tests/valgrind.supp)
 
+
 if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
   set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone https://github.com/toastedcrumpets/DynamO.git ${CTEST_SOURCE_DIRECTORY}")
 endif()
@@ -39,7 +49,7 @@ set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} \"${CTEST_SOURCE_DIRECTO
 
 while (1)
  set(START_TIME ${CTEST_ELAPSED_TIME})
- ctest_start("Continuous")
+ ctest_start(${CTEST_MODE})
  ctest_update(RETURN_VALUE HAD_UPDATES)
  if(${HAD_UPDATES} GREATER 0)
   ctest_submit(PARTS Update Notes)
