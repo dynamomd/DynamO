@@ -224,7 +224,7 @@ namespace dynamo {
       }
     
     if (next_event._type == NONE)
-      M_throw() << "An event with no source has reached the top of the queue."
+      M_throw() << "A type=NONE event with no source has reached the top of the queue."
 	"\nThe simulation has run out of events! Aborting!";
 
     //-inf values are special values for instant event.

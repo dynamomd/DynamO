@@ -37,6 +37,8 @@ namespace dynamo {
   SVisualizer::SVisualizer(dynamo::Simulation* nSim, std::string nName, double tickFreq):
     System(nSim)
   {
+    type = VIRTUAL;
+
     //Convert to output units of time
     tickFreq /= Sim->units.unitTime();
     //Stop zero tick times, replace them with a guess of 0.01
