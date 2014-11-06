@@ -34,10 +34,17 @@ namespace coil {
 
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
+    void updateGLData(const std::vector<GLfloat> vertices, const std::vector<GLuint> elements, const std::vector<GLubyte> colours = std::vector<GLubyte>()) {
+      _context->queueTask(std::bind(&RTriangleMesh::updateGLDataWorker, this, vertices, elements, colours));    
+    }
+
   protected:
+    void updateGLDataWorker(const std::vector<GLfloat> vertices, const std::vector<GLuint> elements, const std::vector<GLubyte> colours = std::vector<GLubyte>());
+
     std::vector<GLfloat> _vertices;
     std::vector<GLuint> _elements;
-    std::vector<GLubyte> _colours;
+    std::vector<GLubyte> _colours;    
+    magnet::GL::Context::ContextPtr _context;
   };
 }
 

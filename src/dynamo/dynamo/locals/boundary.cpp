@@ -158,6 +158,8 @@ namespace dynamo {
 
   void
   LBoundary::updateRenderData() const {
+    //auto triangles = getTessalatedSurfaces();
+    //_renderObj->updateGLData(triangles.first, triangles.second);
   }
 #endif
 }

@@ -23,28 +23,36 @@ namespace coil {
   RTriangleMesh::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RTriangles::init(systemQueue);
+    //_context = magnet::GL::Context::getContext();
+    updateGLDataWorker(_vertices, _elements, _colours);
+    _vertices.clear();
+    _elements.clear();
+    _colours.clear();
+  }
 
+  void 
+  RTriangleMesh::updateGLDataWorker(const std::vector<GLfloat> vertices, const std::vector<GLuint> elements, const std::vector<GLubyte> colours)
+  {
     //Send the data we already have
-    setGLPositions(_vertices);
-    setGLElements(_elements);
-
+    setGLPositions(vertices);
+    setGLElements(elements);
     {//Calculate the normal vectors
-      std::vector<float> VertexNormals(_vertices.size(), 0);
+      std::vector<float> VertexNormals(vertices.size(), 0);
     
       //For every triangle, add the cross product of the two edges. We
       //then renormalize the normal to get a
       //"weighted-by-the-triangle-size" normal.
     
-      for (size_t triangle(0); triangle < _elements.size() / 3; ++triangle)
+      for (size_t triangle(0); triangle < elements.size() / 3; ++triangle)
 	{
 	  //Grab the vertex IDs
-	  size_t v1(_elements[3 * triangle + 0]),
-	    v2(_elements[3 * triangle + 1]),
-	    v3(_elements[3 * triangle + 2]);
+	  size_t v1(elements[3 * triangle + 0]),
+	    v2(elements[3 * triangle + 1]),
+	    v3(elements[3 * triangle + 2]);
 	  
-	  Vector V1{_vertices[3 * v1 + 0], _vertices[3 * v1 + 1], _vertices[3 * v1 + 2]},
-	    V2{_vertices[3 * v2 + 0], _vertices[3 * v2 + 1], _vertices[3 * v2 + 2]},
-	      V3{_vertices[3 * v3 + 0], _vertices[3 * v3 + 1], _vertices[3 * v3 + 2]};
+	  Vector V1{vertices[3 * v1 + 0], vertices[3 * v1 + 1], vertices[3 * v1 + 2]},
+	    V2{vertices[3 * v2 + 0], vertices[3 * v2 + 1], vertices[3 * v2 + 2]},
+	      V3{vertices[3 * v3 + 0], vertices[3 * v3 + 1], vertices[3 * v3 + 2]};
 
 	  Vector norm = (V2-V1)^(V3-V2);
 	
@@ -57,7 +65,7 @@ namespace coil {
 	}
 
       //Now normalize those vertices
-      for (size_t vert(0); vert < _vertices.size() / 3; ++vert)
+      for (size_t vert(0); vert < vertices.size() / 3; ++vert)
 	{
 	  double norm 
 	    = VertexNormals[3 * vert + 0] * VertexNormals[3 * vert + 0]
@@ -82,14 +90,9 @@ namespace coil {
       setGLNormals(VertexNormals);
     }
 
-    if (_colours.empty())
-      setGLColors(std::vector<GLubyte>((_vertices.size() / 3) * 4, 255));
+    if (colours.empty())
+      setGLColors(std::vector<GLubyte>((vertices.size() / 3) * 4, 255));
     else
-      setGLColors(_colours);
-  
-    //Reclaim some memory
-    _vertices.clear();
-    _elements.clear();
-    _colours.clear();
+      setGLColors(colours);
   }
 }
