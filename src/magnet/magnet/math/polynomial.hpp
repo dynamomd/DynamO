@@ -39,7 +39,7 @@ namespace magnet {
 
       Polynomial(const Polynomial<Order+1, Real>& poly) {
 #ifdef MAGNET_DEBUG
-	if (poly[Order] != 0) 
+	if (poly[Order+1] != 0)
 	  M_throw() << "Trying to reduce the order of a polynomial with non-zero highest order coefficients!";
 #endif
 	std::copy(poly.begin(), poly.end()-1, Base::begin());

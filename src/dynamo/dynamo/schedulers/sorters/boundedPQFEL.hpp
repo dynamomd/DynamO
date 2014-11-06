@@ -152,6 +152,11 @@ namespace dynamo {
     ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
     inline void insertInEventQ(const size_t p)
     {
+#ifdef DYNAMO_DEBUG
+      if (p >= Base::_Min.size())
+	M_throw() << "p=" << p << " is out of range of Min (size()=" << Base::_Min.size() << ")";
+#endif
+
       //If its already inserted, then delete it first
       if (Base::_Min[p].qIndex != NO_LINK)
 	deleteFromEventQ(p);
@@ -161,15 +166,16 @@ namespace dynamo {
 	//Don't bother adding it to the queue.
 	return;
 
-      const double box = scale * Base::_Min[p].top()._dt;
-
-      size_t i = (box > std::numeric_limits<size_t>::max())
-	? (nlists + nlists) //Put this in the overflow list
-	: static_cast<size_t>(box); //You can use this as usual
+      const double dt = Base::_Min[p].top()._dt;
+      const double box = scale * dt;
+      size_t i;
+      if ((dt == -HUGE_VAL) || (box < currentIndex))
+        i = currentIndex; //Negative time events are placed in the current tree
+      else if (scale * dt > std::numeric_limits<size_t>::max())
+	i = std::numeric_limits<size_t>::max(); //Put this in the overflow list
+      else
+	i = static_cast<size_t>(box); //You can use this as usual
     
-      //This line makes negative time events possible without a segfault
-      i = std::max(i, currentIndex);
-
       if (i > (nlists-1)) /* account for wrap */
 	{
 	  i -= nlists;
@@ -177,6 +183,11 @@ namespace dynamo {
 	    //Its overflowed!
 	    i=nlists; /* store in overflow list */
 	}
+
+#ifdef DYNAMO_DEBUG
+      if (i >= linearLists.size())
+	M_throw() << "i=" << p << " is out of range of linearLists (size()=" << linearLists.size() << ") box="<<box << " dt=" << Base::_Min[p].top()._dt << " scale="<<scale;
+#endif
 
       Base::_Min[p].qIndex=i;
 

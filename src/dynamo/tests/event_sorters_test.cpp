@@ -92,13 +92,17 @@ typedef boost::mpl::list<
   ,dynamo::BoundedPQFEL<dynamo::MinMaxPEL<30> >
 			 > FEL_types;
 
-#define validateEvents(e1, e2) \
-  BOOST_REQUIRE_CLOSE(e1._dt, e2._dt, 1e-7);\
-  BOOST_REQUIRE_EQUAL(e1._particle1ID, e2._particle1ID);\
-  BOOST_REQUIRE_EQUAL(e1._sourceID, e2._sourceID);\
-  BOOST_REQUIRE_EQUAL(e1._type, e2._type);\
-  BOOST_REQUIRE_EQUAL(e1._additionalData1, e2._additionalData1);\
-  BOOST_REQUIRE_EQUAL(e1._source, e2._source);\
+#define validateEvents(e1, e2)						\
+  if (std::isinf(e1._dt) || std::isinf(e2._dt)) {			\
+    BOOST_REQUIRE_EQUAL(e1._dt, e2._dt);				\
+  } else {								\
+    BOOST_REQUIRE_CLOSE(e1._dt, e2._dt, 1e-7);				\
+  }									\
+  BOOST_REQUIRE_EQUAL(e1._particle1ID, e2._particle1ID);		\
+  BOOST_REQUIRE_EQUAL(e1._sourceID, e2._sourceID);			\
+  BOOST_REQUIRE_EQUAL(e1._type, e2._type);				\
+  BOOST_REQUIRE_EQUAL(e1._additionalData1, e2._additionalData1);	\
+  BOOST_REQUIRE_EQUAL(e1._source, e2._source);				\
   if (e1._source != dynamo::INTERACTION) BOOST_REQUIRE_EQUAL(e1._additionalData2, e2._additionalData2);
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
@@ -123,10 +127,28 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
     reference.push_back(e);
     FEL.push(e);
   }
+
+  //Also test infinite time events
+  {
+    dynamo::Event e = genInteractionEvent(N, 1.0, 1);
+    e._dt = HUGE_VAL;
+    reference.push_back(e);
+    FEL.push(e);
+  }
+
+  {
+    dynamo::Event e = genInteractionEvent(N, 1.0, 1);
+    e._dt = -HUGE_VAL;
+    reference.push_back(e);
+    FEL.push(e);
+  }
+
   while (!reference.empty()) {
-    BOOST_REQUIRE(!FEL.empty());
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
+    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+      break;
+    BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
 
     if (testEvent._type == dynamo::RECALCULATE) {
@@ -157,9 +179,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   for (dynamo::Event& e: reference)
     e._dt *= factor;
   while (!reference.empty()) {
-    BOOST_REQUIRE(!FEL.empty());
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
+    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+      break;
+    BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
 
     if (testEvent._type == dynamo::RECALCULATE) {
@@ -188,9 +212,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   for (dynamo::Event& e: reference)
     e._dt -= factor;
   while (!reference.empty()) {
-    BOOST_REQUIRE(!FEL.empty());
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
+    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+      break;
+    BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
 
     if (testEvent._type == dynamo::RECALCULATE) {
@@ -218,6 +244,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   while (!reference.empty()) {
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
+    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+      break;
+    BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
 
     if (testEvent._type == dynamo::RECALCULATE) {
