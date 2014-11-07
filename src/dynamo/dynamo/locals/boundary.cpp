@@ -48,14 +48,14 @@ namespace dynamo {
 	event = newevent;
       }
     }
-
+    return event;
   }
 
   ParticleEventData
-  LBoundary::runEvent(Particle& part, const Event& iEvent) const
+  LBoundary::runEvent(Particle& part, const Event& event) const
   {
     ++Sim->eventCount;
-    return ParticleEventData(part, *Sim->species[part], NONE);
+    return _objects[event._additionalData2]->runEvent(part, event);
   }
 
   void 
