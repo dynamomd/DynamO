@@ -39,7 +39,16 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    return Event(part, HUGE_VAL, LOCAL, NONE, ID);
+    Event event(part, HUGE_VAL, LOCAL, NONE, ID);
+    for (size_t objid(0); objid < _objects.size(); ++objid) {
+      Event newevent = _objects[objid]->getEvent(part);
+      if (newevent <  event) {
+	newevent._sourceID = ID;
+	newevent._additionalData2 = objid;
+	event = newevent;
+      }
+    }
+
   }
 
   ParticleEventData
@@ -129,21 +138,9 @@ namespace dynamo {
   bool 
   LBoundary::validateState(const Particle& part, bool textoutput) const
   {
-    //Vector pos(part.getPosition() - vPosition);
-    //Sim->BCs->applyBC(pos);
-    //
-    //double diam = 0.5 * _diameter->getProperty(part);
-    //double r = diam - std::abs(pos | vNorm);
-    //
-    //if (r > 0)
-    //  {
-    //	if (textoutput)
-    //	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the wall."
-    //	       << "\nWall Pos = " << Vector(vPosition / Sim->units.unitLength()).toString() 
-    //	       << ", Normal = " << vNorm.toString() << ", d = " << diam / Sim->units.unitLength()
-    //	       << std::endl;
-    //	return true;
-    //  }
+    for (const shared_ptr<boundary::Object>& obj : _objects)
+      if (obj->validateState(part, textoutput))
+	return true;
     return false;
   }
 

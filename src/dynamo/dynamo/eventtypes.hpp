@@ -120,7 +120,7 @@ namespace dynamo {
       size_t _additionalData1;
     };
 
-    union {
+     union {
       size_t _particle2eventcounter;
       size_t _additionalData2;
     };
