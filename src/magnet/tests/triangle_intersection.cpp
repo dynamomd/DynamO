@@ -65,7 +65,8 @@ double ray_prism(const Vector V[3], const Vector& pos,
 //  auto bounds = ray_wall(relPos, vel, N, dist);
 //  tmin = min(bounds.first, tmin);
 //  tmax = max(bounds.second, tmax);
-//  
+//
+  return HUGE_VAL;
 }
 
 
