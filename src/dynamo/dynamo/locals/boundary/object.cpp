@@ -36,11 +36,20 @@ namespace dynamo {
 
     PlanarWall::PlanarWall(const magnet::xml::Node& XML, dynamo::Simulation* Sim):
       Object(Sim, "PlanarWall")
-    {}
+    {
+      if (XML.hasNode("Position"))
+	_position << XML.getNode("Position");
+      _position *= Sim->units.unitLength();
+    }
 
     void
     PlanarWall::outputXML(magnet::xml::XmlStream& XML) const {
       XML << magnet::xml::attr("Type") << "PlanarWall";
+      if (_position.nrm() != 0)
+	XML << magnet::xml::tag("Position")
+	    << _position / Sim->units.unitLength()
+	    << magnet::xml::endtag("Position");
+	;
     }
 
     bool
@@ -49,13 +58,15 @@ namespace dynamo {
     }
     
     Event 
-    PlanarWall::getEvent(const Particle& part) const {
+    PlanarWall::getLinearEvent(const Particle& part, const double diameter, const Vector origin, const Vector velocity) const 
+    {
       return Event();
     }
-    
-    ParticleEventData 
-    PlanarWall::runEvent(Particle& part, const Event& event) const {
-      return ParticleEventData();
+      
+    Vector 
+    PlanarWall::getContactNormal(const Particle&, const Event&) const
+    {
+      return _normal;
     }
   }
 }

@@ -32,9 +32,13 @@ namespace dynamo {
       Object(Simulation* const SD, const std::string aName);
 
       virtual bool validateState(const Particle& part, bool textoutput = true) const = 0;
-      virtual Event getEvent(const Particle&) const = 0;
+      virtual Event getLinearEvent(const Particle& part, const double diameter, const Vector origin, const Vector velocity) const = 0;
+
+      virtual Event getOscillatingEvent(const Particle& part, const double diameter, const Vector origin, const Vector amplitude, const double freq, const double t_shift) const {
+	M_throw() << "Not implemented";
+      }
     
-      virtual ParticleEventData runEvent(Particle&, const Event&) const = 0;
+      virtual Vector getContactNormal(const Particle&, const Event&) const = 0;
   
       virtual void outputXML(magnet::xml::XmlStream&) const = 0;
     
@@ -46,9 +50,16 @@ namespace dynamo {
       PlanarWall(const magnet::xml::Node&, dynamo::Simulation*);
 
       virtual bool validateState(const Particle& part, bool textoutput = true) const;
-      virtual Event getEvent(const Particle&) const;
-      virtual ParticleEventData runEvent(Particle&, const Event&) const;
+
+      virtual Event getLinearEvent(const Particle& part, const double diameter, const Vector origin, const Vector velocity) const;
+      
+      virtual Vector getContactNormal(const Particle&, const Event&) const;
+
       virtual void outputXML(magnet::xml::XmlStream&) const;
+
+    protected:
+      Vector _position;
+      Vector _normal;
     };
   }
 }

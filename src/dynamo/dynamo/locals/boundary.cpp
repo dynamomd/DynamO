@@ -41,7 +41,7 @@ namespace dynamo {
 
     Event event(part, HUGE_VAL, LOCAL, NONE, ID);
     for (size_t objid(0); objid < _objects.size(); ++objid) {
-      Event newevent = _objects[objid]->getEvent(part);
+      Event newevent = _objects[objid]->getLinearEvent(part, _diameter->getProperty(part), _origin, _amplitude);
       if (newevent <  event) {
 	newevent._sourceID = ID;
 	newevent._additionalData2 = objid;
@@ -55,7 +55,8 @@ namespace dynamo {
   LBoundary::runEvent(Particle& part, const Event& event) const
   {
     ++Sim->eventCount;
-    return _objects[event._additionalData2]->runEvent(part, event);
+    const Vector normal = _objects[event._additionalData2]->getContactNormal(part, event);
+    return ParticleEventData();
   }
 
   void 
