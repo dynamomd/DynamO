@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/locals/local.hpp>
-#include <dynamo/simulation.hpp>
+#include <dynamo/locals/boundary/object.hpp>
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/TriangleMesh.hpp>
 #endif 
@@ -25,27 +25,6 @@
 namespace dynamo {
   class LBoundary: public Local
   {
-    typedef enum {
-      PlanarWall,
-      Cylinder
-    } BoundaryObjectType;
-
-    struct BoundaryObject {
-      BoundaryObjectType _type;
-
-      //Relative position of the object
-      Vector _position;
-
-      //Orientation of the object
-      union {
-	Vector _normal;
-	Vector _axis;
-      };
-
-      //Dimensions of the object
-      Vector _dimensions;
-    };
-
   public:
     LBoundary(const magnet::xml::Node&, dynamo::Simulation*);
 
@@ -73,7 +52,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
     shared_ptr<Property> _diameter;
-    std::vector<BoundaryObject> _objects;
+    std::vector<std::shared_ptr<boundary::Object> > _objects;
     Vector  _origin;
     Vector  _amplitude;
     double _freq;

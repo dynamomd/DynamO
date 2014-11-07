@@ -66,7 +66,8 @@ namespace dynamo {
     else if (!XML.getAttribute("Type").getValue().compare("Cylinder"))
       return shared_ptr<Local>(new LCylinder(XML, Sim));
     else 
-      M_throw() << XML.getAttribute("Type").getValue()
-		<< ", Unknown type of Local Interaction encountered";
+      M_throw() << ", Unknown type of Local (" 
+		<< XML.getAttribute("Type").getValue() << ") encountered. "
+		<< XML.getPath();
   }
 }

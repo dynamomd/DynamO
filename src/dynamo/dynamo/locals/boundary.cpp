@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/locals/boundary.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -86,6 +87,9 @@ namespace dynamo {
 
     if (_kT < 0)
       M_throw() << "Temperature is less than zero" << XML.getPath();
+
+    for (magnet::xml::Node node = XML.findNode("Object"); node.valid(); ++node)
+      _objects.push_back(boundary::Object::getClass(node, Sim));
   }
 
   void 
@@ -114,6 +118,12 @@ namespace dynamo {
     XML << magnet::xml::tag("Origin")
 	<< _origin / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
+
+    for (const shared_ptr<boundary::Object>& obj : _objects) {
+      XML << magnet::xml::tag("Object");
+      obj->outputXML(XML);
+      XML << magnet::xml::endtag("Object");
+    }
   }
 
   bool 
