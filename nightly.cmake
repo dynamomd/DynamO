@@ -2,14 +2,12 @@
 ##DynamO tests. This is used for continuous integration testing.
 
 #Select one of the following Dashboard modes
-#set(CTEST_MODE "Continuous")
-set(CTEST_MODE "Experimental")
+set(CTEST_MODE "Continuous")
+#set(CTEST_MODE "Experimental")
 
-if("${CTEST_MODE}" STREQUAL "Continuous")
-  set(BRANCH "master")
-elseif("${CTEST_MODE}" STREQUAL "Experimental")
-  set(BRANCH "experimental")
-endif()
+#Select branch
+#set(BRANCH "master")
+set(BRANCH "experimental")
 
 #Please set the following to a description of the test system (i.e. CentOS6.5)
 set(CTEST_SITE "UserSite")
