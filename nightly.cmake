@@ -37,7 +37,7 @@ find_program(CTEST_GIT_COMMAND NAMES git)
 
 
 if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
-  set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone https://github.com/toastedcrumpets/DynamO.git ${CTEST_SOURCE_DIRECTORY}")
+  set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone -b ${BRANCH} https://github.com/toastedcrumpets/DynamO.git ${CTEST_SOURCE_DIRECTORY}")
 endif()
 
 set(CTEST_UPDATE_COMMAND "${CTEST_GIT_COMMAND}")
