@@ -249,9 +249,9 @@ namespace dynamo {
 		    {
 		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
 		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-		      if (valid_distance_1 && checkTimeDependentCriteria(NH_res_1, CO_res_1, 2))
+		      if (valid_distance_1 && checkTimeDependentCriteria(NH_res_1, CO_res_1, 3))
  			return std::make_tuple(outer_diameter, inner_diameter, _PRIME_HB_strength, NH_res_1, CO_res_1);
-		      if (valid_distance_2 && checkTimeDependentCriteria(NH_res_2, CO_res_2, 2))
+		      if (valid_distance_2 && checkTimeDependentCriteria(NH_res_2, CO_res_2, 3))
  			return std::make_tuple(outer_diameter, inner_diameter, _PRIME_HB_strength, NH_res_2, CO_res_2);
 
  		      return std::make_tuple(outer_diameter, inner_diameter, 0.0, no_HB_res, no_HB_res);
