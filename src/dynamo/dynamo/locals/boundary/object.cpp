@@ -20,26 +20,28 @@
 
 namespace dynamo {
   namespace boundary {
-    Object::Object(Simulation* const SD, const std::string aName):
-      dynamo::SimBase(SD, aName)
+    Object::Object(Simulation* const SD, const std::string aName, const BoundaryOscillationData& data):
+      dynamo::SimBase(SD, aName),
+      _oscillationData(data)
     {}
 
     shared_ptr<Object>
-    Object::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim) {
+    Object::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim, const BoundaryOscillationData& data) {
       if (!XML.getAttribute("Type").getValue().compare("PlanarWall"))
-	return shared_ptr<Object>(new PlanarWall(XML, Sim));
+	return shared_ptr<Object>(new PlanarWall(XML, Sim, data));
       else
 	M_throw() << XML.getAttribute("Type").getValue()
 		  << ", Unknown type of Object encountered" 
 		  << XML.getPath();
     }
 
-    PlanarWall::PlanarWall(const magnet::xml::Node& XML, dynamo::Simulation* Sim):
-      Object(Sim, "PlanarWall")
+    PlanarWall::PlanarWall(const magnet::xml::Node& XML, dynamo::Simulation* Sim, const BoundaryOscillationData& data):
+      Object(Sim, "PlanarWall", data)
     {
       if (XML.hasNode("Position"))
 	_position << XML.getNode("Position");
       _position *= Sim->units.unitLength();
+      _normal << XML.getNode("Normal");      
     }
 
     void
@@ -49,7 +51,10 @@ namespace dynamo {
 	XML << magnet::xml::tag("Position")
 	    << _position / Sim->units.unitLength()
 	    << magnet::xml::endtag("Position");
-	;
+
+      XML << magnet::xml::tag("Normal")
+	  << _normal
+	  << magnet::xml::endtag("Normal");
     }
 
     bool
@@ -58,7 +63,7 @@ namespace dynamo {
     }
     
     Event 
-    PlanarWall::getLinearEvent(const Particle& part, const double diameter, const Vector origin, const Vector velocity) const 
+    PlanarWall::getEvent(const Particle& part, const double diameter) const 
     {
       return Event();
     }
@@ -67,6 +72,13 @@ namespace dynamo {
     PlanarWall::getContactNormal(const Particle&, const Event&) const
     {
       return _normal;
+    }
+
+    std::pair<std::vector<float>, std::vector<GLuint> >
+    PlanarWall::getTessalatedSurfaces() const {
+      const std::vector<float> vertices = {0,0,0,1, 1,0,0,0, 0,1,0,0, -1,0,0,0, 0,-1,0,0};
+      const std::vector<GLuint> indices = {0,1,2, 0,2,3, 0,3,4, 0,4,1};
+      return std::make_pair(vertices, indices);
     }
   }
 }

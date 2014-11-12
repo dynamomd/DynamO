@@ -40,6 +40,8 @@ namespace coil {
 
     virtual void deinit();
 
+    void setComponents(size_t comps) { _triangleComponents = comps; }
+
     virtual void showControls(Gtk::ScrolledWindow* win);
 
     const magnet::GL::Context::ContextPtr& getContext() const { return _posBuff.getContext(); }
@@ -66,6 +68,7 @@ namespace coil {
 
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::RenderVSMShader _renderVSMShader;
+    size_t _triangleComponents;
   };
 }
 

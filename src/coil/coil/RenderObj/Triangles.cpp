@@ -21,7 +21,8 @@
 namespace coil {
   RTriangles::RTriangles(std::string name):
     RenderObj(name),
-    _RenderMode(TRIANGLES)
+    _RenderMode(TRIANGLES),
+    _triangleComponents(3)
   {}
 
   RTriangles::~RTriangles()
@@ -44,7 +45,7 @@ namespace coil {
     magnet::GL::Buffer<GLubyte> _pickingColorBuff;
     if (mode & RenderObj::PICKING)
       {
-	size_t N = (_posBuff.size() / 3);
+	size_t N = (_posBuff.size() / _triangleComponents);
 	std::vector<GLubyte> vertexColors;
 	vertexColors.reserve(N * 4);
 	
@@ -94,8 +95,8 @@ namespace coil {
       throw std::runtime_error("VertexColor.size() == 0!");
 
     if (_posBuff.size())
-      if ((VertexColor.size() / 4) != (_posBuff.size() / 3))
-	throw std::runtime_error("VertexColor.size() / 4 != posBuffSize/3");
+      if ((VertexColor.size() / 4) != (_posBuff.size() / _triangleComponents))
+	throw std::runtime_error("VertexColor.size() / 4 != posBuffSize/ comps");
 
     _colBuff.init(VertexColor, 4, magnet::GL::buffer_usage::STREAM_DRAW);
   }
@@ -106,18 +107,20 @@ namespace coil {
     if (!VertexPos.size())
       throw std::runtime_error("VertexPos.size() == 0!");
   
-    if (VertexPos.size() % 3)
+    if (VertexPos.size() % _triangleComponents)
       throw std::runtime_error("VertexPos.size() is not a multiple of 3!");
 
+    const size_t N = VertexPos.size() / _triangleComponents;
+
     if (_colBuff.size())
-      if ((_colBuff.size()) != (VertexPos.size() / 3))
+      if (_colBuff.size() != N)
 	throw std::runtime_error("VertexPos.size()/3 != colBuffSize/4 ");
   
     if (_normBuff.size())
       if (_normBuff.size() != VertexPos.size())
 	throw std::runtime_error("VertexPos.size() != normBuffSize!");
 
-    _posBuff.init(VertexPos, 3, magnet::GL::buffer_usage::STREAM_DRAW);
+    _posBuff.init(VertexPos, _triangleComponents, magnet::GL::buffer_usage::STREAM_DRAW);
   }
 
   void 
@@ -129,8 +132,9 @@ namespace coil {
     if (VertexNormals.size() % 3)
       throw std::runtime_error("VertexNormals.size() is not a multiple of 3!");
 
+    const size_t posSize = _posBuff.size() / _triangleComponents;
     if (_posBuff.size())
-      if (VertexNormals.size() != _posBuff.size())
+      if (VertexNormals.size() != 3 * posSize)
 	throw std::runtime_error("VertexNormals.size() != posBuffsize!");
 
     _normBuff.init(VertexNormals, 3);

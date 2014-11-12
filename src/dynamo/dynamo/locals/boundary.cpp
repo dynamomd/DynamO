@@ -40,14 +40,17 @@ namespace dynamo {
 #endif
 
     Event event(part, HUGE_VAL, LOCAL, NONE, ID);
+
+    const double d = _diameter->getProperty(part);
     for (size_t objid(0); objid < _objects.size(); ++objid) {
-      Event newevent = _objects[objid]->getLinearEvent(part, _diameter->getProperty(part), _origin, _amplitude);
+      Event newevent = _objects[objid]->getEvent(part, d);
       if (newevent <  event) {
 	newevent._sourceID = ID;
 	newevent._additionalData2 = objid;
 	event = newevent;
       }
     }
+
     return event;
   }
 
@@ -55,7 +58,7 @@ namespace dynamo {
   LBoundary::runEvent(Particle& part, const Event& event) const
   {
     ++Sim->eventCount;
-    const Vector normal = _objects[event._additionalData2]->getContactNormal(part, event);
+    //const Vector normal = _objects[event._additionalData2]->getContactNormal(part, event, _oscillationData);
     return ParticleEventData();
   }
 
@@ -65,26 +68,26 @@ namespace dynamo {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
     localName = XML.getAttribute("Name");
 
-    _origin << XML.getNode("Origin");
-    _origin *= Sim->units.unitLength();
+    _oscillationData._origin << XML.getNode("Origin");
+    _oscillationData._origin *= Sim->units.unitLength();
     _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
     if (_diameter->getMaxValue() == 0)
       M_throw() << "Cannot have a boundary with a diameter of zero";
 
-    _amplitude = Vector();
-    _freq = 0;
-    _t_shift = 0;
+    _oscillationData._amplitude = Vector();
+    _oscillationData._freq = 0;
+    _oscillationData._t_shift = 0;
     
     const size_t data_count = XML.hasNode("Amplitude") + XML.hasAttribute("Frequency") + XML.hasAttribute("Phase");
-    if ((data_count < 3) && (data_count > 0))
+    if ((data_count != 3) && (data_count != 0))
       M_throw() << "For oscillating walls you must have an Amplitude, Frequency, and Phase specified."
 		<< XML.getPath();
 
     if (data_count == 3) {
-      _amplitude << XML.getNode("Amplitude");
-      _amplitude *= Sim->units.unitLength();
-      _freq = XML.getAttribute("Frequency").as<double>() / Sim->units.unitTime();
-      _t_shift = XML.getAttribute("Phase").as<double>() * Sim->units.unitTime();
+      _oscillationData._freq = XML.getAttribute("Frequency").as<double>() / Sim->units.unitTime();
+      _oscillationData._t_shift = XML.getAttribute("Phase").as<double>() * Sim->units.unitTime();
+      _oscillationData._amplitude << XML.getNode("Amplitude");
+      _oscillationData._amplitude *= Sim->units.unitLength();
     }
 
     _kT = 0;
@@ -92,6 +95,7 @@ namespace dynamo {
       if (data_count == 3)
 	M_throw() << "Cannot have both a thermalised wall and a oscillating wall" 
 		  << XML.getPath();
+      
       _kT = XML.getAttribute("kT").as<double>() * Sim->units.unitEnergy();
     }
 
@@ -99,7 +103,10 @@ namespace dynamo {
       M_throw() << "Temperature is less than zero" << XML.getPath();
 
     for (magnet::xml::Node node = XML.findNode("Object"); node.valid(); ++node)
-      _objects.push_back(boundary::Object::getClass(node, Sim));
+      _objects.push_back(boundary::Object::getClass(node, Sim, _oscillationData));
+
+    if (_objects.empty())
+      M_throw() << "Boundary Locals must have at least one Object.\n" << XML.getPath();
   }
 
   void 
@@ -113,20 +120,20 @@ namespace dynamo {
     if (_kT > 0)//If the kT is >0 the wall is thermalised
       XML << magnet::xml::attr("kT") << _kT / Sim->units.unitEnergy();
 
-    if (_freq != 0) //_freq is non-zero if the system is oscillating
-      XML << magnet::xml::attr("Frequency") << _freq * Sim->units.unitTime()
-	  << magnet::xml::attr("Phase") << _t_shift / Sim->units.unitTime();
+    if (_oscillationData._freq != 0) //_freq is non-zero if the system is oscillating
+      XML << magnet::xml::attr("Frequency") << _oscillationData._freq * Sim->units.unitTime()
+	  << magnet::xml::attr("Phase") << _oscillationData._t_shift / Sim->units.unitTime();
     
     XML << range;
     
-    if (_freq != 0)
+    if (_oscillationData._freq != 0)
       XML << magnet::xml::tag("Amplitude")
-	  << _amplitude / Sim->units.unitLength()
+	  << _oscillationData._amplitude / Sim->units.unitLength()
 	  << magnet::xml::endtag("Amplitude")
 	;
 
     XML << magnet::xml::tag("Origin")
-	<< _origin / Sim->units.unitLength()
+	<< _oscillationData._origin / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
 
     for (const shared_ptr<boundary::Object>& obj : _objects) {
@@ -148,9 +155,14 @@ namespace dynamo {
 #ifdef DYNAMO_visualizer
   std::pair<std::vector<float>, std::vector<GLuint> > 
   LBoundary::getTessalatedSurfaces() const {
-    std::vector<float> verts;
-    std::vector<GLuint> elems;
-    return std::make_pair(verts, elems);
+    typedef std::pair<std::vector<float>, std::vector<GLuint> > ReturnType;
+    ReturnType retval;
+    for (const shared_ptr<boundary::Object>& obj : _objects) {
+      ReturnType val = obj->getTessalatedSurfaces();
+      retval.first.insert(retval.first.end(), val.first.begin(), val.first.end());
+      retval.second.insert(retval.second.end(), val.second.begin(), val.second.end());
+    }
+    return retval;
   }
 
   shared_ptr<coil::RenderObj>
@@ -159,6 +171,7 @@ namespace dynamo {
     if (!_renderObj) {
       auto triangles = getTessalatedSurfaces();
       _renderObj.reset(new coil::RTriangleMesh(getName(), triangles.first, triangles.second));
+      _renderObj->setComponents(4);
     }
 
     return std::static_pointer_cast<coil::RenderObj>(_renderObj);
@@ -166,8 +179,9 @@ namespace dynamo {
 
   void
   LBoundary::updateRenderData() const {
-    //auto triangles = getTessalatedSurfaces();
-    //_renderObj->updateGLData(triangles.first, triangles.second);
+    if (_oscillationData._freq == 0) return;
+    const auto triangles = getTessalatedSurfaces();
+    _renderObj->updateGLData(triangles.first, triangles.second);
   }
 #endif
 }

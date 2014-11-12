@@ -36,8 +36,8 @@ namespace coil {
     //Send the data we already have
     setGLPositions(vertices);
     setGLElements(elements);
-    {//Calculate the normal vectors
-      std::vector<float> VertexNormals(vertices.size(), 0);
+    {//Calculate the normal vectors                          
+      std::vector<float> VertexNormals(3 * vertices.size() / _triangleComponents, 0);
     
       //For every triangle, add the cross product of the two edges. We
       //then renormalize the normal to get a
@@ -91,7 +91,7 @@ namespace coil {
     }
 
     if (colours.empty())
-      setGLColors(std::vector<GLubyte>((vertices.size() / 3) * 4, 255));
+      setGLColors(std::vector<GLubyte>((vertices.size() / _triangleComponents) * 4, 255));
     else
       setGLColors(colours);
   }

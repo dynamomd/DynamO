@@ -19,6 +19,9 @@
 #include <dynamo/base.hpp>
 #include <dynamo/1particleEventData.hpp>
 #include <magnet/math/vector.hpp>
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/TriangleMesh.hpp>
+#endif
 
 namespace magnet { namespace xml { class XmlStream; } }
 
@@ -27,35 +30,50 @@ namespace dynamo {
   class Event;
 
   namespace boundary {
+
+    struct BoundaryOscillationData {
+      Vector  _origin;
+      Vector  _amplitude;
+      double _freq;
+      double _t_shift;
+    };
+    
     class Object : public dynamo::SimBase {
     public:
-      Object(Simulation* const SD, const std::string aName);
+      Object(Simulation* const SD, const std::string aName, const BoundaryOscillationData& data);
 
-      virtual bool validateState(const Particle& part, bool textoutput = true) const = 0;
-      virtual Event getLinearEvent(const Particle& part, const double diameter, const Vector origin, const Vector velocity) const = 0;
+      virtual bool validateState(const Particle& part, bool textoutput) const = 0;
 
-      virtual Event getOscillatingEvent(const Particle& part, const double diameter, const Vector origin, const Vector amplitude, const double freq, const double t_shift) const {
-	M_throw() << "Not implemented";
-      }
-    
+      virtual Event getEvent(const Particle& part, const double diameter) const = 0;
+   
       virtual Vector getContactNormal(const Particle&, const Event&) const = 0;
   
       virtual void outputXML(magnet::xml::XmlStream&) const = 0;
     
-      static shared_ptr<Object> getClass(const magnet::xml::Node&, dynamo::Simulation*);
+      static shared_ptr<Object> getClass(const magnet::xml::Node&, dynamo::Simulation*, const BoundaryOscillationData&);
+
+#ifdef DYNAMO_visualizer
+      virtual std::pair<std::vector<float>, std::vector<GLuint> > getTessalatedSurfaces() const = 0;
+#endif
+    protected:
+      const BoundaryOscillationData& _oscillationData;
     };
 
     class PlanarWall : public Object {
     public:
-      PlanarWall(const magnet::xml::Node&, dynamo::Simulation*);
+      PlanarWall(const magnet::xml::Node&, dynamo::Simulation*, const BoundaryOscillationData& data);
 
       virtual bool validateState(const Particle& part, bool textoutput = true) const;
 
-      virtual Event getLinearEvent(const Particle& part, const double diameter, const Vector origin, const Vector velocity) const;
+      virtual Event getEvent(const Particle& part, const double diameter) const;
       
       virtual Vector getContactNormal(const Particle&, const Event&) const;
 
       virtual void outputXML(magnet::xml::XmlStream&) const;
+
+#ifdef DYNAMO_visualizer
+      std::pair<std::vector<float>, std::vector<GLuint> > getTessalatedSurfaces() const;
+#endif
 
     protected:
       Vector _position;

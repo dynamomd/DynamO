@@ -18,12 +18,13 @@
 #pragma once
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/boundary/object.hpp>
+#include <dynamo/coilRenderObj.hpp>
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/TriangleMesh.hpp>
 #endif 
 
 namespace dynamo {
-  class LBoundary: public Local
+  class LBoundary: public Local, public CoilRenderObj
   {
   public:
     LBoundary(const magnet::xml::Node&, dynamo::Simulation*);
@@ -52,11 +53,9 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
     shared_ptr<Property> _diameter;
-    std::vector<std::shared_ptr<boundary::Object> > _objects;
-    Vector  _origin;
-    Vector  _amplitude;
-    double _freq;
-    double _t_shift;
     double _kT;
+    std::vector<std::shared_ptr<boundary::Object> > _objects;
+
+    boundary::BoundaryOscillationData _oscillationData;
   };
 }
