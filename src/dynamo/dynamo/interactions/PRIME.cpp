@@ -370,12 +370,12 @@ namespace dynamo {
 					_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID))))
       return false;
 
-    if ((distance_i != 3) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID)),
-					_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID))))
+    if ((distance_i != 3) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
+					_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID))))
       return false;
 
-    if ((distance_i != 4) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res, TPRIME::MID)),
-					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID))))
+    if ((distance_i != 4) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
+					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID))))
       return false;
     
     return true;
