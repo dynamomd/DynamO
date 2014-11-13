@@ -167,6 +167,9 @@ i_res=-1
 for i_atom, atom in enumerate(expanded_sequence):
 
     if atom == 'NH':
+
+        atom_label = 'N'
+
         i_res+=1
         if sequence[i_res-1] == 'G':
             bond_partner = i_atom - 1
@@ -177,13 +180,19 @@ for i_atom, atom in enumerate(expanded_sequence):
         if i_res == 0:
             bond_partner = i_atom
 
-    elif atom == 'CH' or atom == 'CO':
+    elif atom == 'CH':
         bond_partner = i_atom-1
+        atom_label = 'CA'
+
+    elif atom == 'CO':
+        bond_partner = i_atom-1
+        atom_label = 'C'
 
     else:
         bond_partner = i_atom-2
+        atom_label = atom+'SC'
 
-    psf_atoms_section += "{0: >8d} {1: <4} {2: <4d} {3: <4} {4: <4} {4: <4} {5: >10} {6: >13} {7: >11}\n".format(i_atom+1, str(0), i_res, sequence[i_res], atom, "0.000000", "0.0000", "0")
+    psf_atoms_section += "{0: >8d} {1: <4} {2: <4d} {3: <4} {4: <4} {4: <4} {5: >10} {6: >13} {7: >11}\n".format(i_atom+1, str(0), i_res, sequence[i_res], atom_label, "0.000000", "0.0000", "0")
 
     if bond_partner != i_atom:
         psf_bonds_section += "{0: >8d}{1: >8d}".format(bond_partner+1,i_atom+1)
