@@ -41,7 +41,8 @@ namespace dynamo {
       if (XML.hasNode("Position"))
 	_position << XML.getNode("Position");
       _position *= Sim->units.unitLength();
-      _normal << XML.getNode("Normal");      
+      _normal << XML.getNode("Normal");
+      _normal.normalise();
     }
 
     void
@@ -76,8 +77,124 @@ namespace dynamo {
 
     std::pair<std::vector<float>, std::vector<GLuint> >
     PlanarWall::getTessalatedSurfaces() const {
-      const std::vector<float> vertices = {0,0,0,1, 1,0,0,0, 0,1,0,0, -1,0,0,0, 0,-1,0,0};
-      const std::vector<GLuint> indices = {0,1,2, 0,2,3, 0,3,4, 0,4,1};
+      //Intersect the plane of the surface, with the unit cell box to
+      //generate a polygon.
+
+      //This approach is detailed in "A vertex program for efficient
+      //box-plane intersection" by Christof Rezk Salama and Andreas
+      //Kolb.
+
+      //Generate the vertices of the cube, in a certain ordering.
+
+      // Each vertex can be represented by three bools. Each bool
+      // indicates if the position is at the minimum (false) or the
+      // maximum (true) in that direction. This is assuming an axis aligned cube.
+      std::array<bool, 3> frontvertex = {false, false, false};
+
+      auto vertexPos = [&](const std::array<bool, 3>& vertex){ return magnet::math::elementwiseMultiply(Vector{float(vertex[0]),float(vertex[1]),float(vertex[2])} - Vector{0.5,0.5,0.5}, Sim->primaryCellSize); };
+
+      //We use the max distance to determine the vertex which is the
+      //furthest in front of the plane. We use the min_distance to
+      //check that the cube and plane intersect.
+      double max_distance = -HUGE_VAL;
+      double min_distance = +HUGE_VAL;
+      for (size_t i(0); i < 8; ++i) {
+	std::array<bool, 3> vertex = {bool((i >> 0) & 1), bool((i >> 1) & 1), bool((i >> 2) & 1)};
+	
+	const Vector vertexpos = vertexPos(vertex);
+
+	const double vertexdistance = (vertexpos - _position) * _normal;
+	if (vertexdistance > max_distance) {
+	  max_distance = vertexdistance;
+	  frontvertex = vertex;
+	}
+	min_distance = std::min(vertexdistance, min_distance);
+      }
+      
+      if ((min_distance > 0) || (max_distance < 0))
+	M_throw() << "Cannot correctly render a wall which lies outside of the primary image!";
+
+      //We genertate an ordering of vertices corresponding to the
+      //example in Fig. 3.
+      std::array<std::array<bool, 3>, 8> vertex_bits = {
+	 frontvertex[0],  frontvertex[0],  frontvertex[0],
+	!frontvertex[0],  frontvertex[0],  frontvertex[0],
+	 frontvertex[0], !frontvertex[0],  frontvertex[0],
+	 frontvertex[0],  frontvertex[0], !frontvertex[0],
+	!frontvertex[0],  frontvertex[0], !frontvertex[0],
+	!frontvertex[0], !frontvertex[0],  frontvertex[0],
+	 frontvertex[0], !frontvertex[0], !frontvertex[0],
+	!frontvertex[0], !frontvertex[0], !frontvertex[0]
+      };
+
+      std::array<Vector, 8> vertex_pos;
+      for (size_t i(0); i < 8; ++i)
+	vertex_pos[i] = vertexPos(vertex_bits[i]);
+
+      const double d = _normal * (_position + _oscillationData._origin);
+      
+      auto lambda = [&](const size_t id1, const size_t id2){ return (d - _normal * vertex_pos[id1]) / (_normal * (vertex_pos[id2] - vertex_pos[id1])); };
+							     
+      
+      Vector P0;
+      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{0,1, 1,4, 4,7}) {
+	const double l = lambda(id_pair[0], id_pair[1]);
+	if ((l >=0) && (l <= 1)) {
+	  P0 = (1 - l) * vertex_pos[id_pair[0]] + l * vertex_pos[id_pair[1]];
+	  break;
+	}
+      }
+
+      Vector P2;
+      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{0,2, 2,5, 5,7}) {
+	double l = lambda(id_pair[0], id_pair[1]);
+	if ((l >=0) && (l <= 1)) {
+	  P2 = (1 - l) * vertex_pos[id_pair[0]] + l * vertex_pos[id_pair[1]];
+	  break;
+	}
+      }
+
+      Vector P4;
+      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{0,3, 3,6, 6,7}) {
+	double l = lambda(id_pair[0], id_pair[1]);
+	if ((l >=0) && (l <= 1)) {
+	  P4 = (1 - l) * vertex_pos[id_pair[0]] + l * vertex_pos[id_pair[1]];
+	  break;
+	}
+      }
+      
+      Vector P1 = P0;
+      {
+	const double l = lambda(1,5);
+	if ((l >=0) && (l <= 1)) {
+	  P1 = (1 - l) * vertex_pos[1] + l * vertex_pos[5];
+	}
+      }
+
+      Vector P3 = P2;
+      {
+	const double l = lambda(2,6);
+	if ((l >=0) && (l <= 1)) {
+	  P3 = (1 - l) * vertex_pos[2] + l * vertex_pos[6];
+	}
+      }
+
+      Vector P5 = P4;
+      {
+	const double l = lambda(3,4);
+	if ((l >=0) && (l <= 1)) {
+	  P5 = (1 - l) * vertex_pos[3] + l * vertex_pos[4];
+	}
+      }
+
+      const std::vector<float> vertices = {float(P0[0]), float(P0[1]), float(P0[2]),  
+					   float(P1[0]), float(P1[1]), float(P1[2]),
+					   float(P2[0]), float(P2[1]), float(P2[2]),
+					   float(P3[0]), float(P3[1]), float(P3[2]),
+					   float(P4[0]), float(P4[1]), float(P4[2]),
+					   float(P5[0]), float(P5[1]), float(P5[2])};
+
+      const std::vector<GLuint> indices = {0,1,2, 0,2,3, 0,3,4, 0,4,5};
       return std::make_pair(vertices, indices);
     }
   }

@@ -171,7 +171,6 @@ namespace dynamo {
     if (!_renderObj) {
       auto triangles = getTessalatedSurfaces();
       _renderObj.reset(new coil::RTriangleMesh(getName(), triangles.first, triangles.second));
-      _renderObj->setComponents(4);
     }
 
     return std::static_pointer_cast<coil::RenderObj>(_renderObj);
