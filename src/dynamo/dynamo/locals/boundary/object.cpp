@@ -17,6 +17,7 @@
 #include <dynamo/locals/boundary/object.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
   namespace boundary {
@@ -44,7 +45,7 @@ namespace dynamo {
       _normal << XML.getNode("Normal");
       _normal.normalise();
     }
-
+    
     void
     PlanarWall::outputXML(magnet::xml::XmlStream& XML) const {
       XML << magnet::xml::attr("Type") << "PlanarWall";
@@ -75,6 +76,7 @@ namespace dynamo {
       return _normal;
     }
 
+#ifdef DYNAMO_visualizer
     std::pair<std::vector<float>, std::vector<GLuint> >
     PlanarWall::getTessalatedSurfaces() const {
       //Intersect the plane of the surface, with the unit cell box to
@@ -197,5 +199,6 @@ namespace dynamo {
       const std::vector<GLuint> indices = {0,1,2, 0,2,3, 0,3,4, 0,4,5};
       return std::make_pair(vertices, indices);
     }
+#endif
   }
 }
