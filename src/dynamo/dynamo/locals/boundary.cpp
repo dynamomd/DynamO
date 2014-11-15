@@ -41,9 +41,9 @@ namespace dynamo {
 
     Event event(part, HUGE_VAL, LOCAL, NONE, ID);
 
-    const double d = _diameter->getProperty(part);
+    const double diameter = _diameter->getProperty(part);
     for (size_t objid(0); objid < _objects.size(); ++objid) {
-      Event newevent = _objects[objid]->getEvent(part, d);
+      Event newevent = _objects[objid]->getEvent(part, diameter);
       if (newevent <  event) {
 	newevent._sourceID = ID;
 	newevent._additionalData2 = objid;
@@ -58,8 +58,10 @@ namespace dynamo {
   LBoundary::runEvent(Particle& part, const Event& event) const
   {
     ++Sim->eventCount;
-    //const Vector normal = _objects[event._additionalData2]->getContactNormal(part, event, _oscillationData);
-    return ParticleEventData();
+    const Vector normal = _objects[event._additionalData2]->getContactNormal(part, event);
+    const double e = 1.0;
+    const double diameter = _diameter->getProperty(part);
+    return Sim->dynamics->runPlaneEvent(part, normal, e, diameter);
   }
 
   void 
@@ -155,12 +157,20 @@ namespace dynamo {
 #ifdef DYNAMO_visualizer
   std::pair<std::vector<float>, std::vector<GLuint> > 
   LBoundary::getTessalatedSurfaces() const {
+
     typedef std::pair<std::vector<float>, std::vector<GLuint> > ReturnType;
     ReturnType retval;
+
     for (const shared_ptr<boundary::Object>& obj : _objects) {
       ReturnType val = obj->getTessalatedSurfaces();
+      const size_t vertex_offset = retval.first.size() / 3;
+
+      //Merge the vertices
       retval.first.insert(retval.first.end(), val.first.begin(), val.first.end());
-      retval.second.insert(retval.second.end(), val.second.begin(), val.second.end());
+      
+      //Merge the indicies
+      for (const auto& index : val.second)
+	retval.second.push_back(index + vertex_offset);
     }
     return retval;
   }
@@ -169,7 +179,7 @@ namespace dynamo {
   LBoundary::getCoilRenderObj() const
   {
     if (!_renderObj) {
-      auto triangles = getTessalatedSurfaces();
+      const auto triangles = getTessalatedSurfaces();
       _renderObj.reset(new coil::RTriangleMesh(getName(), triangles.first, triangles.second));
     }
 

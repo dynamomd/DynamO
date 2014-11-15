@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dynamo/locals/boundary/object.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -67,7 +68,8 @@ namespace dynamo {
     Event 
     PlanarWall::getEvent(const Particle& part, const double diameter) const 
     {
-      return Event();
+      const double dt = Sim->dynamics->getPlaneEvent(part, _position + _oscillationData._origin, _normal, diameter / 2);
+      return Event(part.getID(), dt, LOCAL, (dt == HUGE_VAL) ? NONE : WALL, 0);
     }
       
     Vector 
