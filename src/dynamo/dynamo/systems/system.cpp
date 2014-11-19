@@ -35,7 +35,7 @@ namespace dynamo {
     SimBase(tmp, "SystemInteraction"),
     dt(HUGE_VAL)
   {
-    type = NONE;
+    type = VIRTUAL;
   }
 
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 

@@ -91,7 +91,7 @@ namespace dynamo {
     molGyrationDat retVal;
     retVal.MassCentre = Vector{0,0,0};
 
-    double totmass = Sim->species[Sim->particles[*(range->begin())]]->getMass(*(range->begin()));
+    double totmass = Sim->species(Sim->particles[*(range->begin())])->getMass(*(range->begin()));
     std::vector<Vector> relVecs;
     relVecs.reserve(range->size());
     relVecs.push_back(Vector{0,0,0});
@@ -106,7 +106,7 @@ namespace dynamo {
 
 	relVecs.push_back(currRelPos + relVecs.back());
 
-	double mass = Sim->species[Sim->particles[*iPtr]]->getMass(*iPtr);
+	double mass = Sim->species(Sim->particles[*iPtr])->getMass(*iPtr);
 
 	retVal.MassCentre += relVecs.back() * mass;
 	totmass += mass;
