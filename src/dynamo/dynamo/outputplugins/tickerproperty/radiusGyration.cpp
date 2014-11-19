@@ -92,39 +92,30 @@ namespace dynamo {
     retVal.MassCentre = Vector{0,0,0};
 
     double totmass = Sim->species(Sim->particles[*(range->begin())])->getMass(*(range->begin()));
-    std::vector<Vector> relVecs;
-    relVecs.reserve(range->size());
-    relVecs.push_back(Vector{0,0,0});
-  
     //Walk along the chain
+    Vector origin_position = Vector{0,0,0};
+    Matrix inertiaTensor;
+    
     for (IDRange::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
       {
-	Vector currRelPos = Sim->particles[*iPtr].getPosition() 
-	  - Sim->particles[*(iPtr - 1)].getPosition();
-
+	Vector currRelPos = Sim->particles[*iPtr].getPosition() - Sim->particles[*(iPtr - 1)].getPosition();
 	Sim->BCs->applyBC(currRelPos);
 
-	relVecs.push_back(currRelPos + relVecs.back());
+	const Vector unfolded_pos = currRelPos + origin_position;
 
-	double mass = Sim->species(Sim->particles[*iPtr])->getMass(*iPtr);
+	const double mass = Sim->species(Sim->particles[*iPtr])->getMass(*iPtr);
 
-	retVal.MassCentre += relVecs.back() * mass;
+	retVal.MassCentre += origin_position * mass;
+	inertiaTensor += mass * ((unfolded_pos * unfolded_pos) * Matrix::identity() - Dyadic(unfolded_pos, unfolded_pos));
 	totmass += mass;
+	origin_position = unfolded_pos;
       }
 
     retVal.MassCentre /= totmass;
-
-    //Now determine the inertia tensor
-    Matrix inertiaTensor;
-
-    for (Vector& vec : relVecs)
-      {
-	vec -= retVal.MassCentre;
-	inertiaTensor += Dyadic(vec, vec);
-      }
-
+    retVal.MassCentre += Sim->particles[*(range->begin())].getPosition();
+    
     std::pair<std::array<Vector, 3>, std::array<double, 3> > result
-      = magnet::math::symmetric_eigen_decomposition(inertiaTensor);
+      = magnet::math::symmetric_eigen_decomposition(inertiaTensor / totmass);
 
     for (size_t i = 0; i < NDIM; i++)
       {	
@@ -134,9 +125,6 @@ namespace dynamo {
 	for (size_t j = 0; j < NDIM; j++)
 	  retVal.EigenVec[i][j] = result.first[i][j];
       }
-
-    retVal.MassCentre += Sim->particles[*(range->begin())].getPosition();
-
     return retVal;
   }
 
@@ -233,6 +221,5 @@ namespace dynamo {
       }
 
     XML << magnet::xml::endtag("ChainGyration");
-  
   }
 }
