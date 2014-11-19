@@ -63,13 +63,13 @@ namespace dynamo {
       std::vector<magnet::math::Histogram<> > gyrationRadii;
       std::vector<magnet::math::Histogram<> > nematicOrder;
 
-      CTCdata(const TChain* ptr, double binwidth1, double binwidth2, double binwidth3):
+      CTCdata(const TChain* ptr, double binWidthGyration, double binWidthNematic):
 	chainPtr(ptr)
       {
 	for (size_t i = 0; i < NDIM; i++)
 	  {
-	    gyrationRadii.push_back(magnet::math::Histogram<>(binwidth1));
-	    nematicOrder.push_back(magnet::math::Histogram<>(binwidth2));
+	    gyrationRadii.push_back(magnet::math::Histogram<>(binWidthGyration));
+	    nematicOrder.push_back(magnet::math::Histogram<>(binWidthNematic));
 	  }
       }
 
@@ -77,6 +77,6 @@ namespace dynamo {
 
     std::list<CTCdata> chains;
 
-    double binwidth1, binwidth2, binwidth3;  
+    double _binWidthGyration, _binWidthNematic;  
   };
 }

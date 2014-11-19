@@ -31,9 +31,8 @@
 namespace dynamo {
   OPRGyration::OPRGyration(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"GyrationRadius"),
-    binwidth1(0.01),
-    binwidth2(0.001),
-    binwidth3(0.01)
+    _binWidthGyration(0.01),
+    _binWidthNematic(0.001)
   {
     operator<<(XML);
   }
@@ -41,14 +40,11 @@ namespace dynamo {
   void 
   OPRGyration::operator<<(const magnet::xml::Node& XML)
   {
-    if (XML.hasAttribute("binwidth1"))
-      binwidth1 = XML.getAttribute("binwidth1").as<double>();
+    if (XML.hasAttribute("BinWidthGyration"))
+      _binWidthGyration = XML.getAttribute("BinWidthGyration").as<double>();
 
-    if (XML.hasAttribute("binwidth2"))
-      binwidth2 = XML.getAttribute("binwidth2").as<double>();
-
-    if (XML.hasAttribute("binwidth3"))
-      binwidth3 = XML.getAttribute("binwidth3").as<double>();
+    if (XML.hasAttribute("BinWidthGyration"))
+      _binWidthNematic = XML.getAttribute("BinWidthGyration").as<double>();
   }
 
   void 
@@ -57,7 +53,8 @@ namespace dynamo {
     for (const shared_ptr<Topology>& plugPtr : Sim->topology)
       if (std::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(CTCdata(static_cast<const TChain*>(plugPtr.get()), 
-				 binwidth1 * Sim->units.unitArea(), binwidth2, binwidth3));
+				 _binWidthGyration * Sim->units.unitArea(), 
+				 _binWidthNematic));
   }
 
   void 
