@@ -84,3 +84,20 @@ BOOST_AUTO_TEST_CASE( poly_derivative )
   BOOST_CHECK_EQUAL(poly4(0), -1);
   BOOST_CHECK_EQUAL(poly4(1), 3);
 }
+
+BOOST_AUTO_TEST_CASE( poly_zero_derivative)
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+  const auto poly1 = derivative(x);
+  BOOST_CHECK_EQUAL(poly1[0], 1);
+
+  const auto poly2 = derivative(poly1);
+  BOOST_CHECK_EQUAL(poly2[0], 0);
+
+  const auto poly3 = derivative(poly2);
+  BOOST_CHECK_EQUAL(poly3[0], 0);
+
+  const auto poly4 = derivative(poly3);
+  BOOST_CHECK_EQUAL(poly4[0], 0);
+}

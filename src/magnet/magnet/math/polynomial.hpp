@@ -77,7 +77,7 @@ namespace magnet {
       }
 
       /*! \brief Evaluate the polynomial at x. */
-      Real eval(Real x) const {
+      Real operator()(Real x) const {
 	Real sum = Base::operator[](Order);
 	for(int i = Order - 1; i >= 0; --i)
 	  {
@@ -85,10 +85,6 @@ namespace magnet {
 	    sum += Base::operator[](i);
 	  }
 	return sum;
-      }
-
-      Real operator()(Real x) const {
-	return eval(x);
       }
     };
 
@@ -197,6 +193,21 @@ namespace magnet {
 	retval[i] = f[i+1] * (i+1);
       }
       return retval;
+    }
+
+    template<class Real>
+    inline Polynomial<0, Real> derivative(const Polynomial<0, Real>& f) {
+      return Polynomial<0, Real>{0};
+    }
+
+    template<class Real>
+    inline Real max_abs_val(const Polynomial<0, Real>& f, const double tmin, const double tmax) {
+      return std::abs(f[0]);
+    }
+
+    template<class Real>
+    inline Real max_abs_val(const Polynomial<1, Real>& f, const double tmin, const double tmax) {
+      return std::max(std::abs(f(tmin)), std::abs(f(tmax)));
     }
   }
 }
