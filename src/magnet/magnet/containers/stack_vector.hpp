@@ -1,0 +1,78 @@
+/*  dynamo:- Event driven molecular dynamics simulator 
+    http://www.dynamomd.org
+    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <magnet/exception.hpp>
+#include <array>
+
+namespace magnet {
+  namespace containers {
+    /*! \brief Stack allocated std::vector.
+
+      This class is a fast and lightweight std::vector-like
+      container. It is useful for returning small numbers of items
+      from functions without allocating memory on the heap.
+     */
+    template<class T, size_t Nmax>
+    class StackVector: public std::array<T, Nmax> {
+      typedef std::array<T, Nmax> Base;
+    public:
+      template<size_t Nmax2>
+      StackVector(const StackVector<T, Nmax2>& vec)
+      {
+	static_assert(Nmax2 <= Nmax, "Can only convert to larger StackVector containers");
+	_size = vec.size();
+	std::copy(vec.begin(), vec.end(), Base::begin());
+      }
+
+      StackVector(): _size(0) {}
+      
+      StackVector(std::initializer_list<T> _list):
+	_size(0)
+      {
+	auto it = _list.begin();
+	for (size_t i(0); (i < Nmax) && (it != _list.end()); ++i, ++it)
+	  push_back(*it);
+      }
+            
+      constexpr typename Base::size_type size() const { return _size; }
+      constexpr bool empty() const { return size() == 0; }
+
+      typename Base::iterator end() { return typename Base::iterator(Base::data() + _size); }
+      typename Base::const_iterator end() const { return typename Base::iterator(Base::data() + _size); }
+      typename Base::const_iterator cend() const { return typename Base::iterator(Base::data() + _size); }
+
+      typename Base::reverse_iterator rbegin() { return typename Base::reverse_iterator(Base::end()); }
+      typename Base::const_reverse_iterator rbegin() const { return typename Base::const_reverse_iterator(Base::end()); }
+      typename Base::const_reverse_iterator crbegin() const { return typename Base::const_reverse_iterator(Base::end()); }
+      typename Base::reverse_iterator rend() { return typename Base::reverse_iterator(Base::begin()); }
+      typename Base::const_reverse_iterator rend() const { return typename Base::const_reverse_iterator(Base::begin()); }
+      typename Base::const_reverse_iterator crend() const { return typename Base::const_reverse_iterator(Base::begin()); }
+      
+      typename Base::reference back() { return _size ? *(Base::end() - 1) : *Base::end(); }
+      typename Base::const_reference back() const { return _size ? *(Base::end() - 1) : *Base::end(); }
+
+      void push_back(const T& val) {
+	Base::operator[](_size) = val;
+	++_size;
+      }
+      
+    private:
+      size_t _size;
+    };
+  }
+}
+    

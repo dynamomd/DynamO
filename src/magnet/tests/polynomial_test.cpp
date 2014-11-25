@@ -101,3 +101,48 @@ BOOST_AUTO_TEST_CASE( poly_zero_derivative)
   const auto poly4 = derivative(poly3);
   BOOST_CHECK_EQUAL(poly4[0], 0);
 }
+
+BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+  
+  {//Quadratic with catastrophic cancellation of error
+    auto poly = x * x + 712345.12 * x + 1.25;  
+    auto roots = solve_roots(poly);
+    BOOST_CHECK(roots.size() == 2);
+
+    std::sort(roots.begin(), roots.end());
+    
+    BOOST_CHECK_CLOSE(roots[0], -712345.1199985961, 1e-10);
+    BOOST_CHECK_CLOSE(roots[1], -1.754767408250742e-6, 1e-10);
+  }
+
+  {//Quadratic with no roots
+    auto poly = x * x - 3 * x + 4;
+    auto roots = solve_roots(poly);
+    BOOST_CHECK(roots.size() == 0);
+  }
+
+  {//Quadratic with one root
+    auto poly = -4 * x * x + 12 * x - 9;
+    auto roots = solve_roots(poly);
+    BOOST_CHECK(roots.size() == 1);
+    
+    BOOST_CHECK_CLOSE(roots[0], 1.5, 1e-10);
+  }
+  
+  {//linear function with one root
+    auto poly =  0 * x * x + 12 * x - 9;
+    auto roots = solve_roots(poly);
+    BOOST_CHECK(roots.size() == 1);
+    
+    BOOST_CHECK_CLOSE(roots[0], 0.75, 1e-10);
+  }
+
+  {//constant function, with no roots
+    auto poly =  0 * x * x + 0 * x - 9;
+    auto roots = solve_roots(poly);
+    BOOST_CHECK(roots.size() == 0);
+  }
+}

@@ -21,6 +21,13 @@
 
 namespace magnet {
   namespace math {
+    /*! \brief N-dimensional matrix type.
+      
+      \tparam N The dimensionality of the NMatrix.
+
+      \tparam T The type of the components of the
+      NMatrix.
+     */
     template<class T = double, size_t N = 3>
     class NMatrix : public std::array<T, N * N> {
       typedef std::array<T, N * N> Base;
@@ -130,20 +137,28 @@ namespace magnet {
       }
     };
 
+    /*! \relates NMatrix
+      \name Determinant
+      Methods for calculating the determinant of low-order NMatrix types.
+      \{
+     */
     template<class T, size_t N>
     T determinant(const NMatrix<T,N>& M)
     { static_assert(!N, "Determinant not implemented for this dimension of Matrix"); }
 
+    /*! \brief Determinant of a 1x1 NMatrix. */
     template<class T>
     T determinant(const NMatrix<T,1>& M) {
       return M(0,0);
     }
 
+    /*! \brief Determinant of a 2x2 NMatrix. */
     template<class T>
     T determinant(const NMatrix<T,2>& M) {
       return M(0,0) * M(1,1) - M(0,1) * M(1,0);
     }
 
+    /*! \brief Determinant of a 3x3 NMatrix. */
     template<class T>
     T determinant(const NMatrix<T,3>& M) {
       return 
@@ -152,6 +167,7 @@ namespace magnet {
 	M(0,2) * (M(1,0) * M(2,1) - M(1,1) * M(2,0));
     }
 
+    /*! \brief Determinant of a 4x4 NMatrix. */
     template<class T>
     T determinant(const NMatrix<T,4>& M) {
       return
@@ -162,19 +178,28 @@ namespace magnet {
 	M(0,1)*M(1,0)*M(2,3)*M(3,2) - M(0,0)*M(1,1)*M(2,3)*M(3,2) - M(0,2)*M(1,1)*M(2,0)*M(3,3) + M(0,1)*M(1,2)*M(2,0)*M(3,3)+
 	M(0,2)*M(1,0)*M(2,1)*M(3,3) - M(0,0)*M(1,2)*M(2,1)*M(3,3) - M(0,1)*M(1,0)*M(2,2)*M(3,3) + M(0,0)*M(1,1)*M(2,2)*M(3,3);
     }
+    /*! \} */
 
+    /*! \relates NMatrix
+      \name Adjoint
+      Methods for calculating the adjoint of low-order NMatrix types.
+      \{
+     */
     template<class T, size_t N>
     NMatrix<T,N>adjoint(const NMatrix<T,N>& M)
     { static_assert(!N, "Adjoint not implemented for this dimension of Matrix"); }
 
+    /*! \brief Adjoint of a 1x1 NMatrix. */
     template<class T>
     NMatrix<T,1>adjoint(const NMatrix<T,1>& M)
     { return NMatrix<T,1>{1}; }
 
+    /*! \brief Adjoint of a 2x2 NMatrix. */
     template<class T>
     NMatrix<T,2>adjoint(const NMatrix<T,2>& M)
     { return NMatrix<T,2>{M(1,1), -M(0,1), -M(1,0), M(0,0)}; }
 
+    /*! \brief Adjoint of a 3x3 NMatrix. */
     template<class T>
     NMatrix<T,3>adjoint(const NMatrix<T,3>& M)
     { 
@@ -183,6 +208,7 @@ namespace magnet {
 	  (M(1,0)*M(2,1)-M(1,1)*M(2,0)), -(M(0,0)*M(2,1)-M(0,1)*M(2,0)),  (M(0,0)*M(1,1)-M(0,1)*M(1,0))};
     }
 
+    /*! \brief Adjoint of a 4x4 NMatrix. */
     template<class T>
     NMatrix<T,4>adjoint(const NMatrix<T,4>& M)
     {
@@ -206,6 +232,14 @@ namespace magnet {
       return R;
     }
 
+    /*! \} */
+
+    /*! \relates NMatrix
+      \brief Calculation of the inverse of a NMatrix.
+
+      This is only possible if a suitable \ref adjoint and \ref
+      determinant are defined.
+     */
     template<class T, size_t N>
     NMatrix<T,N> inverse(const NMatrix<T,N>& M) {
       T det = determinant(M);
@@ -213,6 +247,9 @@ namespace magnet {
       return adjoint(M) * (1 / det);
     }
 
+    /*! \relates NMatrix
+      \brief Addition of two NMatrix types.
+     */
     template<class T, size_t N>
     NMatrix<T,N> operator+(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
       NMatrix<T,N> retval;
@@ -221,6 +258,9 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix
+      \brief Subtraction of two NMatrix types.
+     */
     template<class T, size_t N>
     NMatrix<T,N> operator-(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
       NMatrix<T,N> retval;
@@ -229,6 +269,9 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix
+      \brief Multiplication of a NMatrix type and a Scalar.
+     */
     template<class T, class U, size_t N>
     NMatrix<T,N> operator*(const NMatrix<T,N>& A, const U& B) {
       NMatrix<T,N> retval;
@@ -236,11 +279,18 @@ namespace magnet {
 	retval(i) = A(i) * B;
       return retval;
     }
+
+    /*! \relates NMatrix
+      \brief Multiplication of a Scalar and an NMatrix type.
+     */
     template<class T, class U, size_t N>
     NMatrix<T,N> operator*(const U& B, const NMatrix<T,N>& A) {
       return A * B;
     }
 
+    /*! \relates NMatrix
+      \brief Dot product between two NMatrix types.
+     */
     template<class T, size_t N>
     NMatrix<T,N> operator*(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
       NMatrix<T,N> retval;
@@ -254,6 +304,9 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix
+      \brief Dot product between a NMatrix and a NVector.
+     */
     template<class T, size_t N>
     NVector<T,N> operator*(const NMatrix<T,N>& A, const NVector<T,N>& B) {
       NVector<T,N> retval;
@@ -266,6 +319,9 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix
+      \brief Dot product between a NVector and a NMatrix.
+     */
     template<class T, size_t N>
     NVector<T,N> operator*(const NVector<T,N>& A, const NMatrix<T,N>& B) {
       NVector<T,N> retval;
@@ -278,6 +334,9 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix
+      \brief Division of a NMatrix by a scalar.
+     */
     template<class T, class U, size_t N>
     NMatrix<T,N> operator/(const NMatrix<T,N>& A, const U& B) {
       NMatrix<T,N> retval;
@@ -286,6 +345,9 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix
+      \brief Dyadic product of two NVector types to form a NMatrix.
+     */
     template<class T, size_t N>
     NMatrix<T,N> Dyadic(const NVector<T,N>& A, const NVector<T,N>& B) {
       NMatrix<T,N> retval;
@@ -296,6 +358,10 @@ namespace magnet {
       return retval;
     }
 
+    /*! \relates NMatrix 
+      \brief Create a NMatrix which is equivalent to a cross product
+      with the supplied NVector.
+     */
     template<class T>
     inline NMatrix<T,3> cross(const NVector<T,3> &v) {
       return NMatrix<T,3>{0, -v[2] , v[1], 
@@ -303,12 +369,14 @@ namespace magnet {
 	  -v[1], v[0], 0};
     }
 
-    /*! \brief Calculate a rotation matrix from a vector which encodes
-        a rotation axis and angle.
-
-	This is a right-handed expression, so all rotation axis are
-	expected to be right handed.
-     */
+    /*! \relates NMatrix 
+      
+      \brief Calculate a rotation matrix from a vector which encodes a
+      rotation axis and angle.
+      
+      This is a right-handed expression, so all rotation axis are
+      expected to be right handed.
+    */
     template<class T>
     inline NMatrix<T,3> Rodrigues(const NVector<T,3> &v)
     {
@@ -324,6 +392,9 @@ namespace magnet {
     }
 
 
+    /*! \relates NMatrix 
+      \brief Calculate the eigenvectors and values of a 3x3 NMatrix.
+    */
     inline std::pair<std::array<NVector<double,3>, 3>, std::array<double, 3> > 
     symmetric_eigen_decomposition(const NMatrix<double,3>& M)
     {
@@ -352,7 +423,12 @@ namespace magnet {
       return std::make_pair(eigenvecs, eigenvals);
     }
 
-    // vectors
+    /*! \relates NVector
+      \name NMatrix input/output operators
+      \{
+    */
+
+    /*! \brief XML output operator. */
     template<class T, size_t N>
     inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const NMatrix<T,N> & A)
     {
@@ -376,6 +452,7 @@ namespace magnet {
       return XML;
     }
 
+    /*! \brief XML input operator. */
     template<class T, size_t N>
     NMatrix<T,N>& operator<<(NMatrix<T,N>& data, const magnet::xml::Node& XML)
     {
@@ -394,6 +471,12 @@ namespace magnet {
 	}
       return data;
     }
+    /*! \} */
+
+    /*! \relates NVector
+      \name Elementwise operations on NVectors
+      \{
+     */
 
     template<class T, size_t N>
     inline NMatrix<T,N> elementwiseMultiply(const NMatrix<T, N>& A, const NMatrix<T,N>& B)
@@ -424,6 +507,8 @@ namespace magnet {
 	  retval(i,j) = std::max(A(i,j), B(i, j));
       return retval;
     }
+
+    /*! \} */    
 
     typedef NMatrix<> Matrix;
   }

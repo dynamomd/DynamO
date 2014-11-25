@@ -30,11 +30,30 @@ const size_t NDIM(3);
 
 namespace magnet {
   namespace math {
+    /*! \brief N-dimensional vector type.
+      
+      \tparam N The dimensionality of the NVector.
+
+      \tparam T The type of the components of the
+      NVector.
+     */
     template<class T = double, size_t N = 3>
     class NVector : public std::array<T, N> {
       typedef std::array<T, N> Base;
     public:
+      /*! \brief Default constructor.
+
+	This creates a zero vector.
+       */
       NVector() { Base::fill(T());}
+
+      /*! \brief Initializer list constructor.
+
+	Allows the simple creation of a vector. For example:
+	\code{.cpp}
+	NVector<double, 3> vec{0,1,2};
+	\endcode	
+       */
       NVector(std::initializer_list<T> _list) {
 	if (_list.size() > N)
 	  throw std::length_error("initializer list too long");
@@ -48,6 +67,7 @@ namespace magnet {
 	  Base::operator[](i) = 0.0;
       }
 
+      /*! \brief Returns the square norm of the NVector.*/
       inline T nrm2() const 
       { 
 	T sum(0);
@@ -56,6 +76,7 @@ namespace magnet {
 	return sum;
       }
 
+      /*! \brief Returns the norm of the NVector.*/
       inline T nrm() const
       {
 	double max = std::abs(Base::operator[](0));
@@ -73,6 +94,11 @@ namespace magnet {
 	  return 0;
       }
 
+      /*! \brief Returns the normalised vector in the direction of this NVector.
+
+	NVectors of length zero will return a zero (NVector{0,0,..})
+	vector from this function.
+       */
       inline NVector<T,N> normal() const {
 	const T norm = nrm();
 	const double inv_nrm = 1.0 / (norm + (norm==0));
@@ -82,10 +108,15 @@ namespace magnet {
 	return retval;
       }
 
+      /*! \brief Normalise this NVector.
+
+	For a zero NVector, this will not alter the vector.
+       */
       inline void normalise() {
 	*this = normal();
       }
 
+      /*! \brief Comparison operator.*/
       inline bool operator==(const NVector<T,N>& ovec) const
       {
 	for (size_t i(0); i < N; ++i)
@@ -94,9 +125,15 @@ namespace magnet {
 	return true;
       }
 
+      /*! \brief Comparison operator.*/
       inline bool operator!=(const NVector<T,N>& ovec) const
       {	return !operator==(ovec); }
 
+      /*! \name Modify-assign operators
+
+	These are for convenience only and are not optimised.
+	\{
+       */
       template<class P>
       inline NVector<T,N>& operator+=(const P& e)
       { return (*this = *this + e); }
@@ -109,7 +146,9 @@ namespace magnet {
       template<class P>
       inline NVector<T,N>& operator/=(const P& e)
       { return (*this = *this / e); }
+      /*! \} */
 
+      /*! \brief Create a human-readable representation of this NVector.*/
       std::string toString() const
       {
 	std::ostringstream os;
@@ -120,7 +159,12 @@ namespace magnet {
 	return os.str();
       }
     };
-    
+
+    /*! \relates NVector
+      \name Vector Arithmetic 
+      \{
+     */
+    /*! \brief Addition of two NVector types.  */
     template<class T, size_t N>
     NVector<T,N> operator+(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
       NVector<T,N> retval(vec1);
@@ -129,6 +173,7 @@ namespace magnet {
       return retval;
     }
 
+    /*! \brief Subtraction of two NVector types.  */
     template<class T, size_t N>
     NVector<T,N> operator-(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
       NVector<T,N> retval(vec1);
@@ -137,7 +182,7 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief Outer product (cross) */
+    /*! \brief Outer (cross) product  */
     template<class T>
     NVector<T,3> operator^(const NVector<T,3>& vec1, const NVector<T,3>& vec2) {
       return NVector<T,3>{vec1[1] * vec2[2] - vec1[2] * vec2[1],
@@ -146,7 +191,7 @@ namespace magnet {
 	  };
     }
 
-    /*! \brief Scalar product (dot) */
+    /*! \brief Multiplication of a scalar and an NVector.  */
     template<class T, size_t N, class R>
     NVector<T,N> operator*(const NVector<T,N>& vec1, const R& val) {
       NVector<T,N> retval;
@@ -154,11 +199,13 @@ namespace magnet {
 	retval[i] = vec1[i] * val;
       return retval;
     }
+    /*! \brief Multiplication of an NVector and a scalar.  */
     template<class T, size_t N, class R>
     NVector<T,N> operator*(const R& val, const NVector<T,N>& vec1) {
       return vec1 * val;
     }
 
+    /*! \brief Scalar (dot) product */
     template<class T, size_t N>
     T operator*(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
       T sum(0);
@@ -166,21 +213,20 @@ namespace magnet {
 	sum += vec1[i] * vec2[i];
       return sum;
     }
+
+    /*! \brief Scalar (dot) product */
     template<class T, size_t N>
     T operator|(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
       return vec1 * vec2;
     }
 
+    /*! \brief Division of an NVector by a scalar.  */
     template<class T, size_t N, class R>
     NVector<T,N> operator/(const NVector<T,N>& vec1, const R& val) {
       return vec1 * (R(1)/val);
     }
-    template<class T, size_t N, class R>
-    NVector<T,N> operator/(const R& val, const NVector<T,N>& vec1) {
-      return vec1 * (R(1)/val);
-    }
 
-    /*! \brief Unary negative */
+    /*! \brief Unary negative operator. */
     template<class T, size_t N>
     NVector<T,N> operator-(const NVector<T,N>& vec1) {
       NVector<T,N> retval;
@@ -189,6 +235,14 @@ namespace magnet {
       return retval;
     }
     
+    /*! \} */
+
+    /*! \relates NVector
+      \name Vector input/output operators
+      \{
+     */
+
+    /*! \brief XML output operator. */
     template<class T, size_t N>
     inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const NVector<T,N>& vec)
     {
@@ -201,6 +255,7 @@ namespace magnet {
       return XML;
     }
 
+    /*! \brief XML input operator. */
     template<class T, size_t N>
     inline NVector<T,N>& operator<<(NVector<T,N>& data, const magnet::xml::Node& XML)
     {
@@ -213,6 +268,20 @@ namespace magnet {
 
       return data;
     }
+
+    /*! \brief Output a human readable representation to an output stream. */
+    template<class Real, size_t N>
+    inline std::ostream& operator<<(std::ostream& os, const NVector<Real, N>& vec) {
+      os << vec.toString();
+      return os;
+    }
+
+    /*! \} */
+
+    /*! \relates NVector
+      \name Elementwise operations on NVectors
+      \{
+     */
 
     template<class T>
     inline T elementwiseMultiply(const T& A, const T& B)
@@ -253,11 +322,7 @@ namespace magnet {
       return retval;
     }
 
-    template<class Real, size_t N>
-    inline std::ostream& operator<<(std::ostream& os, const NVector<Real, N>& vec) {
-      os << vec.toString();
-      return os;
-    }
+    /*! \} */    
 
     typedef NVector<double,3> Vector;
   }
