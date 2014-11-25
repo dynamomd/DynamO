@@ -23,22 +23,16 @@
   is the very inner loop of a single simulation.
  */
 
-/*! \brief Namespace for the components of the DynamO simulation package. */
+/*! \brief Namespace for the event driven simulation components of the DynamO
+simulation package. */ 
 namespace dynamo {}
 
-/*! \brief Namespace for the coil library. 
- *
- * The coil library is a realtime visualization package for particle
- * simulations.
- */
+/*! \brief Namespace for the coil visualisation library. */
 namespace coil {}
 
-/* \brief Namespace for the magnet library. 
- * 
- * The magnet library is a collection of generic classes and functions
- * which have a wider range of application than just Event Driven
- * Simulation (DynamO).
- */
+/*! \brief Namespace for the magnet library, where simple math code
+which is shared between the dynamo and coil namespaces are held.  */
+
 namespace magnet {
   
   //! \brief Namespace for Gtkmm classes and functions.
