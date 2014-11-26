@@ -287,7 +287,88 @@ namespace magnet {
       \name Polynomial roots
       \{
     */
-    
+
+    /*! \brief Factors a root out of a quartic polynomial and returns the
+      resulting cubic polynomial containing the remaining roots.
+      
+      Given a polynomial, we can rearrange it in factored form like so
+      \f[
+      \sum_{i=0}^N a_i\,x^i =(x - r_1)\sum_{i=0}^{N-1} b_i\, x^{i}
+      \f]
+      
+      where \f$r_1\f$ is a root of the polynomial. Equating terms on the
+      LHS with terms on the RHS with equal powers of \f$x\f$, we have:
+
+      \f[
+      b_i=\frac{b_{i-1} - a_i}{r_1}\qquad \textrm{for}\ i\in[1,\,N-1]
+      \f]
+
+      This formula can be used to calculate all coefficients using the
+      starting point \f$b_0=-a_0 / r_1\f$. This approach is not stable
+      if the root is zero, or if \f$b_{i-1}\f$ has the same sign as
+      \f$a_i\f$.
+      
+      An alternative iterative form may be found by substituting
+      \f$i\to i+1\f$, which gives:
+
+      \f[
+      b_{i} = a_{i+1} + r_1\,b_{i+1} \qquad \textrm{for}\ i\in[0,\,N-2]
+      \f]
+
+      Again this approach may be used given the starting point
+      \f$b_{N-1}=a_N\f$. However, it is not stable if \f$a_{i+1}\f$
+      has the opposite sign to \f$r_1\,b_{i+1}\f$.
+      
+      As both approaches may suffer from catastrophic cancellation, we
+      should switch between them. We prefer the second (downwards)
+      approach as there is no divide and error does not accumulate as
+      much for the higher order coefficients. This means we only
+      switch to the upwards approach if downwards approach has
+      cancellation AND the upwards approach does not. An approach is
+      dangerous if two non-zero terms are subtracted from each other
+      (i.e., for the first approach this happens if \f$a_{i+1}\f$ and
+      \f$r_1\,b_{i+1}\f$ are non-zero and have opposite sign).
+
+      \param f The Polynomial to factor a root out of.
+      \param root The root to remove.
+     */
+    template<size_t Order, class Real>
+    inline Polynomial<Order-1, Real> deflate_polynomial(const Polynomial<Order, Real>& a, const double root) {
+      Polynomial<Order-1, Real> b;
+      
+      //Check for the simple case where root==0
+      if (root == 0) {
+	for (size_t i(0); i < Order-1; ++i)
+	  b[i] = a[i];
+	return b;
+      }
+	
+      //Calculate the highest and lowest order coefficients using
+      //these stable approaches
+      b[Order-1] = a[Order];
+      b[0] = - a[0] / root;
+
+      size_t i_t = Order-2;
+      size_t i_b = 1;
+      while (i_t >= i_b) {
+	const Real d = root * b[i_t + 1];	
+	if (//This is true if there is cancellation in the downwards approach
+	    (d != 0) && (a[i_t+1] != 0)
+	    && (std::signbit(d) == std::signbit(a[i_t+1]))
+	    //This is true if there is NO cancellation in the upwards approach
+	    && ((b[i_b-1] == 0) || (a[i_b] == 0)
+		|| (std::signbit(b[i_b-1]) != std::signbit(a[i_b])))) {
+	  b[i_b] = (b[i_b-1] - a[i_b]) / root;
+	  ++i_b;
+	} else {
+	  b[i_t] = a[i_t+1] + d;
+	  --i_t;
+	}
+      }
+      
+      return b;
+    }
+
     /*! \brief A dummy function which returns no roots of a 0th order Polynomial.
       \param f The Polynomial to evaluate.
      */
@@ -308,25 +389,40 @@ namespace magnet {
     /*! \brief The roots of a 2nd order Polynomial.
       \param f The Polynomial to evaluate.
      */
-    inline containers::StackVector<double, 2> solve_roots(const Polynomial<2, double>& f) {
-
-      //Ensure this is actually a second order polynomial
+    inline containers::StackVector<double, 2> solve_roots(Polynomial<2, double> f) {
+      //If this is actually a linear polynomial, drop down to that solver.
       if (f[2] == 0) 
 	return solve_roots(Polynomial<1, double>(f));
       
-      const double arg = f[1] * f[1] - 4 * f[2] * f[0];
+      //Scale the constant of x^2 to 1
+      f = f / f[2];
 
-      //Test if there are real roots      
+      if (f[0] == 0)
+	//There is no constant term, so we actually have x^2 + f[1] * x = 0
+	return containers::StackVector<double, 2>{-f[1]};
+      
+      static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
+      if ((f[1] > maxSqrt) || (f[1] < -maxSqrt)) {
+	//arg contains f[1]*f[1], so it will overflow. In this case we
+	//can approximate the equation as x^2 + a x = 0 to solve for
+	//one root, and use root2 = f[0]/root1 to find the second
+	//root. This should work even with large constant values
+	return containers::StackVector<double, 2>{-f[1], -f[0] / f[1]};
+      }
+
+      const double arg = f[1] * f[1] - 4 * f[0];
+
+      //Test if there are real roots   
       if (arg < 0)
 	return containers::StackVector<double, 2>();
 
       //Test if there is a double root
       if (arg == 0)
-	return containers::StackVector<double, 2>{-f[1] / (2 * f[2])};
+	return containers::StackVector<double, 2>{-f[1] * 0.5};
 
       //Return both roots
-      const double root1 = -(f[1] + std::copysign(std::sqrt(arg), f[1])) / (2 * f[2]);
-      const double root2 = f[0] / (f[2] * root1);
+      const double root1 = -(f[1] + std::copysign(std::sqrt(arg), f[1])) * 0.5;
+      const double root2 = f[0] / root1;
       return containers::StackVector<double, 2>{root1, root2};
     }
 
@@ -340,7 +436,7 @@ namespace magnet {
       {
 	//Stored for comparison later
 	double error = f(root);
-	const size_t maxiterations = 2;
+	const size_t maxiterations = 4;
 	for (size_t it = 0; (it < maxiterations) && (error != 0); ++it)
 	  {
 	    //Calculate the 1st and 2nd derivatives
@@ -363,6 +459,7 @@ namespace magnet {
       }
     }
 
+
     /*! \brief The roots of a 3rd order Polynomial.
       \param f The Polynomial to evaluate.
      */
@@ -373,85 +470,89 @@ namespace magnet {
       
       if (f_original[0] == 0)
 	{
-	  //If the constant is zero, one root is x=0, so we can divide
+	  //If the constant is zero, one root is x=0.  We can divide
 	  //by x and solve the remaining quadratic
 	  containers::StackVector<double, 3> roots = solve_roots(Polynomial<2, double>{f_original[1], f_original[2], f_original[3]});
 	  roots.push_back(0);
 	  return roots;
 	}
-      
-      if ((f_original[2] == 0) && (f_original[1] == 0))
-	{
-	  //Special case where f(x) = a * x^3 + d
-	  containers::StackVector<double, 3> roots;
-	  const double arg = - f_original[0] / f_original[3];
-	  if (arg >= 0)
-	    roots.push_back(std::cbrt(arg));
-	  return roots;
-	}
 
       //Convert to a cubic with a unity high-order coefficient
       auto f = f_original / f_original[3];
+      
+      if ((f[2] == 0) && (f[1] == 0))
+	//Special case where f(x) = x^3 + f[0]
+	return containers::StackVector<double, 3>{std::cbrt(-f[0])};
 
       static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
       
-      if ((f[2] > maxSqrt) || (f[1] < -maxSqrt))
-	//Equation limits to x^3 + p * x^2 == 0
-	return containers::StackVector<double, 3>{-f[2]};
+      if ((f[2] > maxSqrt) || (f[2] < -maxSqrt))
+	{
+	  //The equation is limiting to x^3 + f[2] * x^2 == 0. Use
+	  //this to estimate the location of one root, polish it up,
+	  //then deflate the polynomial and solve the quadratic.
+	  double largeroot = -f[2];
+	  cubicNewtonRootPolish(f, largeroot);
+	  containers::StackVector<double, 3> roots = solve_roots(deflate_polynomial(f, largeroot));
+	  roots.push_back(largeroot);
+	  return roots;
+	}
 
-      if (f[1] > maxSqrt)
-	//Special case, if f[1] is large and the root is -f[0] / f[1],
-	//the x^3 term is negligble, and all other terms cancel.
-	return containers::StackVector<double, 3>{-f[0] / f[1]};
-
-      if (f[1] < -maxSqrt)
-	//Special case, equation is x^3 + q x == 0
-	return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
-
-      if ((f[0] > maxSqrt) || (f[0] < -maxSqrt))
-	//Another special case where f(x)= x^3 +f[0]
-	return containers::StackVector<double, 3>{-std::cbrt(f[0])};
+//NOT SURE THESE RANGE TESTS ARE BENEFICIAL
+//      if (f[1] > maxSqrt)
+//	//Special case, if f[1] is large (and f[2] is not) and the root
+//	//is -f[0] / f[1], the x^3 term is negligble, and all other
+//	//terms cancel.
+//	return containers::StackVector<double, 3>{-f[0] / f[1]};
+//
+//      if (f[1] < -maxSqrt)
+//	//Special case, equation is x^3 + q x == 0
+//	return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
+//
+//      if ((f[0] > maxSqrt) || (f[0] < -maxSqrt))
+//	//Another special case where f(x)= x^3 +f[0]
+//	return containers::StackVector<double, 3>{-std::cbrt(f[0])};
 
       const double v = f[0] + (2.0 * f[2] * f[2] / 9.0 - f[1]) * (f[2] / 3.0);
 
-      if ((v > maxSqrt) || (v < -maxSqrt))
-	return containers::StackVector<double, 3>{-f[2]};
+//      if ((v > maxSqrt) || (v < -maxSqrt))
+//	return containers::StackVector<double, 3>{-f[2]};
       
       const double uo3 = f[1] / 3.0 - f[2] * f[2] / 9.0;
       const double u2o3 = uo3 + uo3;
       
-      if ((u2o3 > maxSqrt) || (u2o3 < -maxSqrt))
-	{
-	  if (f[2]==0)
-	    {
-	      if (f[1] > 0)
-		return containers::StackVector<double, 3>{-f[0] / f[1]};
-	      
-	      if (f[1] < 0)
-		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
-		
-	      return containers::StackVector<double, 3>{0};
-	    }
-
-	  return containers::StackVector<double, 3>{-f[1] / f[2]};
-	}
+//      if ((u2o3 > maxSqrt) || (u2o3 < -maxSqrt))
+//	{
+//	  if (f[2]==0)
+//	    {
+//	      if (f[1] > 0)
+//		return containers::StackVector<double, 3>{-f[0] / f[1]};
+//	      
+//	      if (f[1] < 0)
+//		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
+//		
+//	      return containers::StackVector<double, 3>{0};
+//	    }
+//
+//	  return containers::StackVector<double, 3>{-f[1] / f[2]};
+//	}
 
       const double uo3sq4 = u2o3 * u2o3;
-      if (uo3sq4 > maxSqrt)
-	{
-	  if (f[2] == 0)
-	    {
-	      if (f[1] > 0)
-		return containers::StackVector<double, 3>{-f[0] / f[1]};
-
-	      if (f[1] < 0)
-		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
-
-	      return containers::StackVector<double, 3>{0};
-	    }
-
-	  return containers::StackVector<double, 3>{-f[1] / f[2]};
-	}
+//      if (uo3sq4 > maxSqrt)
+//	{
+//	  if (f[2] == 0)
+//	    {
+//	      if (f[1] > 0)
+//		return containers::StackVector<double, 3>{-f[0] / f[1]};
+//
+//	      if (f[1] < 0)
+//		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
+//
+//	      return containers::StackVector<double, 3>{0};
+//	    }
+//
+//	  return containers::StackVector<double, 3>{-f[1] / f[2]};
+//	}
 
       const double j = (uo3sq4 * uo3) + v * v;
   
@@ -460,37 +561,20 @@ namespace magnet {
 	  //catastrophic cancellation in j 
 	  //(i.e. (uo3sq4 * uo3) == v * v)
 	  
-	  containers::StackVector<double, 3> roots;
 	  const double w = std::sqrt(j);
+	  double root1;
 	  if (v < 0)
-	    roots.push_back(std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - f[2] / 3.0);
+	    root1 = std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - f[2] / 3.0;
 	  else
-	    roots.push_back(uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0);
+	    root1 = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0;
 
 	  //We now polish the root up before we use it in other calculations
-	  cubicNewtonRootPolish(f, roots[0]);
+	  cubicNewtonRootPolish(f, root1);
 	 
-	  //We double check that there are no more roots by using a
-	  //quadratic formula on the factored problem, this helps when
-	  //the j test is wrong due to numerical error.
-	  
-	  //We have a choice of either -r/root1, or q -
-	  //(p+root1)*root1 for the constant term of the quadratic. 
-	  //
-	  //The division one usually results in more accurate roots
-	  //when it finds them but fails to detect real roots more
-	  //often than the multiply.
-	  auto newroots = solve_roots(Polynomial<2,double>{1.0, f[2] + roots[0], -f[0] / roots[0]});
-	  for (double root : newroots)
-	    roots.push_back(root);
-
-	  //However, the multiply detects roots where there are none,
-	  //the division does not. So we must either accept missing
-	  //roots or extra roots, here we choose missing roots
-	  //
-	  //if (quadSolve(q-(p+root1)*root1, p + root1, 1.0, root2, root3)) 
-	  //  return 3;
-
+	  //We double check that there are no more roots by deflating
+	  //the polynomial using the calculated root and solving this.
+	  containers::StackVector<double, 3> roots = solve_roots(deflate_polynomial(f, root1));
+	  roots.push_back(root1);
 	  return roots;
 	}
   
@@ -557,17 +641,18 @@ namespace magnet {
       return std::max(std::abs(f(tmin)), std::abs(f(tmax)));
     }
 
-    /*! \brief The maximum absolute value of a 2nd order Polynomial in a specified range. 
+    /*! \brief The maximum absolute value of an arbitrary order Polynomial in a specified range.
       \param f The Polynomial to evaluate.
       \param tmin The minimum bound.
       \param tmax The maximum bound.
      */
-    template<class Real>
-    inline Real max_abs_val(const Polynomial<2, Real>& f, const double tmin, const double tmax) {
-      const Real droot = - f[1] / (2 * f[2]);
+    template<class Real, size_t Order>
+    inline Real max_abs_val(const Polynomial<Order, Real>& f, const double tmin, const double tmax) {
+      auto roots = solve_roots(derivative(f));
       Real retval = std::max(std::abs(f(tmin)), std::abs(f(tmax)));
-      if ((droot > tmin) && (droot < tmax))
-	retval = std::max(std::abs(f(droot)), retval);
+      for (auto root : roots)
+	if ((root > tmin) && (root < tmax))
+	  retval = std::max(std::abs(f(root)), retval);
       return retval;
     }
     /*! \} */
