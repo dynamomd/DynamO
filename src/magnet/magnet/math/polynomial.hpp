@@ -288,9 +288,9 @@ namespace magnet {
       \{
     */
 
-    /*! \brief Factors a root out of a quartic polynomial and returns the
-      resulting cubic polynomial containing the remaining roots.
-      
+    /*! \brief Factors out a root of a polynomial and returns a
+        lower-order polynomial with the remaining roots.
+	
       Given a polynomial, we can rearrange it in factored form like so
       \f[
       \sum_{i=0}^N a_i\,x^i =(x - r_1)\sum_{i=0}^{N-1} b_i\, x^{i}
