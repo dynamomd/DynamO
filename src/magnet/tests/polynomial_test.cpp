@@ -3,6 +3,7 @@
 #include <magnet/math/polynomial.hpp>
 #include <magnet/math/vector.hpp>
 #include <cmath>
+#include <complex>
 
 bool err(double val, double expected)
 {
