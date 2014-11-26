@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <ostream>
 #include <array>
+#include <cmath>
+#include <limits>
 
 namespace magnet {
   namespace math {
@@ -63,14 +65,14 @@ namespace magnet {
 	This initialises all Polynomial orders to be equivalent to
 	zero.
        */
-      Polynomial() { Base::fill(Real()); };
+      Polynomial() { Base::fill(Real()); }
 
       /*! \brief Constructor for lowering the order of a Polynomial.
-
+	
 	This constructor should only be used if the highest
 	coefficient in the passed Polynomial is zero. This requirement
 	is only enforced in debug mode.
-       */
+      */
       Polynomial(const Polynomial<Order+1, Real>& poly) {
 #ifdef MAGNET_DEBUG
 	if (poly[Order+1] != 0)
@@ -434,9 +436,7 @@ namespace magnet {
 
 
     namespace {
-      /*! \brief Uses a quadratic scheme to polish up a root,
-	switching to a bisection scheme if it manages to bracket the
-	root.
+      /*! \brief Uses a quadratic scheme to polish up a root.
       */
       inline void cubicNewtonRootPolish(const Polynomial<3, double>& f, double& root)
       {
