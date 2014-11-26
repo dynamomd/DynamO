@@ -320,14 +320,20 @@ namespace magnet {
       has the opposite sign to \f$r_1\,b_{i+1}\f$.
       
       As both approaches may suffer from catastrophic cancellation, we
-      should switch between them. We prefer the second (downwards)
+      should switch between them. We prefer the second (forwards)
       approach as there is no divide and error does not accumulate as
       much for the higher order coefficients. This means we only
-      switch to the upwards approach if downwards approach has
-      cancellation AND the upwards approach does not. An approach is
+      switch to the backwards approach if the forwards approach has
+      cancellation AND the backwards approach does not. An approach is
       dangerous if two non-zero terms are subtracted from each other
       (i.e., for the first approach this happens if \f$a_{i+1}\f$ and
       \f$r_1\,b_{i+1}\f$ are non-zero and have opposite sign).
+
+      It should be noted that Numerical Recipies states that "Forward
+      deflation is stable if the largest absolute root is always
+      divided out... backward deflation is stable if the smallest
+      absolute root is always divided out". Unfortunately we do not
+      know the magnitude of the root being divided out.
 
       \param f The Polynomial to factor a root out of.
       \param root The root to remove.
