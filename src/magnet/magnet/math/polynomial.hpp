@@ -219,6 +219,16 @@ namespace magnet {
       return retval;
     }
 
+    /*! \brief Division of a Polynomial by a constant. */
+    template<class Real1, class Real2, size_t N>
+    auto operator/(const Polynomial<N, Real1>& poly, const Real2& r) -> Polynomial<N, decltype(Real1() / Real2())>
+    {
+      Polynomial<N, decltype(Real1() / Real2())> retval;
+      for (size_t i(0); i <= N; ++i)
+	retval[i] = poly[i] / r;
+      return retval;
+    }
+
     /*! \} */
 
     /*! \relates Polynomial 
@@ -318,6 +328,207 @@ namespace magnet {
       const double root1 = -(f[1] + std::copysign(std::sqrt(arg), f[1])) / (2 * f[2]);
       const double root2 = f[0] / (f[2] * root1);
       return containers::StackVector<double, 2>{root1, root2};
+    }
+
+
+    namespace {
+      /*! \brief Uses a quadratic scheme to polish up a root,
+	switching to a bisection scheme if it manages to bracket the
+	root.
+      */
+      inline void cubicNewtonRootPolish(const Polynomial<3, double>& f, double& root)
+      {
+	//Stored for comparison later
+	double error = f(root);
+	const size_t maxiterations = 2;
+	for (size_t it = 0; (it < maxiterations) && (error != 0); ++it)
+	  {
+	    //Calculate the 1st and 2nd derivatives
+	    double deriv = (3 * root + 2 * f[2]) * root + f[1];
+	    double dderiv = 6 * root + 2 * f[2];
+	    
+	    //Try a quadratic scheme to improve the root
+	    auto roots = solve_roots(Polynomial<2, double>{error, deriv, 0.5 * dderiv});
+	    if (roots.size() == 2)
+	      root += (std::abs(roots[0]) < std::abs(roots[1])) ? roots[0] : roots[1];
+	    else
+	      { //Switch to a linear scheme if the quadratic fails,
+		//but if the derivative is zero then just accept this
+		//is the closest we will get.
+		if (deriv == 0) return;
+		root -= error / deriv;
+	      }
+	    error = f(root);
+	  }
+      }
+    }
+
+    /*! \brief The roots of a 3rd order Polynomial.
+      \param f The Polynomial to evaluate.
+     */
+    inline containers::StackVector<double, 3> solve_roots(const Polynomial<3, double>& f_original) {
+      //Ensure this is actually a third order polynomial
+      if (f_original[3] == 0)
+	return solve_roots(Polynomial<2, double>(f_original));
+      
+      if (f_original[0] == 0)
+	{
+	  //If the constant is zero, one root is x=0, so we can divide
+	  //by x and solve the remaining quadratic
+	  containers::StackVector<double, 3> roots = solve_roots(Polynomial<2, double>{f_original[1], f_original[2], f_original[3]});
+	  roots.push_back(0);
+	  return roots;
+	}
+      
+      if ((f_original[2] == 0) && (f_original[1] == 0))
+	{
+	  //Special case where f(x) = a * x^3 + d
+	  containers::StackVector<double, 3> roots;
+	  const double arg = - f_original[0] / f_original[3];
+	  if (arg >= 0)
+	    roots.push_back(std::cbrt(arg));
+	  return roots;
+	}
+
+      //Convert to a cubic with a unity high-order coefficient
+      auto f = f_original / f_original[3];
+
+      static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
+      
+      if ((f[2] > maxSqrt) || (f[1] < -maxSqrt))
+	//Equation limits to x^3 + p * x^2 == 0
+	return containers::StackVector<double, 3>{-f[2]};
+
+      if (f[1] > maxSqrt)
+	//Special case, if f[1] is large and the root is -f[0] / f[1],
+	//the x^3 term is negligble, and all other terms cancel.
+	return containers::StackVector<double, 3>{-f[0] / f[1]};
+
+      if (f[1] < -maxSqrt)
+	//Special case, equation is x^3 + q x == 0
+	return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
+
+      if ((f[0] > maxSqrt) || (f[0] < -maxSqrt))
+	//Another special case where f(x)= x^3 +f[0]
+	return containers::StackVector<double, 3>{-std::cbrt(f[0])};
+
+      const double v = f[0] + (2.0 * f[2] * f[2] / 9.0 - f[1]) * (f[2] / 3.0);
+
+      if ((v > maxSqrt) || (v < -maxSqrt))
+	return containers::StackVector<double, 3>{-f[2]};
+      
+      const double uo3 = f[1] / 3.0 - f[2] * f[2] / 9.0;
+      const double u2o3 = uo3 + uo3;
+      
+      if ((u2o3 > maxSqrt) || (u2o3 < -maxSqrt))
+	{
+	  if (f[2]==0)
+	    {
+	      if (f[1] > 0)
+		return containers::StackVector<double, 3>{-f[0] / f[1]};
+	      
+	      if (f[1] < 0)
+		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
+		
+	      return containers::StackVector<double, 3>{0};
+	    }
+
+	  return containers::StackVector<double, 3>{-f[1] / f[2]};
+	}
+
+      const double uo3sq4 = u2o3 * u2o3;
+      if (uo3sq4 > maxSqrt)
+	{
+	  if (f[2] == 0)
+	    {
+	      if (f[1] > 0)
+		return containers::StackVector<double, 3>{-f[0] / f[1]};
+
+	      if (f[1] < 0)
+		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
+
+	      return containers::StackVector<double, 3>{0};
+	    }
+
+	  return containers::StackVector<double, 3>{-f[1] / f[2]};
+	}
+
+      const double j = (uo3sq4 * uo3) + v * v;
+  
+      if (j > 0) 
+	{//Only one root (but this test can be wrong due to a
+	  //catastrophic cancellation in j 
+	  //(i.e. (uo3sq4 * uo3) == v * v)
+	  
+	  containers::StackVector<double, 3> roots;
+	  const double w = std::sqrt(j);
+	  if (v < 0)
+	    roots.push_back(std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - f[2] / 3.0);
+	  else
+	    roots.push_back(uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0);
+
+	  //We now polish the root up before we use it in other calculations
+	  cubicNewtonRootPolish(f, roots[0]);
+	 
+	  //We double check that there are no more roots by using a
+	  //quadratic formula on the factored problem, this helps when
+	  //the j test is wrong due to numerical error.
+	  
+	  //We have a choice of either -r/root1, or q -
+	  //(p+root1)*root1 for the constant term of the quadratic. 
+	  //
+	  //The division one usually results in more accurate roots
+	  //when it finds them but fails to detect real roots more
+	  //often than the multiply.
+	  auto newroots = solve_roots(Polynomial<2,double>{1.0, f[2] + roots[0], -f[0] / roots[0]});
+	  for (double root : newroots)
+	    roots.push_back(root);
+
+	  //However, the multiply detects roots where there are none,
+	  //the division does not. So we must either accept missing
+	  //roots or extra roots, here we choose missing roots
+	  //
+	  //if (quadSolve(q-(p+root1)*root1, p + root1, 1.0, root2, root3)) 
+	  //  return 3;
+
+	  return roots;
+	}
+  
+      if (uo3 >= 0)
+	//Multiple root detected
+	return containers::StackVector<double, 3>{std::cbrt(v) - f[2] / 3.0};
+
+      const double muo3 = - uo3;
+      double s = 0;
+      if (muo3 > 0)
+	{
+	  s = std::sqrt(muo3);
+	  if (f[2] > 0) s = -s;
+	}
+      
+      const double scube = s * muo3;
+      if (scube == 0)
+	return containers::StackVector<double, 3>{ -f[2] / 3.0 };
+      
+      const double t = - v / (scube + scube);
+      const double k = std::acos(t) / 3.0;
+      const double cosk = std::cos(k);
+      
+      containers::StackVector<double, 3> roots{ (s + s) * cosk - f[2] / 3.0 };
+      
+      const double sinsqk = 1.0 - cosk * cosk;
+      if (sinsqk < 0)
+	return roots;
+
+      double rt3sink = std::sqrt(3.0) * std::sqrt(sinsqk);
+      roots.push_back(s * (-cosk + rt3sink) - f[2] / 3.0);
+      roots.push_back(s * (-cosk - rt3sink) - f[2] / 3.0);
+
+      cubicNewtonRootPolish(f, roots[0]);
+      cubicNewtonRootPolish(f, roots[1]);
+      cubicNewtonRootPolish(f, roots[2]);
+
+      return roots;
     }
     
     /*! \} */

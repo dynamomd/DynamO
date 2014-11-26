@@ -35,6 +35,17 @@ BOOST_AUTO_TEST_CASE( poly_multiplication )
   BOOST_CHECK_EQUAL(poly3[2], -2);
 }
 
+BOOST_AUTO_TEST_CASE( poly_division )
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+  auto poly1 = 2.0 - x + x * x;
+  auto poly2 = poly1 / 0.5;
+  BOOST_CHECK_EQUAL(poly2[0], 4);
+  BOOST_CHECK_EQUAL(poly2[1], -2);
+  BOOST_CHECK_EQUAL(poly2[2], 2);
+}
+
 BOOST_AUTO_TEST_CASE( poly_vector )
 {
   using namespace magnet::math;
@@ -145,4 +156,73 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
     auto roots = solve_roots(poly);
     BOOST_CHECK(roots.size() == 0);
   }
+}
+
+double cubic_rootvals[] = {-1e7, -1e6, -1e3, -100, -1, 0, 1, +100, 1e3, 1e6, 1e7};
+
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( poly_cubic_triple_roots, 0)
+BOOST_AUTO_TEST_CASE( poly_cubic_triple_roots )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  for (double root1 : cubic_rootvals)
+    for (double root2 : cubic_rootvals)
+      if (root2 != root1)
+	for (double root3 : cubic_rootvals)
+	  if ((root3 != root2) && (root3 != root1))
+	    {
+	      auto f = (x - root1) * (x - root2) * (x - root3);
+	      //Don't test the case where there is only one root (x^3=c)
+	      if ((f[2] == 0) && (f[1] == 0)) continue;
+
+	      auto roots = solve_roots(f);
+	      decltype(roots) actual_roots = {root1, root2, root3};
+	      std::sort(actual_roots.begin(), actual_roots.end());
+	      std::sort(roots.begin(), roots.end());
+
+	      BOOST_CHECK_EQUAL(roots.size(), 3);
+
+	      if (roots.size() == 3)
+		for (size_t i = 0; i < 3; ++i)
+		  {
+		    double root_error = std::abs((roots[i] - actual_roots[i]) / (actual_roots[i] + (actual_roots[i] == 0)));
+		    BOOST_CHECK_MESSAGE(root_error < 0.001, "root_error=" << root_error << " " << f << " roots=[" << roots[0] << "," << roots[1] << "," << roots[2] << "] actual_roots=[" << root1 << "," << root2 << "," << root3 << "]");
+		  }
+	    }
+}
+
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( poly_cubic_single_roots, 0 )
+BOOST_AUTO_TEST_CASE( poly_cubic_single_roots )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  for (double root1 : cubic_rootvals)
+    for (double root2real : cubic_rootvals)
+      for (double root2im : cubic_rootvals)
+	{
+	  //Skip real second root cases, and the symmetric cases
+	  if (root2im <= 0) continue;
+	  
+	  std::complex<double>
+	    root1val(root1, 0),
+	    root2val(root2real, root2im),
+	    root3val(root2real, -root2im);
+	  
+	  double a = (-root1val - root2val  - root3val).real(),
+	    b = (root1val * root2val + root1val * root3val + root2val * root3val).real(),
+	    c = - (root1val * root2val * root3val).real();
+	  
+	  auto f = ((x + a) * x + b) * x + c;
+
+	  auto roots = solve_roots(f);
+	  BOOST_CHECK_MESSAGE(roots.size() == 1, "rootcount=" << roots.size() << " " << f << " roots=[" << roots[0] << "," << roots[1] << "," << roots[2] << "] actual_roots=[" << root1 << "," << root2real << " +- " << root2im << "i]");
+
+	  if (roots.size() == 1)
+	    {
+	      double root_error = std::abs((roots[0] - root1) / (root1 + (root1 == 0)));
+	      BOOST_CHECK_MESSAGE(root_error < 0.001, "root error is " << root_error);
+	    }
+	}
 }
