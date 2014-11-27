@@ -338,10 +338,11 @@ namespace magnet {
     inline Polynomial<Order-1, Real> deflate_polynomial(const Polynomial<Order, Real>& a, const double root) {
       Polynomial<Order-1, Real> b;
       
-      //Check for the simple case where root==0
+      //Check for the simple case where root==0. If this is the case,
+      //then the deflated polynomial is actually just a divide by x.
       if (root == 0) {
-	for (size_t i(0); i < Order-1; ++i)
-	  b[i] = a[i];
+	for (size_t i(0); i < Order; ++i)
+	  b[i] = a[i+1];
 	return b;
       }
 	
@@ -454,6 +455,21 @@ namespace magnet {
       }
     }
 
+    /*! \brief Deflate a Polynomial and solves for the remaining
+        roots.
+
+      This routine also polishes the root to try to improve accuracy;
+      however, do not assume this function will behave well with
+      inaccurate roots.
+     */
+    template<size_t Order, class Real>
+    inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real>& f, Real root) {
+      cubicNewtonRootPolish(f, root);
+      containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
+      roots.push_back(root);
+      return roots;
+    }
+    
 
     /*! \brief The roots of a 3rd order Polynomial.
       \param f The Polynomial to evaluate.
@@ -464,13 +480,9 @@ namespace magnet {
 	return solve_roots(Polynomial<2, double>(f_original));
       
       if (f_original[0] == 0)
-	{
-	  //If the constant is zero, one root is x=0.  We can divide
-	  //by x and solve the remaining quadratic
-	  containers::StackVector<double, 3> roots = solve_roots(Polynomial<2, double>{f_original[1], f_original[2], f_original[3]});
-	  roots.push_back(0);
-	  return roots;
-	}
+	//If the constant is zero, one root is x=0.  We can divide
+	//by x and solve the remaining quadratic
+	return deflate_and_solve_polynomial(f_original, 0.0);
 
       //Convert to a cubic with a unity high-order coefficient
       auto f = f_original / f_original[3];
@@ -482,95 +494,82 @@ namespace magnet {
       static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
       
       if ((f[2] > maxSqrt) || (f[2] < -maxSqrt))
-	{
-	  //The equation is limiting to x^3 + f[2] * x^2 == 0. Use
-	  //this to estimate the location of one root, polish it up,
-	  //then deflate the polynomial and solve the quadratic.
-	  double largeroot = -f[2];
-	  cubicNewtonRootPolish(f, largeroot);
-	  containers::StackVector<double, 3> roots = solve_roots(deflate_polynomial(f, largeroot));
-	  roots.push_back(largeroot);
-	  return roots;
-	}
+	//The equation is limiting to x^3 + f[2] * x^2 == 0. Use
+	//this to estimate the location of one root, polish it up,
+	//then deflate the polynomial and solve the quadratic.
+	return deflate_and_solve_polynomial(f, -f[2]);
 
 //NOT SURE THESE RANGE TESTS ARE BENEFICIAL
-//      if (f[1] > maxSqrt)
-//	//Special case, if f[1] is large (and f[2] is not) and the root
-//	//is -f[0] / f[1], the x^3 term is negligble, and all other
-//	//terms cancel.
-//	return containers::StackVector<double, 3>{-f[0] / f[1]};
-//
-//      if (f[1] < -maxSqrt)
-//	//Special case, equation is x^3 + q x == 0
-//	return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
-//
-//      if ((f[0] > maxSqrt) || (f[0] < -maxSqrt))
-//	//Another special case where f(x)= x^3 +f[0]
-//	return containers::StackVector<double, 3>{-std::cbrt(f[0])};
+      if (f[1] > maxSqrt)
+	//Special case, if f[1] is large (and f[2] is not) the root is
+	//near -f[0] / f[1], the x^3 term is negligble, and all other terms
+	//cancel.
+	return deflate_and_solve_polynomial(f, -f[0] / f[1]);
+
+      if (f[1] < -maxSqrt)
+	//Special case, equation is approximated as x^3 + q x == 0
+	return deflate_and_solve_polynomial(f, -std::sqrt(-f[1]));
+
+      if ((f[0] > maxSqrt) || (f[0] < -maxSqrt))
+	//Another special case where equation is approximated asf(x)= x^3 +f[0]
+	return deflate_and_solve_polynomial(f, -std::cbrt(f[0]));
 
       const double v = f[0] + (2.0 * f[2] * f[2] / 9.0 - f[1]) * (f[2] / 3.0);
 
-//      if ((v > maxSqrt) || (v < -maxSqrt))
-//	return containers::StackVector<double, 3>{-f[2]};
+      if ((v > maxSqrt) || (v < -maxSqrt))
+	return deflate_and_solve_polynomial(f, -f[2]);
       
       const double uo3 = f[1] / 3.0 - f[2] * f[2] / 9.0;
       const double u2o3 = uo3 + uo3;
       
-//      if ((u2o3 > maxSqrt) || (u2o3 < -maxSqrt))
-//	{
-//	  if (f[2]==0)
-//	    {
-//	      if (f[1] > 0)
-//		return containers::StackVector<double, 3>{-f[0] / f[1]};
-//	      
-//	      if (f[1] < 0)
-//		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
-//		
-//	      return containers::StackVector<double, 3>{0};
-//	    }
-//
-//	  return containers::StackVector<double, 3>{-f[1] / f[2]};
-//	}
+      if ((u2o3 > maxSqrt) || (u2o3 < -maxSqrt))
+	{
+	  if (f[2]==0)
+	    {
+	      if (f[1] > 0)
+		return deflate_and_solve_polynomial(f, -f[0] / f[1]);
+	      
+	      if (f[1] < 0)
+		return deflate_and_solve_polynomial(f, -std::sqrt(-f[1]));
+		
+	      return deflate_and_solve_polynomial(f, 0.0);
+	    }
+
+	  return deflate_and_solve_polynomial(f, -f[1] / f[2]);
+	}
 
       const double uo3sq4 = u2o3 * u2o3;
-//      if (uo3sq4 > maxSqrt)
-//	{
-//	  if (f[2] == 0)
-//	    {
-//	      if (f[1] > 0)
-//		return containers::StackVector<double, 3>{-f[0] / f[1]};
-//
-//	      if (f[1] < 0)
-//		return containers::StackVector<double, 3>{-std::sqrt(-f[1])};
-//
-//	      return containers::StackVector<double, 3>{0};
-//	    }
-//
-//	  return containers::StackVector<double, 3>{-f[1] / f[2]};
-//	}
+      if (uo3sq4 > maxSqrt)
+	{
+	  if (f[2] == 0)
+	    {
+	      if (f[1] > 0)
+		return deflate_and_solve_polynomial(f, -f[0] / f[1]);
+
+	      if (f[1] < 0)
+		return deflate_and_solve_polynomial(f, -std::sqrt(-f[1]));
+
+	      return deflate_and_solve_polynomial(f, 0.0);
+	    }
+
+	  return deflate_and_solve_polynomial(f, -f[1] / f[2]);
+	}
 
       const double j = (uo3sq4 * uo3) + v * v;
-  
+
       if (j > 0) 
 	{//Only one root (but this test can be wrong due to a
 	  //catastrophic cancellation in j 
 	  //(i.e. (uo3sq4 * uo3) == v * v)
-	  
-	  const double w = std::sqrt(j);
-	  double root1;
-	  if (v < 0)
-	    root1 = std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - f[2] / 3.0;
-	  else
-	    root1 = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0;
 
-	  //We now polish the root up before we use it in other calculations
-	  cubicNewtonRootPolish(f, root1);
-	 
-	  //We double check that there are no more roots by deflating
-	  //the polynomial using the calculated root and solving this.
-	  containers::StackVector<double, 3> roots = solve_roots(deflate_polynomial(f, root1));
-	  roots.push_back(root1);
-	  return roots;
+	  const double w = std::sqrt(j);
+	  double root;
+	  if (v < 0)
+	    root = std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - f[2] / 3.0;
+	  else
+	    root = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0;
+
+	  return deflate_and_solve_polynomial(f, root);
 	}
   
       if (uo3 >= 0)

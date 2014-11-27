@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
   }
 }
 
-double cubic_rootvals[] = {-1e7, -1e6, -1e3, -100, -1, 0, 1, +100, 1e3, 1e6, 1e7};
+double cubic_rootvals[] = {-1e6, -1e3, -100, -1, 0, 1, +100, 1e3, 1e6};
 
 BOOST_AUTO_TEST_CASE( poly_cubic_triple_roots )
 {
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_triple_roots )
     for (double root2 : cubic_rootvals)
       if (root2 != root1)
 	for (double root3 : cubic_rootvals)
-	  if ((root3 != root2) && (root3 != root1))
+	  if ((root1 != root2) && (root2 != root3) && (root1 != root3))
 	    {
 	      auto f = (x - root1) * (x - root2) * (x - root3);
 	      //Don't test the case where there is only one root (x^3=c)
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_triple_roots )
 	      std::sort(actual_roots.begin(), actual_roots.end());
 	      std::sort(roots.begin(), roots.end());
 
-	      BOOST_CHECK_EQUAL(roots.size(), 3);
+	      BOOST_CHECK_MESSAGE(roots.size() == 3, f << " roots=[" << roots[0] << "," << roots[1] << "," << roots[2] << "] actual_roots=[" << root1 << "," << root2 << "," << root3 << "]");
 
 	      if (roots.size() == 3)
 		for (size_t i = 0; i < 3; ++i)
@@ -243,11 +243,9 @@ BOOST_AUTO_TEST_CASE( poly_cubic_single_roots )
 	    root2val(root2real, root2im),
 	    root3val(root2real, -root2im);
 	  
-	  double a = (-root1val - root2val  - root3val).real(),
-	    b = (root1val * root2val + root1val * root3val + root2val * root3val).real(),
-	    c = - (root1val * root2val * root3val).real();
+	  auto poly_c = (x - root1val) * (x - root2val) * (x - root3val);
 	  
-	  auto f = ((x + a) * x + b) * x + c;
+	  Polynomial<3, double> f = poly_c[0].real() + poly_c[1].real() * x + poly_c[2].real() * x * x + poly_c[3].real() * x * x * x;
 
 	  auto roots = solve_roots(f);
 	  BOOST_CHECK_MESSAGE(roots.size() == 1, "rootcount=" << roots.size() << " " << f << " roots=[" << roots[0] << "," << roots[1] << "," << roots[2] << "] actual_roots=[" << root1 << "," << root2real << " +- " << root2im << "i]");
