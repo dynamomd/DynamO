@@ -31,16 +31,18 @@ namespace magnet {
       typedef std::array<T, Nmax> Base;
     public:
       template<size_t Nmax2>
-      StackVector(const StackVector<T, Nmax2>& vec)
+      StackVector(const StackVector<T, Nmax2>& vec):
+	Base()
       {
 	static_assert(Nmax2 <= Nmax, "Can only convert to larger StackVector containers");
 	_size = vec.size();
 	std::copy(vec.begin(), vec.end(), Base::begin());
       }
 
-      StackVector(): _size(0) {}
+      StackVector(): Base(), _size(0) {}
       
       StackVector(std::initializer_list<T> _list):
+	Base(),
 	_size(0)
       {
 	auto it = _list.begin();

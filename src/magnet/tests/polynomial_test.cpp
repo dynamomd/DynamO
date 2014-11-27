@@ -124,21 +124,21 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
     auto roots = solve_roots(poly);
     BOOST_CHECK(roots.size() == 0);
   }
-
+  
   {//Quadratic with one root
     auto poly = -4 * x * x + 12 * x - 9;
     auto roots = solve_roots(poly);
     BOOST_CHECK(roots.size() == 1);
-    
-    BOOST_CHECK_CLOSE(roots[0], 1.5, 1e-10);
+    if (roots.size() == 1)
+      BOOST_CHECK_CLOSE(roots[0], 1.5, 1e-10);
   }
   
   {//linear function with one root
     auto poly =  0 * x * x + 12 * x - 9;
     auto roots = solve_roots(poly);
     BOOST_CHECK(roots.size() == 1);
-    
-    BOOST_CHECK_CLOSE(roots[0], 0.75, 1e-10);
+    if (roots.size() == 1)
+      BOOST_CHECK_CLOSE(roots[0], 0.75, 1e-10);
   }
 
   {//constant function, with no roots
