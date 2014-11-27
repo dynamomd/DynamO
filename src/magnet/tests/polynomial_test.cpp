@@ -317,4 +317,16 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     BOOST_CHECK_CLOSE(roots[1], 9.322925914000258e-157, 1e-10);
     BOOST_CHECK_CLOSE(roots[2], 1.1579208923731622e78, 1e-10);
   }
+
+  const double smallerterm = maxsqrt * 1e-1;
+  {
+    //Large v term
+    auto poly = x * x * x  - smallerterm * x * x - smallerterm * x + 2;
+    auto roots = solve_roots(poly);
+    std::sort(roots.begin(), roots.end());
+    BOOST_CHECK_EQUAL(roots.size(), 3);
+    BOOST_CHECK_CLOSE(roots[0], -1.0, 1e-10);
+    BOOST_CHECK_CLOSE(roots[1], 1.491668146240041472864517142264024641421371730393e-153, 1e-10);
+    BOOST_CHECK_CLOSE(roots[2], 1.340780792994259598314974448015366224371799690462e153, 1e-10);
+  }
 }

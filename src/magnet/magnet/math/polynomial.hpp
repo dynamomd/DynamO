@@ -17,11 +17,10 @@
 
 #include <magnet/exception.hpp>
 #include <magnet/containers/stack_vector.hpp>
+#include <magnet/math/precision.hpp>
 #include <stdexcept>
 #include <ostream>
 #include <array>
-#include <cmath>
-#include <limits>
 
 namespace magnet {
   namespace math {
@@ -111,7 +110,7 @@ namespace magnet {
 	size_t i(0);
 	for (; i <= N; ++i)
 	  Base::operator[](i) = poly[i];
-	for (; i <= Order + 1; ++i)
+	for (; i <= Order; ++i)
 	  Base::operator[](i) = Real();
       }
 
@@ -266,19 +265,14 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the Polynomial to the output stream. */
     template<class Real, size_t N>
     inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real>& poly) {
-      os << poly[0];
-      for (size_t i(1); i <= N; ++i) {
-	if (poly[i] == 0) continue;
-	if (poly[i] == 1)
-	  os << "+x";
-	else if (poly[i] == -1)
-	  os << "-x";
-	else if (poly[i] > 0)
-	  os << "+" << poly[i] << "*x";
-	else
-	  os << poly[i] << "*x";
-	if (i > 1) os << "^" << i;
+      for (size_t i(N); i != 0; --i) {
+	if (poly[i] == Real()) continue;
+	os << "(" << poly[i] << ") * x";
+	if (i > 1) 
+	  os << "^" << i;
+	os << " + ";
       }
+      os << poly[0];
       return os;
     }
 
@@ -360,12 +354,7 @@ namespace magnet {
       size_t i_b = 1;
       while (i_t >= i_b) {
 	const Real d = root * b[i_t + 1];	
-	if (//This is true if there is cancellation in the downwards approach
-	    (d != 0) && (a[i_t+1] != 0)
-	    && (std::signbit(d) == std::signbit(a[i_t+1]))
-	    //This is true if there is NO cancellation in the upwards approach
-	    && ((b[i_b-1] == 0) || (a[i_b] == 0)
-		|| (std::signbit(b[i_b-1]) != std::signbit(a[i_b])))) {
+	if (subtraction_precision(b[i_b], a[i_b]) > addition_precision(a[i_t+1], d)) {
 	  b[i_b] = (b[i_b-1] - a[i_b]) / root;
 	  ++i_b;
 	} else {
