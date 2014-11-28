@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python2
 
 from lxml import etree as ET
 import sys
@@ -219,17 +219,17 @@ input_file.close()
 thermostat_command = [ 'dynamod',  '-T', temperature, '-r', temperature, '-o', xml_fn, '-Z', xml_fn ]
 print "Running this command:", " ".join(thermostat_command)
 if debug:
-    print subprocess.check_output(thermostat_command)
+    print subprocess.Popen(thermostat_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
 else:
-    silent_stdout = subprocess.check_output(thermostat_command)
+    silent_stdout = subprocess.Popen(thermostat_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()
 
 #Check config is valid with dynamod:
 run_command = ['dynamod', xml_fn, "--check"]
 print "Running this command:", " ".join(run_command)
 if debug:
-    print subprocess.check_output(run_command)
+    print subprocess.Popen(run_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
 else:
-    silent_stdout = subprocess.check_output(run_command)
+    silent_stdout = subprocess.Popen(run_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()
 
 if debug:
     #Create trajectory file
