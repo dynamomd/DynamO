@@ -14,70 +14,102 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
 
 #include <magnet/math/polynomial.hpp>
+#include <magnet/math/operators.hpp>
 
 namespace magnet {
   namespace math {
-    /*! \brief Symbolic representation of \f$f(x) *
-      sin\left(g(x)\right) function.
-     */
-    template<class Prefactor, class Arg>
-    class SinSymbol {
+    namespace detail {
+      typedef enum {
+	SIN,
+	COS
+      } Function_t;
+    }
+    /*! \brief Symbolic representation of non-polynomial functions.
+    */
+    template<class Arg, detail::Function_t Func>
+    class Function {
     public:
-      Prefactor _prefactor;
       Arg _arg;
 
-      SinSymbol(const Prefactor& p, const Arg& a):
-	_prefactor(p),
-	_arg(a)
-      {}
+      Function(const Arg& a): _arg(a) {}
       
       template<class Real>
-      auto operator()(Real x) const ->decltype(_prefactor(x) * std::sin(_arg(x))) {
-	return _prefactor(x) * std::sin(_arg(x));
+      auto operator()(Real x) const ->decltype(_arg(x)) {
+	switch (Func) {
+	case detail::SIN: return std::sin(_arg(x));
+	case detail::COS: return std::cos(_arg(x));
+	}
       }
 
-      template<class P>
-      auto operator*(const P& p) -> SinSymbol<decltype(_prefactor * p), Arg> {
-	return SinSymbol<decltype(_prefactor * p), Arg>(p * _prefactor, _arg);
+      auto operator-() const -> decltype(multiply(-1, *this)) {
+	return multiply(-1, *this);
+      }
+
+      template<class RHS>
+      auto operator+(const RHS& r) const -> decltype(add(*this, r)) {
+	return add(*this, r);
+      }
+
+      template<class RHS>
+      auto operator*(const RHS& r) const -> decltype(multiply(*this, r)) {
+	return multiply(*this, r);
       }
     };
-    
-    /*! \relates SinSymbol
-      \brief Helper function for creating SinSymbols.
+
+    /*! \relates Function
+      \brief Helper function for creating sine Function types
     */
     template<class A>
-    SinSymbol<Polynomial<0>, A> Sin(const A& a) {
-      return SinSymbol<Polynomial<0>, A>(Polynomial<0>{1.0}, a);
-    }
-    
-    /*! \relates SinSymbol
-      \brief Optimised Polynomial and SinSymbol multiplication.
-      
-      When multiplying a polynomial with a SinSymbol, it is preferred
-      to prevent the distribution of the SinSymbol over the
-      coefficients of the polynomial, but instead merge this with the
-      Prefactor term.
-    */
-    template<class A, class P, class PReal, size_t POrder>
-    auto operator*(const Polynomial<POrder, PReal>& p, const SinSymbol<P, A>& s) 
-      -> SinSymbol<decltype(s._prefactor * p), A> {
-      return SinSymbol<decltype(s._prefactor * p), A>(p * s._prefactor, s._arg);
-    }
+    Function<A, detail::SIN> sin(const A& a) { return Function<A, detail::SIN>(a); }
 
-    /*! \relates SinSymbol
-      \name SinSymbol input/output operations
-      \{
+    /*! \relates Function
+      \brief Helper function for creating cosine Function types.
     */
-    /*! \brief Writes a human-readable representation of the SinSymbol
-        to the output stream. 
+    template<class A>
+    Function<A, detail::COS> cos(const A& a) { return Function<A, detail::COS>(a); }
+    
+    /*! \relates Function 
+      
+      \brief Writes a human-readable representation of the Function to
+      the output stream.
     */
-    template<class P, class A>
-    inline std::ostream& operator<<(std::ostream& os, const SinSymbol<P, A>& s) {
-      os << "(" << s._prefactor << ") * sin(" << s._arg << ")";
+    template<class A, detail::Function_t Func>
+    inline std::ostream& operator<<(std::ostream& os, const Function<A, Func>& s) {
+      switch (Func) {
+      case detail::SIN: os << " sin("; break;
+      case detail::COS: os << " cos("; break;
+      }
+      os << s._arg << ")";
       return os;
     }
+
+    /*! \relates Function
+      
+      \brief Here we explicitly avoid distributing Function types over
+      the coefficients of Polynomial types.
+
+      Functions are usually expensive to evaluate, so we keep them factored out
+    */
+    template<class Real, size_t N, class A, detail::Function_t Func>
+    auto operator*(const Polynomial<N, Real>& poly, const Function<A, Func>& f) -> decltype(multiply(poly, f))
+    { return multiply(poly, f); }
+
+    /*! \relates Function
+      \name Function calculus
+      \{
+    */
+    /*! \brief Derivative of sine functions.*/
+    template<class A>
+    auto derivative(const Function<A, detail::SIN>& f) -> decltype(derivative(f._arg) * cos(f._arg))
+    { return derivative(f._arg) * cos(f._arg); }
+
+    /*! \brief Derivative of cosine functions.*/
+    template<class A>
+    auto derivative(const Function<A, detail::COS>& f) -> decltype(-derivative(f._arg) * sin(f._arg))
+    { return -derivative(f._arg) * sin(f._arg); }
     /*! \} */
   }
 }

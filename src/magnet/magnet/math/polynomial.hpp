@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
 
 #include <magnet/exception.hpp>
 #include <magnet/containers/stack_vector.hpp>
@@ -125,7 +126,7 @@ namespace magnet {
       /*! \brief Evaluate the polynomial at x. */
       Real operator()(Real x) const {
 	Real sum = Base::operator[](Order);
-	if (Order>0)
+	if (Order > 0)
 	  for(size_t i = Order - 1; i > 0; --i)
 	    sum = sum * x + Base::operator[](i);
 	sum = sum * x + Base::operator[](0);
