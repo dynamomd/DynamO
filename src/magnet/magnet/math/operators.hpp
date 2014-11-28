@@ -146,8 +146,20 @@ namespace magnet {
       os << " (" << op._r << ")";
       return os;
     }
-
     /*! \} */
 
+    /*! \brief Symbolic representation of a (positive) power operator.
+     */
+    template<class Arg, size_t Power>
+    struct PowerOp {
+      Arg _arg;
+      
+      PowerOp(Arg a): _arg(a) {}
+      
+      template<class R>
+      auto operator()(const R& x) const -> decltype(std::pow(_arg(x), Power)) {
+	return std::pow(_arg(x), Power);
+      }
+    };
   }
 }

@@ -125,9 +125,9 @@ namespace magnet {
 
       /*! \brief Evaluate the polynomial at x. */
       Real operator()(Real x) const {
-	Real sum = Base::operator[](Order);
+	Real sum = 0;
 	if (Order > 0)
-	  for(size_t i = Order - 1; i > 0; --i)
+	  for(size_t i = Order; i > 0; --i)
 	    sum = sum * x + Base::operator[](i);
 	sum = sum * x + Base::operator[](0);
 	return sum;
@@ -265,14 +265,21 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the Polynomial to the output stream. */
     template<class Real, size_t N>
     inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real>& poly) {
+      bool first = true;
       for (size_t i(N); i != 0; --i) {
 	if (poly[i] == Real()) continue;
+	if (!first)
+	  os << " + ";
+	first = false;
 	os << "(" << poly[i] << ") * x";
-	if (i > 1) 
+	if (i > 1)
 	  os << "^" << i;
-	os << " + ";
       }
-      os << poly[0];
+      if (poly[0] != Real()) {
+	if (!first)
+	  os << " + ";
+	os << "(" << poly[0] << ")";
+      }
       return os;
     }
 
