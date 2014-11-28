@@ -182,9 +182,10 @@ namespace dynamo {
 	3.49, 3.96, 3.39, 2.84, 3.93, 4.99, 2.88, 2.89, 2.91, 4.70, 4.64
       };
 
-    //Value taken from [2], which differs from value given in [1]
-    //and produces a more realistic Ramachandran plot.
     //This is the fluctuation of the bond distance allowed.
+    //Old value [1] relevant for validation purposes
+    //static constexpr double _PRIME_bond_tolerance = 0.02;
+    //New value [2] for more realistic Ramachandran plot
     static constexpr double _PRIME_bond_tolerance = 0.02375;
 
     //All subsequent values taken from [1] unless otherwise noted.
@@ -226,7 +227,10 @@ namespace dynamo {
 
     //Backbone-to-backbone hydrogen bonding
     //Maximum distance for the CO and NH sites
-    static constexpr double _PRIME_HB_well_diameter = 4.20;
+    //Old value from PRIME [1]
+    //static constexpr double _PRIME_HB_well_diameter = 4.20;
+    //New value from PRIME20 [4]
+    static constexpr double _PRIME_HB_well_diameter = 4.50;
     //
     //Minimum distance for the "auxiliary pairs"
     static constexpr double _PRIME_HB_aux_min_distances[] =
