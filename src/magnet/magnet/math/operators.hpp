@@ -23,7 +23,7 @@ namespace magnet {
       typedef enum {
 	ADD,
 	MULTIPLY,
-	DIVIDE
+	DIVIDE,
       } Op_t;
     }
     /*! \brief Symbolic representation of a binary operator. 
@@ -33,11 +33,11 @@ namespace magnet {
       them. This class represents these operations.
      */
     template<class LHStype, class RHStype, detail::Op_t Op>
-    struct Operation {
+    struct BinaryOp {
       LHStype _l;
       RHStype _r;
       
-      Operation(LHStype l, RHStype r): _l(l), _r(r) {}
+      BinaryOp(LHStype l, RHStype r): _l(l), _r(r) {}
       
       template<class R>
       auto operator()(const R& x) const -> decltype(_l(x) + _r(x)) {
@@ -60,83 +60,83 @@ namespace magnet {
      */
     template<class T> T simplify(const T& f) { return f; }
 
-    /*! \relates Operation
-      \brief Helper function for creation of addition Operation types.
+    /*! \relates BinaryOp
+      \brief Helper function for creation of addition BinaryOp types.
     */
     template<class LHS, class RHS>
-    Operation<LHS, RHS, detail::ADD> add(const LHS& l, const RHS& r)
-    { return Operation<LHS, RHS, detail::ADD>(l, r); }
+    BinaryOp<LHS, RHS, detail::ADD> add(const LHS& l, const RHS& r)
+    { return BinaryOp<LHS, RHS, detail::ADD>(l, r); }
 
-    /*! \relates Operation
-      \brief Helper function for creation of subtraction Operation types.
+    /*! \relates BinaryOp
+      \brief Helper function for creation of subtraction BinaryOp types.
     */
     template<class LHS, class RHS>
-    Operation<LHS, RHS, detail::ADD> subtract(const LHS& l, const RHS& r)
-    { return Operation<LHS, RHS, detail::ADD>(l, -r); }
+    BinaryOp<LHS, RHS, detail::ADD> subtract(const LHS& l, const RHS& r)
+    { return BinaryOp<LHS, RHS, detail::ADD>(l, -r); }
 
-    /*! \relates Operation
-      \brief Helper function for creation of multiply Operation types.
+    /*! \relates BinaryOp
+      \brief Helper function for creation of multiply BinaryOp types.
     */
     template<class LHS, class RHS>
-    Operation<LHS, RHS, detail::MULTIPLY> multiply(const LHS& l, const RHS& r)
-    { return Operation<LHS, RHS, detail::MULTIPLY>(l, r); }
+    BinaryOp<LHS, RHS, detail::MULTIPLY> multiply(const LHS& l, const RHS& r)
+    { return BinaryOp<LHS, RHS, detail::MULTIPLY>(l, r); }
 
-    /*! \relates Operation
-      \brief Helper function for creation of multiply Operation types.
+    /*! \relates BinaryOp
+      \brief Helper function for creation of multiply BinaryOp types.
     */
     template<class LHS, class RHS>
-    Operation<LHS, RHS, detail::ADD> divide(const LHS& l, const RHS& r)
-    { return Operation<LHS, RHS, detail::DIVIDE>(l, r); }
+    BinaryOp<LHS, RHS, detail::ADD> divide(const LHS& l, const RHS& r)
+    { return BinaryOp<LHS, RHS, detail::DIVIDE>(l, r); }
 
-    /*! \relates Operation
-      \name Operation algebra
+    /*! \relates BinaryOp
+      \name BinaryOp algebra
       \{
     */
 
-    /*! \brief Simplify addition Operation types.
+    /*! \brief Simplify addition BinaryOp types.
 
       If the classes have specialised operators for addition, then the
       decltype lookup will succeed and the addition is shunted to
       those classes. If not, this lookup will fail to simplify the
-      addition and it is instead carried out by the Operation class.
+      addition and it is instead carried out by the BinaryOp class.
     */
     template<class LHS, class RHS>
-    auto simplify(const Operation<LHS, RHS, detail::ADD>& f) -> decltype(simplify(f._l) + simplify(f._r)) {
+    auto simplify(const BinaryOp<LHS, RHS, detail::ADD>& f) -> decltype(simplify(f._l) + simplify(f._r)) {
       return simplify(f._l) + simplify(f._r);
     }
 
-    /*! \brief Simplify multiplication Operation types.
+    /*! \brief Simplify multiplication BinaryOp types.
 
       If the classes have specialised operators for multiplication, then the
       decltype lookup will succeed and the addition is shunted to
       those classes. If not, this lookup will fail to simplify the
-      addition and it is instead carried out by the Operation class.
+      addition and it is instead carried out by the BinaryOp class.
     */
     template<class LHS, class RHS>
-    auto simplify(const Operation<LHS, RHS, detail::MULTIPLY>& f) -> decltype(simplify(f._l) * simplify(f._r)) {
+    auto simplify(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f) -> decltype(simplify(f._l) * simplify(f._r)) {
       return simplify(f._l) * simplify(f._r);
     }
 
     /*! \brief Derivatives of Addition operations.
     */
     template<class LHS, class RHS>
-    auto derivative(const Operation<LHS, RHS, detail::ADD>& f) -> decltype(derivative(f._l) + derivative(f._r))
+    auto derivative(const BinaryOp<LHS, RHS, detail::ADD>& f) -> decltype(derivative(f._l) + derivative(f._r))
     { return derivative(f._l) + derivative(f._r); }
 
     /*! \brief Derivatives of Multiplication operations.
     */
     template<class LHS, class RHS>
-    auto derivative(const Operation<LHS, RHS, detail::MULTIPLY>& f) -> decltype(add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)))
+    auto derivative(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f) -> decltype(add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)))
     { return add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)); }
     /*! \} */
 
-    /*! \relates Operation
-      \name Operation input/output operators
+    /*! \relates BinaryOp
+      \name BinaryOp input/output operators
       \{
     */
     /*! \brief Writes a human-readable representation of the Polynomial to the output stream. */
     template<class LHS, class RHS, detail::Op_t Op>
-    inline std::ostream& operator<<(std::ostream& os, const Operation<LHS, RHS, Op>& op) {
+    inline std::ostream& operator<<(std::ostream& os, const BinaryOp<LHS, RHS, Op>& op) {
       os << " (" << op._l << ") ";
       switch (Op){
       case detail::ADD:      os << "+"; break;

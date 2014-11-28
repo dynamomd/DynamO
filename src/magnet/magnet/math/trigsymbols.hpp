@@ -22,20 +22,29 @@
 namespace magnet {
   namespace math {
     namespace detail {
+      /*! \relates Function
+	\brief Function type template parameter.
+       */
       typedef enum {
 	SIN,
 	COS
       } Function_t;
     }
-    /*! \brief Symbolic representation of non-polynomial functions.
+    /*! \brief Function types are symbolic representation of
+        non-polynomial functions.
     */
     template<class Arg, detail::Function_t Func>
     class Function {
     public:
+      /*! \brief The symbolic expression which is the argument of the
+          Function. 
+      */
       Arg _arg;
-
+      
+      /*! \brief Construct a Function with its argument. */
       Function(const Arg& a): _arg(a) {}
       
+      /*! \brief Evaluate a Function at a given value of \f$x\f$. */
       template<class Real>
       auto operator()(Real x) const ->decltype(_arg(x)) {
 	switch (Func) {
@@ -43,38 +52,27 @@ namespace magnet {
 	case detail::COS: return std::cos(_arg(x));
 	}
       }
-
-      auto operator-() const -> decltype(multiply(-1, *this)) {
-	return multiply(-1, *this);
-      }
-
-      template<class RHS>
-      auto operator+(const RHS& r) const -> decltype(add(*this, r)) {
-	return add(*this, r);
-      }
-
-      template<class RHS>
-      auto operator*(const RHS& r) const -> decltype(multiply(*this, r)) {
-	return multiply(*this, r);
-      }
     };
 
     /*! \relates Function
-      \brief Helper function for creating sine Function types
+      \name Function creation helper functions
+      \{
     */
+    /*! \brief Helper function for creating sine Function types. */
     template<class A>
     Function<A, detail::SIN> sin(const A& a) { return Function<A, detail::SIN>(a); }
 
-    /*! \relates Function
-      \brief Helper function for creating cosine Function types.
-    */
+    /*! \brief Helper function for creating cosine Function types. */
     template<class A>
     Function<A, detail::COS> cos(const A& a) { return Function<A, detail::COS>(a); }
-    
-    /*! \relates Function 
-      
-      \brief Writes a human-readable representation of the Function to
-      the output stream.
+    /*! \} */
+
+    /*! \relates Function
+      \name Function input/output operators
+      \{
+    */    
+    /*! \brief Writes a human-readable representation of the Function
+      to the output stream.
     */
     template<class A, detail::Function_t Func>
     inline std::ostream& operator<<(std::ostream& os, const Function<A, Func>& s) {
@@ -84,19 +82,70 @@ namespace magnet {
       }
       os << s._arg << ")";
       return os;
-    }
+    } 
+    /*! \} */
 
     /*! \relates Function
-      
-      \brief Here we explicitly avoid distributing Function types over
-      the coefficients of Polynomial types.
+      \name Function algebraic operators
+     */    
+    /*! \brief Unary negation operator for Function types.
+     */
+    template<class A, detail::Function_t Func>
+    auto operator-(const Function<A, Func>& f) -> decltype(multiply(-1, f))
+    { return multiply(-1, f); }
 
-      Functions are usually expensive to evaluate, so we keep them factored out
+    /*! \brief Generic left-handed addition operator for Function types.
+     */
+    template<class A, detail::Function_t Func, class RHS>
+    auto operator+(const Function<A, Func>& f, const RHS& r) -> decltype(add(f, r)) 
+    { return add(f, r); }
+
+    /*! \brief Generic right-handed addition operator for Function types.
+     */
+    template<class Real, class A, detail::Function_t Func>
+    auto operator+(const Real& r, const Function<A, Func>& f) -> decltype(add(r, f))
+    { return add(r, f); }
+    
+    /*! \brief Generic left-handed multiplication operator for Function types.
+     */
+    template<class A, detail::Function_t Func, class RHS>
+    auto operator*(const Function<A, Func>& f, const RHS& r) -> decltype(multiply(f, r))
+    { return multiply(f, r); }
+    
+    /*! \brief Generic right-handed multiplication operator for Function types.
+     */
+    template<class Real, class A, detail::Function_t Func>
+    auto operator*(const Real& r, const Function<A, Func>& f) -> decltype(multiply(r, f))
+    { return multiply(r, f); }
+
+    /*! \brief Specific multiplication operator for two Function types
+        to prevent ambiguous overloads.
+     */
+    template<class A, detail::Function_t Func,class A2, detail::Function_t Func2>
+    auto operator*(const Function<A, Func>& f1, const Function<A2, Func2>& f2) -> decltype(multiply(f1, f2))
+    { return multiply(f1, f2); }
+    
+    /*! \brief Specialisation for multiplication of Function and
+      Polynomial types to prevent polynomials distributing Functions
+      over all coefficients.
+    */
+    template<class A, detail::Function_t Func, class Real, size_t N>
+    auto operator*(const Function<A, Func>& f1, const Polynomial<N, Real>& poly) -> decltype(multiply(f1, poly))
+    { return multiply(f1, poly); }
+    
+    /*! \brief Specialisation for multiplication of Polynomial and
+      Function types to prevent polynomials distributing Functions
+      over all coefficients.
+
+      This operator is to explicitly avoid distributing Function types
+      over the coefficients of Polynomial types. Functions are usually
+      expensive to evaluate, so we keep them factored out
     */
     template<class Real, size_t N, class A, detail::Function_t Func>
     auto operator*(const Polynomial<N, Real>& poly, const Function<A, Func>& f) -> decltype(multiply(poly, f))
     { return multiply(poly, f); }
-
+    /*! \} */
+    
     /*! \relates Function
       \name Function calculus
       \{
