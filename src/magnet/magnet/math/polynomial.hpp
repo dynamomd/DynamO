@@ -72,7 +72,7 @@ namespace magnet {
 	coefficient in the passed Polynomial is zero. This requirement
 	is only enforced in debug mode.
       */
-      Polynomial(const Polynomial<Order+1, Real>& poly) {
+      explicit Polynomial(const Polynomial<Order+1, Real>& poly) {
 #ifdef MAGNET_DEBUG
 	if (poly[Order+1] != 0)
 	  M_throw() << "Trying to reduce the order of a polynomial with non-zero highest order coefficients!";
@@ -105,7 +105,7 @@ namespace magnet {
 
       /*! \brief Constructor for promoting from low-order to higher-order Polynomial types. */
       template<size_t N, class Real2>
-	Polynomial(const Polynomial<N, Real2>& poly) {
+       explicit Polynomial(const Polynomial<N, Real2>& poly) {
 	static_assert(N <= Order, "Can only promote to higher order polynomials");
 	size_t i(0);
 	for (; i <= N; ++i)
@@ -125,11 +125,10 @@ namespace magnet {
       /*! \brief Evaluate the polynomial at x. */
       Real operator()(Real x) const {
 	Real sum = Base::operator[](Order);
-	for(int i = Order - 1; i >= 0; --i)
-	  {
-	    sum *= x;
-	    sum += Base::operator[](i);
-	  }
+	if (Order>0)
+	  for(size_t i = Order - 1; i > 0; --i)
+	    sum = sum * x + Base::operator[](i);
+	sum = sum * x + Base::operator[](0);
 	return sum;
       }
     };
