@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-
+#include <magnet/math/symbolic.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/containers/stack_vector.hpp>
 #include <magnet/math/precision.hpp>
@@ -133,6 +133,31 @@ namespace magnet {
 	return sum;
       }
     };
+
+    /*! \relates Polynomial 
+      \name Polynomial set properties
+       \{
+    */
+
+    /*! \brief Returns the empty product of a Polynomial.
+      
+      The empty product is a term whose multiplicative action is null
+      (can be ignored).
+    */
+    template<size_t Order, class Real> 
+    constexpr Polynomial<Order, Real> empty_product(const Polynomial<Order, Real>&)
+    { return Polynomial<Order, Real>{1}; }
+
+    /*! \brief Returns the empty sum of a Polynomial.
+      
+      The empty sum is a term whose multiplicative action is null (can
+      be ignored).
+    */
+    template<size_t Order, class Real>
+    constexpr Polynomial<Order, Real> empty_sum(const Polynomial<Order, Real>&)
+    { return Polynomial<Order, Real>{}; }
+
+    /*! \} */
 
     /*! \relates Polynomial 
       \name Polynomial algebraic operations
@@ -265,21 +290,29 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the Polynomial to the output stream. */
     template<class Real, size_t N>
     inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real>& poly) {
-      bool first = true;
+      std::ostringstream oss;
+      size_t terms = 0;
       for (size_t i(N); i != 0; --i) {
-	if (poly[i] == Real()) continue;
-	if (!first)
-	  os << " + ";
-	first = false;
-	os << "(" << poly[i] << ") * x";
+	if (poly[i] == empty_sum(poly[i])) continue;
+	if (terms != 0)
+	  oss << " + ";
+	++terms;
+	if (poly[i] != empty_product(poly[i]))
+	  oss << poly[i] << " * ";
+	oss << "x";
 	if (i > 1)
-	  os << "^" << i;
+	  oss << "^" << i;
       }
-      if (poly[0] != Real()) {
-	if (!first)
-	  os << " + ";
-	os << "(" << poly[0] << ")";
+      if (poly[0] != empty_sum(poly[0])) {
+	if (terms != 0)
+	  oss << " + ";
+	++terms;
+	oss << poly[0];
       }
+      if (terms > 1)
+	os << "(" << oss.str() << ")";
+      else
+	os << oss.str();
       return os;
     }
 
@@ -477,7 +510,6 @@ namespace magnet {
       return roots;
     }
     
-
     /*! \brief The roots of a 3rd order Polynomial.
       \param f The Polynomial to evaluate.
      */
@@ -628,7 +660,7 @@ namespace magnet {
       \param tmax The maximum bound.
      */
     template<class Real>
-    inline Real max_abs_val(const Polynomial<0, Real>& f, const double tmin, const double tmax) {
+    inline Real max_abs_val(const Polynomial<0, Real>& f, const Real tmin, const Real tmax) {
       return std::abs(f[0]);
     }
 
@@ -638,7 +670,7 @@ namespace magnet {
       \param tmax The maximum bound.
      */
     template<class Real>
-    inline Real max_abs_val(const Polynomial<1, Real>& f, const double tmin, const double tmax) {
+    inline Real max_abs_val(const Polynomial<1, Real>& f, const Real tmin, const Real tmax) {
       return std::max(std::abs(f(tmin)), std::abs(f(tmax)));
     }
 
@@ -648,7 +680,7 @@ namespace magnet {
       \param tmax The maximum bound.
      */
     template<class Real, size_t Order>
-    inline Real max_abs_val(const Polynomial<Order, Real>& f, const double tmin, const double tmax) {
+    inline Real max_abs_val(const Polynomial<Order, Real>& f, const Real tmin, const Real tmax) {
       auto roots = solve_roots(derivative(f));
       Real retval = std::max(std::abs(f(tmin)), std::abs(f(tmax)));
       for (auto root : roots)

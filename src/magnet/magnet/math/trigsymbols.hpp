@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-
+#include <magnet/math/symbolic.hpp>
 #include <magnet/math/polynomial.hpp>
 #include <magnet/math/operators.hpp>
 
@@ -77,12 +77,12 @@ namespace magnet {
     template<class A, detail::Function_t Func>
     inline std::ostream& operator<<(std::ostream& os, const Function<A, Func>& s) {
       switch (Func) {
-      case detail::SIN: os << " sin("; break;
-      case detail::COS: os << " cos("; break;
+      case detail::SIN: os << "sin("; break;
+      case detail::COS: os << "cos("; break;
       }
       os << s._arg << ")";
       return os;
-    } 
+    }
     /*! \} */
 
     /*! \relates Function
@@ -150,15 +150,34 @@ namespace magnet {
       \name Function calculus
       \{
     */
-    /*! \brief Derivative of sine functions.*/
+    /*! \brief Generic derivative of sine functions.*/
     template<class A>
     auto derivative(const Function<A, detail::SIN>& f) -> decltype(derivative(f._arg) * cos(f._arg))
     { return derivative(f._arg) * cos(f._arg); }
 
-    /*! \brief Derivative of cosine functions.*/
+    /*! \brief Generic derivative of cosine functions.*/
     template<class A>
     auto derivative(const Function<A, detail::COS>& f) -> decltype(-derivative(f._arg) * sin(f._arg))
     { return -derivative(f._arg) * sin(f._arg); }
     /*! \} */
+
+    /*! \relates Function
+      \name Function bounds
+      \{
+    */
+    /*! \brief The maximum absolute value of a Function in a defined range.
+
+      For sine and cosine, we return the trivial value 1 without
+      attempting to specialise for sections of the oscillation.
+     */
+    template<class Arg, detail::Op_t Op, class Real>
+    inline Real max_abs_val(const Function<Arg, Op>& f, const Real tmin, const Real tmax)
+    {
+      switch (Op) {
+      case detail::SIN: return 1;
+      case detail::COS: return 1;
+      };
+    }
+    /* \} */
   }
 }
