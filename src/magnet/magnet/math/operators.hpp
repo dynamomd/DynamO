@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+ /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -277,6 +277,24 @@ namespace magnet {
     auto operator-(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(subtract(l, r))
     { return subtract(l, r); }
 
+    /*! \brief Derivatives of PowerOp operations.
+    */
+    template<class Arg, size_t Power>
+    auto derivative(const PowerOp<Arg, Power>& f) -> decltype(derivative(f._arg) * PowerOp<Arg, Power-1>(f._arg))
+    { return Power * derivative(f._arg) * PowerOp<Arg, Power-1>(f._arg); }
+
+    template<class Arg>
+    auto derivative(const PowerOp<Arg, 1>& f) -> decltype(derivative(f._arg))
+    { return derivative(f._arg); }
+
+    template<class Arg>
+    auto derivative(const PowerOp<Arg, 2>& f) -> decltype(derivative(f._arg) * f._arg)
+    { return 2 * derivative(f._arg) * f._arg; }
+
+    template<class Arg>
+    double derivative(const PowerOp<Arg, 0>& f)
+    { return 0; }
+    
     /*! \} */
     
   }
