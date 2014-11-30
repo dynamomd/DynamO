@@ -17,7 +17,6 @@
 #pragma once
 #include <magnet/math/symbolic.hpp>
 #include <magnet/math/polynomial.hpp>
-#include <magnet/math/operators.hpp>
 
 namespace magnet {
   namespace math {
@@ -91,8 +90,8 @@ namespace magnet {
     /*! \brief Unary negation operator for Function types.
      */
     template<class A, detail::Function_t Func>
-    auto operator-(const Function<A, Func>& f) -> decltype(multiply(-1, f))
-    { return multiply(-1, f); }
+    auto operator-(const Function<A, Func>& f) -> decltype( -1 * f)
+    { return -1 * f; }
 
     /*! \brief Generic left-handed addition operator for Function types.
      */
@@ -124,26 +123,6 @@ namespace magnet {
     template<class A, detail::Function_t Func,class A2, detail::Function_t Func2>
     auto operator*(const Function<A, Func>& f1, const Function<A2, Func2>& f2) -> decltype(multiply(f1, f2))
     { return multiply(f1, f2); }
-    
-    /*! \brief Specialisation for multiplication of Function and
-      Polynomial types to prevent polynomials distributing Functions
-      over all coefficients.
-    */
-    template<class A, detail::Function_t Func, class Real, size_t N>
-    auto operator*(const Function<A, Func>& f1, const Polynomial<N, Real>& poly) -> decltype(multiply(f1, poly))
-    { return multiply(f1, poly); }
-    
-    /*! \brief Specialisation for multiplication of Polynomial and
-      Function types to prevent polynomials distributing Functions
-      over all coefficients.
-
-      This operator is to explicitly avoid distributing Function types
-      over the coefficients of Polynomial types. Functions are usually
-      expensive to evaluate, so we keep them factored out
-    */
-    template<class Real, size_t N, class A, detail::Function_t Func>
-    auto operator*(const Polynomial<N, Real>& poly, const Function<A, Func>& f) -> decltype(multiply(poly, f))
-    { return multiply(poly, f); }
     /*! \} */
     
     /*! \relates Function
@@ -155,10 +134,21 @@ namespace magnet {
     auto derivative(const Function<A, detail::SIN>& f) -> decltype(derivative(f._arg) * cos(f._arg))
     { return derivative(f._arg) * cos(f._arg); }
 
+    /*! \brief Derivative of a sine function with a constant argument.*/
+    template<class T>
+    Polynomial<0,T> derivative(const Function<Polynomial<0,T>, detail::SIN>& f)
+    { return Polynomial<0, T>{}; }
+
     /*! \brief Generic derivative of cosine functions.*/
     template<class A>
     auto derivative(const Function<A, detail::COS>& f) -> decltype(-derivative(f._arg) * sin(f._arg))
     { return -derivative(f._arg) * sin(f._arg); }
+
+    /*! \brief Derivative of a cosine function with a constant argument.*/
+    template<class T>
+    Polynomial<0,T> derivative(const Function<Polynomial<0,T>, detail::COS>& f)
+    { return Polynomial<0, T>{}; }
+
     /*! \} */
 
     /*! \relates Function

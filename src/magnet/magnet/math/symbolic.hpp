@@ -16,6 +16,7 @@
 */
 #pragma once
 
+#include <magnet/math/operators.hpp>
 #include <complex>
 
 namespace magnet {

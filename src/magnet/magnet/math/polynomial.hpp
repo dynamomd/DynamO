@@ -16,9 +16,9 @@
 */
 #pragma once
 #include <magnet/math/symbolic.hpp>
-#include <magnet/exception.hpp>
 #include <magnet/containers/stack_vector.hpp>
 #include <magnet/math/precision.hpp>
+#include <magnet/exception.hpp>
 #include <stdexcept>
 #include <ostream>
 #include <array>
@@ -30,6 +30,50 @@ namespace magnet {
       constexpr size_t max_order(size_t N, size_t M) {
 	return N > M ? N : M;
       }
+      
+      /*! \relates Polynomial 
+	
+	\brief Type trait which determines if an operation
+	(multiplication, addition) can be distributed over a
+	polynomials coefficients.
+
+	This general form allows all operations between fundamental
+	aritmatic types.
+       */
+      template<class OpType, class PolyType>
+      struct distribute_poly {
+	static const bool value = std::is_arithmetic<OpType>::value && std::is_arithmetic<PolyType>::value;
+      };
+
+      /*! \relates Polynomial 
+	
+	\brief Type trait enabling use of std::complex as a Polynomial
+	coefficient with arithmetic types.
+       */
+      template<class OpType, class T>
+      struct distribute_poly<OpType, std::complex<T> > {
+	static const bool value = std::is_arithmetic<OpType>::value;
+      };
+
+      /*! \relates Polynomial 
+	
+	\brief Type trait enabling use of std::complex as an operation
+	with Polynomials with arithmetic type coefficients.
+       */
+      template<class T, class PolyType>
+      struct distribute_poly<std::complex<T>, PolyType> {
+	static const bool value = std::is_arithmetic<PolyType>::value;
+      };
+
+      /*! \relates Polynomial 
+	
+	\brief Type trait enabling use of std::complex as an operation
+	with Polynomials.
+       */
+      template<class T>
+      struct distribute_poly<std::complex<T>, std::complex<T> > {
+	static const bool value = true;
+      };
     }
 
     /*! \brief Representation of Polynomial with basic algebra operations.
@@ -168,19 +212,35 @@ namespace magnet {
        the polynomial.
        \{
     */
+    
+    /*! \brief Right-handed addition operation on a Polynomial.
+      
+      This operator is only enabled if the type of the Polynomial
+      coefficients and the type being added is marked as compatitble
+      for distribution over the Polnomial coefficients. This is tested
+      using detail::distribute_poly.
+     */
     template<class Real1, class Real2, size_t N>
-    auto operator+(const Real1& r, const Polynomial<N,Real2>& poly)->Polynomial<N, decltype(poly[0] + r)>
+    auto operator+(const Real1& r, const Polynomial<N,Real2>& poly) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] + r)> >::type
     { return poly + r; }
 
-    /*!\brief Addition operator for Polynomial and constants. */
+    /*!\brief Left-handed addition operator for Polynomials 
+
+      This operator is only enabled if the type of the Polynomial
+      coefficients and the type being added is marked as compatitble
+      for distribution over the Polnomial coefficients. This is tested
+      using detail::distribute_poly.
+     */
     template<class Real1, class Real2, size_t N>
-    auto operator+(const Polynomial<N,Real1>& poly, const Real2& r)->Polynomial<N, decltype(poly[0] + r)>
+    auto operator+(const Polynomial<N,Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] + r)> >::type
     {
       Polynomial<N, decltype(poly[0] + r)> retval(poly);
       retval[0] += r;
       return retval;
     }
-    /*!\brief Addition operator for two Polynomial types. */
+
+    /*!\brief Addition operator for two Polynomial types. 
+     */
     template<size_t M, size_t N, class Real1, class Real2>
     auto operator+(const Polynomial<M, Real1>& poly1, const Polynomial<N, Real2>& poly2)->Polynomial<detail::max_order(M, N), decltype(poly1[0] + poly2[0])>
     {
@@ -190,25 +250,31 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief Subtraction of a Polynomial from a constant. */
+    /*! \brief Right-handed subtration operator for Polynomial types.
+     
+      This will reorder and convert the operation to a unary negation
+      operator with an addition if the left-handed addition form
+      exists.
+     */
     template<class Real1, class Real2, size_t N>
-    auto operator-(const Real1& r, const Polynomial<N, Real2>& poly)->Polynomial<N,decltype((-poly)[0]+r)>
-    {
-      Polynomial<N, decltype((-poly)[0]+r)> retval = -poly;
-      retval[0] += r;
-      return retval;  
+    auto operator-(const Real1& r, const Polynomial<N, Real2>& poly) -> decltype((-poly) + r) {
+      return (-poly) + r;
     }
-    /*! \brief Subtraction of a constant from a Polynomial. */
+    
+    /*! \brief Left-handed subtraction from a Polynomial type.
+
+      This will convert the operation to a unary negation operator
+      with an addition if the left-handed form exists.
+     */
     template<class Real1, class Real2, size_t N>
-    auto operator-(const Polynomial<N,Real1>& poly, const Real2& r)->Polynomial<N,decltype(poly[0]-r)>
-    {
-      Polynomial<N,decltype(poly[0]-r)> retval(poly);
-      retval[0] -= r;
-      return retval;
+    auto operator-(const Polynomial<N,Real1>& poly, const Real2& r) -> decltype(poly + (-r)) { 
+      return poly + (-r);
     }
-    /*! \brief Subtraction between two Polynomial types. */
+
+    /*! \brief Subtraction between two Polynomial types. 
+     */
     template<class Real1, class Real2, size_t M, size_t N>
-    auto operator-(const Polynomial<M,Real1>& poly1, const Polynomial<N,Real2>& poly2)->Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0])>
+    auto operator-(const Polynomial<M,Real1>& poly1, const Polynomial<N,Real2>& poly2) -> Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0])>
     {
       Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0])> retval(poly1);
       for (size_t i(0); i <= N; ++i)
@@ -216,16 +282,26 @@ namespace magnet {
       return retval;
     }
 
+    /*! \brief Right-handed multiplication operation on a Polynomial.
+      
+      This operator is only enabled if the type of the Polynomial
+      coefficients and the type being added is marked as compatitble
+      for distribution over the Polnomial coefficients. This is tested
+      using detail::distribute_poly.
+     */
     template<class Real1, class Real2, size_t N>
-    auto operator*(const Real1& r, const Polynomial<N, Real2>& poly) -> Polynomial<N, decltype(poly[0] * r)>
+    auto operator*(const Real1& r, const Polynomial<N, Real2>& poly) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] * r)> >::type
     { return poly * r; }
 
-    /*! \brief Multiplication between a constant and a Polynomial.
-      
-      We assume that multiplication commutes. 
+    /*! \brief Left-handed multiplication on a Polynomial.
+
+      This operator is only enabled if the type of the Polynomial
+      coefficients and the type being added is marked as compatitble
+      for distribution over the Polnomial coefficients. This is tested
+      using detail::distribute_poly.
     */
     template<class Real1, class Real2, size_t N>
-    auto operator*(const Polynomial<N, Real1>& poly, const Real2& r) -> Polynomial<N, decltype(poly[0] * r)>
+    auto operator*(const Polynomial<N, Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] * r)> >::type
     {
       Polynomial<N, decltype(Real1() * Real2())> retval;
       for (size_t i(0); i <= N; ++i)
@@ -247,13 +323,93 @@ namespace magnet {
 
     /*! \brief Division of a Polynomial by a constant. */
     template<class Real1, class Real2, size_t N>
-    auto operator/(const Polynomial<N, Real1>& poly, const Real2& r) -> Polynomial<N, decltype(Real1() / Real2())>
+    auto operator/(const Polynomial<N, Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] / r)> >::type
     {
       Polynomial<N, decltype(Real1() / Real2())> retval;
       for (size_t i(0); i <= N; ++i)
 	retval[i] = poly[i] / r;
       return retval;
     }
+
+    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
+
+      In this version, we optimise expressions like 
+      
+      \f[(p(x) * F(x)) * m(x)\f]
+      
+      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
+      \f$F(x)\f$ is some other symbol. These are reordered to
+      
+      \f[(p(x) * m(x)) * F(x)\f]
+
+      which allows the polynomials to expand against each other.
+     */
+    template<class Real1, size_t N1, class Real2, size_t N2, class RHS>
+    auto multiply(const BinaryOp<Polynomial<N1, Real1>, RHS, detail::MULTIPLY>& l, 
+		  const Polynomial<N2, Real2>& r) -> BinaryOp<decltype(l._l * r), RHS, detail::MULTIPLY>
+    {
+      return multiply(l._l * r, l._r); 
+    }
+
+    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
+
+      In this version, we optimise expressions like 
+      
+      \f[(F(x) * p(x)) * m(x)\f]
+      
+      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
+      \f$F(x)\f$ is some other symbol. These are reordered to
+      
+      \f[(p(x) * m(x)) * F(x)\f]
+
+      which allows the polynomials to expand against each other.
+     */
+    template<class Real1, size_t N1, class Real2, size_t N2, class LHS>
+    auto multiply(const BinaryOp<LHS, Polynomial<N1, Real1>, detail::MULTIPLY>& l,
+		  const Polynomial<N2, Real2>& r) -> BinaryOp<decltype(l._r * r), LHS, detail::MULTIPLY> {
+      return multiply(l._r * r, l._l); 
+    }
+
+    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
+
+      In this version, we optimise expressions like 
+      
+      \f[m(x) * (p(x) * F(x))\f]
+      
+      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
+      \f$F(x)\f$ is some other symbol. These are reordered to
+      
+      \f[(p(x) * m(x)) * F(x)\f]
+
+      which allows the polynomials to expand against each other.
+
+     */
+    template<class Real1, size_t N1, class Real2, size_t N2, class RHS>
+    auto multiply(const Polynomial<N2, Real2>& r,
+		  const BinaryOp<Polynomial<N1, Real1>, RHS, detail::MULTIPLY>& l) -> BinaryOp<decltype(l._l * r), RHS, detail::MULTIPLY>
+    {
+      return multiply(l._l * r, l._r); 
+    }
+
+    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
+
+      In this version, we optimise expressions like 
+      
+      \f[m(x) * (F(x) * p(x))\f]
+      
+      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
+      \f$F(x)\f$ is some other symbol. These are reordered to
+      
+      \f[(p(x) * m(x)) * F(x)\f]
+
+      which allows the polynomials to expand against each other.
+     */
+    template<class Real1, size_t N1, class Real2, size_t N2, class LHS>
+    auto multiply(const Polynomial<N2, Real2>& r,
+		  const BinaryOp<LHS, Polynomial<N1, Real1>, detail::MULTIPLY>& l) -> BinaryOp<decltype(l._r * r), LHS, detail::MULTIPLY> {
+      return multiply(l._r * r, l._l); 
+    }
+
 
     /*! \} */
 
@@ -303,7 +459,7 @@ namespace magnet {
 	if (i > 1)
 	  oss << "^" << i;
       }
-      if (poly[0] != empty_sum(poly[0])) {
+      if (poly[0] != empty_sum(poly[0]) || (N==0)) {
 	if (terms != 0)
 	  oss << " + ";
 	++terms;
