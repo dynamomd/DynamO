@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE( poly_specialised_multiply )
 
 BOOST_AUTO_TEST_CASE( power_basic )
 {//Test PowerOp operations
-  BOOST_CHECK_CLOSE(PowerOp<Polynomial<1,double>, 3>(x)(0.75), std::pow(0.75, 3), 1e-10);
-  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x) - x)(0.75), std::pow(0.75, 3) - 0.75, 1e-10);
-  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x) + x)(0.75), std::pow(0.75, 3) + 0.75, 1e-10);
-  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x) * x)(0.75), std::pow(0.75, 3) * 0.75, 1e-10);
+  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x)(0.75)), std::pow(0.75, 3), 1e-10);
+  BOOST_CHECK_CLOSE(((PowerOp<Polynomial<1,double>, 3>(x) - x)(0.75)), std::pow(0.75, 3) - 0.75, 1e-10);
+  BOOST_CHECK_CLOSE(((PowerOp<Polynomial<1,double>, 3>(x) + x)(0.75)), std::pow(0.75, 3) + 0.75, 1e-10);
+  BOOST_CHECK_CLOSE(((PowerOp<Polynomial<1,double>, 3>(x) * x)(0.75)), std::pow(0.75, 3) * 0.75, 1e-10);
 }
