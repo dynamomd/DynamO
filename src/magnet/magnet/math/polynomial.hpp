@@ -257,7 +257,7 @@ namespace magnet {
       exists.
      */
     template<class Real1, class Real2, size_t N>
-    auto operator-(const Real1& r, const Polynomial<N, Real2>& poly) -> decltype((-poly) + r) {
+    auto operator-(const Real1& r, const Polynomial<N, Real2>& poly) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, decltype((-poly) + r)>::type {
       return (-poly) + r;
     }
     
@@ -267,7 +267,7 @@ namespace magnet {
       with an addition if the left-handed form exists.
      */
     template<class Real1, class Real2, size_t N>
-    auto operator-(const Polynomial<N,Real1>& poly, const Real2& r) -> decltype(poly + (-r)) { 
+    auto operator-(const Polynomial<N,Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, decltype(poly + (-r))>::type {
       return poly + (-r);
     }
 

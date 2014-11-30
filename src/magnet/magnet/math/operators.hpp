@@ -108,6 +108,36 @@ namespace magnet {
     auto operator*(const BinaryOp<LHS1, RHS1, Op1>& l, const BinaryOp<LHS2, RHS2, Op2>& r) -> decltype(multiply(l,r))
     { return multiply(l,r); }
 
+    /*! \brief Left-handed addition operator for BinaryOp types. */
+    template<class LHS, class RHS, detail::Op_t Op, class RRHS>
+    auto operator+(const BinaryOp<LHS, RHS, Op>& l, const RRHS& r) -> decltype(add(l,r))
+    { return add(l,r); }
+
+    /*! \brief Right-handed addition operator for BinaryOp types. */
+    template<class LHS, class RHS, detail::Op_t Op, class LLHS>
+    auto operator+(const LLHS& l, const BinaryOp<LHS, RHS, Op>& r) -> decltype(add(l,r))
+    { return add(l,r); }
+
+    /*! \brief Addition operator for two BinaryOp types. */
+    template<class LHS1, class RHS1, detail::Op_t Op1, class LHS2, class RHS2, detail::Op_t Op2>
+    auto operator+(const BinaryOp<LHS1, RHS1, Op1>& l, const BinaryOp<LHS2, RHS2, Op2>& r) -> decltype(add(l,r))
+    { return add(l,r); }
+
+    /*! \brief Left-handed subtraction operator for BinaryOp types. */
+    template<class LHS, class RHS, detail::Op_t Op, class RRHS>
+    auto operator-(const BinaryOp<LHS, RHS, Op>& l, const RRHS& r) -> decltype(subtract(l,r))
+    { return subtract(l,r); }
+
+    /*! \brief Right-handed subtraction operator for BinaryOp types. */
+    template<class LHS, class RHS, detail::Op_t Op, class LLHS>
+    auto operator-(const LLHS& l, const BinaryOp<LHS, RHS, Op>& r) -> decltype(subtract(l,r))
+    { return subtract(l,r); }
+
+    /*! \brief Subtraction operator for two BinaryOp types. */
+    template<class LHS1, class RHS1, detail::Op_t Op1, class LHS2, class RHS2, detail::Op_t Op2>
+    auto operator-(const BinaryOp<LHS1, RHS1, Op1>& l, const BinaryOp<LHS2, RHS2, Op2>& r) -> decltype(subtract(l,r))
+    { return subtract(l,r); }
+
     /*! \brief Expand addition BinaryOp types.
 
       If the classes have specialised operators for addition, then the
@@ -184,8 +214,7 @@ namespace magnet {
 
       template<class R>
       auto operator()(const R& x) const -> typename std::enable_if<!std::is_arithmetic<decltype(_arg(x))>::value, decltype(std::pow(_arg(x), Power))>::type {
-	
-	return std::pow(_arg(x), Power);
+	static_assert(R(), "Not implemented yet");
       }
     };
 
@@ -199,18 +228,56 @@ namespace magnet {
       return os;
     }
     /*! \} */
+
+    /*! \relates PowerOp
+      \name PowerOp algebra operations
+     */
+    /*! \brief Left-handed multiplication operator for PowerOp types. */
+    template<class Arg, size_t Power, class RHS>
+    auto operator*(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(multiply(l, r))
+    { return multiply(l, r); }
     
-//
-//    template<class R> 
-//    template<class Arg>
-//    auto PowerOp<Arg, 0>::operator()<R>(const R& x) const -> decltype(empty_sum(x)) {
-//      return empty_sum(x);
-//    }
-//
-//    template<class R>
-//    template<class Arg>
-//    auto PowerOp<Arg, 1>::operator()<R>(const R& x) const -> decltype(empty_sum(x)) {
-//      return _arg(x);
-//    }
+    /*! \brief Right-handed multiplication operator for PowerOp types. */
+    template<class Arg, size_t Power, class RHS>
+    auto operator*(const RHS& l, const PowerOp<Arg, Power>& r) -> decltype(multiply(l, r))
+    { return multiply(l, r); }
+    
+    /*! \brief Multiplication operator for two PowerOp types. */
+    template<class Arg1, size_t Power1, class Arg2, size_t Power2>
+    auto operator*(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(multiply(l, r))
+    { return multiply(l, r); }
+
+    /*! \brief Left-handed addition operator for PowerOp types. */
+    template<class Arg, size_t Power, class RHS>
+    auto operator+(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(add(l, r))
+    { return add(l, r); }
+    
+    /*! \brief Right-handed addition operator for PowerOp types. */
+    template<class Arg, size_t Power, class RHS>
+    auto operator+(const RHS& l, const PowerOp<Arg, Power>& r) -> decltype(add(l, r))
+    { return add(l, r); }
+    
+    /*! \brief Addition operator for two PowerOp types. */
+    template<class Arg1, size_t Power1, class Arg2, size_t Power2>
+    auto operator+(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(add(l, r))
+    { return add(l, r); }
+
+    /*! \brief Left-handed subtraction operator for PowerOp types. */
+    template<class Arg, size_t Power, class RHS>
+    auto operator-(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(subtract(l, r))
+    { return subtract(l, r); }
+    
+    /*! \brief Right-handed subtraction operator for PowerOp types. */
+    template<class Arg, size_t Power, class RHS>
+    auto operator-(const RHS& l, const PowerOp<Arg, Power>& r) -> decltype(subtract(l, r))
+    { return subtract(l, r); }
+    
+    /*! \brief Subtraction operator for two PowerOp types. */
+    template<class Arg1, size_t Power1, class Arg2, size_t Power2>
+    auto operator-(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(subtract(l, r))
+    { return subtract(l, r); }
+
+    /*! \} */
+    
   }
 }

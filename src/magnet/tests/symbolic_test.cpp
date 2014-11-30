@@ -71,6 +71,10 @@ BOOST_AUTO_TEST_CASE( function_basic )
   //Check basic Function operation
   BOOST_CHECK_CLOSE(magnet::math::sin(x)(0.5), std::sin(0.5), 1e-10);
   BOOST_CHECK_CLOSE(magnet::math::cos(x)(0.5), std::cos(0.5), 1e-10);
+
+  //Test BinaryOP Addition and subtraction
+  BOOST_CHECK_CLOSE((x * sin(x) + x)(0.5), 0.5 * std::sin(0.5) + 0.5, 1e-10);
+  BOOST_CHECK_CLOSE((x * sin(x) - x)(0.5), 0.5 * std::sin(0.5) - 0.5, 1e-10);
 }
 
 BOOST_AUTO_TEST_CASE( function_poly_multiplication )
@@ -114,4 +118,12 @@ BOOST_AUTO_TEST_CASE( poly_specialised_multiply )
   BOOST_CHECK(compare_expression((x * sin(2*x)) * x, x * x * sin(2*x)));
   BOOST_CHECK(compare_expression(x * (sin(2*x) * x), x * x * sin(2*x)));
   BOOST_CHECK(compare_expression(x * (x * sin(2*x)), x * x * sin(2*x)));
+}
+
+BOOST_AUTO_TEST_CASE( power_basic )
+{//Test PowerOp operations
+  BOOST_CHECK_CLOSE(PowerOp<Polynomial<1,double>, 3>(x)(0.75), std::pow(0.75, 3), 1e-10);
+  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x) - x)(0.75), std::pow(0.75, 3) - 0.75, 1e-10);
+  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x) + x)(0.75), std::pow(0.75, 3) + 0.75, 1e-10);
+  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x) * x)(0.75), std::pow(0.75, 3) * 0.75, 1e-10);
 }
