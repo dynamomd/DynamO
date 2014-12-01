@@ -203,13 +203,13 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the BinaryOp to the output stream. */
     template<class LHS, class RHS, detail::Op_t Op>
     inline std::ostream& operator<<(std::ostream& os, const BinaryOp<LHS, RHS, Op>& op) {
-      os << "{" << op._l;
+      os /*<< "{" */<< op._l;
       switch (Op){
       case detail::ADD:      os << " + "; break;
       case detail::MULTIPLY: os << " * "; break;
       case detail::DIVIDE:   os << " / "; break;
       }
-      os << op._r << "}";
+      os << op._r /*<< "}"*/;
       return os;
     }
     /*! \} */
