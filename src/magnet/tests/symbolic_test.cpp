@@ -123,18 +123,18 @@ BOOST_AUTO_TEST_CASE( poly_specialised_multiply )
 BOOST_AUTO_TEST_CASE( power_basic )
 {
   //Check evaluation of powers
-  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x)(4)), 4*4*4, 1e-10);
+  BOOST_CHECK_CLOSE(pow<3>(x)(4), 4*4*4, 1e-10);
+  BOOST_CHECK_CLOSE(pow<3>(x)(0.75), std::pow(0.75, 3), 1e-10);
 
   //Test PowerOp algebraic operations
-  BOOST_CHECK_CLOSE((PowerOp<Polynomial<1,double>, 3>(x)(0.75)), std::pow(0.75, 3), 1e-10);
-  BOOST_CHECK_CLOSE(((PowerOp<Polynomial<1,double>, 3>(x) - x)(0.75)), std::pow(0.75, 3) - 0.75, 1e-10);
-  BOOST_CHECK_CLOSE(((PowerOp<Polynomial<1,double>, 3>(x) + x)(0.75)), std::pow(0.75, 3) + 0.75, 1e-10);
-  BOOST_CHECK_CLOSE(((PowerOp<Polynomial<1,double>, 3>(x) * x)(0.75)), std::pow(0.75, 3) * 0.75, 1e-10);
+  BOOST_CHECK_CLOSE((pow<3>(x) - x)(0.75), std::pow(0.75, 3) - 0.75, 1e-10);
+  BOOST_CHECK_CLOSE((pow<3>(x) + x)(0.75), std::pow(0.75, 3) + 0.75, 1e-10);
+  BOOST_CHECK_CLOSE((pow<3>(x) * x)(0.75), std::pow(0.75, 3) * 0.75, 1e-10);
 
   //Check special case derivatives
-  BOOST_CHECK(compare_expression(derivative(PowerOp<Polynomial<1,double>, 1>(x)), 1));
-  BOOST_CHECK(compare_expression(derivative(PowerOp<Polynomial<1,double>, 2>(x)), 2 * x));
+  BOOST_CHECK(compare_expression(derivative(pow<1>(x)), 1));
+  BOOST_CHECK(compare_expression(derivative(pow<2>(x)), 2 * x));
 
   //Check expansion
-  BOOST_CHECK(compare_expression(expand(PowerOp<Polynomial<1,double>, 3>(x+2)), (x+2) * (x+2) * (x+2)));;
+  BOOST_CHECK(compare_expression(expand(pow<3>(x+2)), (x+2) * (x+2) * (x+2)));;
 }

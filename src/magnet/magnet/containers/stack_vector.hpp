@@ -76,6 +76,15 @@ namespace magnet {
     private:
       size_t _size;
     };
+
+    template<class T, size_t Nmax>
+    std::ostream& operator<<(std::ostream& os, const StackVector<T,Nmax>&s) {
+      os << "StackVector{";
+      for (const auto& val : s)
+	os << val << " ";
+      os << "}";
+      return os;
+    }
   }
 }
     

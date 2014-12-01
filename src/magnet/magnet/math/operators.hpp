@@ -1,4 +1,4 @@
- /*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -30,7 +30,7 @@ namespace magnet {
       When dealing with multiple symbols (Polynomial or Sin terms), it
       is convenient to have a representation of operators between
       them. This class represents these operations.
-     */
+    */
     template<class LHStype, class RHStype, detail::Op_t Op>
     struct BinaryOp {
       LHStype _l;
@@ -49,7 +49,7 @@ namespace magnet {
     };
 
     /*! \brief Provides expansion (and simplification) of symbolic
-        functions.
+      functions.
 
       The purpose of this function is to reduce the complexity of
       symbolic expressions to accelerate any successive
@@ -57,7 +57,7 @@ namespace magnet {
       should optimise for use under repeated evaluations.
 
       The default operation is to do nothing.
-     */
+    */
     template<class T> const T& expand(const T& f) { return f; }
 
     /*! \relates BinaryOp
@@ -163,31 +163,37 @@ namespace magnet {
     }
 
     /*! \brief Derivatives of Addition operations.
-    */
+     */
     template<class LHS, class RHS>
     auto derivative(const BinaryOp<LHS, RHS, detail::ADD>& f) -> decltype(derivative(f._l) + derivative(f._r))
     { return derivative(f._l) + derivative(f._r); }
 
     /*! \brief Derivatives of Multiplication operations.
-    */
+     */
     template<class LHS, class RHS>
     auto derivative(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f) -> decltype(add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)))
     { return add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)); }
 
 
-    /*! \brief Determines the absolute max. */
+    /*! \brief Determines the max and min over a certain range. */
     template<class LHS, class RHS, class Real>
-    auto max_abs_val(const BinaryOp<LHS, RHS, detail::ADD>& f, const Real tmin, const Real tmax) -> decltype(max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax))
-    { return max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax); }
+    auto minmax(const BinaryOp<LHS, RHS, detail::ADD>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)>
+    {
+      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)> RetType;
+      auto lv = minmax(f._l, x_min, x_max);
+      auto rv = minmax(f._r, x_min, x_max);
+      return RetType(lv.first + rv.first, lv.second + rv.second);
+    }
 
+    /*! \brief Determines the max and min over a certain range. */
     template<class LHS, class RHS, class Real>
-    auto max_abs_val(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f, const Real tmin, const Real tmax) -> decltype(max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax))
-    { return max_abs_val(f._l, tmin, tmax) * max_abs_val(f._r, tmin, tmax); }
-
-    //template<class LHS, class RHS, class Real>
-    //auto max_abs_val(const BinaryOp<LHS, RHS, detail::DIVIDE>& f, const Real tmin, const Real tmax) -> decltype(max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax))
-    //{ return max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax); }
-
+    auto minmax(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)>
+    {
+      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)> RetType;
+      auto lv = minmax(f._l, x_min, x_max);
+      auto rv = minmax(f._r, x_min, x_max);
+      return RetType(lv.first * rv.first, lv.second * rv.second);
+    }
     /*! \} */
 
     /*! \relates BinaryOp
@@ -254,7 +260,7 @@ namespace magnet {
 	This operator is only used if the result of evaluating the
 	argument is an arithmetic type. If this is the case, the
 	evaluation is passed to std::pow.
-       */
+      */
       template<class R>
       auto operator()(const R& x) const -> typename std::enable_if<std::is_arithmetic<decltype(_arg(x))>::value, decltype(std::pow(_arg(x), Power))>::type {
 	return std::pow(_arg(x), Power);
@@ -266,9 +272,20 @@ namespace magnet {
       }
     };
 
+
+    /*! \relates PowerOp
+      \name PowerOp helper functions.
+    */
+    /*! \brief Helper function for creating PowerOp types. */
+    template<size_t N, class Arg>
+    PowerOp<Arg, N> pow(const Arg& f)
+    { return PowerOp<Arg, N>(f); }
+
+    /*! \} */
+
     /*! \relates PowerOp
       \name PowerOp input/output operators.
-     */
+    */
     /*! \brief Writes a human-readable representation of the BinaryOp to the output stream. */
     template<class Arg, size_t Power>
     inline std::ostream& operator<<(std::ostream& os, const PowerOp<Arg, Power>& p) {
@@ -279,7 +296,7 @@ namespace magnet {
 
     /*! \relates PowerOp
       \name PowerOp algebra operations
-     */
+    */
 
     /*! \brief Left-handed multiplication operator for PowerOp types. */
     template<class Arg, size_t Power> 
@@ -332,7 +349,7 @@ namespace magnet {
     { return subtract(l, r); }
 
     /*! \brief Derivatives of PowerOp operations.
-    */
+     */
     template<class Arg, size_t Power>
     auto derivative(const PowerOp<Arg, Power>& f) -> decltype(derivative(f._arg) * PowerOp<Arg, Power-1>(f._arg))
     { return Power * derivative(f._arg) * PowerOp<Arg, Power-1>(f._arg); }
@@ -349,16 +366,36 @@ namespace magnet {
     double derivative(const PowerOp<Arg, 0>& f)
     { return 0; }
 
-    /*! \brief The maximum absolute value of the PowerOp
+    /*! \brief The maximum and minimum values of the PowerOp over a specifed range.
       \param f The PowerOp operation to evaluate.
-      \param tmin The minimum x bound.
-      \param tmax The maximum x bound.
-     */
+      \param x_min The minimum x bound.
+      \param x_max The maximum x bound.
+    */
     template<class Arg, size_t Power, class Real>
-    inline auto max_abs_val(const PowerOp<Arg, Power>& f, const Real tmin, const Real tmax) -> decltype(PowerOpEval<Power>::eval(max_abs_val(f._arg, tmin, tmax)))
-    { return PowerOpEval<Power>::eval(max_abs_val(f._arg, tmin, tmax)); }
-    
+    inline auto minmax(const PowerOp<Arg, Power>& f, const Real x_min, const Real x_max) -> std::pair<decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).first)),
+												      decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).second))>
+    {
+      typedef std::pair<decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).first)), decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).second))> RetType;
+      auto val = minmax(f._arg, x_min, x_max);
+      
+      auto min_pow = PowerOpEval<Power>::eval(val.first);
+      auto max_pow = PowerOpEval<Power>::eval(val.second);
+      
+      //For odd powers, sign is preserved, so the arguments min^Power
+      //is always less than the arguments max^Power
+      if (Power % 2)
+	return RetType(min_pow, max_pow);
+      else {
+	auto min = std::min(min_pow, max_pow);
+	auto max = std::max(min_pow, max_pow);
+	//If min-max range spans zero, we must include it.
+	if ((val.first < 0) && (val.second > 0))
+	  min = std::min(min, 0.0);
+
+	return RetType(min, max);
+      }
+    }
     /*! \} */
-    
   }
 }
+    

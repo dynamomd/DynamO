@@ -328,3 +328,94 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     BOOST_CHECK_CLOSE(roots[2], 1.340780792994259598314974448015366224371799690462e153, 1e-10);
   }
 }
+
+BOOST_AUTO_TEST_CASE( poly_bounds)
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  { //Check constant
+    auto f1 = Polynomial<0>{23};
+    auto bounds = minmax(f1, -4.0, 10.0);
+    BOOST_CHECK_CLOSE(bounds.first, 23, 1e-10);
+    BOOST_CHECK_CLOSE(bounds.second, 23, 1e-10);
+  }
+
+  { //Check linear
+    auto f1 = 2*x +12;
+    auto bounds = minmax(f1, -4.0, 10.0);
+    BOOST_CHECK_CLOSE(bounds.first, 4, 1e-10);
+    BOOST_CHECK_CLOSE(bounds.second, 32, 1e-10);
+  }
+
+  { //Check quadratic
+    auto f1 = x * x + 2*x +12;
+    auto bounds = minmax(f1, -4.0, 10.0);
+    BOOST_CHECK_CLOSE(bounds.first, 11, 1e-10);
+    BOOST_CHECK_CLOSE(bounds.second, 132, 1e-10);
+  }
+
+  {//Check cubic
+    auto f1 = 4 * (x*x*x) - x * x - 2*x +12;
+
+    auto roots = solve_roots(f1);
+    BOOST_CHECK(roots.size() == 1);
+    std::sort(roots.begin(), roots.end());
+    BOOST_CHECK_CLOSE(roots[0], -1.472711896724616002268033950475380144341, 1e-10);
+
+    auto droots = solve_roots(derivative(f1));
+    BOOST_CHECK(droots.size() == 2);
+    std::sort(droots.begin(), droots.end());
+    BOOST_CHECK_CLOSE(droots[0], -1.0/3, 1e-10);
+    BOOST_CHECK_CLOSE(droots[1], 0.5, 1e-10);
+
+    auto bounds = minmax(f1, -4.0, 10.0);    
+    BOOST_CHECK_CLOSE(bounds.first, -252, 1e-10);
+    BOOST_CHECK_CLOSE(bounds.second, 3892, 1e-10);
+  }
+
+  {//Check quartic
+    auto f1 = 10 * (x*x*x*x) + x*x*x - 30 * x * x -23;
+
+    //Quartic roots aren't available yet
+    //auto roots = solve_roots(f1);
+    //BOOST_CHECK(roots.size() == 1);
+    //std::sort(roots.begin(), roots.end());
+    //BOOST_CHECK_CLOSE(roots[0], -1.949403904489790210996459054473124835057, 1e-10);
+    //BOOST_CHECK_CLOSE(roots[1], +1.864235880634589025006445510389799368569, 1e-10);
+
+    auto droots = solve_roots(derivative(f1));
+    BOOST_CHECK_EQUAL(droots.size(),3);
+    std::sort(droots.begin(), droots.end());
+    BOOST_CHECK_CLOSE(droots[0], -1.262818836058599076329128653113014315066, 1e-10);
+    BOOST_CHECK_CLOSE(droots[1], 0, 1e-10);
+    BOOST_CHECK_CLOSE(droots[2], +1.187818836058599076329128653113014315066, 1e-10);
+
+    auto bounds = minmax(f1, -4.0, 10.0);
+    BOOST_CHECK_CLOSE(bounds.first, -47.42412909307610601944478081683796164898, 1e-10);
+    BOOST_CHECK_CLOSE(bounds.second, 97977.0, 1e-10);
+  }
+
+  {//Check PowerOp quartic
+    auto f1 = pow<2>(30 * x * x + x - 23);
+    
+    //Quartic roots aren't available yet
+    //auto roots = solve_roots(f1);
+    //BOOST_CHECK(roots.size() == 2);
+    //std::sort(roots.begin(), roots.end());
+    //NOTE THESE ROOTS ARE DOUBLE ROOTS (roots.size() may equal 2,3, or 4)
+    //BOOST_CHECK_CLOSE(roots[0], -0.8924203103613100773375343963347855860436, 1e-10);
+    //BOOST_CHECK_CLOSE(roots[1], 0.8590869770279767440042010630014522527103, 1e-10);
+
+    auto droots = solve_roots(derivative(f1));
+    BOOST_CHECK(droots.size() == 3);
+    std::sort(droots.begin(), droots.end());
+    BOOST_CHECK_CLOSE(droots[0], -0.8924203103613100773375343963347855860436, 1e-10);
+    BOOST_CHECK_CLOSE(droots[1], -0.01666666666666666666666666666666666666667, 1e-10);
+    BOOST_CHECK_CLOSE(droots[2], +0.8590869770279767440042010630014522527103, 1e-10);
+
+    auto bounds = minmax(f1, -4.0, 10.0);
+    BOOST_CHECK_CLOSE(bounds.first, 0, 1e-10);
+    BOOST_CHECK_CLOSE(bounds.second, 8.922169e6, 1e-10);
+  }
+}

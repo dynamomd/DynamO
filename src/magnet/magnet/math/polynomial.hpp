@@ -809,25 +809,23 @@ namespace magnet {
       \name Polynomial bounds
       \{
     */
-    /*! \brief The maximum absolute value of a 0th order Polynomial in a specified range. 
+    /*! \brief The maximum and minimum values of a 0th order Polynomial in a specified range. 
       \param f The Polynomial to evaluate.
-      \param tmin The minimum bound.
-      \param tmax The maximum bound.
+      \param x_min The minimum bound.
+      \param x_max The maximum bound.
      */
     template<class Real>
-    inline Real max_abs_val(const Polynomial<0, Real>& f, const Real tmin, const Real tmax) {
-      return std::abs(f[0]);
-    }
+    inline auto minmax(const Polynomial<0, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(f(x_min)), decltype(f(x_max))>
+    { return std::pair<Real, Real>{f(x_min), f(x_max)}; }
 
-    /*! \brief The maximum absolute value of a 1st order Polynomial in a specified range. 
+    /*! \brief The maximum and minimum values of a 1st order Polynomial in a specified range. 
       \param f The Polynomial to evaluate.
-      \param tmin The minimum bound.
-      \param tmax The maximum bound.
+      \param x_min The minimum bound.
+      \param x_max The maximum bound.
      */
     template<class Real>
-    inline Real max_abs_val(const Polynomial<1, Real>& f, const Real tmin, const Real tmax) {
-      return std::max(std::abs(f(tmin)), std::abs(f(tmax)));
-    }
+    inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(f(x_min)), decltype(f(x_max))>
+    { return std::pair<Real, Real>{f(x_min), f(x_max)}; }
 
     /*! \brief The maximum absolute value of an arbitrary order Polynomial in a specified range.
       \param f The Polynomial to evaluate.
@@ -835,12 +833,13 @@ namespace magnet {
       \param tmax The maximum bound.
      */
     template<class Real, size_t Order>
-    inline Real max_abs_val(const Polynomial<Order, Real>& f, const Real tmin, const Real tmax) {
+    inline auto minmax(const Polynomial<Order, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(f(x_min)), decltype(f(x_max))>
+    {
       auto roots = solve_roots(derivative(f));
-      Real retval = std::max(std::abs(f(tmin)), std::abs(f(tmax)));
+      std::pair<decltype(f(x_min)), decltype(f(x_min))> retval = std::minmax(f(x_min), f(x_max));
       for (auto root : roots)
-	if ((root > tmin) && (root < tmax))
-	  retval = std::max(std::abs(f(root)), retval);
+	if ((root > x_min) && (root < x_max))
+	  retval = std::minmax({retval.first, retval.second, f(root)});
       return retval;
     }
     /*! \} */
