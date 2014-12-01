@@ -173,6 +173,21 @@ namespace magnet {
     template<class LHS, class RHS>
     auto derivative(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f) -> decltype(add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)))
     { return add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)); }
+
+
+    /*! \brief Determines the absolute max. */
+    template<class LHS, class RHS, class Real>
+    auto max_abs_val(const BinaryOp<LHS, RHS, detail::ADD>& f, const Real tmin, const Real tmax) -> decltype(max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax))
+    { return max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax); }
+
+    template<class LHS, class RHS, class Real>
+    auto max_abs_val(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f, const Real tmin, const Real tmax) -> decltype(max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax))
+    { return max_abs_val(f._l, tmin, tmax) * max_abs_val(f._r, tmin, tmax); }
+
+    //template<class LHS, class RHS, class Real>
+    //auto max_abs_val(const BinaryOp<LHS, RHS, detail::DIVIDE>& f, const Real tmin, const Real tmax) -> decltype(max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax))
+    //{ return max_abs_val(f._l, tmin, tmax) + max_abs_val(f._r, tmin, tmax); }
+
     /*! \} */
 
     /*! \relates BinaryOp
@@ -192,6 +207,39 @@ namespace magnet {
       return os;
     }
     /*! \} */
+
+    namespace {
+      /*! \brief Generic implementation of the eval routine for PowerOp.
+	
+	As the types of non-arithmetic arguments to PowerOp might
+	change with each round of multiplication, we must be careful
+	to accommodate this using templated looping. This class
+	achieves this.
+      */
+      template<size_t Power>
+      struct PowerOpEval {
+	template<class Arg_t>
+	static auto eval(Arg_t x) -> decltype(PowerOpEval<Power-1>::eval(x) * x) {
+	  return PowerOpEval<Power-1>::eval(x) * x;
+	}
+      };
+
+      template<>
+      struct PowerOpEval<1> {
+	template<class Arg_t>
+	static Arg_t eval(Arg_t x) {
+	  return x;
+	}
+      };
+
+      template<>
+      struct PowerOpEval<0> {
+	template<class Arg_t>
+	static double eval(Arg_t x) {
+	  return 1;
+	}
+      };
+    }
 
     /*! \brief Symbolic representation of a (positive) power operator.
      */
@@ -214,7 +262,7 @@ namespace magnet {
 
       template<class R>
       auto operator()(const R& x) const -> typename std::enable_if<!std::is_arithmetic<decltype(_arg(x))>::value, decltype(std::pow(_arg(x), Power))>::type {
-	static_assert(R(), "Not implemented yet");
+	return PowerOpEval<Power>::eval(_arg(x));
       }
     };
 
@@ -232,6 +280,12 @@ namespace magnet {
     /*! \relates PowerOp
       \name PowerOp algebra operations
      */
+
+    /*! \brief Left-handed multiplication operator for PowerOp types. */
+    template<class Arg, size_t Power> 
+    auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpEval<Power>::eval(f._arg))
+    { return PowerOpEval<Power>::eval(f._arg); }
+
     /*! \brief Left-handed multiplication operator for PowerOp types. */
     template<class Arg, size_t Power, class RHS>
     auto operator*(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(multiply(l, r))
@@ -294,6 +348,15 @@ namespace magnet {
     template<class Arg>
     double derivative(const PowerOp<Arg, 0>& f)
     { return 0; }
+
+    /*! \brief The maximum absolute value of the PowerOp
+      \param f The PowerOp operation to evaluate.
+      \param tmin The minimum x bound.
+      \param tmax The maximum x bound.
+     */
+    template<class Arg, size_t Power, class Real>
+    inline auto max_abs_val(const PowerOp<Arg, Power>& f, const Real tmin, const Real tmax) -> decltype(PowerOpEval<Power>::eval(max_abs_val(f._arg, tmin, tmax)))
+    { return PowerOpEval<Power>::eval(max_abs_val(f._arg, tmin, tmax)); }
     
     /*! \} */
     

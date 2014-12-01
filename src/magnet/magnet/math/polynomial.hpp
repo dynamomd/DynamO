@@ -660,7 +660,6 @@ namespace magnet {
      */
     template<size_t Order, class Real>
     inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real>& f, Real root) {
-      cubicNewtonRootPolish(f, root);
       containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
       roots.push_back(root);
       return roots;
