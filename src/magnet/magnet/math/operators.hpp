@@ -27,8 +27,7 @@ namespace magnet {
       struct BinaryOp {
 	LHStype _l;
 	RHStype _r;
-      
-	BinaryOp(LHStype l, RHStype r): _l(l), _r(r) {}
+	BinaryOp(const LHStype& l, const RHStype& r): _l(l), _r(r) {}
       };
     }
 
@@ -51,7 +50,7 @@ namespace magnet {
     template<class LHStype, class RHStype>				\
     struct CLASSNAME : public detail::BinaryOp<LHStype, RHStype> {	\
       typedef detail::BinaryOp<LHStype, RHStype> Base;			\
-      using Base::BinaryOp;						\
+      CLASSNAME(const LHStype& l, const RHStype& r): Base(l, r) {}	\
     };									\
 									\
     template<class LHS, class RHS> struct IsOp<CLASSNAME<LHS,RHS> > {	\
