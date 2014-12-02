@@ -104,26 +104,10 @@ BOOST_AUTO_TEST_CASE( function_poly_derivatives_special )
   BOOST_CHECK_EQUAL(poly2[0], 0);
 }
 
-BOOST_AUTO_TEST_CASE( poly_specialised_multiply )
-{
-  //Check the specialised multiply operators are consistently
-  //simplifying statements with Polynomial and Function types.
-
-  //First check that negative matches are correctly determined by
-  //compare_expression
-  BOOST_CHECK(!compare_expression(x, sin(x)));
-
-  //Now test
-  BOOST_CHECK(compare_expression((sin(2*x) * x) * x, x * x * sin(2*x)));
-  BOOST_CHECK(compare_expression((x * sin(2*x)) * x, x * x * sin(2*x)));
-  BOOST_CHECK(compare_expression(x * (sin(2*x) * x), x * x * sin(2*x)));
-  BOOST_CHECK(compare_expression(x * (x * sin(2*x)), x * x * sin(2*x)));
-}
-
 BOOST_AUTO_TEST_CASE( power_basic )
 {
   //Check evaluation of powers
-  BOOST_CHECK_CLOSE(eval(pow<3>(x), 4), 4*4*4, 1e-10);
+  BOOST_CHECK_CLOSE(eval(pow<3>(x), 4.0), 4.0*4.0*4.0, 1e-10);
   BOOST_CHECK_CLOSE(eval(pow<3>(x), 0.75), std::pow(0.75, 3), 1e-10);
 
   //Test PowerOp algebraic operations
@@ -137,4 +121,44 @@ BOOST_AUTO_TEST_CASE( power_basic )
 
   //Check expansion
   BOOST_CHECK(compare_expression(expand(pow<3>(x+2)), (x+2) * (x+2) * (x+2)));;
+}
+
+BOOST_AUTO_TEST_CASE( Null_tests )
+{
+  //Check that Null symbols have zero derivative and value
+  BOOST_CHECK(compare_expression(NullSymbol(), "Null"));
+  BOOST_CHECK(compare_expression(derivative(NullSymbol()), "Null"));
+  BOOST_CHECK_EQUAL(eval(NullSymbol(), 100), 0);
+
+  //Check the bounds
+  auto limits = minmax(NullSymbol(), -10, 100);
+  BOOST_CHECK_EQUAL(limits.first, 0.0);
+  BOOST_CHECK_EQUAL(limits.second, 0.0);
+
+  //Check derivatives of constants becomes Null
+  BOOST_CHECK(compare_expression(derivative(2), "Null"));
+  BOOST_CHECK(compare_expression(derivative(3.141), "Null"));
+  BOOST_CHECK(compare_expression(derivative(Vector{1,2,3}), "Null"));
+}
+
+BOOST_AUTO_TEST_CASE( reorder_operations )
+{
+  //Check the specialised multiply operators are consistently
+  //simplifying statements.
+
+  //Again, check that negative matches are correctly determined by
+  //compare_expression
+  BOOST_CHECK(!compare_expression(x, sin(x)));
+
+  //Here we're looking for the two Polynomial terms to be reordered 
+  BOOST_CHECK(compare_expression((sin(2*x) * x) * x, x * x * sin(2*x)));
+  BOOST_CHECK(compare_expression((x * sin(2*x)) * x, x * x * sin(2*x)));
+  BOOST_CHECK(compare_expression(x * (sin(2*x) * x), x * x * sin(2*x)));
+  BOOST_CHECK(compare_expression(x * (x * sin(2*x)), x * x * sin(2*x)));
+
+  //Here we check that constants (such as 2) will become NullSymbol()
+  //types when the derivative is taken, causing their terms to be
+  //eliminated.
+  BOOST_CHECK(compare_expression(derivative(2 * cos(x)), -2 * sin(x)));
+  BOOST_CHECK(compare_expression(derivative(2 * sin(x)), 2 * cos(x)));
 }

@@ -47,14 +47,14 @@ namespace magnet {
     /*! \brief Evaluates a sine Function expression at a given point.
     */
     template<class Arg, class Real>
-    auto eval(const Function<Arg, detail::SIN>& f, const Real& x) -> decltype(std::sin(x))
-    { return std::sin(x); }
+    auto eval(const Function<Arg, detail::SIN>& f, const Real& x) -> decltype(std::sin(eval(f._arg, x)))
+    { return std::sin(eval(f._arg, x)); }
 
     /*! \brief Evaluates a cosine Function expression at a given point.
     */
     template<class Arg, class Real>
-    auto eval(const Function<Arg, detail::COS>& f, const Real& x) -> decltype(std::cos(x))
-    { return std::cos(x); }
+    auto eval(const Function<Arg, detail::COS>& f, const Real& x) -> decltype(std::cos(eval(f._arg, x)))
+    { return std::cos(eval(f._arg, x)); }
 
     /*! \relates Function
       \name Function creation helper functions

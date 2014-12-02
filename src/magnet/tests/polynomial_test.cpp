@@ -10,6 +10,17 @@ bool err(double val, double expected)
   return std::abs(val / expected - 1) < 0.0001;
 }
 
+template<class T1, class T2>
+bool compare_expression(const T1& f, const T2& g) {
+  std::ostringstream os;
+  os << f;
+  std::string f_str = os.str();
+  os.str(""); os.clear();
+  os << g;
+  std::string g_str = os.str();
+  return f_str == g_str;
+}
+
 BOOST_AUTO_TEST_CASE( poly_addition )
 {
   using namespace magnet::math;
@@ -105,13 +116,7 @@ BOOST_AUTO_TEST_CASE( poly_zero_derivative)
   BOOST_CHECK_EQUAL(poly1[0], 1);
 
   const auto poly2 = derivative(poly1);
-  BOOST_CHECK_EQUAL(poly2[0], 0);
-
-  const auto poly3 = derivative(poly2);
-  BOOST_CHECK_EQUAL(poly3[0], 0);
-
-  const auto poly4 = derivative(poly3);
-  BOOST_CHECK_EQUAL(poly4[0], 0);
+  BOOST_CHECK(compare_expression(poly2, NullSymbol()));
 }
 
 BOOST_AUTO_TEST_CASE( poly_quadratic_roots)

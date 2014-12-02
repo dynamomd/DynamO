@@ -16,6 +16,8 @@
 */
 #pragma once
 
+#include <magnet/math/symbolic.hpp>
+
 namespace magnet {
   namespace math {
     namespace detail {
@@ -30,31 +32,121 @@ namespace magnet {
       };
     }
 
+    /*! \brief Type trait which denotes BinaryOp types. */
     template<class T> struct IsOp {
       static const bool value = false;
     };
      
+    /*! \brief Type trait which denotes if operations should be
+        reordered to bring these types together. 
+
+	This is true for all arithmetic types, as operations on these
+	generally can be collapsed into a single term.
+    */
+    template<class T1, class T2> struct Reorder {
+      static const bool value = std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value;
+    };
+    
 #define CREATE_BINARY_OP(HELPERNAME, CLASSNAME, OP)			\
     template<class LHStype, class RHStype>				\
     struct CLASSNAME : public detail::BinaryOp<LHStype, RHStype> {	\
       typedef detail::BinaryOp<LHStype, RHStype> Base;			\
       using Base::BinaryOp;						\
     };									\
+									\
     template<class LHS, class RHS> struct IsOp<CLASSNAME<LHS,RHS> > {	\
       static const bool value = true;					\
     };									\
+									\
     template<class LHS, class RHS, class Real>				\
     auto eval(const CLASSNAME<LHS, RHS>& f, const Real& x)		\
       -> decltype(eval(f._l, x) OP eval(f._r, x))			\
     { return eval(f._l, x) OP eval(f._r, x); }				\
     template<class LHS, class RHS>					\
+    /*! \brief Helper function for creating this BinaryOp. */		\
     CLASSNAME<LHS, RHS> HELPERNAME(const LHS& l, const RHS& r)		\
     { return CLASSNAME<LHS, RHS>(l, r); }				\
-
+									\
+    /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
+    template<class T1, class T2, class T3,				\
+	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\
+    auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
+      -> CLASSNAME<decltype(l._l OP r), T2>				\
+    { return HELPERNAME(l._l OP r, l._r); }				\
+    									\
+    /*! \brief Helper function which reorders (A*B)*C to (B*C)*A operations. */	\
+    template<class T1, class T2, class T3,				\
+	     typename = typename std::enable_if<Reorder<T2, T3>::value>::type>	\
+    auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
+      -> CLASSNAME<decltype(l._r OP r), T1>				\
+    { return HELPERNAME(l._r OP r, l._l); }				\
+									\
+    /*! \brief Helper function which reorders A*(B*C) to (A*B)*C operations. */	\
+    template<class T1, class T2, class T3,				\
+	     typename = typename std::enable_if<Reorder<T1, T2>::value>::type>	\
+    auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
+      -> CLASSNAME<decltype(l OP r._l), T3>				\
+    { return HELPERNAME(l OP r._l, r._r); }				\
+									\
+    /*! \brief Helper function which reorders A*(B*C) to (A*C)*B operations. */	\
+    template<class T1, class T2, class T3,				\
+	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\
+    auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
+      -> CLASSNAME<decltype(l OP r._r), T2>				\
+    { return HELPERNAME(l OP r._r, r._l); }				
+    
     CREATE_BINARY_OP(add, AddOp, +)
     CREATE_BINARY_OP(subtract, SubtractOp, -)
     CREATE_BINARY_OP(multiply, MultiplyOp, *)
     CREATE_BINARY_OP(divide, DivideOp, /)
+
+    /*! \relates BinaryOp
+      \name BinaryOp optimisations
+    */
+    
+    /*! \brief Optimised multiply if the LHS term is a NullSymbol. */
+    template<class RHS>
+    NullSymbol multiply(const NullSymbol& l, const RHS& r)
+    { return NullSymbol(); }
+    
+    /*! \brief Optimised multiply if the RHS term is a NullSymbol. */
+    template<class LHS>
+    NullSymbol multiply(const LHS& l, const NullSymbol& r)
+    { return NullSymbol(); }
+    
+    /*! \brief Optimised multiply if both terms are NullSymbol types. */
+    NullSymbol multiply(const NullSymbol& l, const NullSymbol& r)
+    { return NullSymbol(); }
+
+    /*! \brief Optimised addition if the LHS term is a NullSymbol. */
+    template<class RHS>
+    RHS add(const NullSymbol& l, const RHS& r)
+    { return r; }
+    
+    /*! \brief Optimised addition if the RHS term is a NullSymbol. */
+    template<class LHS>
+    LHS add(const LHS& l, const NullSymbol& r)
+    { return l; }
+    
+    /*! \brief Optimised addition if both terms are NullSymbol types. */
+    NullSymbol add(const NullSymbol& l, const NullSymbol& r)
+    { return NullSymbol(); }
+
+    /*! \brief Optimised addition if the LHS term is a NullSymbol. */
+    template<class RHS>
+    auto subtract(const NullSymbol& l, const RHS& r) -> decltype(-r)
+    { return -r; }
+    
+    /*! \brief Optimised addition if the RHS term is a NullSymbol. */
+    template<class LHS>
+    LHS subtract(const LHS& l, const NullSymbol& r)
+    { return l; }
+    
+    /*! \brief Optimised addition if both terms are NullSymbol types. */
+    NullSymbol subtract(const NullSymbol& l, const NullSymbol& r)
+    { return NullSymbol(); }
+
+    /*! \} */
 
     /*! \relates BinaryOp
       \name BinaryOp algebra
@@ -191,7 +283,7 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the MultiplyOp to the output stream. */
     template<class LHS, class RHS>
     inline std::ostream& operator<<(std::ostream& os, const MultiplyOp<LHS, RHS>& op) {
-      os << "{" << op._l << " * " << op._r << "}" ;
+      os << "{" << op._l << " * " << op._r << "}";
       return os;
     }
 
@@ -241,25 +333,26 @@ namespace magnet {
     template<class Arg, size_t Power>
     struct PowerOp {
       Arg _arg;
-      
       PowerOp(Arg a): _arg(a) {}
-      
-      /*! \brief Evaluate symbol at a value of x.
-	
-	This operator is only used if the result of evaluating the
-	argument is an arithmetic type. If this is the case, the
-	evaluation is passed to std::pow.
-      */
-      template<class R>
-      auto operator()(const R& x) const -> typename std::enable_if<std::is_arithmetic<decltype(_arg(x))>::value, decltype(std::pow(_arg(x), Power))>::type {
-	return std::pow(_arg(x), Power);
-      }
-
-      template<class R>
-      auto operator()(const R& x) const -> typename std::enable_if<!std::is_arithmetic<decltype(_arg(x))>::value, decltype(std::pow(_arg(x), Power))>::type {
-	return PowerOpEval<Power>::eval(_arg(x));
-      }
     };
+    
+//    /*! \brief Evaluate PowerOp symbol at a value of x.
+//      
+//      This operator is only used if the result of evaluating the
+//      argument is an arithmetic type. If this is the case, the
+//      evaluation is passed to std::pow.
+//    */
+    template<class Arg, size_t Power, class Real>
+    auto eval(const PowerOp<Arg, Power>& f, const Real& x) -> typename std::enable_if<std::is_arithmetic<decltype(eval(f._arg, x))>::value, decltype(std::pow(eval(f._arg, x), Power))>::type
+    { return std::pow(eval(f._arg, x), Power); }
+
+    /*! \brief Evaluate PowerOp symbol at a value of x.
+      
+      This is the general implementation for PowerOp.
+    */
+    template<class Arg, size_t Power, class Real>
+    auto eval(const PowerOp<Arg, Power>& f, const Real& x) -> typename std::enable_if<!std::is_arithmetic<decltype(f._arg(x))>::value, decltype(PowerOpEval<Power>::eval(eval(f._arg, x)))>
+    { return PowerOpEval<Power>::eval(eval(f._arg, x)); }
 
 
     /*! \relates PowerOp

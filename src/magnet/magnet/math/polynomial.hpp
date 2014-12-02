@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <magnet/math/symbolic.hpp>
+#include <magnet/math/operators.hpp>
 #include <magnet/containers/stack_vector.hpp>
 #include <magnet/math/precision.hpp>
 #include <magnet/exception.hpp>
@@ -284,7 +284,7 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief Right-handed subtration operator for Polynomial types.
+    /*! \brief Right-handed subtraction operator for Polynomial types.
      
       This will reorder and convert the operation to a unary negation
       operator with an addition if the left-handed addition form
@@ -365,74 +365,23 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
+    /*! \brief Enable reordering of Polynomial types. */
+    template<class R1, size_t N1, class R2, size_t N2> 
+    struct Reorder<Polynomial<N1, R1>, Polynomial<N2, R2> > {
+      static const bool value = true;
+    };
 
-      In this version, we optimise expressions like 
-      
-      \f[(p(x) * F(x)) * m(x)\f]
-      
-      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
-      \f$F(x)\f$ is some other symbol. These are reordered to
-      
-      \f[(p(x) * m(x)) * F(x)\f]
+    /*! \brief Enable reordering of Polynomial types with arithmetic types. */
+    template<class R1, size_t N1, class R2> 
+    struct Reorder<Polynomial<N1, R1>, R2 > {
+      static const bool value = std::is_arithmetic<R2>::value;
+    };
 
-      which allows the polynomials to expand against each other.
-     */
-    template<class Real1, size_t N1, class Real2, size_t N2, class RHS>
-    auto multiply(const MultiplyOp<Polynomial<N1, Real1>, RHS>& l, const Polynomial<N2, Real2>& r) -> MultiplyOp<decltype(l._l * r), RHS>
-    { return multiply(l._l * r, l._r); }
-
-    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
-
-      In this version, we optimise expressions like 
-      
-      \f[(F(x) * p(x)) * m(x)\f]
-      
-      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
-      \f$F(x)\f$ is some other symbol. These are reordered to
-      
-      \f[(p(x) * m(x)) * F(x)\f]
-
-      which allows the polynomials to expand against each other.
-     */
-    template<class Real1, size_t N1, class Real2, size_t N2, class LHS>
-    auto multiply(const MultiplyOp<LHS, Polynomial<N1, Real1>>& l, const Polynomial<N2, Real2>& r) -> MultiplyOp<decltype(l._r * r), LHS> 
-    { return multiply(l._r * r, l._l); }
-
-    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
-
-      In this version, we optimise expressions like 
-      
-      \f[m(x) * (p(x) * F(x))\f]
-      
-      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
-      \f$F(x)\f$ is some other symbol. These are reordered to
-      
-      \f[(p(x) * m(x)) * F(x)\f]
-
-      which allows the polynomials to expand against each other.
-
-     */
-    template<class Real1, size_t N1, class Real2, size_t N2, class RHS>
-    auto multiply(const Polynomial<N2, Real2>& r, const MultiplyOp<Polynomial<N1, Real1>, RHS>& l) -> MultiplyOp<decltype(l._l * r), RHS>
-    { return multiply(l._l * r, l._r); }
-
-    /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
-
-      In this version, we optimise expressions like 
-      
-      \f[m(x) * (F(x) * p(x))\f]
-      
-      where \f$p(x)\f$ and \f$m(x)\f$ are Polynomial types and
-      \f$F(x)\f$ is some other symbol. These are reordered to
-      
-      \f[(p(x) * m(x)) * F(x)\f]
-
-      which allows the polynomials to expand against each other.
-     */
-    template<class Real1, size_t N1, class Real2, size_t N2, class LHS>
-    auto multiply(const Polynomial<N2, Real2>& r, const MultiplyOp<LHS, Polynomial<N1, Real1>>& l) -> MultiplyOp<decltype(l._r * r), LHS> 
-    { return multiply(l._r * r, l._l); }
+    /*! \brief Enable reordering of Polynomial types with arithmetic types. */
+    template<class R1, size_t N1, class R2> 
+    struct Reorder<R2,Polynomial<N1, R1> > {
+      static const bool value = std::is_arithmetic<R2>::value;
+    };
 
     /*! \} */
 
@@ -456,8 +405,8 @@ namespace magnet {
        \brief Specialisation for derivatives of 0th order Polynomial classes (constants).
     */
     template<class Real>
-    inline Polynomial<0, Real> derivative(const Polynomial<0, Real>& f) {
-      return Polynomial<0, Real>{0};
+    inline NullSymbol derivative(const Polynomial<0, Real>& f) {
+      return NullSymbol();
     }
 
     /*! \} */
@@ -482,7 +431,7 @@ namespace magnet {
 	if (i > 1)
 	  oss << "^" << i;
       }
-      if (poly[0] != empty_sum(poly[0]) || (N==0)) {
+      if ((N==0) || (poly[0] != empty_sum(poly[0]))) {
 	if (terms != 0)
 	  oss << " + ";
 	++terms;
