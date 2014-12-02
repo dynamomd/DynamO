@@ -71,8 +71,8 @@ namespace magnet {
       \brief Helper function for creation of subtraction BinaryOp types.
     */
     template<class LHS, class RHS>
-    BinaryOp<LHS, RHS, detail::ADD> subtract(const LHS& l, const RHS& r)
-    { return BinaryOp<LHS, RHS, detail::ADD>(l, -r); }
+    auto subtract(const LHS& l, const RHS& r) -> BinaryOp<LHS, decltype(-r), detail::ADD>
+    { return BinaryOp<LHS, decltype(-r), detail::ADD>(l, -r); }
 
     /*! \relates BinaryOp
       \brief Helper function for creation of multiply BinaryOp types.
@@ -203,13 +203,13 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the BinaryOp to the output stream. */
     template<class LHS, class RHS, detail::Op_t Op>
     inline std::ostream& operator<<(std::ostream& os, const BinaryOp<LHS, RHS, Op>& op) {
-      os /*<< "{" */<< op._l;
+      os << "{" << op._l;
       switch (Op){
       case detail::ADD:      os << " + "; break;
       case detail::MULTIPLY: os << " * "; break;
       case detail::DIVIDE:   os << " / "; break;
       }
-      os << op._r /*<< "}"*/;
+      os << op._r << "}";
       return os;
     }
     /*! \} */

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <magnet/math/operators.hpp>
+#include <magnet/math/vector.hpp>
 #include <complex>
 
 namespace magnet {
@@ -42,6 +43,11 @@ namespace magnet {
       return std::complex<T>(T(1), T()); 
     }
 
+
+    template<class T, size_t N>
+    constexpr NVector<T, N> empty_product(const NVector<T, N>&) { 
+      return NVector<T, N>(T(1));
+    }
     /*! \brief Returns the empty sum of a type.
       
       The empty sum is a term whose additive (and typically its
@@ -49,7 +55,7 @@ namespace magnet {
     */
     template<class T> 
     constexpr T empty_sum(const T&) { 
-      static_assert(std::is_arithmetic<T>::value, "Nullary products must be defined for this type");
+      static_assert(std::is_arithmetic<T>::value, "Nullary sums must be defined for this type");
       return T(); 
     }
 
@@ -63,5 +69,14 @@ namespace magnet {
       return std::complex<T>(T(), T()); 
     }
 
+    /*! \brief Returns the empty sum of NVector types.
+      
+      The empty sum is a term whose additive (and typically its
+      subtractive) action is null (can be ignored).
+    */
+    template<class T, size_t N>
+    constexpr NVector<T, N> empty_sum(const NVector<T, N>&) { 
+      return NVector<T, N>();
+    }
   }
 }

@@ -19,6 +19,7 @@
 #include <magnet/containers/stack_vector.hpp>
 #include <magnet/math/precision.hpp>
 #include <magnet/exception.hpp>
+#include <magnet/math/vector.hpp>
 #include <stdexcept>
 #include <ostream>
 #include <array>
@@ -72,6 +73,36 @@ namespace magnet {
        */
       template<class T>
       struct distribute_poly<std::complex<T>, std::complex<T> > {
+	static const bool value = true;
+      };
+
+      /*! \relates Polynomial 
+	
+	\brief Type trait enabling use of NVector types as an
+	operation with Polynomials.
+       */
+      template<class T, size_t N, class PolyType>
+      struct distribute_poly<NVector<T, N>, PolyType> {
+	static const bool value = std::is_arithmetic<PolyType>::value;
+      };
+
+      /*! \relates Polynomial 
+	
+	\brief Type trait enabling use of NVector types as an
+	operation with Polynomials.
+       */
+      template<class T, size_t N, class OpType>
+      struct distribute_poly<OpType, NVector<T, N> > {
+	static const bool value = std::is_arithmetic<OpType>::value;
+      };
+
+      /*! \relates Polynomial 
+	
+	\brief Type trait enabling use of NVector types as an
+	operation with Polynomials.
+       */
+      template<class T, size_t N>
+      struct distribute_poly<NVector<T, N>, NVector<T, N> > {
 	static const bool value = true;
       };
     }

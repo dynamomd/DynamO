@@ -104,6 +104,18 @@ namespace magnet {
     template<class Real, class A, detail::Function_t Func>
     auto operator+(const Real& r, const Function<A, Func>& f) -> decltype(add(r, f))
     { return add(r, f); }
+
+    /*! \brief Generic left-handed subtraction operator for Function types.
+     */
+    template<class A, detail::Function_t Func, class RHS>
+    auto operator-(const Function<A, Func>& f, const RHS& r) -> decltype(subtract(f, r)) 
+    { return subtract(f, r); }
+
+    /*! \brief Generic right-handed subtraction operator for Function types.
+     */
+    template<class Real, class A, detail::Function_t Func>
+    auto operator-(const Real& r, const Function<A, Func>& f) -> decltype(subtract(r, f))
+    { return subtract(r, f); }
     
     /*! \brief Generic left-handed multiplication operator for Function types.
      */

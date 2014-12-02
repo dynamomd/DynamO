@@ -45,7 +45,7 @@ namespace magnet {
 
 	This creates a zero vector.
        */
-      NVector() { Base::fill(T());}
+      NVector(T val = T()) { Base::fill(val); }
 
       /*! \brief Initializer list constructor.
 
@@ -193,7 +193,7 @@ namespace magnet {
 
     /*! \brief Multiplication of a scalar and an NVector.  */
     template<class T, size_t N, class R>
-    NVector<T,N> operator*(const NVector<T,N>& vec1, const R& val) {
+    typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type operator*(const NVector<T,N>& vec1, const R& val) {
       NVector<T,N> retval;
       for (size_t i(0); i < N; ++i)
 	retval[i] = vec1[i] * val;
@@ -201,7 +201,7 @@ namespace magnet {
     }
     /*! \brief Multiplication of an NVector and a scalar.  */
     template<class T, size_t N, class R>
-    NVector<T,N> operator*(const R& val, const NVector<T,N>& vec1) {
+    typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type operator*(const R& val, const NVector<T,N>& vec1) {
       return vec1 * val;
     }
 
@@ -222,7 +222,8 @@ namespace magnet {
 
     /*! \brief Division of an NVector by a scalar.  */
     template<class T, size_t N, class R>
-    NVector<T,N> operator/(const NVector<T,N>& vec1, const R& val) {
+    typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type
+    operator/(const NVector<T,N>& vec1, const R& val) {
       return vec1 * (R(1)/val);
     }
 

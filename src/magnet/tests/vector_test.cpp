@@ -327,3 +327,33 @@ BOOST_AUTO_TEST_CASE( matrix_inverse_4D )
   for (size_t i(0); i < 4*4; ++i)
     BOOST_CHECK_CLOSE(Matrix::identity()(i), I(i), 0.0000001);
 }
+
+#include <magnet/math/polynomial.hpp>
+#include <magnet/math/trigsymbols.hpp>
+
+BOOST_AUTO_TEST_CASE( Vector_symbolic )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+
+  std::cout << Vector{1,2,3} * x + Vector{3,4,5} << std::endl;
+  // (Vector{1,2,3} * x + Vector{3,4,5})
+  std::cout << pow<2>(Vector{1,2,3} * x + Vector{3,4,5}) << std::endl;
+  // ((Vector{1,2,3} * x + Vector{3,4,5}))^2
+  std::cout << expand(pow<2>(Vector{1,2,3} * x + Vector{3,4,5})) << std::endl;
+  // (14 * x^2 + 52 * x + 50)
+  
+  //Rodrigues formula
+  Vector v{1,2,3};
+  Vector k{1,0,0};
+  std::cout << v * cos(x)+(k^v)*sin(x)+k * (k * v) * (1.0 - cos(x)) << std::endl;
+  // Vector{1,2,3} * cos(x) + Vector{0,-3,2} * sin(x) + Vector{1,0,0} * 1 + -1 * cos(x) 1 + -1 * cos(x)
+
+  std::cout << expand(v * cos(x)+(k^v)*sin(x)+k * (k * v) * (1.0 - cos(x))) << std::endl;
+
+  std::cout << k * (k * v) * (1.0 - cos(x)) << std::endl;
+  // 1 + -1 * cos(x)
+
+  std::cout << 1.0 - cos(x) << std::endl;
+}
