@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( poly_lower_order )
   BOOST_CHECK_EQUAL(poly4[0], 2);
   BOOST_CHECK_EQUAL(poly4[1], -1);
   BOOST_CHECK_EQUAL(poly4[2], 1);
-  BOOST_CHECK_EQUAL(poly3(123), poly4(123));
+  BOOST_CHECK_EQUAL(eval(poly3, 123), eval(poly4, 123));
 }
 
 BOOST_AUTO_TEST_CASE( poly_derivative )
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE( poly_derivative )
   auto poly4 = derivative(poly3);
   BOOST_CHECK_EQUAL(poly4[0], -1);
   BOOST_CHECK_EQUAL(poly4[1], 4);
-  BOOST_CHECK_EQUAL(poly4(0), -1);
-  BOOST_CHECK_EQUAL(poly4(1), 3);
+  BOOST_CHECK_EQUAL(eval(poly4, 0), -1);
+  BOOST_CHECK_EQUAL(eval(poly4, 1), 3);
 }
 
 BOOST_AUTO_TEST_CASE( poly_zero_derivative)

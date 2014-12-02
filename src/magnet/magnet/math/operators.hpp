@@ -19,124 +19,87 @@
 namespace magnet {
   namespace math {
     namespace detail {
-      typedef enum {
-	ADD,
-	MULTIPLY,
-	DIVIDE,
-      } Op_t;
+      /*! \brief Symbolic representation of a binary symbolic operation. 
+       */
+      template<class LHStype, class RHStype>
+      struct BinaryOp {
+	LHStype _l;
+	RHStype _r;
+      
+	BinaryOp(LHStype l, RHStype r): _l(l), _r(r) {}
+      };
     }
-    /*! \brief Symbolic representation of a binary operator. 
-      
-      When dealing with multiple symbols (Polynomial or Sin terms), it
-      is convenient to have a representation of operators between
-      them. This class represents these operations.
-    */
-    template<class LHStype, class RHStype, detail::Op_t Op>
-    struct BinaryOp {
-      LHStype _l;
-      RHStype _r;
-      
-      BinaryOp(LHStype l, RHStype r): _l(l), _r(r) {}
-      
-      template<class R>
-      auto operator()(const R& x) const -> decltype(_l(x) + _r(x)) {
-	switch (Op){
-	case detail::ADD: return _l(x) + _r(x);
-	case detail::MULTIPLY: return _l(x) * _r(x);
-	case detail::DIVIDE: return _l(x) / _r(x);
-	}
-      }
+
+    template<class T> struct IsOp {
+      static const bool value = false;
     };
+     
+#define CREATE_BINARY_OP(HELPERNAME, CLASSNAME, OP)			\
+    template<class LHStype, class RHStype>				\
+    struct CLASSNAME : public detail::BinaryOp<LHStype, RHStype> {	\
+      typedef detail::BinaryOp<LHStype, RHStype> Base;			\
+      using Base::BinaryOp;						\
+    };									\
+    template<class LHS, class RHS> struct IsOp<CLASSNAME<LHS,RHS> > {	\
+      static const bool value = true;					\
+    };									\
+    template<class LHS, class RHS, class Real>				\
+    auto eval(const CLASSNAME<LHS, RHS>& f, const Real& x)		\
+      -> decltype(eval(f._l, x) OP eval(f._r, x))			\
+    { return eval(f._l, x) OP eval(f._r, x); }				\
+    template<class LHS, class RHS>					\
+    CLASSNAME<LHS, RHS> HELPERNAME(const LHS& l, const RHS& r)		\
+    { return CLASSNAME<LHS, RHS>(l, r); }				\
 
-    /*! \brief Provides expansion (and simplification) of symbolic
-      functions.
-
-      The purpose of this function is to reduce the complexity of
-      symbolic expressions to accelerate any successive
-      evaluations. This should not change the calculated values, but
-      should optimise for use under repeated evaluations.
-
-      The default operation is to do nothing.
-    */
-    template<class T> const T& expand(const T& f) { return f; }
-
-    /*! \relates BinaryOp
-      \brief Helper function for creation of addition BinaryOp types.
-    */
-    template<class LHS, class RHS>
-    BinaryOp<LHS, RHS, detail::ADD> add(const LHS& l, const RHS& r)
-    { return BinaryOp<LHS, RHS, detail::ADD>(l, r); }
-
-    /*! \relates BinaryOp
-      \brief Helper function for creation of subtraction BinaryOp types.
-    */
-    template<class LHS, class RHS>
-    auto subtract(const LHS& l, const RHS& r) -> BinaryOp<LHS, decltype(-r), detail::ADD>
-    { return BinaryOp<LHS, decltype(-r), detail::ADD>(l, -r); }
-
-    /*! \relates BinaryOp
-      \brief Helper function for creation of multiply BinaryOp types.
-    */
-    template<class LHS, class RHS>
-    BinaryOp<LHS, RHS, detail::MULTIPLY> multiply(const LHS& l, const RHS& r)
-    { return BinaryOp<LHS, RHS, detail::MULTIPLY>(l, r); }
-
-    /*! \relates BinaryOp
-      \brief Helper function for creation of multiply BinaryOp types.
-    */
-    template<class LHS, class RHS>
-    BinaryOp<LHS, RHS, detail::ADD> divide(const LHS& l, const RHS& r)
-    { return BinaryOp<LHS, RHS, detail::DIVIDE>(l, r); }
+    CREATE_BINARY_OP(add, AddOp, +)
+    CREATE_BINARY_OP(subtract, SubtractOp, -)
+    CREATE_BINARY_OP(multiply, MultiplyOp, *)
+    CREATE_BINARY_OP(divide, DivideOp, /)
 
     /*! \relates BinaryOp
       \name BinaryOp algebra
       \{
     */
 
-    /*! \brief Left-handed multiplication operator for BinaryOp types. */
-    template<class LHS, class RHS, detail::Op_t Op, class RRHS>
-    auto operator*(const BinaryOp<LHS, RHS, Op>& l, const RRHS& r) -> decltype(multiply(l,r))
-    { return multiply(l,r); }
-
-    /*! \brief Right-handed multiplication operator for BinaryOp types. */
-    template<class LHS, class RHS, detail::Op_t Op, class LLHS>
-    auto operator*(const LLHS& l, const BinaryOp<LHS, RHS, Op>& r) -> decltype(multiply(l,r))
-    { return multiply(l,r); }
-
-    /*! \brief Multiplication operator for two BinaryOp types. */
-    template<class LHS1, class RHS1, detail::Op_t Op1, class LHS2, class RHS2, detail::Op_t Op2>
-    auto operator*(const BinaryOp<LHS1, RHS1, Op1>& l, const BinaryOp<LHS2, RHS2, Op2>& r) -> decltype(multiply(l,r))
-    { return multiply(l,r); }
-
     /*! \brief Left-handed addition operator for BinaryOp types. */
-    template<class LHS, class RHS, detail::Op_t Op, class RRHS>
-    auto operator+(const BinaryOp<LHS, RHS, Op>& l, const RRHS& r) -> decltype(add(l,r))
+    template<class Op, class RHS>
+    auto operator+(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(add(l, r))>::type
     { return add(l,r); }
 
     /*! \brief Right-handed addition operator for BinaryOp types. */
-    template<class LHS, class RHS, detail::Op_t Op, class LLHS>
-    auto operator+(const LLHS& l, const BinaryOp<LHS, RHS, Op>& r) -> decltype(add(l,r))
+    template<class Op, class LHS>
+    auto operator+(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(add(l, r))>::type
     { return add(l,r); }
 
-    /*! \brief Addition operator for two BinaryOp types. */
-    template<class LHS1, class RHS1, detail::Op_t Op1, class LHS2, class RHS2, detail::Op_t Op2>
-    auto operator+(const BinaryOp<LHS1, RHS1, Op1>& l, const BinaryOp<LHS2, RHS2, Op2>& r) -> decltype(add(l,r))
-    { return add(l,r); }
+    /*! \brief Left-handed multiplication operator for BinaryOp types. */
+    template<class Op, class RHS>
+    auto operator*(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(multiply(l, r))>::type
+    { return multiply(l,r); }
+
+    /*! \brief Right-handed multiplication operator for BinaryOp types. */
+    template<class Op, class LHS>
+    auto operator*(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(multiply(l, r))>::type
+    { return multiply(l,r); }
 
     /*! \brief Left-handed subtraction operator for BinaryOp types. */
-    template<class LHS, class RHS, detail::Op_t Op, class RRHS>
-    auto operator-(const BinaryOp<LHS, RHS, Op>& l, const RRHS& r) -> decltype(subtract(l,r))
+    template<class Op, class RHS>
+    auto operator-(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(subtract(l, r))>::type
     { return subtract(l,r); }
 
     /*! \brief Right-handed subtraction operator for BinaryOp types. */
-    template<class LHS, class RHS, detail::Op_t Op, class LLHS>
-    auto operator-(const LLHS& l, const BinaryOp<LHS, RHS, Op>& r) -> decltype(subtract(l,r))
+    template<class Op, class LHS>
+    auto operator-(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(subtract(l, r))>::type
     { return subtract(l,r); }
 
-    /*! \brief Subtraction operator for two BinaryOp types. */
-    template<class LHS1, class RHS1, detail::Op_t Op1, class LHS2, class RHS2, detail::Op_t Op2>
-    auto operator-(const BinaryOp<LHS1, RHS1, Op1>& l, const BinaryOp<LHS2, RHS2, Op2>& r) -> decltype(subtract(l,r))
-    { return subtract(l,r); }
+    /*! \brief Left-handed subtraction operator for BinaryOp types. */
+    template<class Op, class RHS>
+    auto operator/(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(divide(l, r))>::type
+    { return divide(l,r); }
+
+    /*! \brief Right-handed subtraction operator for BinaryOp types. */
+    template<class Op, class LHS>
+    auto operator/(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(divide(l, r))>::type
+    { return divide(l,r); }
 
     /*! \brief Expand addition BinaryOp types.
 
@@ -146,7 +109,7 @@ namespace magnet {
       addition and it is instead carried out by the BinaryOp class.
     */
     template<class LHS, class RHS>
-    auto expand(const BinaryOp<LHS, RHS, detail::ADD>& f) -> decltype(expand(f._l) + expand(f._r)) {
+    auto expand(const AddOp<LHS, RHS>& f) -> decltype(expand(f._l) + expand(f._r)) {
       return expand(f._l) + expand(f._r);
     }
 
@@ -158,28 +121,37 @@ namespace magnet {
       addition and it is instead carried out by the BinaryOp class.
     */
     template<class LHS, class RHS>
-    auto expand(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f) -> decltype(expand(f._l) * expand(f._r)) {
+    auto expand(const MultiplyOp<LHS, RHS>& f) -> decltype(expand(f._l) * expand(f._r)) {
       return expand(f._l) * expand(f._r);
     }
 
-    /*! \brief Derivatives of Addition operations.
+    /*! \brief Derivatives of AddOp operations.
      */
     template<class LHS, class RHS>
-    auto derivative(const BinaryOp<LHS, RHS, detail::ADD>& f) -> decltype(derivative(f._l) + derivative(f._r))
+    auto derivative(const AddOp<LHS, RHS>& f) -> decltype(derivative(f._l) + derivative(f._r))
     { return derivative(f._l) + derivative(f._r); }
 
-    /*! \brief Derivatives of Multiplication operations.
+    /*! \brief Derivatives of SubtractOp operations.
      */
     template<class LHS, class RHS>
-    auto derivative(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f) -> decltype(add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)))
-    { return add(multiply(derivative(f._l),f._r),multiply(derivative(f._r), f._l)); }
+    auto derivative(const SubtractOp<LHS, RHS>& f) -> decltype(derivative(f._l) - derivative(f._r))
+    { return derivative(f._l) - derivative(f._r); }
+
+    /*! \brief Derivatives of MultiplyOp operations.
+     */
+    template<class LHS, class RHS>
+    auto derivative(const MultiplyOp<LHS, RHS>& f) -> decltype(derivative(f._l) * f._r + derivative(f._r) * f._l)
+    { return derivative(f._l) * f._r + derivative(f._r) * f._l; }
 
 
     /*! \brief Determines the max and min over a certain range. */
     template<class LHS, class RHS, class Real>
-    auto minmax(const BinaryOp<LHS, RHS, detail::ADD>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)>
+    auto minmax(const AddOp<LHS, RHS>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), 
+											   decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)>
     {
-      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)> RetType;
+      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), 
+			decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)> 
+	RetType;
       auto lv = minmax(f._l, x_min, x_max);
       auto rv = minmax(f._r, x_min, x_max);
       return RetType(lv.first + rv.first, lv.second + rv.second);
@@ -187,9 +159,11 @@ namespace magnet {
 
     /*! \brief Determines the max and min over a certain range. */
     template<class LHS, class RHS, class Real>
-    auto minmax(const BinaryOp<LHS, RHS, detail::MULTIPLY>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)>
+    auto minmax(const MultiplyOp<LHS, RHS>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), 
+												decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)>
     {
-      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)> RetType;
+      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), 
+			decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)> RetType;
       auto lv = minmax(f._l, x_min, x_max);
       auto rv = minmax(f._r, x_min, x_max);
       return RetType(lv.first * rv.first, lv.second * rv.second);
@@ -200,16 +174,31 @@ namespace magnet {
       \name BinaryOp input/output operators
       \{
     */
-    /*! \brief Writes a human-readable representation of the BinaryOp to the output stream. */
-    template<class LHS, class RHS, detail::Op_t Op>
-    inline std::ostream& operator<<(std::ostream& os, const BinaryOp<LHS, RHS, Op>& op) {
-      os << "{" << op._l;
-      switch (Op){
-      case detail::ADD:      os << " + "; break;
-      case detail::MULTIPLY: os << " * "; break;
-      case detail::DIVIDE:   os << " / "; break;
-      }
-      os << op._r << "}";
+    /*! \brief Writes a human-readable representation of the AddOp to the output stream. */
+    template<class LHS, class RHS>
+    inline std::ostream& operator<<(std::ostream& os, const AddOp<LHS, RHS>& op) {
+      os << op._l << " + " << op._r ;
+      return os;
+    }
+
+    /*! \brief Writes a human-readable representation of the SubtractOp to the output stream. */
+    template<class LHS, class RHS>
+    inline std::ostream& operator<<(std::ostream& os, const SubtractOp<LHS, RHS>& op) {
+      os << op._l << " - " << op._r ;
+      return os;
+    }
+
+    /*! \brief Writes a human-readable representation of the MultiplyOp to the output stream. */
+    template<class LHS, class RHS>
+    inline std::ostream& operator<<(std::ostream& os, const MultiplyOp<LHS, RHS>& op) {
+      os << "{" << op._l << " * " << op._r << "}" ;
+      return os;
+    }
+
+    /*! \brief Writes a human-readable representation of the DivideOp to the output stream. */
+    template<class LHS, class RHS>
+    inline std::ostream& operator<<(std::ostream& os, const DivideOp<LHS, RHS>& op) {
+      os << op._l << " / {" << op._r << "}" ;
       return os;
     }
     /*! \} */

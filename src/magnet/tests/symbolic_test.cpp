@@ -69,30 +69,30 @@ BOOST_AUTO_TEST_CASE( polynomials_multiply_expansion )
 BOOST_AUTO_TEST_CASE( function_basic )
 {
   //Check basic Function operation
-  BOOST_CHECK_CLOSE(magnet::math::sin(x)(0.5), std::sin(0.5), 1e-10);
-  BOOST_CHECK_CLOSE(magnet::math::cos(x)(0.5), std::cos(0.5), 1e-10);
+  BOOST_CHECK_CLOSE(eval(magnet::math::sin(x), 0.5), std::sin(0.5), 1e-10);
+  BOOST_CHECK_CLOSE(eval(magnet::math::cos(x), 0.5), std::cos(0.5), 1e-10);
 
   //Test BinaryOP Addition and subtraction
-  BOOST_CHECK_CLOSE((x * sin(x) + x)(0.5), 0.5 * std::sin(0.5) + 0.5, 1e-10);
-  BOOST_CHECK_CLOSE((x * sin(x) - x)(0.5), 0.5 * std::sin(0.5) - 0.5, 1e-10);
+  BOOST_CHECK_CLOSE(eval(x * sin(x) + x, 0.5), 0.5 * std::sin(0.5) + 0.5, 1e-10);
+  BOOST_CHECK_CLOSE(eval(x * sin(x) - x, 0.5), 0.5 * std::sin(0.5) - 0.5, 1e-10);
 }
 
 BOOST_AUTO_TEST_CASE( function_poly_multiplication )
 {
   //Check function and Polynomial multiplication
   auto poly1 = sin(x + x) * x;
-  BOOST_CHECK_CLOSE(poly1(0.5), std::sin(2 * 0.5) * 0.5, 1e-10);
+  BOOST_CHECK_CLOSE(eval(poly1, 0.5), std::sin(2 * 0.5) * 0.5, 1e-10);
   auto poly2 = x * sin(x + x);
-  BOOST_CHECK_CLOSE(poly2(0.5), std::sin(2 * 0.5) * 0.5, 1e-10);
+  BOOST_CHECK_CLOSE(eval(poly2, 0.5), std::sin(2 * 0.5) * 0.5, 1e-10);
 }
 
 BOOST_AUTO_TEST_CASE( function_poly_derivatives )
 {
   //Check function and Polynomial derivatives
   auto poly1 = derivative(x * sin(x));
-  BOOST_CHECK_CLOSE(poly1(0.5), std::sin(0.5) + 0.5 * std::cos(0.5), 1e-10);
+  BOOST_CHECK_CLOSE(eval(poly1, 0.5), std::sin(0.5) + 0.5 * std::cos(0.5), 1e-10);
   auto poly2 = derivative(x * cos(x));
-  BOOST_CHECK_CLOSE(poly2(0.5), -0.5 * std::sin(0.5) + std::cos(0.5), 1e-10);
+  BOOST_CHECK_CLOSE(eval(poly2, 0.5), -0.5 * std::sin(0.5) + std::cos(0.5), 1e-10);
 }
 
 BOOST_AUTO_TEST_CASE( function_poly_derivatives_special )
@@ -123,13 +123,13 @@ BOOST_AUTO_TEST_CASE( poly_specialised_multiply )
 BOOST_AUTO_TEST_CASE( power_basic )
 {
   //Check evaluation of powers
-  BOOST_CHECK_CLOSE(pow<3>(x)(4), 4*4*4, 1e-10);
-  BOOST_CHECK_CLOSE(pow<3>(x)(0.75), std::pow(0.75, 3), 1e-10);
+  BOOST_CHECK_CLOSE(eval(pow<3>(x), 4), 4*4*4, 1e-10);
+  BOOST_CHECK_CLOSE(eval(pow<3>(x), 0.75), std::pow(0.75, 3), 1e-10);
 
   //Test PowerOp algebraic operations
-  BOOST_CHECK_CLOSE((pow<3>(x) - x)(0.75), std::pow(0.75, 3) - 0.75, 1e-10);
-  BOOST_CHECK_CLOSE((pow<3>(x) + x)(0.75), std::pow(0.75, 3) + 0.75, 1e-10);
-  BOOST_CHECK_CLOSE((pow<3>(x) * x)(0.75), std::pow(0.75, 3) * 0.75, 1e-10);
+  BOOST_CHECK_CLOSE(eval(pow<3>(x) - x, 0.75), std::pow(0.75, 3) - 0.75, 1e-10);
+  BOOST_CHECK_CLOSE(eval(pow<3>(x) + x, 0.75), std::pow(0.75, 3) + 0.75, 1e-10);
+  BOOST_CHECK_CLOSE(eval(pow<3>(x) * x, 0.75), std::pow(0.75, 3) * 0.75, 1e-10);
 
   //Check special case derivatives
   BOOST_CHECK(compare_expression(derivative(pow<1>(x)), 1));

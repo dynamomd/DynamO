@@ -42,16 +42,19 @@ namespace magnet {
       
       /*! \brief Construct a Function with its argument. */
       Function(const Arg& a): _arg(a) {}
-      
-      /*! \brief Evaluate a Function at a given value of \f$x\f$. */
-      template<class Real>
-      auto operator()(Real x) const ->decltype(_arg(x)) {
-	switch (Func) {
-	case detail::SIN: return std::sin(_arg(x));
-	case detail::COS: return std::cos(_arg(x));
-	}
-      }
     };
+
+    /*! \brief Evaluates a sine Function expression at a given point.
+    */
+    template<class Arg, class Real>
+    auto eval(const Function<Arg, detail::SIN>& f, const Real& x) -> decltype(std::sin(x))
+    { return std::sin(x); }
+
+    /*! \brief Evaluates a cosine Function expression at a given point.
+    */
+    template<class Arg, class Real>
+    auto eval(const Function<Arg, detail::COS>& f, const Real& x) -> decltype(std::cos(x))
+    { return std::cos(x); }
 
     /*! \relates Function
       \name Function creation helper functions
@@ -174,7 +177,7 @@ namespace magnet {
       without attempting to specialise for sections of the
       oscillation.
      */
-    template<class Arg, detail::Op_t Op, class Real>
+    template<class Arg, detail::Function_t Op, class Real>
     inline std::pair<double, double> minmax(const Function<Arg, Op>& f, const Real x_min, const Real x_max)
     {
       switch (Op) {

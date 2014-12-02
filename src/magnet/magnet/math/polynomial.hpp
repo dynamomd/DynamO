@@ -197,16 +197,6 @@ namespace magnet {
 	  retval[i] = -Base::operator[](i);
 	return retval;
       }
-
-      /*! \brief Evaluate the polynomial at x. */
-      Real operator()(Real x) const {
-	Real sum = 0;
-	if (Order > 0)
-	  for(size_t i = Order; i > 0; --i)
-	    sum = sum * x + Base::operator[](i);
-	sum = sum * x + Base::operator[](0);
-	return sum;
-      }
     };
 
     /*! \relates Polynomial 
@@ -243,6 +233,19 @@ namespace magnet {
        the polynomial.
        \{
     */
+
+    /*! \brief Evaluates a Polynomial expression at a given point.
+    */
+    template<class Real, size_t Order, class Real2> 
+    Real eval(const Polynomial<Order, Real>& f, const Real2& x)
+    {
+      Real sum = Real();
+      if (Order > 0)
+	for(size_t i = Order; i > 0; --i)
+	  sum = sum * x + f[i];
+      sum = sum * x + f[0];
+      return sum;
+    }
     
     /*! \brief Right-handed addition operation on a Polynomial.
       
@@ -376,11 +379,8 @@ namespace magnet {
       which allows the polynomials to expand against each other.
      */
     template<class Real1, size_t N1, class Real2, size_t N2, class RHS>
-    auto multiply(const BinaryOp<Polynomial<N1, Real1>, RHS, detail::MULTIPLY>& l, 
-		  const Polynomial<N2, Real2>& r) -> BinaryOp<decltype(l._l * r), RHS, detail::MULTIPLY>
-    {
-      return multiply(l._l * r, l._r); 
-    }
+    auto multiply(const MultiplyOp<Polynomial<N1, Real1>, RHS>& l, const Polynomial<N2, Real2>& r) -> MultiplyOp<decltype(l._l * r), RHS>
+    { return multiply(l._l * r, l._r); }
 
     /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
 
@@ -396,10 +396,8 @@ namespace magnet {
       which allows the polynomials to expand against each other.
      */
     template<class Real1, size_t N1, class Real2, size_t N2, class LHS>
-    auto multiply(const BinaryOp<LHS, Polynomial<N1, Real1>, detail::MULTIPLY>& l,
-		  const Polynomial<N2, Real2>& r) -> BinaryOp<decltype(l._r * r), LHS, detail::MULTIPLY> {
-      return multiply(l._r * r, l._l); 
-    }
+    auto multiply(const MultiplyOp<LHS, Polynomial<N1, Real1>>& l, const Polynomial<N2, Real2>& r) -> MultiplyOp<decltype(l._r * r), LHS> 
+    { return multiply(l._r * r, l._l); }
 
     /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
 
@@ -416,11 +414,8 @@ namespace magnet {
 
      */
     template<class Real1, size_t N1, class Real2, size_t N2, class RHS>
-    auto multiply(const Polynomial<N2, Real2>& r,
-		  const BinaryOp<Polynomial<N1, Real1>, RHS, detail::MULTIPLY>& l) -> BinaryOp<decltype(l._l * r), RHS, detail::MULTIPLY>
-    {
-      return multiply(l._l * r, l._r); 
-    }
+    auto multiply(const Polynomial<N2, Real2>& r, const MultiplyOp<Polynomial<N1, Real1>, RHS>& l) -> MultiplyOp<decltype(l._l * r), RHS>
+    { return multiply(l._l * r, l._r); }
 
     /*! \brief Optimisation of multiplication of BinaryOps containing Polynomials.
 
@@ -436,11 +431,8 @@ namespace magnet {
       which allows the polynomials to expand against each other.
      */
     template<class Real1, size_t N1, class Real2, size_t N2, class LHS>
-    auto multiply(const Polynomial<N2, Real2>& r,
-		  const BinaryOp<LHS, Polynomial<N1, Real1>, detail::MULTIPLY>& l) -> BinaryOp<decltype(l._r * r), LHS, detail::MULTIPLY> {
-      return multiply(l._r * r, l._l); 
-    }
-
+    auto multiply(const Polynomial<N2, Real2>& r, const MultiplyOp<LHS, Polynomial<N1, Real1>>& l) -> MultiplyOp<decltype(l._r * r), LHS> 
+    { return multiply(l._r * r, l._l); }
 
     /*! \} */
 
@@ -658,7 +650,7 @@ namespace magnet {
       inline void cubicNewtonRootPolish(const Polynomial<3, double>& f, double& root)
       {
 	//Stored for comparison later
-	double error = f(root);
+	double error = eval(f, root);
 	const size_t maxiterations = 4;
 	for (size_t it = 0; (it < maxiterations) && (error != 0); ++it)
 	  {
@@ -677,7 +669,7 @@ namespace magnet {
 		if (deriv == 0) return;
 		root -= error / deriv;
 	      }
-	    error = f(root);
+	    error = eval(f, root);
 	  }
       }
     }
@@ -846,8 +838,8 @@ namespace magnet {
       \param x_max The maximum bound.
      */
     template<class Real>
-    inline auto minmax(const Polynomial<0, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(f(x_min)), decltype(f(x_max))>
-    { return std::pair<Real, Real>{f(x_min), f(x_max)}; }
+    inline auto minmax(const Polynomial<0, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
 
     /*! \brief The maximum and minimum values of a 1st order Polynomial in a specified range. 
       \param f The Polynomial to evaluate.
@@ -855,8 +847,8 @@ namespace magnet {
       \param x_max The maximum bound.
      */
     template<class Real>
-    inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(f(x_min)), decltype(f(x_max))>
-    { return std::pair<Real, Real>{f(x_min), f(x_max)}; }
+    inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
 
     /*! \brief The maximum absolute value of an arbitrary order Polynomial in a specified range.
       \param f The Polynomial to evaluate.
@@ -864,13 +856,13 @@ namespace magnet {
       \param tmax The maximum bound.
      */
     template<class Real, size_t Order>
-    inline auto minmax(const Polynomial<Order, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(f(x_min)), decltype(f(x_max))>
+    inline auto minmax(const Polynomial<Order, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
     {
       auto roots = solve_roots(derivative(f));
-      std::pair<decltype(f(x_min)), decltype(f(x_min))> retval = std::minmax(f(x_min), f(x_max));
+      std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_min))> retval = std::minmax(eval(f, x_min), eval(f, x_max));
       for (auto root : roots)
 	if ((root > x_min) && (root < x_max))
-	  retval = std::minmax({retval.first, retval.second, f(root)});
+	  retval = std::minmax({retval.first, retval.second, eval(f, root)});
       return retval;
     }
     /*! \} */

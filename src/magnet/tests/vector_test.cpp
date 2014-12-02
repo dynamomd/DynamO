@@ -6,6 +6,7 @@
 
 std::mt19937 RNG;
 std::normal_distribution<double> normal_dist(0, 1);
+std::uniform_real_distribution<double> angle_dist(0, std::atan(1)*4);
 using namespace magnet::math;
 
 Vector random_unit_vec() {
@@ -329,31 +330,32 @@ BOOST_AUTO_TEST_CASE( matrix_inverse_4D )
 }
 
 #include <magnet/math/polynomial.hpp>
+#include <magnet/math/matrix.hpp>
 #include <magnet/math/trigsymbols.hpp>
+
+const size_t testcount = 100;
+const double errlvl = 1e-10;
 
 BOOST_AUTO_TEST_CASE( Vector_symbolic )
 {
   using namespace magnet::math;
   const Polynomial<1> x{0, 1};
 
-
-  std::cout << Vector{1,2,3} * x + Vector{3,4,5} << std::endl;
-  // (Vector{1,2,3} * x + Vector{3,4,5})
-  std::cout << pow<2>(Vector{1,2,3} * x + Vector{3,4,5}) << std::endl;
-  // ((Vector{1,2,3} * x + Vector{3,4,5}))^2
-  std::cout << expand(pow<2>(Vector{1,2,3} * x + Vector{3,4,5})) << std::endl;
-  // (14 * x^2 + 52 * x + 50)
-  
-  //Rodrigues formula
-  Vector v{1,2,3};
-  Vector k{1,0,0};
-  std::cout << v * cos(x)+(k^v)*sin(x)+k * (k * v) * (1.0 - cos(x)) << std::endl;
-  // Vector{1,2,3} * cos(x) + Vector{0,-3,2} * sin(x) + Vector{1,0,0} * 1 + -1 * cos(x) 1 + -1 * cos(x)
-
-  std::cout << expand(v * cos(x)+(k^v)*sin(x)+k * (k * v) * (1.0 - cos(x))) << std::endl;
-
-  std::cout << k * (k * v) * (1.0 - cos(x)) << std::endl;
-  // 1 + -1 * cos(x)
-
-  std::cout << 1.0 - cos(x) << std::endl;
+  //A tough test is to implement the Rodriugues formula symbolically.
+  RNG.seed();
+  for (size_t i(0); i < testcount; ++i)
+    {
+      double angle = angle_dist(RNG);
+      Vector axis = random_unit_vec();
+      Vector start = random_unit_vec();
+      Vector end = Rodrigues(axis * angle) * start;
+      
+      Vector r = axis * (axis * start);
+      auto f = (start - r) * cos(x) + (axis ^ start) * sin(x) + r;
+      Vector err = end - eval(f, angle);
+      
+      BOOST_CHECK(std::abs(err[0]) < errlvl);
+      BOOST_CHECK(std::abs(err[1]) < errlvl);
+      BOOST_CHECK(std::abs(err[2]) < errlvl);
+    }
 }

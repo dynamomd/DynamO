@@ -78,5 +78,23 @@ namespace magnet {
     constexpr NVector<T, N> empty_sum(const NVector<T, N>&) { 
       return NVector<T, N>();
     }
+
+    /*! \brief Provides expansion (and simplification) of symbolic
+      functions.
+
+      The purpose of this function is to reduce the complexity of
+      symbolic expressions to accelerate any successive
+      evaluations. This should not change the calculated values, but
+      should optimise for use under repeated evaluations.
+
+      The default operation is to do nothing.
+    */
+    template<class T> const T& expand(const T& f) { return f; }
+
+    /*! \brief Evaluates a symbolic expression at a given point.
+
+      This generic implementation is used for constant terms.
+    */
+    template<class T, class Real> const T& eval(const T& f, const Real& x) { return f; }
   }
 }
