@@ -66,6 +66,12 @@ namespace magnet {
     CLASSNAME<LHS, RHS> HELPERNAME(const LHS& l, const RHS& r)		\
     { return CLASSNAME<LHS, RHS>(l, r); }				\
 									\
+    /*! \brief Pass the expand operator to the arguments of the operation */ \
+    template<class LHS, class RHS>					\
+    auto expand(const CLASSNAME<LHS, RHS>& f) -> decltype(expand(f._l) OP expand(f._r)) { \
+      return expand(f._l) OP expand(f._r);				\
+    }									\
+									\
     /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
     template<class T1, class T2, class T3,				\
 	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\
@@ -145,6 +151,28 @@ namespace magnet {
     NullSymbol subtract(const NullSymbol& l, const NullSymbol& r)
     { return NullSymbol(); }
 
+
+    /*! \brief Expand multiplication and addition operations. */
+    template<class LHS1, class RHS1, class RHS>
+    auto expand(const MultiplyOp<AddOp<LHS1, RHS1>, RHS>& f)
+      -> decltype(expand(f._l._l * f._r + f._l._r * f._r)) {
+      return expand(f._l._l * f._r + f._l._r * f._r);
+    }
+
+    /*! \brief Expand multiplication and addition operations. */
+    template<class LHS1, class RHS1, class RHS>
+    auto expand(const MultiplyOp<RHS, AddOp<LHS1, RHS1> >& f)
+      -> decltype(expand(f._l * f._r._l + f._l * f._r._r)) {
+      return expand(f._l * f._r._l + f._l * f._r._r);
+    }
+
+    /*! \brief Expand multiplication and addition operations. */
+    template<class LHS1, class RHS1, class LHS2, class RHS2>
+    auto expand(const MultiplyOp<AddOp<LHS1, RHS1>,  AddOp<LHS2, RHS2> >& f)
+      -> decltype(expand(f._l._l * f._r._l + f._l._l * f._r._r + f._l._r * f._r._l + f._l._r * f._r._r)) {
+      return expand(f._l._l * f._r._l + f._l._l * f._r._r + f._l._r * f._r._l + f._l._r * f._r._r);
+    }
+
     /*! \} */
 
     /*! \relates BinaryOp
@@ -191,30 +219,6 @@ namespace magnet {
     template<class Op, class LHS>
     auto operator/(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(divide(l, r))>::type
     { return divide(l,r); }
-
-    /*! \brief Expand addition BinaryOp types.
-
-      If the classes have specialised operators for addition, then the
-      decltype lookup will succeed and the addition is shunted to
-      those classes. If not, this lookup will fail to expand the
-      addition and it is instead carried out by the BinaryOp class.
-    */
-    template<class LHS, class RHS>
-    auto expand(const AddOp<LHS, RHS>& f) -> decltype(expand(f._l) + expand(f._r)) {
-      return expand(f._l) + expand(f._r);
-    }
-
-    /*! \brief Expand multiplication BinaryOp types.
-
-      If the classes have specialised operators for multiplication, then the
-      decltype lookup will succeed and the addition is shunted to
-      those classes. If not, this lookup will fail to expand the
-      addition and it is instead carried out by the BinaryOp class.
-    */
-    template<class LHS, class RHS>
-    auto expand(const MultiplyOp<LHS, RHS>& f) -> decltype(expand(f._l) * expand(f._r)) {
-      return expand(f._l) * expand(f._r);
-    }
 
     /*! \brief Derivatives of AddOp operations.
      */
@@ -268,28 +272,28 @@ namespace magnet {
     /*! \brief Writes a human-readable representation of the AddOp to the output stream. */
     template<class LHS, class RHS>
     inline std::ostream& operator<<(std::ostream& os, const AddOp<LHS, RHS>& op) {
-      os << op._l << " + " << op._r ;
+      os << "(" << op._l << ") + (" << op._r << ")";
       return os;
     }
 
     /*! \brief Writes a human-readable representation of the SubtractOp to the output stream. */
     template<class LHS, class RHS>
     inline std::ostream& operator<<(std::ostream& os, const SubtractOp<LHS, RHS>& op) {
-      os << op._l << " - " << op._r ;
+      os << "(" << op._l << ") - (" << op._r << ")";
       return os;
     }
 
     /*! \brief Writes a human-readable representation of the MultiplyOp to the output stream. */
     template<class LHS, class RHS>
     inline std::ostream& operator<<(std::ostream& os, const MultiplyOp<LHS, RHS>& op) {
-      os << "{" << op._l << " * " << op._r << "}";
+      os << "(" << op._l << ") * (" << op._r << ")";
       return os;
     }
 
     /*! \brief Writes a human-readable representation of the DivideOp to the output stream. */
     template<class LHS, class RHS>
     inline std::ostream& operator<<(std::ostream& os, const DivideOp<LHS, RHS>& op) {
-      os << op._l << " / {" << op._r << "}" ;
+      os << "(" << op._l << ") / (" << op._r << ")";
       return os;
     }
     /*! \} */
@@ -379,7 +383,7 @@ namespace magnet {
       \name PowerOp algebra operations
     */
 
-    /*! \brief Left-handed multiplication operator for PowerOp types. */
+    /*! \brief Expansion operator for PowerOp types. */
     template<class Arg, size_t Power> 
     auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpEval<Power>::eval(f._arg))
     { return PowerOpEval<Power>::eval(f._arg); }

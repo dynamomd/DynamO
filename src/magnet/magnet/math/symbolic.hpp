@@ -20,10 +20,15 @@
 
 namespace magnet {
   namespace math {
-    /*!\brief Compile-time representation of zero.
+    /*!\brief Compile-time symbolic representation of zero.
      */
     struct NullSymbol {
       operator int () const { return 0; }
+    };
+
+    /*!\brief Symbolic representation of a variable.
+     */
+    struct Var {
     };
 
     namespace detail {
@@ -117,6 +122,11 @@ namespace magnet {
     template<class T, class Real> 
     auto eval(const T& f, const Real& x) -> typename std::enable_if<detail::IsConstant<T>::value, const T&>::type
     { return f; }
+
+    /*! \brief Evaluates a symbolic Var variable expression at a given point.
+    */
+    template<class Real> 
+    Real eval(const Var& f, const Real& x) { return x; }
     
     /*! \brief Output operator for NullSymbol types. */
     inline std::ostream& operator<<(std::ostream& os, const NullSymbol&) {
@@ -128,13 +138,16 @@ namespace magnet {
   
     /*! \brief Determine the derivative of a symbolic expression.
       
-      The default implementation only applies for arithmetic types. As
-      most symbols are constants or arithmetic types (int, float,
-      double) by default their derivative is zero as they are not a
-      function of x.
+      This default implementation only applies for arithmetic
+      types. As most symbols are constants or arithmetic types (int,
+      float, double) by default their derivatives are zero.
     */
     template<class T, typename = typename std::enable_if<detail::IsConstant<T>::value> >
     NullSymbol derivative(const T&) { return NullSymbol();}
+
+    /*! \brief Determine the derivative of a symbolic expression.
+     */
+    int derivative(const Var&) { return 1; }
     
     /*! \brief Determine the minimum and maximum of a symbolic
       expression within some bounds of x.
@@ -145,5 +158,12 @@ namespace magnet {
     template<class T, class Real, typename = typename std::enable_if<detail::IsConstant<T>::value>::type>
     std::pair<T, T> minmax(const T& f, const Real& x_min, const Real& x_max)
     { return std::pair<T, T>(f, f); }
+
+    /*! \brief Determine the minimum and maximum of a Var expression
+      within some bounds of x.
+    */
+    template<class Real>
+    std::pair<Real, Real> minmax(const Var& f, const Real& x_min, const Real& x_max)
+    { return std::pair<Real, Real>(x_min, x_max); }
   }
 }
