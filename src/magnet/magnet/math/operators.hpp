@@ -31,9 +31,22 @@ namespace magnet {
       };
     }
 
-    /*! \brief Type trait which denotes BinaryOp types. */
-    template<class T> struct IsOp {
+    /*! \brief Type trait which enables symbolic operators for
+        algebraic operations (*+-). */
+    template<class T> struct SymbolicOperators {
       static const bool value = false;
+    };
+
+    template<> struct SymbolicOperators<UnitySymbol> {
+      static const bool value = true;
+    };
+
+    template<> struct SymbolicOperators<Var> {
+      static const bool value = true;
+    };
+
+    template<> struct SymbolicOperators<NullSymbol> {
+      static const bool value = true;
     };
      
     /*! \brief Type trait which denotes if operations should be
@@ -53,7 +66,7 @@ namespace magnet {
       CLASSNAME(const LHStype& l, const RHStype& r): Base(l, r) {}	\
     };									\
 									\
-    template<class LHS, class RHS> struct IsOp<CLASSNAME<LHS,RHS> > {	\
+    template<class LHS, class RHS> struct SymbolicOperators<CLASSNAME<LHS,RHS> > { \
       static const bool value = true;					\
     };									\
 									\
@@ -189,49 +202,40 @@ namespace magnet {
 
     /*! \} */
 
-    /*! \relates BinaryOp
-      \name BinaryOp algebra
+    /*! \name Symbolic algebra
       \{
     */
 
-    /*! \brief Left-handed addition operator for BinaryOp types. */
-    template<class Op, class RHS>
-    auto operator+(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(add(l, r))>::type
+    /*! \brief Simple combination rule to enable Symbolic operations,
+        but avoid redundantly specifying where two SymbolicOperator
+        classes are operated on. */
+    template<class LHS, class RHS> 
+    struct ApplySymbolicOps {
+      static const bool value = SymbolicOperators<LHS>::value || (!SymbolicOperators<LHS>::value && SymbolicOperators<RHS>::value);
+    };
+
+    /*! \brief Symbolic addition operator. */
+    template<class LHS, class RHS,
+	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
+    auto operator+(const LHS& l, const RHS& r) -> decltype(add(l, r))
     { return add(l,r); }
 
-    /*! \brief Right-handed addition operator for BinaryOp types. */
-    template<class Op, class LHS>
-    auto operator+(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(add(l, r))>::type
-    { return add(l,r); }
-
-    /*! \brief Left-handed multiplication operator for BinaryOp types. */
-    template<class Op, class RHS>
-    auto operator*(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(multiply(l, r))>::type
+    /*! \brief Symbolic multiplication operator. */
+    template<class LHS, class RHS,
+	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
+    auto operator*(const LHS& l, const RHS& r) -> decltype(multiply(l, r))
     { return multiply(l,r); }
 
-    /*! \brief Right-handed multiplication operator for BinaryOp types. */
-    template<class Op, class LHS>
-    auto operator*(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(multiply(l, r))>::type
-    { return multiply(l,r); }
-
-    /*! \brief Left-handed subtraction operator for BinaryOp types. */
-    template<class Op, class RHS>
-    auto operator-(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(subtract(l, r))>::type
+    /*! \brief Symbolic subtraction operator. */
+    template<class LHS, class RHS,
+	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
+    auto operator-(const LHS& l, const RHS& r) -> decltype(subtract(l, r))
     { return subtract(l,r); }
 
-    /*! \brief Right-handed subtraction operator for BinaryOp types. */
-    template<class Op, class LHS>
-    auto operator-(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(subtract(l, r))>::type
-    { return subtract(l,r); }
-
-    /*! \brief Left-handed subtraction operator for BinaryOp types. */
-    template<class Op, class RHS>
-    auto operator/(const Op& l, const RHS& r) -> typename std::enable_if<IsOp<Op>::value, decltype(divide(l, r))>::type
-    { return divide(l,r); }
-
-    /*! \brief Right-handed subtraction operator for BinaryOp types. */
-    template<class Op, class LHS>
-    auto operator/(const LHS& l, const Op& r) -> typename std::enable_if<IsOp<Op>::value && ! IsOp<LHS>::value, decltype(divide(l, r))>::type
+    /*! \brief Symbolic divide operator. */
+    template<class LHS, class RHS,
+	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
+    auto operator/(const LHS& l, const RHS& r) -> decltype(divide(l, r))
     { return divide(l,r); }
 
     /*! \brief Derivatives of AddOp operations.
@@ -249,9 +253,10 @@ namespace magnet {
     /*! \brief Derivatives of MultiplyOp operations.
      */
     template<class LHS, class RHS>
-    auto derivative(const MultiplyOp<LHS, RHS>& f) -> decltype(derivative(f._l) * f._r + derivative(f._r) * f._l)
-    { return derivative(f._l) * f._r + derivative(f._r) * f._l; }
+    auto derivative(const MultiplyOp<LHS, RHS>& f) -> decltype(derivative(f._l) * f._r + f._l * derivative(f._r))
+    { return derivative(f._l) * f._r + f._l * derivative(f._r); }
 
+    /*! \} */
 
     /*! \brief Determines the max and min over a certain range. */
     template<class LHS, class RHS, class Real>
@@ -395,59 +400,22 @@ namespace magnet {
     }
     /*! \} */
 
+    
     /*! \relates PowerOp
-      \name PowerOp algebra operations
+      \name PowerOp operations
+      \{
+      \brief Enablement of the symbolic operators for the PowerOp type.
     */
+    template<class Arg, size_t Power>
+    struct SymbolicOperators<PowerOp<Arg, Power> > {
+      static const bool value = true;
+    };
 
     /*! \brief Expansion operator for PowerOp types. */
     template<class Arg, size_t Power> 
     auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpEval<Power>::eval(f._arg))
     { return PowerOpEval<Power>::eval(f._arg); }
 
-    /*! \brief Left-handed multiplication operator for PowerOp types. */
-    template<class Arg, size_t Power, class RHS>
-    auto operator*(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(multiply(l, r))
-    { return multiply(l, r); }
-    
-    /*! \brief Right-handed multiplication operator for PowerOp types. */
-    template<class Arg, size_t Power, class RHS>
-    auto operator*(const RHS& l, const PowerOp<Arg, Power>& r) -> decltype(multiply(l, r))
-    { return multiply(l, r); }
-    
-    /*! \brief Multiplication operator for two PowerOp types. */
-    template<class Arg1, size_t Power1, class Arg2, size_t Power2>
-    auto operator*(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(multiply(l, r))
-    { return multiply(l, r); }
-
-    /*! \brief Left-handed addition operator for PowerOp types. */
-    template<class Arg, size_t Power, class RHS>
-    auto operator+(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(add(l, r))
-    { return add(l, r); }
-    
-    /*! \brief Right-handed addition operator for PowerOp types. */
-    template<class Arg, size_t Power, class RHS>
-    auto operator+(const RHS& l, const PowerOp<Arg, Power>& r) -> decltype(add(l, r))
-    { return add(l, r); }
-    
-    /*! \brief Addition operator for two PowerOp types. */
-    template<class Arg1, size_t Power1, class Arg2, size_t Power2>
-    auto operator+(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(add(l, r))
-    { return add(l, r); }
-
-    /*! \brief Left-handed subtraction operator for PowerOp types. */
-    template<class Arg, size_t Power, class RHS>
-    auto operator-(const PowerOp<Arg, Power>& l, const RHS& r) -> decltype(subtract(l, r))
-    { return subtract(l, r); }
-    
-    /*! \brief Right-handed subtraction operator for PowerOp types. */
-    template<class Arg, size_t Power, class RHS>
-    auto operator-(const RHS& l, const PowerOp<Arg, Power>& r) -> decltype(subtract(l, r))
-    { return subtract(l, r); }
-    
-    /*! \brief Subtraction operator for two PowerOp types. */
-    template<class Arg1, size_t Power1, class Arg2, size_t Power2>
-    auto operator-(const PowerOp<Arg1, Power1>& l, const PowerOp<Arg2, Power2>& r) -> decltype(subtract(l, r))
-    { return subtract(l, r); }
 
     /*! \brief Derivatives of PowerOp operations.
      */

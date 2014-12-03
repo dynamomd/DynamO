@@ -18,6 +18,8 @@ bool compare_expression(const T1& f, const T2& g) {
   os.str(""); os.clear();
   os << g;
   std::string g_str = os.str();
+  if (!(f_str == g_str))
+    std::cerr << f << " != " << g << std::endl;
   return f_str == g_str;
 }
 

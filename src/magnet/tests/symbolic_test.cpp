@@ -14,6 +14,8 @@ bool compare_expression(const T1& f, const T2& g) {
   os.str(""); os.clear();
   os << g;
   std::string g_str = os.str();
+  if (!(f_str == g_str))
+    std::cerr << f << " != " << g << std::endl;
   return f_str == g_str;
 }
 
@@ -153,19 +155,37 @@ BOOST_AUTO_TEST_CASE( Unity_tests )
   BOOST_CHECK_EQUAL(limits.first, 1);
   BOOST_CHECK_EQUAL(limits.second, 1);
 
-  //Check derivatives of Unity
+  //Check derivatives of Unity, or expressions that generate Unity
   BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
   BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
   BOOST_CHECK(compare_expression(derivative(sin(Var())), cos(Var())));
 
   //Check simplification of multiplication with Unity
-  //BOOST_CHECK(compare_expression(UnitySymbol() * UnitySymbol(), "Unity"));
-  //BOOST_CHECK(compare_expression(UnitySymbol() * 2, 2));
-  //BOOST_CHECK(compare_expression(UnitySymbol() * x, x));
-  //BOOST_CHECK(compare_expression(UnitySymbol() * Vector{1,2,3}, Vector{1,2,3}));
-  //BOOST_CHECK(compare_expression(2 * UnitySymbol(), 2));
-  //BOOST_CHECK(compare_expression(x * UnitySymbol() * x, x));
-  //BOOST_CHECK(compare_expression(Vector{1,2,3} * UnitySymbol(), Vector{1,2,3}));
+  BOOST_CHECK(compare_expression(UnitySymbol() * UnitySymbol(), "Unity"));
+  BOOST_CHECK(compare_expression(UnitySymbol() * 2, 2));
+  BOOST_CHECK(compare_expression(UnitySymbol() * x, x));
+  BOOST_CHECK(compare_expression(UnitySymbol() * Vector{1,2,3}, Vector{1,2,3}));
+  BOOST_CHECK(compare_expression(2 * UnitySymbol(), 2));
+  BOOST_CHECK(compare_expression(x * UnitySymbol() * x, x * x));
+  BOOST_CHECK(compare_expression(Vector{1,2,3} * UnitySymbol(), Vector{1,2,3}));
+}
+
+BOOST_AUTO_TEST_CASE( Var_tests )
+{
+  //Check that Var is implemented correctly
+  BOOST_CHECK(compare_expression(Var(), "v"));
+  BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
+  BOOST_CHECK_EQUAL(eval(Var(), 3.14159265), 3.14159265);
+
+  //Check the bounds
+  auto limits = minmax(Var(), -10, 100);
+  BOOST_CHECK_EQUAL(limits.first, -10);
+  BOOST_CHECK_EQUAL(limits.second, 100);
+
+  //Check derivatives of Unity
+  BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(Var()*sin(Var())), sin(Var()) + Var() * cos(Var())));
 }
 
 BOOST_AUTO_TEST_CASE( reorder_operations )
