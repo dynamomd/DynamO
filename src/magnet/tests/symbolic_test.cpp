@@ -141,6 +141,33 @@ BOOST_AUTO_TEST_CASE( Null_tests )
   BOOST_CHECK(compare_expression(derivative(Vector{1,2,3}), "Null"));
 }
 
+BOOST_AUTO_TEST_CASE( Unity_tests )
+{
+  //Check that Null symbols have zero derivative and value
+  BOOST_CHECK(compare_expression(UnitySymbol(), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
+  BOOST_CHECK_EQUAL(eval(UnitySymbol(), 100), 1);
+
+  //Check the bounds
+  auto limits = minmax(UnitySymbol(), -10, 100);
+  BOOST_CHECK_EQUAL(limits.first, 1);
+  BOOST_CHECK_EQUAL(limits.second, 1);
+
+  //Check derivatives of Unity
+  BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(sin(Var())), cos(Var())));
+
+  //Check simplification of multiplication with Unity
+  //BOOST_CHECK(compare_expression(UnitySymbol() * UnitySymbol(), "Unity"));
+  //BOOST_CHECK(compare_expression(UnitySymbol() * 2, 2));
+  //BOOST_CHECK(compare_expression(UnitySymbol() * x, x));
+  //BOOST_CHECK(compare_expression(UnitySymbol() * Vector{1,2,3}, Vector{1,2,3}));
+  //BOOST_CHECK(compare_expression(2 * UnitySymbol(), 2));
+  //BOOST_CHECK(compare_expression(x * UnitySymbol() * x, x));
+  //BOOST_CHECK(compare_expression(Vector{1,2,3} * UnitySymbol(), Vector{1,2,3}));
+}
+
 BOOST_AUTO_TEST_CASE( reorder_operations )
 {
   //Check the specialised multiply operators are consistently

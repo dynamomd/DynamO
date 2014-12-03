@@ -123,6 +123,20 @@ namespace magnet {
     NullSymbol multiply(const NullSymbol& l, const NullSymbol& r)
     { return NullSymbol(); }
 
+    /*! \brief Optimised multiply if the LHS term is a UnitySymbol. */
+    template<class RHS>
+    RHS multiply(const UnitySymbol& l, const RHS& r)
+    { return r; }
+    
+    /*! \brief Optimised multiply if the RHS term is a UnitySymbol. */
+    template<class LHS>
+    LHS multiply(const LHS& l, const UnitySymbol& r)
+    { return l; }
+    
+    /*! \brief Optimised multiply if both terms are UnitySymbol types. */
+    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&)
+    { return UnitySymbol(); }
+
     /*! \brief Optimised addition if the LHS term is a NullSymbol. */
     template<class RHS>
     RHS add(const NullSymbol& l, const RHS& r)
@@ -312,6 +326,7 @@ namespace magnet {
 	static auto eval(Arg_t x) -> decltype(PowerOpEval<Power-1>::eval(x) * x) {
 	  return PowerOpEval<Power-1>::eval(x) * x;
 	}
+	static UnitySymbol eval(UnitySymbol) { return UnitySymbol(); }
       };
 
       template<>
@@ -320,13 +335,14 @@ namespace magnet {
 	static Arg_t eval(Arg_t x) {
 	  return x;
 	}
+	static UnitySymbol eval(UnitySymbol) { return UnitySymbol(); }
       };
 
       template<>
       struct PowerOpEval<0> {
 	template<class Arg_t>
-	static double eval(Arg_t x) {
-	  return 1;
+	static UnitySymbol eval(Arg_t x) {
+	  return UnitySymbol();
 	}
       };
     }
@@ -339,12 +355,12 @@ namespace magnet {
       PowerOp(Arg a): _arg(a) {}
     };
     
-//    /*! \brief Evaluate PowerOp symbol at a value of x.
-//      
-//      This operator is only used if the result of evaluating the
-//      argument is an arithmetic type. If this is the case, the
-//      evaluation is passed to std::pow.
-//    */
+    /*! \brief Evaluate PowerOp symbol at a value of x.
+      
+      This operator is only used if the result of evaluating the
+      argument is an arithmetic type. If this is the case, the
+      evaluation is passed to std::pow.
+    */
     template<class Arg, size_t Power, class Real>
     auto eval(const PowerOp<Arg, Power>& f, const Real& x) -> typename std::enable_if<std::is_arithmetic<decltype(eval(f._arg, x))>::value, decltype(std::pow(eval(f._arg, x), Power))>::type
     { return std::pow(eval(f._arg, x), Power); }

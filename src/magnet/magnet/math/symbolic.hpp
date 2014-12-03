@@ -26,6 +26,12 @@ namespace magnet {
       operator int () const { return 0; }
     };
 
+    /*!\brief Compile-time symbolic representation of one.
+     */
+    struct UnitySymbol {
+      operator int () const { return 1; }
+    };
+
     /*!\brief Symbolic representation of a variable.
      */
     struct Var {
@@ -57,6 +63,11 @@ namespace magnet {
       struct IsConstant<NullSymbol> {
 	static const bool value = true;
       };
+
+      template<>
+      struct IsConstant<UnitySymbol> {
+	static const bool value = true;
+      };
     }
 
     /*! \brief Returns the empty product of a type.
@@ -65,9 +76,9 @@ namespace magnet {
       (can be ignored).
     */
     template<class T>
-    constexpr T empty_product(const T&) { 
+    constexpr T empty_product(const T&) {
       static_assert(std::is_arithmetic<T>::value, "Nullary products must be defined for this type");
-      return T(1); 
+      return T(1);
     }
 
     /*! \brief Returns the empty product of a std::complex type.
@@ -125,12 +136,23 @@ namespace magnet {
 
     /*! \brief Evaluates a symbolic Var variable expression at a given point.
     */
-    template<class Real> 
-    Real eval(const Var& f, const Real& x) { return x; }
+    template<class Real> Real eval(const Var& f, const Real& x) { return x; }
     
     /*! \brief Output operator for NullSymbol types. */
     inline std::ostream& operator<<(std::ostream& os, const NullSymbol&) {
       os << "Null";
+      return os;
+    }
+
+    /*! \brief Output operator for UnitySymbol types. */
+    inline std::ostream& operator<<(std::ostream& os, const UnitySymbol&) {
+      os << "Unity";
+      return os;
+    }
+
+    /*! \brief Output operator for Var types. */
+    inline std::ostream& operator<<(std::ostream& os, const Var&) {
+      os << "v";
       return os;
     }
     
@@ -147,7 +169,7 @@ namespace magnet {
 
     /*! \brief Determine the derivative of a symbolic expression.
      */
-    int derivative(const Var&) { return 1; }
+    UnitySymbol derivative(const Var&) { return UnitySymbol(); }
     
     /*! \brief Determine the minimum and maximum of a symbolic
       expression within some bounds of x.
