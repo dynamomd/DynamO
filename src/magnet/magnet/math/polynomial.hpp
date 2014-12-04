@@ -112,12 +112,12 @@ namespace magnet {
       This class allows basic computer algebra to be performed with
       Polynomial equations.
       
-      For example, the polynomial $f(x)=x^2 + 2\,x + 3$ can be created like so:
+      For example, the polynomial \f$f(x)=x^2 + 2\,x + 3\f$ can be created like so:
       \code{.cpp}
       Polynomial<1> x{0,1};
       auto f = x*x + 2*x +3;    
       \endcode
-      And evaluated at the point $x=3$ like so:
+      And evaluated at the point \f$x=3\f$ like so:
       \code{.cpp}
       double val = f(3);    
       \endcode
@@ -198,7 +198,7 @@ namespace magnet {
 	return retval;
       }
     };
-
+    
     /*! \relates Polynomial 
       \name Polynomial set properties
        \{
@@ -244,6 +244,33 @@ namespace magnet {
 	for(size_t i = Order; i > 0; --i)
 	  sum = sum * x + f[i];
       sum = sum * x + f[0];
+      return sum;
+    }
+
+    namespace {
+      constexpr size_t factorial(size_t i) {
+	return (i <= 1) ? 1 : i * factorial(i - 1);
+      }
+
+      constexpr size_t falling_factorial(size_t i, size_t end) {
+	return (i <= end) ? 1 : i * falling_factorial(i - 1, end);
+      }
+    }
+
+    /*! \brief Fast evaluation of the derivatives of a polynomial.
+      
+      This function is provided to allow derivatives to be evaluated
+      without symbolically taking the derivative (causing a copy of
+      the coefficients).
+     */
+    template<size_t Order, class Real, class Real2>
+    Real eval_derivative(const Polynomial<Order, Real>& f, const Real2& x, const size_t D)
+    {
+      if (D == 0) return eval(f, x);
+
+      Real sum = Real();
+      for (size_t i(Order); i >= D; --i)
+	sum = sum * x + falling_factorial(i, i-D) * f[i];
       return sum;
     }
     
@@ -468,9 +495,10 @@ namespace magnet {
       \f]
 
       This formula can be used to calculate all coefficients using the
-      starting point \f$b_0=-a_0 / r_1\f$. This approach is not stable
-      if the root is zero, or if \f$b_{i-1}\f$ has the same sign as
-      \f$a_i\f$.
+      starting point \f$b_0=-a_0 / r_1\f$. This approach is not always
+      stable (for example if the root is zero, or if \f$b_{i-1}\f$ has
+      the same sign as \f$a_i\f$ we might have catastrophic
+      cancellation).
       
       An alternative iterative form may be found by substituting
       \f$i\to i+1\f$, which gives:
@@ -480,24 +508,25 @@ namespace magnet {
       \f]
 
       Again this approach may be used given the starting point
-      \f$b_{N-1}=a_N\f$. However, it is not stable if \f$a_{i+1}\f$
-      has the opposite sign to \f$r_1\,b_{i+1}\f$.
+      \f$b_{N-1}=a_N\f$. However, it might also suffer from
+      catastrophic cancellation if \f$a_{i+1}\f$ has the opposite sign
+      to \f$r_1\,b_{i+1}\f$.
       
       As both approaches may suffer from catastrophic cancellation, we
-      should switch between them. We prefer the second (forwards)
-      approach as there is no divide and error does not accumulate as
-      much for the higher order coefficients. This means we only
-      switch to the backwards approach if the forwards approach has
-      cancellation AND the backwards approach does not. An approach is
-      dangerous if two non-zero terms are subtracted from each other
-      (i.e., for the first approach this happens if \f$a_{i+1}\f$ and
-      \f$r_1\,b_{i+1}\f$ are non-zero and have opposite sign).
+      should switch between them where appropriate. If we catch the
+      special root-is-zero case, we only must avoid catastrophic
+      cancellation. This arises if two non-zero terms are subtracted
+      from each other (i.e., for the first approach this happens if
+      \f$a_{i+1}\f$ and \f$r_1\,b_{i+1}\f$ are non-zero and have
+      opposite sign). We solve from both ends of the polynomial at the
+      same time and solve whichever coefficient has the highest
+      accuracy in terms of bits.
 
       It should be noted that Numerical Recipies states that "Forward
       deflation is stable if the largest absolute root is always
       divided out... backward deflation is stable if the smallest
       absolute root is always divided out". Unfortunately we do not
-      know the magnitude of the root being divided out.
+      know a priori the magnitude of the root being divided out.
 
       \param f The Polynomial to factor a root out of.
       \param root The root to remove.
@@ -531,7 +560,47 @@ namespace magnet {
 	  --i_t;
 	}
       }
+      return b;
+    }
+    
+    /*! \brief Returns a polynomial \f$g(x)=f(x+t)\f$
       
+      Given a polynomial \f$f(x)\f$:
+      \f[
+      f(x) = \sum_{i=0}^N a_i\,x^i
+      \f]
+      
+      We wish to determine the coefficients of a polynomial
+      \f$g(x)=f(x+t)\f$:
+
+      \f[
+      g(x) = \sum_{i=0}^N b_i\,x^i
+      \f]
+
+      We can define \f$g(x)\f$ by taking a Taylor expansion of
+      \f$f(x)\f$ about the point \f$t\f$, we have:
+      
+      \f[
+      g(x) = f(t+x) = \sum_{i=0}^n \frac{f^i(t)}{i!}x^i
+      \f]
+      
+      where \f$f^i(x)\f$ is the \f$i\f$th derivative of \f$f(x)\f$ and
+      \f$n\f$ is the order of the polynomial \f$f\f$. Each coefficient
+      of \f$g\f$ is then given by:
+      
+      \f[
+      b_i = \frac{f^i(t)}{i!}
+      \f]
+     */
+    template<size_t Order, class Real>
+    inline Polynomial<Order, Real> shift_polynomial(const Polynomial<Order, Real>& a, const double t) {
+      //Check for the simple case where t == 0, nothing to be done
+      if (t == 0) return a;
+
+      Polynomial<Order, Real> b;
+      for (size_t i(0); i < Order; ++i)
+	b[i] = eval_derivative(a, t, i) / factorial(i);
+      b[Order] = a[Order];
       return b;
     }
 

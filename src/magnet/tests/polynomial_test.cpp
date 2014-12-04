@@ -102,6 +102,8 @@ BOOST_AUTO_TEST_CASE( poly_derivative )
   BOOST_CHECK_EQUAL(poly2[2], 3);  
   BOOST_CHECK_EQUAL(poly2[3], 4);  
 
+  BOOST_CHECK_CLOSE(eval(poly2, 3.14159), eval_derivative(poly1, 3.14159, 1), 1e-10);  
+
   auto poly3 = 2.0 - x + 2 * x * x;
   auto poly4 = derivative(poly3);
   BOOST_CHECK_EQUAL(poly4[0], -1);
@@ -119,6 +121,65 @@ BOOST_AUTO_TEST_CASE( poly_zero_derivative)
 
   const auto poly2 = derivative(poly1);
   BOOST_CHECK(compare_expression(poly2, NullSymbol()));
+}
+
+BOOST_AUTO_TEST_CASE( poly_deflation)
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+
+  const double roots[] = {-1e3, 4e3, 0, 3.14159265, -3.14159265};
+  for (double root1: roots)
+    for (double root2: roots)
+      for (double root3: roots) {
+	auto poly = (x - root1) * (x - root2) * (x-root3);
+	
+	auto deflated = deflate_polynomial(poly, root1);
+	auto exact = (x - root2) * (x-root3);
+	for (size_t i(0); i < 3; ++i)
+	  if (exact[i] != 0)
+	    BOOST_CHECK_CLOSE(deflated[i], exact[i], 1e-10);
+	  else
+	    BOOST_CHECK_SMALL(deflated[i], 1e-10);
+	
+	deflated = deflate_polynomial(poly, root2);
+	exact = (x - root1) * (x-root3);
+	for (size_t i(0); i < 3; ++i)
+	  if (exact[i] != 0)
+	    BOOST_CHECK_CLOSE(deflated[i], exact[i], 1e-10);
+	  else
+	    BOOST_CHECK_SMALL(deflated[i], 1e-10);
+
+	deflated = deflate_polynomial(poly, root3);
+	exact = (x - root1) * (x-root2);
+	for (size_t i(0); i < 3; ++i)
+	  if (exact[i] != 0)
+	    BOOST_CHECK_CLOSE(deflated[i], exact[i], 1e-10);
+	  else
+	    BOOST_CHECK_SMALL(deflated[i], 1e-10);
+      }
+}
+
+BOOST_AUTO_TEST_CASE( poly_shift)
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+
+  auto poly = x*x + 2.0 * x + 3.0;
+  
+  const double roots[] = {-1e3, 4e3, 0, 3.14159265, -3.14159265};
+  for (double root1: roots)
+    for (double root2: roots)
+      for (double root3: roots) {
+	auto f = (x - root1) * (x - root2) * (x-root3);
+
+	for (double shift : {-1.0, 2.0, 1e3, 3.14159265, -1e5}) {
+	  auto g = shift_polynomial(f, shift);
+	  
+	  BOOST_CHECK_CLOSE(eval(g, 0), eval(f,shift), 1e-10);
+	  BOOST_CHECK_CLOSE(eval(g, 1e3), eval(f, 1e3 + shift), 1e-10);
+	}
+      }
 }
 
 BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
