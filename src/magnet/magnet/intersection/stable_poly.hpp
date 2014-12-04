@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/math/polynomial.hpp>
+#include <magnet/math/bisect.hpp>
 
 namespace magnet {
   namespace intersection {
@@ -25,7 +26,7 @@ namespace magnet {
 	
 	\param f The Polynomial under consideration.
     */
-    inline double nextEvent(const Polynomial<1>& f) {
+    inline double nextEvent(const ::magnet::math::Polynomial<1>& f) {
       //If the gradient is not negative now, it never will be
       if (f[1] >= 0) return HUGE_VAL;
       //Return the time of the root, or now if we're past the root
@@ -37,9 +38,9 @@ namespace magnet {
 	
 	\param f The Polynomial under consideration.
     */
-    inline double nextEvent(Polynomial<2> f) {
+    inline double nextEvent(const ::magnet::math::Polynomial<2>& f) {
       //If the polynomial is linear, drop to that solution
-      if (f[2] == 0) return nextEvent(Polynomial<1>(f));
+      if (f[2] == 0) return nextEvent(::magnet::math::Polynomial<1>(f));
       
       const double arg = f[1] * f[1] - 2 * f[2] * f[0];
 
@@ -59,9 +60,6 @@ namespace magnet {
       } 
       /* else (f[2] > 0)*/
 
-      //Polynomial limits away from overlap at t -> +inf
-      const double arg = f[1] * f[1] - 2 * f[2] * f[0];
-
       //Interactions only happen if there are roots and we're in the
       //region between the first root and the turning point
       if ((f[1] >= 0) || arg <= 0) return HUGE_VAL;
@@ -75,10 +73,10 @@ namespace magnet {
 	
 	\param f The Polynomial under consideration.
     */
-    inline double nextEvent(const Polynomial<3>& f)
+    inline double nextEvent(const ::magnet::math::Polynomial<3>& f)
     {
       //If the polynomial is quadratic, drop to that solution
-      if (f[3] == 0) return nextEvent(f.lowerOrder());
+      if (f[3] == 0) return nextEvent(::magnet::math::Polynomial<2>(f));
       
       //Calculate and sort the roots of the overlap function
       auto roots = solve_roots(f);
@@ -134,13 +132,13 @@ namespace magnet {
       //There must be one or more turning points.
       if ((derivroots[0] > 0) && (roots[0] < derivroots[0]))
 	return std::max(0.0, roots[0]);
-      return std::max(0.0, std::max(derivroots[1], roots[nroots-1]));
+      return std::max(0.0, std::max(derivroots[1], roots[roots.size()-1]));
     }
     
-    inline double nextEvent(const Polynomial<4>& f, double f0char, double precision=1e-16)
+    inline double nextEvent(const ::magnet::math::Polynomial<4>& f, double f0char, double precision=1e-16)
     {
       //If the polynomial is cubic, drop to that solution
-      if (f[4] == 0) return nextEvent(f.lowerOrder());
+      if (f[4] == 0) return nextEvent(::magnet::math::Polynomial<3>(f));
 
       const double rootthreshold = f0char * precision;
       
@@ -165,7 +163,7 @@ namespace magnet {
 	
       //Look through the roots of the derivative to see if we can
       //bracket a root, or identify a turning point
-      for (droot : droots) 
+      for (double droot : droots) 
 	if (droot > last_point) {
 	  const double new_f = eval(f, droot);
 	  const double new_df = eval(df, droot);
