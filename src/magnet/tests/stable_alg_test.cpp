@@ -83,33 +83,33 @@ BOOST_AUTO_TEST_CASE( Quadratic_function )
 {
   RNG.seed(1);
   
-  std::cout.precision(50);
+//  std::cout.precision(50);
+//
+//  auto poly = (x +3.14159265) * (x +3.14159265);
+//  auto f = shift_polynomial(poly, -7.43751104455387945790789672173559665679931640625);
+//  auto df = derivative(f);
+//  double solution = magnet::intersection::nextEvent(f);
+//  auto roots = solve_roots(f);
+//
+//  std::cout << "f(x)=" << f << std::endl;
+//  std::cout << "f'(x)=" << df << std::endl;
+//  std::cout << "f("<< solution <<")=" << eval(f, solution) << std::endl;
+//  std::cout << roots << std::endl;
 
-  auto poly = (x +3.14159265) * (x +3.14159265);
-  auto f = shift_polynomial(poly, -7.43751104455387945790789672173559665679931640625);
-  auto df = derivative(f);
-  double solution = magnet::intersection::nextEvent(f);
-  auto roots = solve_roots(f);
 
-  std::cout << "f(x)=" << f << std::endl;
-  std::cout << "f'(x)=" << df << std::endl;
-  std::cout << "f("<< solution <<")=" << eval(f, solution) << std::endl;
-  std::cout << roots << std::endl;
-
-
-//  for (double root1 : rootvals)
-//    for (double root2 : rootvals) {
-//      auto poly = (x - root1) * (x - root2);
-//      std::uniform_real_distribution<double> shift_dist(-10, 10);
-//      for (size_t i(0); i < tests; ++i) {
-//	double shift = shift_dist(RNG);
-//	auto s_poly = shift_polynomial(poly, shift);
+  for (double root1 : rootvals)
+    for (double root2 : rootvals) {
+      auto poly = (x - root1) * (x - root2);
+      std::uniform_real_distribution<double> shift_dist(-10, 10);
+      for (size_t i(0); i < tests; ++i) {
+	double shift = shift_dist(RNG);
+	auto s_poly = shift_polynomial(poly, shift);
 //	std::cout.precision(50);
 //	std::cout << root1 << " # " <<  root2 << " # " << shift << std::endl;
 //	std::cout << poly << std::endl;
 //	std::cout << s_poly << std::endl;
-//	auto roots = solve_roots(s_poly);
-//	test_solution(s_poly, derivative(s_poly), magnet::intersection::nextEvent(s_poly), roots);
-//      }
-//    }
+	auto roots = solve_roots(s_poly);
+	test_solution(s_poly, derivative(s_poly), magnet::intersection::nextEvent(s_poly), roots);
+      }
+    }
 }

@@ -42,7 +42,7 @@ namespace magnet {
       //If the polynomial is linear, drop to that solution
       if (f[2] == 0) return nextEvent(::magnet::math::Polynomial<1>(f));
       
-      const double arg = f[1] * f[1] - 2 * f[2] * f[0];
+      const double arg = f[1] * f[1] - 4 * f[2] * f[0];
 
       if (f[2] < 0) {
 	//Polynomial limits towards overlap at t -> +inf
