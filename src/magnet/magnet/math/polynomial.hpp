@@ -446,6 +446,7 @@ namespace magnet {
     template<class Real, size_t N>
     inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real>& poly) {
       std::ostringstream oss;
+      oss.precision(os.precision());
       size_t terms = 0;
       for (size_t i(N); i != 0; --i) {
 	if (poly[i] == empty_sum(poly[i])) continue;

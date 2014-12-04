@@ -11,7 +11,7 @@ using namespace magnet::math;
 const Polynomial<1> x{0, 1};
 std::mt19937 RNG;
 
-const double rootvals[] = {-1e7, -1e6, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e6, 1e7 };
+const double rootvals[] = {/*-1e7, -1e6, -1e3,*/ -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e6, 1e7 };
 const size_t tests = 1000;
 
 template<class F, class DF, class R>
@@ -41,14 +41,7 @@ void test_solution(const F& f, const DF& df, double solution, const R& roots) {
 	//Check if this is a phantom root
 	BOOST_CHECK(nextroot == HUGE_VAL);
       } else {	
-	BOOST_CHECK_CLOSE(solution, nextroot, 1e-10);
-
-	if (std::abs((solution - nextroot) / nextroot) > 1e-10) {
-	  std::cout << "f(x)=" << f << std::endl;
-	  std::cout << "f'(x)=" << df << std::endl;
-	  std::cout << "f("<< solution <<")=" << eval(f, solution) << std::endl;
-	  std::cout << roots << std::endl;
-	}
+	BOOST_REQUIRE_CLOSE(solution, nextroot, 1e-10);
       }
     } else /*if (f(0) <= 0)*/ {
       //The particles started out overlapping, check if the detected
@@ -89,16 +82,34 @@ BOOST_AUTO_TEST_CASE( Linear_function )
 BOOST_AUTO_TEST_CASE( Quadratic_function )
 {
   RNG.seed(1);
+  
+  std::cout.precision(50);
 
-  for (double root1 : rootvals)
-    for (double root2 : rootvals) {
-      auto poly = (x - root1) * (x - root2);
-      
-      std::uniform_real_distribution<double> shift_dist(-10, 10);
-      for (size_t i(0); i < tests; ++i) {
-	auto s_poly = shift_polynomial(poly, shift_dist(RNG));
-	auto roots = solve_roots(s_poly);
-	test_solution(s_poly, derivative(s_poly), magnet::intersection::nextEvent(s_poly), roots);
-      }
-    }
+  auto poly = (x +3.14159265) * (x +3.14159265);
+  auto f = shift_polynomial(poly, -7.43751104455387945790789672173559665679931640625);
+  auto df = derivative(f);
+  double solution = magnet::intersection::nextEvent(f);
+  auto roots = solve_roots(f);
+
+  std::cout << "f(x)=" << f << std::endl;
+  std::cout << "f'(x)=" << df << std::endl;
+  std::cout << "f("<< solution <<")=" << eval(f, solution) << std::endl;
+  std::cout << roots << std::endl;
+
+
+//  for (double root1 : rootvals)
+//    for (double root2 : rootvals) {
+//      auto poly = (x - root1) * (x - root2);
+//      std::uniform_real_distribution<double> shift_dist(-10, 10);
+//      for (size_t i(0); i < tests; ++i) {
+//	double shift = shift_dist(RNG);
+//	auto s_poly = shift_polynomial(poly, shift);
+//	std::cout.precision(50);
+//	std::cout << root1 << " # " <<  root2 << " # " << shift << std::endl;
+//	std::cout << poly << std::endl;
+//	std::cout << s_poly << std::endl;
+//	auto roots = solve_roots(s_poly);
+//	test_solution(s_poly, derivative(s_poly), magnet::intersection::nextEvent(s_poly), roots);
+//      }
+//    }
 }
