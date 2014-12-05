@@ -49,12 +49,12 @@ namespace magnet {
 	
 	//If there are no roots, it never escapes overlap, return the
 	//time of the turning point or now if it is in the past
-	if (arg <= 0) return std::max(0.0, -f[1] / f[2]);
+	if (arg <= 0) return std::max(0.0, -f[1] / (2 * f[2]));
 
 	//There are roots. select a stable form of the quadratic to
 	//compute the largest root.
 	if (f[1] > 0)
-	  return std::max(0.0, (-f[1] - std::sqrt(arg)) / f[2]);
+	  return std::max(0.0, (-f[1] - std::sqrt(arg)) / (2 * f[2]));
 	else
 	  return std::max(0.0, 2 * f[0] / (-f[1] + std::sqrt(arg)));
       } 
@@ -124,8 +124,6 @@ namespace magnet {
 	//If there are no turning points, then the function is always
 	//decreasing, so it must have one root and the collision
 	//happens after this point.
-	if (roots.size() != 1)
-	  M_throw() << "Unexpected solution in cubic function";
 	return std::max(0.0, roots[0]);
       }
       
