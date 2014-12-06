@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( poly_lower_order )
   Polynomial<3> poly3 = poly2 + 0 * x * x * x;
   //Try to cast down one level as the highest order coefficient is zero
   BOOST_CHECK(poly3[3] == 0);
-  Polynomial<2> poly4(poly3);
+  Polynomial<2> poly4(change_order<2>(poly3));
 
   BOOST_CHECK_EQUAL(poly4[0], 2);
   BOOST_CHECK_EQUAL(poly4[1], -1);
@@ -165,8 +165,6 @@ BOOST_AUTO_TEST_CASE( poly_shift)
   using namespace magnet::math;
   Polynomial<1> x{0, 1};
 
-  auto poly = x*x + 2.0 * x + 3.0;
-  
   const double roots[] = {-1e3, 4e3, 0, 3.14159265, -3.14159265};
   for (double root1: roots)
     for (double root2: roots)
@@ -485,5 +483,64 @@ BOOST_AUTO_TEST_CASE( poly_bounds)
     auto bounds = minmax(f1, -4.0, 10.0);
     BOOST_CHECK_CLOSE(bounds.first, 0, 1e-10);
     BOOST_CHECK_CLOSE(bounds.second, 8.922169e6, 1e-10);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  { //Standard division with remainder
+    auto q = x * x * x + 3 * x - 2;
+    auto g = x * x - 2 * x;
+    auto r = 4 * x - 2;
+    auto f = expand(q * g + r);
+    auto euclid = euclidean_division(f, g);  
+    BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
+    BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
+  }
+  {//Standard division without remainder
+    auto q = x * x * x + 3 * x - 2;
+    auto g = x * x - 2 * x;
+    auto r = 0;
+    auto f = expand(q * g + r);
+    auto euclid = euclidean_division(f, g);
+    
+    BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
+    BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
+  }
+
+  {//Division with a zero leading order coefficient
+    auto q = x * x * x + 3 * x - 2;
+    auto g = 0 * x*x*x + x*x - 2 * x;
+    auto r = 0;
+    auto f = expand(q * g + r);
+    auto euclid = euclidean_division(f, g);
+    
+    BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
+    BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
+  }
+
+  {//Division by a constant
+    auto q = x * x * x + 3 * x - 2;
+    auto g = Polynomial<0>{0.5};
+    auto r = 0;
+    auto f = expand(q * g + r);
+    auto euclid = euclidean_division(f, g);
+    
+    BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
+    BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
+  }
+
+  {//Division by a high-order Polynomial which is actually a constant
+    auto q = x * x * x + 3 * x - 2;
+    auto g = Polynomial<3>{0.25};
+    auto r = 0;
+    auto f = expand(q * g + r);
+    auto euclid = euclidean_division(f, g);
+    
+    BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
+    BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
   }
 }

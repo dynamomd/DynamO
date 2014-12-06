@@ -2,7 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include <magnet/math/trigsymbols.hpp>
 
-
 using namespace magnet::math;
 const Polynomial<1> x{0, 1};
 
