@@ -627,7 +627,54 @@ BOOST_AUTO_TEST_CASE( budans_01_test )
 	  }
 }
 
-BOOST_AUTO_TEST_CASE( LBMQ_upper_bound_test )
+BOOST_AUTO_TEST_CASE( LMQ_upper_bound_test )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  const double roots[] = {-1e5, -0.14159265, 3.14159265, -0.0001,0.1, 0.3333, 0.6, 1.001, 2.0, 3.14159265, 1e7};
+
+  //Test well-formed expressions
+  for (const double root1: roots)
+    for (const double root2: roots)
+      for (const double root3: roots)
+	for (const double root4: roots)
+	  for (int sign : {-1, +1})
+	    {
+	      auto f = sign * (x - root1) * (x - root2) * (x - root3) * (x - root4);
+
+	      double max_root = root1;
+	      max_root = std::max(max_root, root2);
+	      max_root = std::max(max_root, root3);
+	      max_root = std::max(max_root, root4);
+	    
+	      double bound = LMQ_upper_bound(f);
+	      if (max_root < 0)
+		BOOST_CHECK_EQUAL(bound, 0);
+	      else
+		BOOST_CHECK(bound >= max_root);
+	    }
+
+  //Test expressions with zero coefficients
+  for (const double root1: roots)
+    for (const double root2: roots)
+      for (int sign : {-1, +1})
+	{
+	  auto f = sign * (x - root1) * (x - root2) + 0 * x*x*x*x*x;
+	  double max_root = std::max(root1, root2);
+	  
+	  double bound = LMQ_upper_bound(f);
+	  if (max_root < 0)
+	    BOOST_CHECK_EQUAL(bound, 0);
+	  else
+	    BOOST_CHECK(bound >= max_root);
+	}
+
+  //Test constant coefficients 
+  BOOST_CHECK_EQUAL(LMQ_upper_bound(1 + 0 * x*x*x*x*x), 0);
+}
+
+BOOST_AUTO_TEST_CASE( LMQ_lower_bound_test )
 {
   using namespace magnet::math;
   const Polynomial<1> x{0, 1};
@@ -638,21 +685,47 @@ BOOST_AUTO_TEST_CASE( LBMQ_upper_bound_test )
     for (const double root2: roots)
       for (const double root3: roots)
 	for (const double root4: roots)
-	  {
-	    auto f = (x - root1) * (x - root2) * (x - root3) * (x - root4);
+	  for (int sign : {-1, +1})
+	    {
+	      auto f = sign * (x - root1) * (x - root2) * (x - root3) * (x - root4);
 
-	    double max_root = root1;
-	    max_root = std::max(max_root, root2);
-	    max_root = std::max(max_root, root3);
-	    max_root = std::max(max_root, root4);
+	      double min_pos_root = HUGE_VAL;
+	      if (root1 >= 0)
+		min_pos_root = std::min(min_pos_root, root1);
+	      if (root2 >= 0)
+		min_pos_root = std::min(min_pos_root, root2);
+	      if (root3 >= 0)
+		min_pos_root = std::min(min_pos_root, root3);
+	      if (root4 >= 0)
+		min_pos_root = std::min(min_pos_root, root4);
 	    
-	    if (max_root < 0)
-	      BOOST_CHECK_EQUAL(LBMQ_upper_bound(f), 0);
-	    else
-	      {
-		std::cout << f << std::endl;
-		std::cout << LBMQ_upper_bound(f) << " >= " << max_root << std::endl;
-	      }
-	    //BOOST_CHECK(LBMQ_upper_bound(f) >= max_root);
-	  }
+	      double bound = LMQ_lower_bound(f);
+	      if (min_pos_root == HUGE_VAL)
+		BOOST_CHECK_EQUAL(bound, HUGE_VAL);
+	      else
+		BOOST_CHECK(bound <= min_pos_root);
+	    }
+
+  //Test expressions with zero coefficients
+  for (const double root1: roots)
+    for (const double root2: roots)
+      for (int sign : {-1, +1})
+	{
+	  auto f = sign * (x - root1) * (x - root2) + 0 * x*x*x*x*x;
+
+	  double min_pos_root = HUGE_VAL;
+	  if (root1 >= 0)
+	    min_pos_root = std::min(min_pos_root, root1);
+	  if (root2 >= 0)
+	    min_pos_root = std::min(min_pos_root, root2);
+	  
+	  double bound = LMQ_lower_bound(f);
+	  if (min_pos_root == HUGE_VAL)
+	    BOOST_CHECK_EQUAL(bound, HUGE_VAL);
+	  else
+	    BOOST_CHECK(bound <= min_pos_root);
+	}
+
+  //Test constant coefficients 
+  BOOST_CHECK_EQUAL(LMQ_lower_bound(1 + 0 * x*x*x*x*x), HUGE_VAL);
 }

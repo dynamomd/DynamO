@@ -184,7 +184,7 @@ namespace magnet {
       */
       template<size_t N, class Real2,
 	       typename = typename std::enable_if<N <= Order>::type >
-	Polynomial(const Polynomial<N, Real2>& poly) {
+      Polynomial(const Polynomial<N, Real2>& poly) {
  	size_t i(0);
  	for (; i <= N; ++i)
  	  Base::operator[](i) = poly[i];
@@ -1205,33 +1205,32 @@ namespace magnet {
 	\f]
 	
 	This operation may be performed simply by reversing the order
-	of the coefficients in the Polynomial. Then,
+	of the coefficient array in the Polynomial. Then,
 
 	\f[
 	p_2(x) = p_1\left(x+1\right)
 	\f]
 
-	Which is known as a Taylor shift operation. This is performed
-	using an optimised version of the algorithm described and used
-	in the \ref shift_polynomial function.
+	Which is known as a Taylor shift operation. This entire
+	operation is performed using an optimised version of the
+	algorithm described and used in the \ref shift_polynomial
+	function.
 
 	\return An upper bound on the number of real roots in the
 	interval \f$(0,\,1)\f$.
      */
     template<size_t Order, class Real>
     size_t budan_01_test(const Polynomial<Order, Real>& f) {
-      //Perform the first part of the transformation
-      Polynomial<Order, Real> p1;
-      std::copy(f.rbegin(), f.rend(), p1.begin());
-
-      //Now perform the Taylor shift:
+      //Perform the Taylor shift with t=1 and access f in reverse to
+      //perfom the 1/x substitution.
       Polynomial<Order, Real> p2;
       p2.fill(Real());
-      p2[0] = p1[Order];
+      p2[0] = f[0];
+
       for (size_t i(Order); i>=1; i--) {
 	for (size_t j = Order-(i-1); j>=1; j--)
 	  p2[j] += p2[j-1];
-	p2[0] += p1[i-1];
+	p2[0] += f[Order - (i-1)];
       }
       //Now count the sign changes
       size_t sign_changes(0);
@@ -1289,32 +1288,56 @@ namespace magnet {
     /*! \brief Local-max Quadratic upper bound estimate for the real
         roots of a Polynomial.
 
-	This function is lifted directly from the thesis "Upper bounds
-	on the values of the positive roots of polynomials" by
-	Panagiotis S. Vigklas.
+	This function is adapted from the thesis "Upper bounds on the
+	values of the positive roots of polynomials" by Panagiotis
+	S. Vigklas (2010). The main change is to generalise to
+	arbitrary sign on the highest order coefficient, and to allow
+	high-order coefficients with zero values.
      */
     template<class Real, size_t Order>
-    Real LBMQ_upper_bound(const Polynomial<Order, Real>& f) {
-      std::array<size_t, Order> times_used;
+    Real LMQ_upper_bound(const Polynomial<Order, Real>& f) {
+      std::array<size_t, Order+1> times_used;
       times_used.fill(1);
       Real ub = Real();
-      
-      const size_t n = Order;
-      for (size_t m(n); m > 0; --m)
-	if (f[m-1] < 0) {
+
+      size_t real_order = Order;
+      while ((real_order > 0) && (f[real_order] == 0))
+	--real_order;
+
+      for (int m(real_order-1); m >= 0; --m)
+	if (std::signbit(f[m]) != std::signbit(f[real_order])) {
 	  Real tempub = std::numeric_limits<Real>::infinity();
-	  
-	  for (size_t k(n+1); k >= m+1; --k) {
-	    Real temp = std::pow(-(f[m-1] / (f[k-1] / (1 << times_used[k-1]))), 1.0 / (k - m));
-	    ++times_used[k-1];
-	    std::cout << "temp=" << temp << std::endl;
-	    tempub = std::min(temp, tempub);
-	  }
-	  std::cout << "tempub =" << tempub << std::endl;
+	  for (int k(real_order); k > m; --k)
+	    if (std::signbit(f[k]) != std::signbit(f[m]))
+	      {
+		Real temp = std::pow(-(1 << times_used[k]) * f[m] / f[k], 1.0 / (k - m));
+		++times_used[k];
+		tempub = std::min(temp, tempub);
+	      }
 	  ub = std::max(tempub, ub);
 	}
-      std::cout << "ub =" << ub << std::endl;
       return ub;
+    }
+
+    /*! \brief Local-max Quadratic upper bound estimate for the real
+        roots of a Polynomial.
+
+	Given a Polynomial \f$f(x)\f$, this function performs the
+	transformation:
+	
+	\f[
+	g(x) = x^n\,f(\frac{1}{x})
+	\f]
+
+	Now the upper bound on the real roots of \f$g(x)\f$ is the
+	inverse of the lower bound on the real roots of
+	\f$f(x)\f$. The transformation above is equivalent to
+	reversing the coefficient array of the polynomial \f$f(x)\f$.
+     */
+    template<class Real, size_t Order>
+    Real LMQ_lower_bound(const Polynomial<Order, Real>& f) {
+      const Polynomial<Order, Real> g(f.rbegin(), f.rend());
+      return 1.0 / LMQ_upper_bound(g);
     }
 
     /*! \brief Specialisation of Local-max Quadratic upper-bound
@@ -1322,8 +1345,17 @@ namespace magnet {
         Polynomial is a constant.
     */
     template<class Real>
-    Real LBMQ_upper_bound(const Polynomial<0, Real>& f) {
+    Real LMQ_upper_bound(const Polynomial<0, Real>& f) {
       return 0;
+    }
+
+    /*! \brief Specialisation of Local-max Quadratic lower-bound
+        estimation for real roots of a Polynomial, where the
+        Polynomial is a constant.
+    */
+    template<class Real>
+    Real LMQ_lower_bound(const Polynomial<0, Real>& f) {
+      return HUGE_VAL;
     }
 
     /*! \} */
