@@ -238,14 +238,44 @@ namespace magnet {
     */
 
     /*! \brief Evaluates a Polynomial expression at a given point.
+
+      This function also specially handles the cases where
+      \f$x=+\infty\f$ or \f$-\infty\f$ and returns the correct sign of
+      infinity (if the polynomial has one non-zero coefficients of
+      x). This behaviour is crucial as it is used in the evaluation of
+      Sturm chains.
      */
     template<class Real, size_t Order, class Real2> 
     Real eval(const Polynomial<Order, Real>& f, const Real2& x)
     {
-      Real sum = Real();
-      if (Order > 0)
+      //Handle the case where this is actually a constant and not a
+      //Polynomial. This is free to evaluate now as Order is a
+      //template parameter.
+      if (Order == 0)
+	return f[0];
+
+      //Special cases for infinite values of x
+      if (std::isinf(x)) {
+	//Look through the Polynomial to find the highest order term
+	//with a non-zero coefficient.
 	for(size_t i = Order; i > 0; --i)
-	  sum = sum * x + f[i];
+	  if (f[i] != 0) {
+	    //Determine if this is an odd or even function of x
+	    if (Order % 2)
+	      //This is an odd function of x.
+	      return (1 - 2 * (std::signbit(f[i]) ^ std::signbit(x))) * std::numeric_limits<Real>::infinity();
+	    else
+	      //This is an even function of x, the sign of x doesn't
+	      //matter!
+	      return (1 - 2 * std::signbit(f[i])) * std::numeric_limits<Real>::infinity();
+	  };
+	//All terms in x have zero as their coefficient
+	return f[0];
+      }
+
+      Real sum = Real();
+      for(size_t i = Order; i > 0; --i)
+	sum = sum * x + f[i];
       sum = sum * x + f[0];
       return sum;
     }
@@ -948,6 +978,192 @@ namespace magnet {
       cubicNewtonRootPolish(f, roots[2]);
 
       return roots;
+    }
+    
+
+    namespace detail {
+      /*! \brief Calculates the negative of the remainder of the
+          division of \f$f(x)\f$ by \f$g(x)\f$.
+       */
+      template<size_t Order, class Real>
+      Polynomial<Order-2, Real> 
+	mrem(const Polynomial<Order, Real>& f, const Polynomial<Order-1, Real>&g)
+      {
+	Polynomial<Order-2, Real> rem;
+	std::tie(std::ignore, rem) = euclidean_division(f, g);
+	return -rem;
+      }
+
+      /*! \brief Type used to calculate and represent a Sturm chain.
+       */
+      template<size_t Order, class Real>
+      struct SturmChain {
+	/*! \brief Constructor if is the first Polynomial in the
+            chain. 
+	*/
+	SturmChain(const Polynomial<Order, Real>& p_n):
+	  _p_n(p_n), _p_nminus1(p_n, derivative(p_n))
+	{}
+
+	/*! \brief Constructor if is an intermediate Polynomial in the
+            chain.
+	*/
+	SturmChain(const Polynomial<Order+1, Real>& p_nplus1, const Polynomial<Order, Real>& p_n):
+	  _p_n(p_n), _p_nminus1(p_n, mrem(p_nplus1, p_n))
+	{}
+
+	Polynomial<Order, Real> _p_n;
+	SturmChain<Order-1, Real> _p_nminus1;
+	
+	Polynomial<Order, Real> get(size_t i) const {
+	  if (i == 0)
+	    return _p_n;
+	  else
+	    return _p_nminus1.get(i-1); 
+	}
+	
+	/*! Count the number of sign changes in the Sturm chain
+	  evaluated at \f$x\f$.
+	  
+	  This actually uses a helper function sign_change_helper to
+	  carry out the calculation.
+	*/
+	template<class Real2>
+	size_t sign_changes(const Real2& x) const {
+	  return sign_change_helper(0, x);
+	}
+	
+	/*! \brief Helper function for calculating the sign changes in
+            the Sturm chain.
+
+	    These functions use -1, 0, and +1 to denote the sign of an
+	    evaluation of a polynomial. The sign of the previous
+	    Polynomial in the Strum chain is given as last_sign. If
+	    this is zero, then there has been no sign so far (all
+	    previous polynomials were zero or this is the first
+	    polynomial in the chain).
+	 */
+	template<class Real2>
+	size_t sign_change_helper(const int last_sign, const Real2& x) const {
+	  const Real currentx = eval(_p_n, x);
+	  const int current_sign = (currentx != 0) * (1 - 2 * std::signbit(currentx));
+	  const bool sign_change = (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
+
+	  const int next_sign = (current_sign != 0) ? current_sign : last_sign;
+	  return _p_nminus1.sign_change_helper(next_sign, x) + sign_change;
+	}
+
+	void output_helper(std::ostream& os, const size_t max_order) const {
+	  os << ",\n           p_" <<  max_order - Order << "=" << _p_n;
+	  _p_nminus1.output_helper(os, max_order);
+	}
+      };
+
+      template<class Real>
+      struct SturmChain<0, Real> {
+	/*! \brief Constructor if is the first and last Polynomial in
+            the chain.
+	*/
+	SturmChain(const Polynomial<0, Real>& p_n):
+	  _p_n(p_n)
+	{}
+
+	/*! \brief Constructor if this is the last Polynomial in the
+            chain.
+	*/
+	SturmChain(const Polynomial<1, Real>& p_nplus1, const Polynomial<0, Real>& p_n):
+	  _p_n(p_n) {}
+
+	Polynomial<0, Real> get(size_t i) const {
+	  if (i == 0)
+	    return _p_n;
+	  return Polynomial<0,Real>{};
+	}
+
+	template<class Real2>
+	size_t sign_changes(const Real2& x) const {
+	  return 0;
+	}
+
+	Polynomial<0, Real> _p_n;
+
+	template<class Real2>
+	size_t sign_change_helper(const int last_sign, const Real2& x) const {
+	  const Real currentx = eval(_p_n, x);
+	  const int current_sign = (currentx != 0) * (1 - 2 * std::signbit(currentx));
+	  const bool sign_change = (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
+	  return sign_change;
+	}
+	
+	void output_helper(std::ostream& os, const size_t max_order) const {
+	  os << ",\n           p_" <<  max_order << "=" << _p_n;
+	}
+      };
+      
+      template<size_t Order, class Real>
+      std::ostream& operator<<(std::ostream& os, const SturmChain<Order, Real>& c) {
+	os << "SturmChain{p_0=" << c._p_n;
+	c._p_nminus1.output_helper(os, Order);
+	os << "}";
+	return os;
+      }
+    }
+
+    /*! \brief Helper function which generates a SturmChain.
+      
+      The actual calculation, storage, and evaluation of the Sturm
+      chain is done by the detail::SturmChain type.
+
+      The Sturm chain is a sequence of polynomials \f$p_0(x)\f$,
+      \f$p_1(x)\f$, \f$p_2(x)\f$, \f$\ldots\f$, \f$p_n(x)\f$ generated
+      from a single polynomial \f$f(x)\f$ of order \f$n\f$. The first
+      two Sturm chain polynomials are given as
+      
+      \f{eqnarray*}{
+      p_0(x) &=& f(x)\\
+      p_1(x) &=& f'(x)
+      \f}
+
+      All higher polynomials are evaluated like so:
+
+      \f{eqnarray*}{
+      p_n(x) &=& -\mathrm{rem}(p_{n+2}, p_{n+1})
+      \f}
+      
+      where \f$\mathrm{rem}(p_{n+2},\,p_{n+1})\f$ returns the
+      remainder polynomial from a \ref euclidean_division of
+      \f$p_{n+2}\f$ over \f$p_{n+1}\f$. This sequence terminates at
+      \f$p_N\f$, where \f$N\f$ is the order of the original
+      Polynomial, \f$f(x)\f$.
+      
+      The interesting property of this chain is that it allows a
+      calculation of the root count of \f$f(x)\f$. If we evaluate the
+      Sturm chain of \f$f(x)\f$ at a point \f$\xi\f$ and count the
+      number of changes in sign (ignoring zeros) in the sequence:
+      
+      \f[
+      p_0(\xi),\,p_1(\xi),\,\ldots p_n(\xi)
+      \f]
+      
+      and define this as \f$\sigma(\xi)\f$. Then, given two real
+      numbers \f$a<b\f$, the number of distinct roots of \f$f(x)\f$ in
+      \f$(a,b]\f$ is given by \f$\sigma(a)-\sigma(b)\f$.
+
+      This gives a method to calculate the exact number of roots in a
+      region, which can then be used in a bisection routine to bound
+      individual roots. The Sturm sequence can also be easily
+      evaluated at infinite bounds \f$(-\infty,+\infty)\f$ to
+      determine the total number of real roots.
+
+      Although this method allows the construction of an
+      arbitrary-order Polynomial root finder through bisection,
+      inexact methods for computing the number of roots in a region
+      (such as bodans_01_test) are preferred as they are more
+      computationally efficient.
+    */
+    template<size_t Order, class Real>
+    detail::SturmChain<Order, Real> sturm_chain(const Polynomial<Order, Real>& f) {
+      return detail::SturmChain<Order, Real>(f);
     }
     
     /*! \} */

@@ -91,6 +91,38 @@ BOOST_AUTO_TEST_CASE( poly_lower_order )
   BOOST_CHECK_EQUAL(eval(poly3, 123), eval(poly4, 123));
 }
 
+BOOST_AUTO_TEST_CASE( poly_eval_limits )
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+  
+  {//Check even positive polynomials
+    auto f = x*x-x+3;
+    BOOST_CHECK_EQUAL(eval(f, 0), 3);
+    BOOST_CHECK_EQUAL(eval(f, +HUGE_VAL), +HUGE_VAL);
+    BOOST_CHECK_EQUAL(eval(f, -HUGE_VAL), +HUGE_VAL);
+  }
+
+  {//Check even negative polynomials
+    auto f = -x*x+x+3;
+    BOOST_CHECK_EQUAL(eval(f, 0), 3);
+    BOOST_CHECK_EQUAL(eval(f, +HUGE_VAL), -HUGE_VAL);
+    BOOST_CHECK_EQUAL(eval(f, -HUGE_VAL), -HUGE_VAL);
+  }
+
+  {//Check odd positive polynomials
+    auto f = x*x*x + x + 3;
+    BOOST_CHECK_EQUAL(eval(f, +HUGE_VAL), +HUGE_VAL);
+    BOOST_CHECK_EQUAL(eval(f, -HUGE_VAL), -HUGE_VAL);
+  }
+
+  {//Check odd negative polynomials
+    auto f = -x*x*x + x + 3;
+    BOOST_CHECK_EQUAL(eval(f, +HUGE_VAL), -HUGE_VAL);
+    BOOST_CHECK_EQUAL(eval(f, -HUGE_VAL), +HUGE_VAL);
+  }
+}
+
 BOOST_AUTO_TEST_CASE( poly_derivative )
 {
   using namespace magnet::math;
@@ -543,4 +575,28 @@ BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
     BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
     BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
   }
+}
+
+BOOST_AUTO_TEST_CASE( poly_Sturm_chains )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  { //Example from wikipedia (x^4+x^3-x-1)
+    auto f = x*x*x*x + x*x*x - x - 1;
+    auto chain = sturm_chain(f);
+
+    BOOST_CHECK(compare_expression(chain.get(0), f));
+    BOOST_CHECK(compare_expression(chain.get(1), 4*x*x*x + 3*x*x - 1));
+    BOOST_CHECK(compare_expression(chain.get(2), (3.0/16) * x*x + (3.0/4)*x + (15.0/16)));
+    BOOST_CHECK(compare_expression(chain.get(3), -32*x -64));
+    BOOST_CHECK(compare_expression(chain.get(4), -3.0/16));
+    BOOST_CHECK(compare_expression(chain.get(5), 0));
+    BOOST_CHECK(compare_expression(chain.get(6), 0));
+    
+    //This polynomial has roots at -1 and +1
+    BOOST_CHECK_EQUAL(chain.sign_changes(-HUGE_VAL), 3);
+    BOOST_CHECK_EQUAL(chain.sign_changes(0), 2);
+    BOOST_CHECK_EQUAL(chain.sign_changes(HUGE_VAL), 1);
+ }
 }
