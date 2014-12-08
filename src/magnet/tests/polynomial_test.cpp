@@ -598,5 +598,61 @@ BOOST_AUTO_TEST_CASE( poly_Sturm_chains )
     BOOST_CHECK_EQUAL(chain.sign_changes(-HUGE_VAL), 3);
     BOOST_CHECK_EQUAL(chain.sign_changes(0), 2);
     BOOST_CHECK_EQUAL(chain.sign_changes(HUGE_VAL), 1);
+    
+    BOOST_CHECK_EQUAL(chain.roots(0.5, 3.0), 1);
+    BOOST_CHECK_EQUAL(chain.roots(-2.141, -0.314159265), 1);
+    BOOST_CHECK_EQUAL(chain.roots(-HUGE_VAL, HUGE_VAL), 2);
  }
+}
+
+BOOST_AUTO_TEST_CASE( budans_01_test )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+  
+  const double roots[] = {-1e5, -0.14159265, 3.14159265, -0.0001,0.1, 0.3333, 0.6, 1.001, 2.0, 3.14159265, 1e7};
+  
+  for (const double root1: roots)
+    for (const double root2: roots)
+      for (const double root3: roots)
+	for (const double root4: roots)
+	  {
+	    auto f = (x - root1) * (x - root2) * (x - root3) * (x - root4);
+	    const size_t roots_in_01 = ((root1 > 0) && (root1 < 1))
+	      +((root2 > 0) && (root2 < 1))
+	      +((root3 > 0) && (root3 < 1))
+	      +((root4 > 0) && (root4 < 1))
+	      ;
+	    BOOST_CHECK_EQUAL(budan_01_test(f), roots_in_01);
+	  }
+}
+
+BOOST_AUTO_TEST_CASE( LBMQ_upper_bound_test )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  const double roots[] = {-1e5, -0.14159265, 3.14159265, -0.0001,0.1, 0.3333, 0.6, 1.001, 2.0, 3.14159265, 1e7};
+
+  for (const double root1: roots)
+    for (const double root2: roots)
+      for (const double root3: roots)
+	for (const double root4: roots)
+	  {
+	    auto f = (x - root1) * (x - root2) * (x - root3) * (x - root4);
+
+	    double max_root = root1;
+	    max_root = std::max(max_root, root2);
+	    max_root = std::max(max_root, root3);
+	    max_root = std::max(max_root, root4);
+	    
+	    if (max_root < 0)
+	      BOOST_CHECK_EQUAL(LBMQ_upper_bound(f), 0);
+	    else
+	      {
+		std::cout << f << std::endl;
+		std::cout << LBMQ_upper_bound(f) << " >= " << max_root << std::endl;
+	      }
+	    //BOOST_CHECK(LBMQ_upper_bound(f) >= max_root);
+	  }
 }

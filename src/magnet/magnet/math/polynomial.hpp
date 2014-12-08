@@ -157,12 +157,25 @@ namespace magnet {
  	if (_list.size() > Order+1)
  	  throw std::length_error("initializer list too long");
     
- 	size_t i = 0; 
- 	auto it = _list.begin();
- 	for (; it != _list.end(); ++i, ++it)
+ 	size_t i = 0;
+ 	for (auto it = _list.begin(); it != _list.end(); ++i, ++it)
  	  Base::operator[](i) = *it;
 
- 	for (; i < Order+1; ++i)
+ 	for (; i <= Order; ++i)
+ 	  Base::operator[](i) = Real();
+      }
+
+      template<class InputIt>
+      Polynomial(InputIt first, InputIt last) {
+	size_t i = 0;
+	auto it = first;
+ 	for (; (it != last) && (i <= Order); ++i, ++it)
+ 	  Base::operator[](i) = *it;
+	
+	if (it != last)
+	  M_throw() << "Polynomial type too short to hold this range of coefficients";
+
+ 	for (; i <= Order; ++i)
  	  Base::operator[](i) = Real();
       }
 
@@ -1015,6 +1028,13 @@ namespace magnet {
 	Polynomial<Order, Real> _p_n;
 	SturmChain<Order-1, Real> _p_nminus1;
 	
+	/*! Accessor function for the ith Polynomial in the Sturm
+            chain.
+
+	    This promotes the order of the Sturm chain polynomial to
+	    the original order of the Polynomial as this is done at
+	    runtime.
+	*/
 	Polynomial<Order, Real> get(size_t i) const {
 	  if (i == 0)
 	    return _p_n;
@@ -1032,6 +1052,16 @@ namespace magnet {
 	size_t sign_changes(const Real2& x) const {
 	  return sign_change_helper(0, x);
 	}
+
+	template<class Real2>
+	size_t roots(const Real2& a, const Real2& b) const {
+#ifdef MAGNET_DEBUG
+	  if (a > b)
+	    M_throw() << "a<b!";
+#endif
+	  return sign_changes(a) - sign_changes(b);
+	}
+	
 	
 	/*! \brief Helper function for calculating the sign changes in
             the Sturm chain.
@@ -1165,6 +1195,73 @@ namespace magnet {
     detail::SturmChain<Order, Real> sturm_chain(const Polynomial<Order, Real>& f) {
       return detail::SturmChain<Order, Real>(f);
     }
+
+    /*! \brief Budan's test for real roots in a Polynomial over the
+        range \f$(0,\,1)\f$.
+
+	Budan's test takes a Polynomial \f$f(x)\f$, and calculates the
+	following function:
+	
+	\f[
+	p(x) = \left(x+1\right)^d\,f\left(\frac{1}{x+1}\right)
+	\f]
+
+	where \f$d\f$ is the order of the polynomial \f$f(x)\f$.
+
+	The count of sign changes which occur in the coefficients of
+	the polynomial \f$p(x)\f$ (ignoring zeros) is equal or greater
+	than the number of real roots in the interval \f$(0,\,1)\f$
+	(exclusive). If the actual number of roots is less than this,
+	then it is less by a multiple of two, therefore if one or zero
+	roots are reported, these values are exact.
+
+	The substitution \f$x\to1/(x+1)\f$ is actually carried out in
+	two steps. First, the following equation is generated:
+
+	\f[
+	p_1(x) = x^d\,f\left(\frac{1}{x}\right)
+	\f]
+	
+	This operation may be performed simply by reversing the order
+	of the coefficients in the Polynomial. Then,
+
+	\f[
+	p_2(x) = p_1\left(x+1\right)
+	\f]
+
+	Which is known as a Taylor shift operation. This is performed
+	using an optimised version of the algorithm described and used
+	in the \ref shift_polynomial function.
+
+	\return An upper bound on the number of real roots in the
+	interval \f$(0,\,1)\f$.
+     */
+    template<size_t Order, class Real>
+    size_t budan_01_test(const Polynomial<Order, Real>& f) {
+      //Perform the first part of the transformation
+      Polynomial<Order, Real> p1;
+      std::copy(f.rbegin(), f.rend(), p1.begin());
+
+      //Now perform the Taylor shift:
+      Polynomial<Order, Real> p2;
+      p2.fill(Real());
+      p2[0] = p1[Order];
+      for (size_t i(Order); i>=1; i--) {
+	for (size_t j = Order-(i-1); j>=1; j--)
+	  p2[j] += p2[j-1];
+	p2[0] += p1[i-1];
+      }
+      //Now count the sign changes
+      size_t sign_changes(0);
+      int last_sign = 0;
+      
+      for (size_t i(0); i <= Order; ++i) {
+	const int current_sign = (p2[i] != 0) * (1 - 2 * std::signbit(p2[i]));
+	sign_changes += (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
+	last_sign = (current_sign != 0) ? current_sign : last_sign;
+      }
+      return sign_changes;
+    }
     
     /*! \} */
 
@@ -1205,6 +1302,48 @@ namespace magnet {
 	  retval = std::minmax({retval.first, retval.second, eval(f, root)});
       return retval;
     }
+
+    
+    /*! \brief Local-max Quadratic upper bound estimate for the real
+        roots of a Polynomial.
+
+	This function is lifted directly from the thesis "Upper bounds
+	on the values of the positive roots of polynomials" by
+	Panagiotis S. Vigklas.
+     */
+    template<class Real, size_t Order>
+    Real LBMQ_upper_bound(const Polynomial<Order, Real>& f) {
+      std::array<size_t, Order> times_used;
+      times_used.fill(1);
+      Real ub = Real();
+      
+      const size_t n = Order;
+      for (size_t m(n); m > 0; --m)
+	if (f[m-1] < 0) {
+	  Real tempub = std::numeric_limits<Real>::infinity();
+	  
+	  for (size_t k(n+1); k >= m+1; --k) {
+	    Real temp = std::pow(-(f[m-1] / (f[k-1] / (1 << times_used[k-1]))), 1.0 / (k - m));
+	    ++times_used[k-1];
+	    std::cout << "temp=" << temp << std::endl;
+	    tempub = std::min(temp, tempub);
+	  }
+	  std::cout << "tempub =" << tempub << std::endl;
+	  ub = std::max(tempub, ub);
+	}
+      std::cout << "ub =" << ub << std::endl;
+      return ub;
+    }
+
+    /*! \brief Specialisation of Local-max Quadratic upper-bound
+        estimation for real roots of a Polynomial, where the
+        Polynomial is a constant.
+    */
+    template<class Real>
+    Real LBMQ_upper_bound(const Polynomial<0, Real>& f) {
+      return 0;
+    }
+
     /*! \} */
   }
 }
