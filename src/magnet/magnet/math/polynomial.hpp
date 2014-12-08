@@ -303,23 +303,6 @@ namespace magnet {
       }
     }
 
-    /*! \brief Fast evaluation of the derivatives of a polynomial.
-      
-      This function is provided to allow derivatives to be evaluated
-      without symbolically taking the derivative (causing a copy of
-      the coefficients).
-    */
-    template<size_t Order, class Real, class Real2>
-    Real eval_derivative(const Polynomial<Order, Real>& f, const Real2& x, const size_t D)
-    {
-      if (D == 0) return eval(f, x);
-
-      Real sum = Real();
-      for (size_t i(Order); i >= D; --i)
-	sum = sum * x + falling_factorial(i, i-D) * f[i];
-      return sum;
-    }
-
     /*! \brief Fast evaluation of multiple derivatives of a
         polynomial.
       
@@ -333,9 +316,8 @@ namespace magnet {
       std::array<Real, D+1> retval;
       retval.fill(Real());
       retval[0] = f[Order];
-      for (size_t i(Order); i>=1; i--) {
-	size_t nnd = std::min(D, Order-(i-1));
-	for (size_t j = nnd; j>=1; j--)
+      for (size_t i(Order); i>0; i--) {
+	for (size_t j = std::min(D, Order-(i-1)); j>0; j--)
 	  retval[j] = retval[j] * x + retval[j-1];
 	retval[0] = retval[0] * x + f[i-1];
       }
@@ -346,7 +328,7 @@ namespace magnet {
 	retval[i] *= cnst;
       }
 
-      return retval;      
+      return retval;
     }
 
     /*! \brief Perform Euclidean division of a polynomial.
@@ -734,9 +716,9 @@ namespace magnet {
       b_i = \frac{f^i(t)}{i!}
       \f]
 
-      The derivatives can be evaluated quickly, using the routine from
-      Numerical Recipies.
-    */
+      Here, we then use a modified version of the eval_derivatives
+      function.
+     */
     template<size_t Order, class Real>
     inline Polynomial<Order, Real> shift_polynomial(const Polynomial<Order, Real>& f, const double t) {
       //Check for the simple case where t == 0, nothing to be done
@@ -745,12 +727,12 @@ namespace magnet {
       Polynomial<Order, Real> retval;
       retval.fill(Real());
       retval[0] = f[Order];
-      for (size_t i(Order); i>=1; i--) {
-	for (size_t j = Order-(i-1); j>=1; j--)
+      for (size_t i(Order); i>0; i--) {
+	for (size_t j = Order-(i-1); j>0; j--)
 	  retval[j] = retval[j] * t + retval[j-1];
 	retval[0] = retval[0] * t + f[i-1];
       }
-      return retval;      
+      return retval;
     }
 
     /*! \brief A dummy function which returns no roots of a 0th order Polynomial.

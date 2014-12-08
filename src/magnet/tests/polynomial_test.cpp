@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( poly_derivative )
   BOOST_CHECK_EQUAL(poly2[2], 3);  
   BOOST_CHECK_EQUAL(poly2[3], 4);  
 
-  BOOST_CHECK_CLOSE(eval(poly2, 3.14159), eval_derivative(poly1, 3.14159, 1), 1e-10);  
+  BOOST_CHECK_CLOSE(eval(poly2, 3.14159), eval_derivatives<1>(poly1, 3.14159)[1], 1e-10);
 
   auto poly3 = 2.0 - x + 2 * x * x;
   auto poly4 = derivative(poly3);
