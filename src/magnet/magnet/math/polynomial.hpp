@@ -691,7 +691,7 @@ namespace magnet {
       return b;
     }
     
-    /*! \brief Returns a polynomial \f$g(x)=f(x+t)\f$
+    /*! \brief Returns a polynomial \f$g(x)=f(x+t)\f$.
       
       Given a polynomial \f$f(x)\f$:
       \f[
@@ -720,8 +720,9 @@ namespace magnet {
       b_i = \frac{f^i(t)}{i!}
       \f]
 
-      Here, we then use a modified version of the eval_derivatives
-      function.
+      Here, we then use a modified version of the \ref
+      eval_derivatives function to actually calculate the derivatives
+      while avoiding the factorial term.
      */
     template<size_t Order, class Real>
     inline Polynomial<Order, Real> shift_polynomial(const Polynomial<Order, Real>& f, const double t) {
@@ -738,6 +739,77 @@ namespace magnet {
       }
       return retval;
     }
+
+    /*! \brief Returns a polynomial \f$g(x)=f(x+1)\f$.
+
+      This is an optimised \ref shift_polynomial operation where the
+      shift is unity. See \ref shift_polynomial for more
+      implementation details
+     */
+    template<size_t Order, class Real>
+    inline Polynomial<Order, Real> taylor_shift(const Polynomial<Order, Real>& f) {
+      Polynomial<Order, Real> retval;
+      retval.fill(Real());
+      retval[0] = f[Order];
+      for (size_t i(Order); i>0; i--) {
+	for (size_t j = Order-(i-1); j>0; j--)
+	  retval[j] += retval[j-1];
+	retval[0] += f[i-1];
+      }
+      return retval;
+    }
+
+    /*! \brief Returns a polynomial \f$g(x)=(x+1)^{N}
+        f\left(\frac{1}{x+1}\right)\f$.
+
+	
+	The creation of \f$p(x)\f$, given by
+	\f[
+	p(x) = \left(x+1\right)^d\,f\left(\frac{1}{x+1}\right)
+	\f]
+
+	where \f$d\f$ is the order of the polynomial \f$f(x)\f$, is
+	often carried out while locating roots of a Polynomial. It has
+	the useful property of generating a polynomial which has the
+	same number of roots of \f$f(x)\f$ in the range
+	\f$x\in[0,\,1]\f$, but now in the range
+	\f$x\in[\infty,\,0]\f$. Therefore, small sections of a
+	polynomial may be inspected for roots using scaling, shifting,
+	and this transformation. It is a special case of a Mobius
+	transformation of the Polynomial.
+
+	Creation of \f$p(x)\f$ may be carried out in two steps. First,
+	the following equation is generated:
+
+	\f[
+	p_1(x) = x^d\,f\left(\frac{1}{x}\right)
+	\f]
+	
+	This operation may be performed simply by reversing the order
+	of the coefficient array in the Polynomial. Then, a \ref
+	taylor_shift is applied to complete the transformation:
+
+	\f[
+	p_2(x) = p_1\left(x+1\right)
+	\f]
+
+	This entire operation is performed using an optimised version
+	of the \ref taylor_shift algorithm, which itself is an
+	optimized \ref shift_polynomial function.
+     */
+    template<size_t Order, class Real>
+    inline Polynomial<Order, Real> invert_taylor_shift(const Polynomial<Order, Real>& f) {
+      Polynomial<Order, Real> retval;
+      retval.fill(Real());
+      retval[0] = f[0];
+      for (size_t i(Order); i>0; i--) {
+	for (size_t j = Order-(i-1); j>0; j--)
+	  retval[j] += retval[j-1];
+	retval[0] += f[Order - (i-1)];
+      }
+      return retval;
+    }
+
 
     /*!  \cond Specializations
       \brief A dummy function which returns no roots of a 0th order Polynomial.
@@ -981,6 +1053,29 @@ namespace magnet {
     }
     /*! \endcond */
 
+    /*! \brief Calculates an upper bound estimate for the number of
+        positive roots of a Polynomial.
+
+	Descarte's rule of signs states that the number of positive
+	roots for a single-variable real-coefficient Polynomial is
+	less than or equal to the number of sign changes between
+	consecutive non-zero coefficients in the Polynomial. When the
+	actual root count is less, it is less by an even
+	number. Therefore, the values 0 or 1 are exact.
+     */
+    template<size_t Order, class Real>
+    size_t descartes_rule_of_signs(const Polynomial<Order, Real>& f) {
+      //Count the sign changes
+      size_t sign_changes(0);
+      int last_sign = 0;      
+      for (size_t i(0); i <= Order; ++i) {
+	const int current_sign = (f[i] != 0) * (1 - 2 * std::signbit(f[i]));
+	sign_changes += (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
+	last_sign = (current_sign != 0) ? current_sign : last_sign;
+      }
+      return sign_changes;
+    }
+
     namespace detail {
       /*! \brief Calculates the negative of the remainder of the
           division of \f$f(x)\f$ by \f$g(x)\f$.
@@ -1193,60 +1288,22 @@ namespace magnet {
 	p(x) = \left(x+1\right)^d\,f\left(\frac{1}{x+1}\right)
 	\f]
 
-	where \f$d\f$ is the order of the polynomial \f$f(x)\f$.
+	where \f$d\f$ is the order of the polynomial \f$f(x)\f$, which
+	transforms all roots of \f$f(x)\f$ in the range \f$[0,1]\f$ to
+	now lie in the range \f$[0,\infty]\f$, allowing Descarte's
+	rule of signs to be applied to a limited range of the
+	polynomial.
 
-	The count of sign changes which occur in the coefficients of
-	the polynomial \f$p(x)\f$ (ignoring zeros) is equal or greater
-	than the number of real roots in the interval \f$(0,\,1)\f$
-	(exclusive). If the actual number of roots is less than this,
-	then it is less by a multiple of two, therefore if one or zero
-	roots are reported, these values are exact.
-
-	The substitution \f$x\to1/(x+1)\f$ is actually carried out in
-	two steps. First, the following equation is generated:
-
-	\f[
-	p_1(x) = x^d\,f\left(\frac{1}{x}\right)
-	\f]
-	
-	This operation may be performed simply by reversing the order
-	of the coefficient array in the Polynomial. Then,
-
-	\f[
-	p_2(x) = p_1\left(x+1\right)
-	\f]
-
-	Which is known as a Taylor shift operation. This entire
-	operation is performed using an optimised version of the
-	algorithm described and used in the \ref shift_polynomial
-	function.
+	The actual transformation to \f$p(x)\f$ is carried out using
+	the \ref invert_taylor_shift function, before this is passed
+	to \ref descartes_rule_of_signs.
 
 	\return An upper bound on the number of real roots in the
 	interval \f$(0,\,1)\f$.
      */
     template<size_t Order, class Real>
     size_t budan_01_test(const Polynomial<Order, Real>& f) {
-      //Perform the Taylor shift with t=1 and access f in reverse to
-      //perfom the 1/x substitution.
-      Polynomial<Order, Real> p2;
-      p2.fill(Real());
-      p2[0] = f[0];
-
-      for (size_t i(Order); i>=1; i--) {
-	for (size_t j = Order-(i-1); j>=1; j--)
-	  p2[j] += p2[j-1];
-	p2[0] += f[Order - (i-1)];
-      }
-      //Now count the sign changes
-      size_t sign_changes(0);
-      int last_sign = 0;
-      
-      for (size_t i(0); i <= Order; ++i) {
-	const int current_sign = (p2[i] != 0) * (1 - 2 * std::signbit(p2[i]));
-	sign_changes += (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
-	last_sign = (current_sign != 0) ? current_sign : last_sign;
-      }
-      return sign_changes;
+      return descartes_rule_of_signs(invert_taylor_shift(f));
     }
     
     /*! \brief Local-max Quadratic upper bound estimate for the real
@@ -1346,22 +1403,25 @@ namespace magnet {
 	//Possibly multiple roots, so divide the range and recursively
 	//explore it.
 
-	//Scale the polynomial so that all roots lie in the range (0,
-	//2) This creates a polynomial p1(x) = 2^Order f(x/2)
+	//Scale the polynomial so that all roots lie in the range
+	//(0,2). We actually scale by 2^Order to make the division by 2 a multiply.
+	//
+	//We actually generate this function
+	//p1(x) = 2^Order f(x/2)
 	Polynomial<Order, Real> p1(f);
-	size_t factor = (1 << Order);
 	for (size_t i(0); i <= Order; ++i)
-	  p1[i] *= (factor >> i);	
+	  p1[i] *= (1 << (Order-i)); //This gives (2^Order) / (2^i)
 
-	//Perform a Taylor shift p2(x) = p1(x+1) = 2^Order f(x/2 + 0.5)
-	Polynomial<Order, Real> p2;
-	p2.fill(Real());
-	p2[0] = p1[Order];
-	for (size_t i(Order); i>0; i--) {
-	  for (size_t j = Order-(i-1); j>0; j--)
-	    p2[j] = p2[j] + p2[j-1];
-	  p2[0] = p2[0] + p1[i-1];
-	}
+	//Perform a Taylor shift p2(x) = p1(x+1). This gives 
+	//
+	//p2(x) = 2^Order f(x/2 + 0.5) 
+	//
+	//in terms of the original function, f(x).
+	const Polynomial<Order, Real> p2 = taylor_shift(p1);
+
+	//Now that we have two polynomials, each of which is scaled so
+	//the roots of interest lie in (0,1). Search them both and
+	//combine the results.
 
 	//Detect and scale the first range's roots
 	auto retval = VCA_root_bounds_worker(p1);
@@ -1372,7 +1432,7 @@ namespace magnet {
 
 	//Detect, scale, and shift the second range's roots
 	auto second_range = VCA_root_bounds_worker(p2);
-	for (auto& root_bound : second_range) 
+	for (auto& root_bound : second_range)
 	  retval.push_back(std::make_pair(root_bound.first / 2 + 0.5, root_bound.second / 2 + 0.5));
 	
 	return retval;
@@ -1386,9 +1446,9 @@ namespace magnet {
 
 	This function uses the VCA algorithm to bound the roots and
 	assumes the polynomial has non-zero constant and leading order
-	coefficients. This function simply scales the Polynomial so
-	that all roots lie in the range (0,1) before passing it to
-	\ref VCA_root_bounds_worker.
+	coefficients. This function enforces these requirements and
+	then simply scales the Polynomial so that all roots lie in the
+	range (0,1) before passing it to \ref VCA_root_bounds_worker.
      */
     template<size_t Order, class Real>
     containers::StackVector<std::pair<Real,Real>, Order> 
@@ -1413,6 +1473,116 @@ namespace magnet {
       
       return bounds;
     }
+
+    template<class Real>
+    struct MobiusTransform: public std::array<Real, 4> {
+      typedef std::array<Real, 4> Base;
+
+      MobiusTransform(Real a, Real b, Real c, Real d):
+	Base({a,b,c,d})
+      {}
+      
+      Real eval(Real x) {
+	if (std::isinf(x)) {
+	  if (((*this)[0] == 0) && ((*this)[2] == 0))
+	    return (*this)[1] / (*this)[3];
+
+	  if (((*this)[0] != 0) && ((*this)[2] != 0))
+	    return (*this)[0] / (*this)[2];
+	}
+	return ((*this)[0] * x + (*this)[1]) / ((*this)[2] * x + (*this)[3]);
+      }
+
+      void shift(Real x) {
+	(*this)[1] += (*this)[0] * x;
+	(*this)[3] += (*this)[2] * x;
+      }
+
+      void invert_taylor_shift() {
+	Base::operator=(std::array<Real, 4>{(*this)[1], (*this)[0] + (*this)[1], (*this)[3], (*this)[2] + (*this)[3]});
+      }
+    };
+
+    /*! \brief Calculate bounds on all of the positive real roots in
+      the range of a Polynomial.
+
+      This function uses the VAS algorithm to bound the roots and
+      assumes the polynomial has non-zero constant and leading order
+      coefficients.
+      
+      The parameter M is an array of Mobius transformation
+      coefficients {a,b,c,d}. By default it is a direct mapping to the
+      original Polynomial.
+     */
+    template<size_t Order, class Real>
+    containers::StackVector<std::pair<Real,Real>, Order> 
+    VAS_root_bounds_worker(const Polynomial<Order, Real>& f, MobiusTransform<Real> M, const Real ub_max) {
+      //Test how many positive roots exist
+      switch (descartes_rule_of_signs(f)) {
+      case 0:
+    	//No roots, return empty
+    	return containers::StackVector<std::pair<Real,Real>, Order>();
+      case 1: {
+    	//One root! the bounds are M(0) and M(\infty), or ub_max if M(\infty)=\infty
+    	const Real a = std::min(M.eval(0), M.eval(HUGE_VAL));
+	Real b = std::max(M.eval(0), M.eval(HUGE_VAL));
+	//Return upper bounds on (f)
+	if (b == HUGE_VAL)
+	  b = ub_max;
+    	return containers::StackVector<std::pair<Real,Real>, Order>{std::make_pair(a,b)};
+      }
+      default: break;
+      }
+
+      Polynomial<Order, Real> p;
+      const auto lb = LMQ_lower_bound(f);
+      if (lb < 1)
+	p = f;
+      else {
+	p = shift_polynomial(f, lb);
+	M.shift(lb);
+      }
+      
+      Polynomial<Order, Real> p01 = invert_taylor_shift(p);
+      auto M01 = M;
+      M01.invert_taylor_shift();
+    		
+      Polynomial<Order, Real> p1inf = taylor_shift(p);
+      auto M1inf = M;
+      M1inf.shift(1);
+
+      auto retval = VAS_root_bounds_worker(p01, M01, ub_max);
+      auto second_range = VAS_root_bounds_worker(p1inf, M1inf, ub_max);
+      for (const auto& bound: second_range)
+	retval.push_back(bound);
+    	
+      if (eval(p, 1.0) == 0)
+	retval.push_back(std::make_pair(M.eval(1), M.eval(1)));
+
+      return retval;
+    }
+    
+    /*! \endcond */
+    
+    /*! \brief Calculate bounds on all of the positive real roots of a
+        Polynomial.
+    
+    	This function uses the VAS algorithm to bound the roots and
+    	assumes the polynomial has non-zero constant and leading order
+    	coefficients. This function enforces these conditions before
+    	passing it to \ref VAS_root_bounds_worker.
+     */
+    template<size_t Order, class Real>
+    containers::StackVector<std::pair<Real,Real>, Order> 
+    VAS_root_bounds(const Polynomial<Order, Real>& f) {
+      //Calculate the upper bound on the polynomial real roots, and
+      //return if no roots are detected
+      const Real upper_bound = LMQ_upper_bound(f);
+      if (upper_bound == 0)
+    	return containers::StackVector<std::pair<Real,Real>, Order>();
+      
+      return VAS_root_bounds_worker(f, MobiusTransform<Real>(1,0,0,1), upper_bound);
+    }
     
     /*! \brief Calculate all real roots of a square-free Polynomial.
 
@@ -1434,7 +1604,6 @@ namespace magnet {
       if (f[Order] == Real())
 	return solve_roots(change_order<Order-1>(f));
 
-
       //Start by solving for the positive roots
       auto bounds = VCA_root_bounds(f);
       
@@ -1442,6 +1611,7 @@ namespace magnet {
       Polynomial<Order, Real> neg_f(f);
       for (size_t i(1); i <= Order; i+=2)
 	neg_f[i] = -neg_f[i];
+
       auto neg_bounds = VCA_root_bounds(neg_f);
       for (auto bound : neg_bounds)
 	bounds.push_back(std::make_pair(-bound.second, -bound.first));
@@ -1449,8 +1619,8 @@ namespace magnet {
       //Now bisect to calculate the roots to full precision
       containers::StackVector<Real, Order> retval;
       for (const auto& bound : bounds) {
-	size_t iter = 50;
-	auto root = boost::math::tools::bisect([&](Real x) { return eval(f, x); }, bound.first, bound.second, boost::math::tools::eps_tolerance<Real>(100));
+	boost::uintmax_t iter = 100;
+	auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, bound.first, bound.second, boost::math::tools::eps_tolerance<Real>(100), iter);
 	retval.push_back((root.first + root.second) / 2);
       }
       return retval;

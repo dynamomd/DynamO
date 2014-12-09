@@ -605,26 +605,79 @@ BOOST_AUTO_TEST_CASE( poly_Sturm_chains )
  }
 }
 
-BOOST_AUTO_TEST_CASE( budans_01_test )
+BOOST_AUTO_TEST_CASE( descartes_sturm_and_budans_01_rootcount_test )
 {
   using namespace magnet::math;
   const Polynomial<1> x{0, 1};
   
-  const double roots[] = {-1e5, -0.14159265, 3.14159265, -0.0001,0.1, 0.3333, 0.6, 1.001, 2.0, 3.14159265, 1e7};
+  const double roots[] = {-1e5, -0.14159265, -0.0001,0.1, 0.3333, 0.6, 0.8, 1.001, 2.0, 3.14159265, 1e7};
   
   for (const double root1: roots)
     for (const double root2: roots)
-      for (const double root3: roots)
-	for (const double root4: roots)
-	  {
-	    auto f = (x - root1) * (x - root2) * (x - root3) * (x - root4);
-	    const size_t roots_in_01 = ((root1 > 0) && (root1 < 1))
-	      +((root2 > 0) && (root2 < 1))
-	      +((root3 > 0) && (root3 < 1))
-	      +((root4 > 0) && (root4 < 1))
-	      ;
-	    BOOST_CHECK_EQUAL(budan_01_test(f), roots_in_01);
-	  }
+      if (root1 != root2)
+	for (const double root3: roots)
+	  if (!std::set<double>{root1, root2}.count(root3))
+	    for (const double root4: roots)
+	      if (!std::set<double>{root1, root2, root3}.count(root4))
+		for (const double root5: roots)
+		  if (!std::set<double>{root1, root2, root3, root4}.count(root5))
+		    for (int sign : {-1, +1}) {
+		      //Test where all 5 roots of a 5th order
+		      //Polynomial are real
+		      auto f1 = sign * (x - root1) * (x - root2) * (x - root3) * (x - root4) * (x - root5);
+		      
+		      //Test with the same roots, but an additional 2
+		      //imaginary roots
+		      auto f2 = f1 * (x * x - 3 * x + 4);
+
+		      const size_t roots_in_01 = ((root1 > 0) && (root1 < 1))
+			+((root2 > 0) && (root2 < 1))
+			+((root3 > 0) && (root3 < 1))
+			+((root4 > 0) && (root4 < 1))
+			+((root5 > 0) && (root5 < 1))
+			;
+
+		      const size_t positive_roots = (root1 > 0)
+			+(root2 > 0) + (root3 > 0)
+			+(root4 > 0) + (root5 > 0)
+			;
+		      
+		      switch (roots_in_01) {
+		      case 0: 
+			BOOST_CHECK_EQUAL(budan_01_test(f1), 0); 
+			BOOST_CHECK_EQUAL(budan_01_test(f2), 0);
+			break;
+		      case 1: 
+			BOOST_CHECK_EQUAL(budan_01_test(f1), 1); 
+			BOOST_CHECK_EQUAL(budan_01_test(f2), 1);
+			break;
+		      default: 
+			BOOST_CHECK(budan_01_test(f1) >= roots_in_01); 
+			BOOST_CHECK(budan_01_test(f2) >= roots_in_01); 
+			break;
+		      }
+
+		      switch (positive_roots) {
+		      case 0: 
+			BOOST_CHECK_EQUAL(descartes_rule_of_signs(f1), 0); 
+			break;
+		      case 1: 
+			BOOST_CHECK_EQUAL(descartes_rule_of_signs(f1), 1); 
+			break;
+		      default: 
+			BOOST_CHECK(descartes_rule_of_signs(f1) >= positive_roots); 
+			break;
+		      }
+
+		      auto chain1 = sturm_chain(f1);
+		      BOOST_CHECK_EQUAL(chain1.roots(0.0, 1.0), roots_in_01); 
+		      BOOST_CHECK_EQUAL(chain1.roots(0.0, HUGE_VAL), positive_roots); 
+		      BOOST_CHECK_EQUAL(chain1.roots(-HUGE_VAL, HUGE_VAL), 5); 
+		      auto chain2 = sturm_chain(f2);
+		      BOOST_CHECK_EQUAL(chain2.roots(0.0, 1.0), roots_in_01); 
+		      BOOST_CHECK_EQUAL(chain2.roots(0.0, HUGE_VAL), positive_roots); 
+		      BOOST_CHECK_EQUAL(chain2.roots(-HUGE_VAL, HUGE_VAL), 5); 
+		    }
 }
 
 BOOST_AUTO_TEST_CASE( LMQ_upper_bound_test )
