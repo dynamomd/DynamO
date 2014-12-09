@@ -50,7 +50,8 @@ try:
     else:
         sequence = list(sys.argv[1])
         valid_input = sites + [ str(number) for number in range(0,10) ]
-        assert ( [ residue in valid_input for residue in list(sys.argv[1])] )
+        for char in list(sys.argv[1]):
+            assert (char in valid_input)
 
         matches = re.finditer("[0-9]+", sys.argv[1])
 
@@ -69,7 +70,7 @@ try:
         if len(sequence) > 33:
             sys.exit('33 residues is currently the maximum length for this generator.')
 
-except (ValueError, IndexError) as e:
+except (AssertionError, ValueError, IndexError) as e:
     print 'Run as ./peptide_maker.py (sequence) [temperature kT = 1.0] [xml_fn = PRIME_peptide].'
     print ''
     raise
@@ -149,7 +150,7 @@ temp = ET.SubElement( Globals, 'Global', attrib = {'Type':'Cells','Name':'Schedu
 ET.SubElement( temp, 'IDRange', attrib = {'Type':'All'})
 
 #Interactions section
-PRIME = ET.SubElement( Interactions, 'Interaction', attrib = {'Type':'PRIME', 'Name':'Backbone', 'Topology':"PRIMEData", 'HBStrength':str(HB_strength)} )
+PRIME = ET.SubElement( Interactions, 'Interaction', attrib = {'Type':'PRIME', 'Name':'Backbone', 'Topology':"PRIMEData", 'HBStrength':str(HB_strength), 'SC':'4.408'})
 ET.SubElement( PRIME, 'IDPairRange', attrib = {'Type':'All'} )
 
 #Topology section
@@ -216,20 +217,12 @@ input_file.write('<!-- Created on ' +date + '. -->\n')
 input_file.close()
 
 #Add thermostat and rescale via dynamod:
-thermostat_command = [ 'dynamod',  '-T', temperature, '-r', temperature, '-o', xml_fn, '-Z', xml_fn ]
-print "Running this command:", " ".join(thermostat_command)
+dynamod_cmd = [ 'dynamod',  '-T', temperature, '-r', temperature, '-o', xml_fn, '-Z', '--check', xml_fn ]
+print "Running this command:", " ".join(dynamod_cmd)
 if debug:
-    print subprocess.Popen(thermostat_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
+    subprocess.Popen(dynamod_cmd).communicate()[0]
 else:
-    silent_stdout = subprocess.Popen(thermostat_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()
-
-#Check config is valid with dynamod:
-run_command = ['dynamod', xml_fn, "--check"]
-print "Running this command:", " ".join(run_command)
-if debug:
-    print subprocess.Popen(run_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
-else:
-    silent_stdout = subprocess.Popen(run_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()
+    silent_stdout = subprocess.Popen(dynamod_cmd, stdout=subprocess.PIPE).communicate()
 
 if debug:
     #Create trajectory file
