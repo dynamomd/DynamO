@@ -729,3 +729,54 @@ BOOST_AUTO_TEST_CASE( LMQ_lower_bound_test )
   //Test constant coefficients 
   BOOST_CHECK_EQUAL(LMQ_lower_bound(1 + 0 * x*x*x*x*x), HUGE_VAL);
 }
+
+BOOST_AUTO_TEST_CASE( generic_solve_roots )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  const double roots[] = {-1e5, -0.14159265, 3.14159265, -0.0001,0.1, 0.3333, 0.6, 1.001, 2.0, 3.14159265, 1e7};
+
+  for (const double root1: roots)
+    for (const double root2: roots)
+      if (root1 != root2)
+	for (const double root3: roots)
+	  if (!std::set<double>{root1, root2}.count(root3))
+	    for (const double root4: roots)
+	      if (!std::set<double>{root1, root2, root3}.count(root4))
+		for (const double root5: roots)
+		  if (!std::set<double>{root1, root2, root3, root4}.count(root5))
+		    for (int sign : {-1, +1})
+		      {
+			std::vector<double> test_roots{root1, root2, root3, root4, root5};
+			std::sort(test_roots.begin(), test_roots.end());
+
+			//Test where all 5 roots of a 5th order Polynomial are real
+			auto f1 = sign * (x - root1) * (x - root2) * (x - root3) * (x - root4) * (x - root5);
+			{
+			  auto solved_roots = solve_roots(f1);
+			  std::sort(solved_roots.begin(), solved_roots.end());
+			  
+			  BOOST_CHECK_EQUAL(solved_roots.size(), test_roots.size());
+			  BOOST_CHECK_CLOSE(solved_roots[0], test_roots[0], 1e-12);
+			  BOOST_CHECK_CLOSE(solved_roots[1], test_roots[1], 1e-12);
+			  BOOST_CHECK_CLOSE(solved_roots[2], test_roots[2], 1e-12);
+			  BOOST_CHECK_CLOSE(solved_roots[3], test_roots[3], 1e-12);
+			  BOOST_CHECK_CLOSE(solved_roots[4], test_roots[4], 1e-12);
+			}
+
+			//Test where 5 roots of a 7th order Polynomial are real
+			auto f2 = f1 * (x * x - 3 * x + 4);
+			{
+			  auto solved_roots = solve_roots(f2);
+			  std::sort(solved_roots.begin(), solved_roots.end());
+			  
+			  BOOST_CHECK_EQUAL(solved_roots.size(), test_roots.size());
+			  BOOST_CHECK_CLOSE(solved_roots[0], test_roots[0], 1e-11);
+			  BOOST_CHECK_CLOSE(solved_roots[1], test_roots[1], 1e-11);
+			  BOOST_CHECK_CLOSE(solved_roots[2], test_roots[2], 1e-11);
+			  BOOST_CHECK_CLOSE(solved_roots[3], test_roots[3], 1e-11);
+			  BOOST_CHECK_CLOSE(solved_roots[4], test_roots[4], 1e-11);
+			}
+		      }
+}

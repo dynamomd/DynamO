@@ -20,6 +20,7 @@
 #include <magnet/math/precision.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/math/vector.hpp>
+#include <boost/math/tools/roots.hpp>
 #include <stdexcept>
 #include <ostream>
 #include <array>
@@ -381,7 +382,8 @@ namespace magnet {
       return RetType(q, change_order<Order2 - 1>(r));
     }
 
-    /*! \brief Specialisation for division by a constant.
+    /*!  \cond Specializations
+      \brief Specialisation for division by a constant.
      */
     template<size_t Order1, class Real>
     std::tuple<Polynomial<Order1, Real>, Polynomial<0, Real> >
@@ -394,6 +396,7 @@ namespace magnet {
 
       return RetType(f * (1.0 / g[0]), Polynomial<0, Real>{Real()});
     }
+
     /*! \brief Right-handed addition operation on a Polynomial.
       
       This operator is only enabled if the type of the Polynomial
@@ -530,6 +533,8 @@ namespace magnet {
       static const bool value = std::is_arithmetic<R2>::value;
     };
 
+    /*! \endcond */
+
     /*! \} */
 
     /*! \relates Polynomial 
@@ -537,8 +542,7 @@ namespace magnet {
       \{
     */
 
-    /*! \relates Polynomial 
-      \brief Derivatives of Polynomial classes (constants).*/
+    /*! \brief Derivatives of Polynomial classes (constants).*/
     template<class Real, size_t N>
     inline Polynomial<N-1, Real> derivative(const Polynomial<N, Real>& f) {
       Polynomial<N-1, Real> retval;
@@ -548,7 +552,7 @@ namespace magnet {
       return retval;
     }
     
-    /*! \relates Polynomial 
+    /*! \cond Specializations
       \brief Specialisation for derivatives of 0th order Polynomial classes (constants).
     */
     template<class Real>
@@ -556,7 +560,7 @@ namespace magnet {
       return NullSymbol();
     }
 
-    /*! \} */
+    /*! \endcond \} */
 
     /*! \relates Polynomial 
       \name Polynomial input/output operations
@@ -735,7 +739,8 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief A dummy function which returns no roots of a 0th order Polynomial.
+    /*!  \cond Specializations
+      \brief A dummy function which returns no roots of a 0th order Polynomial.
       \param f The Polynomial to evaluate.
     */
     inline containers::StackVector<double, 0> solve_roots(const Polynomial<0, double>& f) {
@@ -794,6 +799,20 @@ namespace magnet {
 
 
     namespace {
+      /*! \brief Deflate a Polynomial and solves for the remaining
+	roots.
+
+	This routine also polishes the root to try to improve accuracy;
+	however, do not assume this function will behave well with
+	inaccurate roots.
+      */
+      template<size_t Order, class Real>
+      inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real>& f, Real root) {
+	containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
+	roots.push_back(root);
+	return roots;
+      }
+
       /*! \brief Uses a quadratic scheme to polish up a root.
        */
       inline void cubicNewtonRootPolish(const Polynomial<3, double>& f, double& root)
@@ -821,20 +840,6 @@ namespace magnet {
 	    error = eval(f, root);
 	  }
       }
-    }
-
-    /*! \brief Deflate a Polynomial and solves for the remaining
-      roots.
-
-      This routine also polishes the root to try to improve accuracy;
-      however, do not assume this function will behave well with
-      inaccurate roots.
-    */
-    template<size_t Order, class Real>
-    inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real>& f, Real root) {
-      containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
-      roots.push_back(root);
-      return roots;
     }
     
     /*! \brief The roots of a 3rd order Polynomial.
@@ -974,7 +979,7 @@ namespace magnet {
 
       return roots;
     }
-    
+    /*! \endcond */
 
     namespace detail {
       /*! \brief Calculates the negative of the remainder of the
@@ -1244,47 +1249,6 @@ namespace magnet {
       return sign_changes;
     }
     
-    /*! \} */
-
-    /*! \relates Polynomial 
-      \name Polynomial bounds
-      \{
-    */
-    /*! \brief The maximum and minimum values of a 0th order Polynomial in a specified range. 
-      \param f The Polynomial to evaluate.
-      \param x_min The minimum bound.
-      \param x_max The maximum bound.
-    */
-    template<class Real>
-    inline auto minmax(const Polynomial<0, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
-    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
-
-    /*! \brief The maximum and minimum values of a 1st order Polynomial in a specified range. 
-      \param f The Polynomial to evaluate.
-      \param x_min The minimum bound.
-      \param x_max The maximum bound.
-    */
-    template<class Real>
-    inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
-    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
-
-    /*! \brief The maximum absolute value of an arbitrary order Polynomial in a specified range.
-      \param f The Polynomial to evaluate.
-      \param tmin The minimum bound.
-      \param tmax The maximum bound.
-    */
-    template<class Real, size_t Order>
-    inline auto minmax(const Polynomial<Order, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
-    {
-      auto roots = solve_roots(derivative(f));
-      std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_min))> retval = std::minmax(eval(f, x_min), eval(f, x_max));
-      for (auto root : roots)
-	if ((root > x_min) && (root < x_max))
-	  retval = std::minmax({retval.first, retval.second, eval(f, root)});
-      return retval;
-    }
-
-    
     /*! \brief Local-max Quadratic upper bound estimate for the real
         roots of a Polynomial.
 
@@ -1319,7 +1283,7 @@ namespace magnet {
       return ub;
     }
 
-    /*! \brief Local-max Quadratic upper bound estimate for the real
+    /*! \brief Local-max Quadratic lower bound estimate for the real
         roots of a Polynomial.
 
 	Given a Polynomial \f$f(x)\f$, this function performs the
@@ -1336,28 +1300,203 @@ namespace magnet {
      */
     template<class Real, size_t Order>
     Real LMQ_lower_bound(const Polynomial<Order, Real>& f) {
-      const Polynomial<Order, Real> g(f.rbegin(), f.rend());
-      return 1.0 / LMQ_upper_bound(g);
+      return 1.0 / LMQ_upper_bound(Polynomial<Order, Real>(f.rbegin(), f.rend()));
     }
 
-    /*! \brief Specialisation of Local-max Quadratic upper-bound
-        estimation for real roots of a Polynomial, where the
-        Polynomial is a constant.
+    /*! \cond Specializations
+
+      \brief Specialisation of Local-max Quadratic upper-bound
+      estimation for real roots of a Polynomial, where the Polynomial
+      is a constant.
     */
     template<class Real>
     Real LMQ_upper_bound(const Polynomial<0, Real>& f) {
       return 0;
     }
 
-    /*! \brief Specialisation of Local-max Quadratic lower-bound
-        estimation for real roots of a Polynomial, where the
-        Polynomial is a constant.
+    /*!
+      \brief Specialisation of Local-max Quadratic
+      lower-bound estimation for real roots of a Polynomial, where the
+      Polynomial is a constant.
     */
     template<class Real>
     Real LMQ_lower_bound(const Polynomial<0, Real>& f) {
       return HUGE_VAL;
     }
+    /*! \endcond */
+
+    /*! \brief Calculate bounds on all of the positive real roots in
+        the range \f$(0,1)\f$ of a Polynomial.
+
+	This function uses the VCA algorithm to bound the roots and
+	assumes the polynomial has non-zero constant and leading order
+	coefficients.
+     */
+    template<size_t Order, class Real>
+    containers::StackVector<std::pair<Real,Real>, Order> 
+    VCA_root_bounds_worker(const Polynomial<Order, Real>& f) {
+      //Test how many roots are in the range (0,1)
+      switch (budan_01_test(f)) {
+      case 0:
+	//No roots, return empty
+	return containers::StackVector<std::pair<Real,Real>, Order>();
+      case 1:
+	//One root! the bound is (0,1)
+	return containers::StackVector<std::pair<Real,Real>, Order>{std::make_pair(Real(0), Real(1))};
+      default:
+	//Possibly multiple roots, so divide the range and recursively
+	//explore it.
+
+	//Scale the polynomial so that all roots lie in the range (0,
+	//2) This creates a polynomial p1(x) = 2^Order f(x/2)
+	Polynomial<Order, Real> p1(f);
+	size_t factor = (1 << Order);
+	for (size_t i(0); i <= Order; ++i)
+	  p1[i] *= (factor >> i);	
+
+	//Perform a Taylor shift p2(x) = p1(x+1) = 2^Order f(x/2 + 0.5)
+	Polynomial<Order, Real> p2;
+	p2.fill(Real());
+	p2[0] = p1[Order];
+	for (size_t i(Order); i>0; i--) {
+	  for (size_t j = Order-(i-1); j>0; j--)
+	    p2[j] = p2[j] + p2[j-1];
+	  p2[0] = p2[0] + p1[i-1];
+	}
+
+	//Detect and scale the first range's roots
+	auto retval = VCA_root_bounds_worker(p1);
+	for (auto& root_bound : retval) {
+	  root_bound.first /= 2;
+	  root_bound.second /= 2;
+	}
+
+	//Detect, scale, and shift the second range's roots
+	auto second_range = VCA_root_bounds_worker(p2);
+	for (auto& root_bound : second_range) 
+	  retval.push_back(std::make_pair(root_bound.first / 2 + 0.5, root_bound.second / 2 + 0.5));
+	
+	return retval;
+      }
+    }
+
+    /*! \brief Calculate bounds on all of the positive real roots of a
+        Polynomial.
+
+	This function uses the VCA algorithm to bound the roots and
+	assumes the polynomial has non-zero constant and leading order
+	coefficients. This function simply scales the Polynomial so
+	that all roots lie in the range (0,1) before passing it to
+	\ref VCA_root_bounds_worker.
+     */
+    template<size_t Order, class Real>
+    containers::StackVector<std::pair<Real,Real>, Order> 
+    VCA_root_bounds(const Polynomial<Order, Real>& f) {
+      //Calculate the upper bound on the polynomial real roots, and
+      //return if no roots are detected
+      const Real upper_bound = LMQ_upper_bound(f);
+      if (upper_bound == 0)
+	return containers::StackVector<std::pair<Real,Real>, Order>();
+      
+      //Scale the polynomial so that all roots lie in the region (0,1)
+      Polynomial<Order, Real> p(f);
+      Real factor = 1;
+      for (size_t i(1); i <= Order; ++i)
+	p[i] *= (factor *= upper_bound);
+
+      auto bounds = VCA_root_bounds_worker(p);
+      for (auto& bound : bounds) {
+	bound.first *= upper_bound;
+	bound.second *= upper_bound;
+      }
+      
+      return bounds;
+    }
+    
+    /*! \brief Calculate all real roots of a square-free Polynomial.
+
+      This function uses the VCA algorithm to bound the roots, then
+      the false-position or bisection method to calculate them to full
+      precision.
+     */
+    template<size_t Order, class Real>
+    containers::StackVector<Real, Order> 
+    solve_roots(const Polynomial<Order, Real>& f) {
+      //Handle special cases 
+
+      //The constant coefficient is zero: deflate the polynomial
+      if (f[0] == Real())
+	return deflate_and_solve_polynomial(f, Real());
+      
+      //The highest order coefficient is zero: drop to lower order
+      //solvers
+      if (f[Order] == Real())
+	return solve_roots(change_order<Order-1>(f));
+
+
+      //Start by solving for the positive roots
+      auto bounds = VCA_root_bounds(f);
+      
+      //Now solve for the negative roots
+      Polynomial<Order, Real> neg_f(f);
+      for (size_t i(1); i <= Order; i+=2)
+	neg_f[i] = -neg_f[i];
+      auto neg_bounds = VCA_root_bounds(neg_f);
+      for (auto bound : neg_bounds)
+	bounds.push_back(std::make_pair(-bound.second, -bound.first));
+      
+      //Now bisect to calculate the roots to full precision
+      containers::StackVector<Real, Order> retval;
+      for (const auto& bound : bounds) {
+	size_t iter = 50;
+	auto root = boost::math::tools::bisect([&](Real x) { return eval(f, x); }, bound.first, bound.second, boost::math::tools::eps_tolerance<Real>(100));
+	retval.push_back((root.first + root.second) / 2);
+      }
+      return retval;
+    }
 
     /*! \} */
+    
+    /*! \relates Polynomial 
+      \name Polynomial bounds
+      \{
+    */
+    /*! \brief The maximum absolute value of an arbitrary order Polynomial in a specified range.
+      \param f The Polynomial to evaluate.
+      \param tmin The minimum bound.
+      \param tmax The maximum bound.
+    */
+    template<class Real, size_t Order>
+    inline auto minmax(const Polynomial<Order, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    {
+      auto roots = solve_roots(derivative(f));
+      std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_min))> retval = std::minmax(eval(f, x_min), eval(f, x_max));
+      for (auto root : roots)
+	if ((root > x_min) && (root < x_max))
+	  retval = std::minmax({retval.first, retval.second, eval(f, root)});
+      return retval;
+    }
+
+    /*! \cond Specializations
+      \brief The maximum and minimum values of a 0th order Polynomial in a specified range. 
+      \param f The Polynomial to evaluate.
+      \param x_min The minimum bound.
+      \param x_max The maximum bound.
+    */
+    template<class Real>
+    inline auto minmax(const Polynomial<0, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
+
+    /*! \brief The maximum and minimum values of a 1st order Polynomial in a specified range. 
+      \param f The Polynomial to evaluate.
+      \param x_min The minimum bound.
+      \param x_max The maximum bound.
+    */
+    template<class Real>
+    inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
+
+
+    /*! \endcond \} */
   }
 }
