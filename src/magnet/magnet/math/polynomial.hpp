@@ -1323,7 +1323,6 @@ namespace magnet {
     Real LMQ_lower_bound(const Polynomial<0, Real>& f) {
       return HUGE_VAL;
     }
-    /*! \endcond */
 
     /*! \brief Calculate bounds on all of the positive real roots in
         the range \f$(0,1)\f$ of a Polynomial.
@@ -1379,6 +1378,8 @@ namespace magnet {
 	return retval;
       }
     }
+
+    /*! \endcond */
 
     /*! \brief Calculate bounds on all of the positive real roots of a
         Polynomial.
