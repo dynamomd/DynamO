@@ -376,8 +376,8 @@ namespace dynamo {
       all_captures_satisfied = false;
     }
 
-    if ((distance_i != 2) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-					_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID))))
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID))))
     {
       if (distance_i != 2)
           return false;
@@ -385,7 +385,7 @@ namespace dynamo {
     }
 
     if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
-					_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID))))
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID))))
     {
       if (distance_i != 3)
           return false;
@@ -393,7 +393,7 @@ namespace dynamo {
     }
 
     if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
-					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID))))
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID))))
     {
       if (distance_i != 4)
           return false;
