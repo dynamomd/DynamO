@@ -129,7 +129,8 @@ namespace dynamo {
 
     //These are the bead diameters.
     //SC-SC diameters sourced from [5]. BB-BB diameters from [1].
-    //Linear mixing for BB-SC values.
+    //SC-BB diameters parametrised to produce similar high-temperature allowed regions of the Ramachandran
+    //to the alanine residue.
     static constexpr double _PRIME_diameters[] =
       {
 	/*NH-X*/3.3  ,3.5  ,3.65 ,3.854,4.600,4.750,5.500,5.600,5.400,4.600,6.000,4.850,5.400,4.750,4.150,5.400,6.650,4.200,4.200,4.250,6.350,6.300,
