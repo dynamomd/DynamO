@@ -356,28 +356,55 @@ namespace dynamo {
     //Check if either pair are already within a H-Bond
     if (_HBonds.by<NH_res_ID>().count(NH_res) || _HBonds.by<CO_res_ID>().count(CO_res))
       return false; //At least one residue is already bonded, so this pair cannot form.
-      
+
+    bool all_captures_satisfied = true;
+
     //Search for reasons NOT to allow the bond
-    if ((distance_i != 0) && !isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-					 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID))))
-      return false;
-    
-    if ((distance_i != 1) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID))))
-      return false;
+    if (!isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+		 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID))))
+    {
+      if (distance_i != 0)
+          return false;
+      all_captures_satisfied = false;
+    }
+
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID))))
+    {
+      if (distance_i != 1)
+          return false;
+      all_captures_satisfied = false;
+    }
 
     if ((distance_i != 2) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
 					_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID))))
-      return false;
+    {
+      if (distance_i != 2)
+          return false;
+      all_captures_satisfied = false;
+    }
 
-    if ((distance_i != 3) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
 					_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID))))
-      return false;
+    {
+      if (distance_i != 3)
+          return false;
+      all_captures_satisfied = false;
+    }
 
-    if ((distance_i != 4) && isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
 					_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID))))
-      return false;
-    
+    {
+      if (distance_i != 4)
+          return false;
+      all_captures_satisfied = false;
+    }
+
+    //If all capture map criteria are satisfied but the pair are not in an H-Bond, one of the pair were
+    //already in an H-Bond when the criteria were first met, and this is the only reason this H-Bond doesn't exist.
+    if (all_captures_satisfied)
+        return false;
+
     return true;
   }
 
