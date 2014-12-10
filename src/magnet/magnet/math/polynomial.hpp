@@ -810,6 +810,15 @@ namespace magnet {
       return retval;
     }
 
+    /*! \brief Returns a polynomial \f$g(x)=f\left(-x\right)\f$.
+     */
+    template<size_t Order, class Real>
+    inline Polynomial<Order, Real> reflect(const Polynomial<Order, Real>& f) {
+      Polynomial<Order, Real> g(f);
+      for (size_t i(1); i <= Order; i+=2)
+	g[i] = -g[i];
+      return g;
+    }
 
     /*!  \cond Specializations
       \brief A dummy function which returns no roots of a 0th order Polynomial.
@@ -1474,6 +1483,17 @@ namespace magnet {
       return bounds;
     }
 
+    /*! \brief Class representing the current Mobius transformation
+        applied to a Polynomial.
+	
+	This class is used in the implementation of the
+	VAS_root_bounds_worker function. A mobius transformation is
+	the following function:
+	
+	\[
+	M(x) = \frac{a\,x+b}{c\,x+d}
+	\]
+     */
     template<class Real>
     struct MobiusTransform: public std::array<Real, 4> {
       typedef std::array<Real, 4> Base;
@@ -1483,19 +1503,34 @@ namespace magnet {
       {}
       
       Real eval(Real x) {
-	if (std::isinf(x)) {
-	  if (((*this)[0] == 0) && ((*this)[2] == 0))
-	    return (*this)[1] / (*this)[3];
+	//Catch the special case that there is no x term
+	if (((*this)[0] == 0) && ((*this)[2] == 0))
+	  return (*this)[1] / (*this)[3];
 
-	  if (((*this)[0] != 0) && ((*this)[2] != 0))
-	    return (*this)[0] / (*this)[2];
-	}
-	return ((*this)[0] * x + (*this)[1]) / ((*this)[2] * x + (*this)[3]);
+	//Special case of inf/inf
+	if (std::isinf(x) && ((*this)[0] != 0) && ((*this)[2] != 0))
+	  return (*this)[0] / (*this)[2];
+
+	//We have to be careful not to do 0 * inf.
+	Real numerator = (*this)[1];
+	if ((*this)[0] != 0)
+	  numerator += x * (*this)[0];
+	
+	Real denominator = (*this)[3];
+	if ((*this)[2] != 0)
+	  denominator += x * (*this)[2];
+	
+	return numerator / denominator;
       }
 
       void shift(Real x) {
 	(*this)[1] += (*this)[0] * x;
 	(*this)[3] += (*this)[2] * x;
+      }
+
+      void scale(Real x) {
+	(*this)[0] *= x;
+	(*this)[2] *= x;
       }
 
       void invert_taylor_shift() {
@@ -1516,33 +1551,52 @@ namespace magnet {
      */
     template<size_t Order, class Real>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VAS_root_bounds_worker(const Polynomial<Order, Real>& f, MobiusTransform<Real> M, const Real ub_max) {
+    VAS_root_bounds_worker(const Polynomial<Order, Real>& f, MobiusTransform<Real> M) {
       //Test how many positive roots exist
       switch (descartes_rule_of_signs(f)) {
       case 0:
     	//No roots, return empty
     	return containers::StackVector<std::pair<Real,Real>, Order>();
       case 1: {
-    	//One root! the bounds are M(0) and M(\infty), or ub_max if M(\infty)=\infty
+    	//One root! the bounds are M(0) and M(\infty)
     	const Real a = std::min(M.eval(0), M.eval(HUGE_VAL));
-	Real b = std::max(M.eval(0), M.eval(HUGE_VAL));
-	//Return upper bounds on (f)
-	if (b == HUGE_VAL)
-	  b = ub_max;
+	const Real b = std::max(M.eval(0), M.eval(HUGE_VAL));
     	return containers::StackVector<std::pair<Real,Real>, Order>{std::make_pair(a,b)};
       }
-      default: break;
+      default: 
+	break;
       }
 
-      Polynomial<Order, Real> p;
-      const auto lb = LMQ_lower_bound(f);
-      if (lb < 1)
-	p = f;
-      else {
+      Polynomial<Order, Real> p(f);
+      auto lb = LMQ_lower_bound(f);
+      
+      //If there's a large jump in the lower bound, then rescale the
+      //polynomial so the lb is now 1. 16 is an empirical factor.
+      if (lb > 16) {
+	Real factor = 1;
+	for (size_t i(1); i <= Order; ++i)
+	  p[i] *= (factor *= lb);
+	M.scale(lb);
+	lb = 1;
+      }
+
+      if (lb >= 1) {
 	p = shift_polynomial(f, lb);
 	M.shift(lb);
       }
       
+      containers::StackVector<std::pair<Real,Real>, Order> retval;
+
+      if (p[0] == 0) {
+	//The polynomial is at a root already, deflate the polynomial
+	//and start solving again
+	retval = VAS_root_bounds_worker(deflate_polynomial(p, 0), M);
+	//Add the root we deflated out
+	retval.push_back(std::pair<Real,Real>(M.eval(0), M.eval(0)));
+	//Done!
+	return retval;
+      }
+
       Polynomial<Order, Real> p01 = invert_taylor_shift(p);
       auto M01 = M;
       M01.invert_taylor_shift();
@@ -1551,17 +1605,26 @@ namespace magnet {
       auto M1inf = M;
       M1inf.shift(1);
 
-      auto retval = VAS_root_bounds_worker(p01, M01, ub_max);
-      auto second_range = VAS_root_bounds_worker(p1inf, M1inf, ub_max);
-      for (const auto& bound: second_range)
+      auto first_range = VAS_root_bounds_worker(p01, M01);
+      for (const auto& bound: first_range)
 	retval.push_back(bound);
-    	
+
       if (eval(p, 1.0) == 0)
 	retval.push_back(std::make_pair(M.eval(1), M.eval(1)));
+
+      auto second_range = VAS_root_bounds_worker(p1inf, M1inf);
+      for (const auto& bound: second_range)
+	retval.push_back(bound);
 
       return retval;
     }
     
+    template<class Real>
+    containers::StackVector<std::pair<Real,Real>, 1> 
+    VAS_root_bounds_worker(const Polynomial<0, Real>& f, MobiusTransform<Real> M) {
+      return containers::StackVector<std::pair<Real,Real>, 1>();
+    }
+
     /*! \endcond */
     
     /*! \brief Calculate bounds on all of the positive real roots of a
@@ -1581,7 +1644,11 @@ namespace magnet {
       if (upper_bound == 0)
     	return containers::StackVector<std::pair<Real,Real>, Order>();
       
-      return VAS_root_bounds_worker(f, MobiusTransform<Real>(1,0,0,1), upper_bound);
+      auto bounds = VAS_root_bounds_worker(f, MobiusTransform<Real>(1,0,0,1));
+      for (auto& bound: bounds)
+	if (std::isinf(bound.second))
+	  bound.second = upper_bound;
+      return bounds;
     }
     
     /*! \brief Calculate all real roots of a square-free Polynomial.
@@ -1608,11 +1675,7 @@ namespace magnet {
       auto bounds = VCA_root_bounds(f);
       
       //Now solve for the negative roots
-      Polynomial<Order, Real> neg_f(f);
-      for (size_t i(1); i <= Order; i+=2)
-	neg_f[i] = -neg_f[i];
-
-      auto neg_bounds = VCA_root_bounds(neg_f);
+      auto neg_bounds = VCA_root_bounds(reflect(f));
       for (auto bound : neg_bounds)
 	bounds.push_back(std::make_pair(-bound.second, -bound.first));
       
