@@ -605,12 +605,14 @@ BOOST_AUTO_TEST_CASE( poly_Sturm_chains )
  }
 }
 
-BOOST_AUTO_TEST_CASE( descartes_sturm_and_budans_01_rootcount_test )
+BOOST_AUTO_TEST_CASE( descartes_sturm_and_budan_01_alesina_rootcount_test )
 {
   using namespace magnet::math;
   const Polynomial<1> x{0, 1};
   
-  const double roots[] = {-1e5, -0.14159265, -0.0001,0.1, 0.3333, 0.6, 0.8, 1.001, 2.0, 3.14159265, 1e7};
+  //The values 0.5, and 2.0 are strong tests of the algorithms, as
+  //these are the division points for VCA and VAS algorithms.
+  const double roots[] = {-1e5, -0.14159265, -0.0001,0.1, 0.3333, 0.5, 0.8, 1.001, 2.0, 3.14159265, 1e7};
   
   for (const double root1: roots)
     for (const double root2: roots)
@@ -630,53 +632,58 @@ BOOST_AUTO_TEST_CASE( descartes_sturm_and_budans_01_rootcount_test )
 		      //imaginary roots
 		      auto f2 = f1 * (x * x - 3 * x + 4);
 
-		      const size_t roots_in_01 = ((root1 > 0) && (root1 < 1))
-			+((root2 > 0) && (root2 < 1))
-			+((root3 > 0) && (root3 < 1))
-			+((root4 > 0) && (root4 < 1))
-			+((root5 > 0) && (root5 < 1))
-			;
+		      auto roots_in_range = [&](double a, double b) {
+			return ((root1 > a) && (root1 < b))
+			+((root2 > a) && (root2 < b))
+			+((root3 > a) && (root3 < b))
+			+((root4 > a) && (root4 < b))
+			+((root5 > a) && (root5 < b))
+			; };
 
-		      const size_t positive_roots = (root1 > 0)
-			+(root2 > 0) + (root3 > 0)
-			+(root4 > 0) + (root5 > 0)
-			;
-		      
+		      size_t roots_in_01 = roots_in_range(0, 1);
+
+		      auto chain1 = sturm_chain(f1);
+		      auto chain2 = sturm_chain(f2);
+
+		      //Test interval [0,1]
 		      switch (roots_in_01) {
 		      case 0: 
-			BOOST_CHECK_EQUAL(budan_01_test(f1), 0); 
-			BOOST_CHECK_EQUAL(budan_01_test(f2), 0);
-			break;
 		      case 1: 
-			BOOST_CHECK_EQUAL(budan_01_test(f1), 1); 
-			BOOST_CHECK_EQUAL(budan_01_test(f2), 1);
+			BOOST_CHECK_EQUAL(budan_01_test(f1), roots_in_01);
+			BOOST_CHECK_EQUAL(budan_01_test(f2), roots_in_01);
+			BOOST_CHECK_EQUAL(alesina_galuzzi_test(f1, 0.0, 1.0), roots_in_01);
+			BOOST_CHECK_EQUAL(alesina_galuzzi_test(f2, 0.0, 1.0), roots_in_01);
 			break;
 		      default: 
 			BOOST_CHECK(budan_01_test(f1) >= roots_in_01); 
 			BOOST_CHECK(budan_01_test(f2) >= roots_in_01); 
+			BOOST_CHECK(alesina_galuzzi_test(f1, 0.0, 1.0) >= roots_in_01); 
+			BOOST_CHECK(alesina_galuzzi_test(f2, 0.0, 1.0) >= roots_in_01); 
 			break;
 		      }
-
+		      BOOST_CHECK_EQUAL(chain1.roots(0.0, 1.0), roots_in_01); 
+		      BOOST_CHECK_EQUAL(chain2.roots(0.0, 1.0), roots_in_01); 
+		      
+		      //Test interval [0, \infty]
+		      size_t positive_roots = roots_in_range(0, HUGE_VAL);
 		      switch (positive_roots) {
 		      case 0: 
-			BOOST_CHECK_EQUAL(descartes_rule_of_signs(f1), 0); 
-			break;
-		      case 1: 
-			BOOST_CHECK_EQUAL(descartes_rule_of_signs(f1), 1); 
+		      case 1:
+			BOOST_CHECK_EQUAL(descartes_rule_of_signs(f1), positive_roots); 
+			BOOST_CHECK_EQUAL(descartes_rule_of_signs(f2), positive_roots);
 			break;
 		      default: 
 			BOOST_CHECK(descartes_rule_of_signs(f1) >= positive_roots); 
 			break;
 		      }
-
-		      auto chain1 = sturm_chain(f1);
-		      BOOST_CHECK_EQUAL(chain1.roots(0.0, 1.0), roots_in_01); 
 		      BOOST_CHECK_EQUAL(chain1.roots(0.0, HUGE_VAL), positive_roots); 
-		      BOOST_CHECK_EQUAL(chain1.roots(-HUGE_VAL, HUGE_VAL), 5); 
-		      auto chain2 = sturm_chain(f2);
-		      BOOST_CHECK_EQUAL(chain2.roots(0.0, 1.0), roots_in_01); 
 		      BOOST_CHECK_EQUAL(chain2.roots(0.0, HUGE_VAL), positive_roots); 
+
+		      //Try some others
+		      BOOST_CHECK_EQUAL(chain1.roots(-HUGE_VAL, HUGE_VAL), 5);
 		      BOOST_CHECK_EQUAL(chain2.roots(-HUGE_VAL, HUGE_VAL), 5); 
+		      BOOST_CHECK(alesina_galuzzi_test(f1,-1.0, 30.0) >= roots_in_range(-1, 30));
+		      BOOST_CHECK(alesina_galuzzi_test(f1,-0.01, 5.0) >= roots_in_range(-0.01, 5));
 		    }
 }
 

@@ -813,22 +813,36 @@ namespace magnet {
     /*! \brief Returns a polynomial \f$g(x)=f\left(-x\right)\f$.
      */
     template<size_t Order, class Real>
-    inline Polynomial<Order, Real> reflect(const Polynomial<Order, Real>& f) {
+    inline Polynomial<Order, Real> reflect_poly(const Polynomial<Order, Real>& f) {
       Polynomial<Order, Real> g(f);
       for (size_t i(1); i <= Order; i+=2)
 	g[i] = -g[i];
       return g;
     }
 
+    /*! \brief Returns a polynomial \f$g(x)=f\left(a\,x\right)\f$
+        where \f$a\f$ is a scaling factor.
+     */
+    template<size_t Order, class Real>
+    inline Polynomial<Order, Real> scale_poly(const Polynomial<Order, Real>& f, const Real& a) {
+      Polynomial<Order, Real> g(f);
+      Real factor = 1;
+      for (size_t i(1); i <= Order; ++i)
+	g[i] *= (factor *= a);
+      return g;
+    }
+
     /*!  \cond Specializations
-      \brief A dummy function which returns no roots of a 0th order Polynomial.
+      \brief Specialisation for no roots of a 0th order Polynomial.
       \param f The Polynomial to evaluate.
     */
     inline containers::StackVector<double, 0> solve_roots(const Polynomial<0, double>& f) {
       return containers::StackVector<double, 0>();
     }
 
-    /*! \brief The root of a 1st order Polynomial.
+    /*! \brief Calculate the single real root (if it exists) of a 1st
+        order Polynomial.
+      
       \param f The Polynomial to evaluate.
     */
     inline containers::StackVector<double, 1> solve_roots(const Polynomial<1, double>& f) {
@@ -838,7 +852,9 @@ namespace magnet {
       return roots;
     }
 
-    /*! \brief The roots of a 2nd order Polynomial.
+    /*! \brief Calcualte the real roots of a 2nd order Polynomial
+        using radicals.
+      
       \param f The Polynomial to evaluate.
     */
     inline containers::StackVector<double, 2> solve_roots(Polynomial<2, double> f) {
@@ -923,7 +939,9 @@ namespace magnet {
       }
     }
     
-    /*! \brief The roots of a 3rd order Polynomial.
+    /*! \brief Calculate the real roots of a 3rd order Polynomial
+        using radicals.
+      
       \param f The Polynomial to evaluate.
     */
     inline containers::StackVector<double, 3> solve_roots(const Polynomial<3, double>& f_original) {
@@ -1062,29 +1080,6 @@ namespace magnet {
     }
     /*! \endcond */
 
-    /*! \brief Calculates an upper bound estimate for the number of
-        positive roots of a Polynomial.
-
-	Descarte's rule of signs states that the number of positive
-	roots for a single-variable real-coefficient Polynomial is
-	less than or equal to the number of sign changes between
-	consecutive non-zero coefficients in the Polynomial. When the
-	actual root count is less, it is less by an even
-	number. Therefore, the values 0 or 1 are exact.
-     */
-    template<size_t Order, class Real>
-    size_t descartes_rule_of_signs(const Polynomial<Order, Real>& f) {
-      //Count the sign changes
-      size_t sign_changes(0);
-      int last_sign = 0;      
-      for (size_t i(0); i <= Order; ++i) {
-	const int current_sign = (f[i] != 0) * (1 - 2 * std::signbit(f[i]));
-	sign_changes += (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
-	last_sign = (current_sign != 0) ? current_sign : last_sign;
-      }
-      return sign_changes;
-    }
-
     namespace detail {
       /*! \brief Calculates the negative of the remainder of the
           division of \f$f(x)\f$ by \f$g(x)\f$.
@@ -1098,7 +1093,7 @@ namespace magnet {
 	return -rem;
       }
 
-      /*! \brief Type used to calculate and represent a Sturm chain.
+      /*! \brief A collection of Polynomials which form a Sturm chain. 
        */
       template<size_t Order, class Real>
       struct SturmChain {
@@ -1180,9 +1175,12 @@ namespace magnet {
 	}
       };
 
+      /*! \brief Specialisation for a container holding the last Sturm
+          chain Polynomial.
+      */
       template<class Real>
       struct SturmChain<0, Real> {
-	/*! \brief Constructor if is the first and last Polynomial in
+	/*! \brief Constructor  is the first and last Polynomial in
             the chain.
 	*/
 	SturmChain(const Polynomial<0, Real>& p_n):
@@ -1230,7 +1228,8 @@ namespace magnet {
       }
     }
 
-    /*! \brief Helper function which generates a SturmChain.
+    /*! \brief Helper function to generate a SturmChain from a
+        Polynomial.
       
       The actual calculation, storage, and evaluation of the Sturm
       chain is done by the detail::SturmChain type.
@@ -1258,9 +1257,10 @@ namespace magnet {
       Polynomial, \f$f(x)\f$.
       
       The interesting property of this chain is that it allows a
-      calculation of the root count of \f$f(x)\f$. If we evaluate the
-      Sturm chain of \f$f(x)\f$ at a point \f$\xi\f$ and count the
-      number of changes in sign (ignoring zeros) in the sequence:
+      calculation of the count of distinct real roots of \f$f(x)\f$
+      within a certain range. If we evaluate the Sturm chain of
+      \f$f(x)\f$ at a point \f$\xi\f$ and count the number of changes
+      in sign (ignoring zeros) in the sequence:
       
       \f[
       p_0(\xi),\,p_1(\xi),\,\ldots p_n(\xi)
@@ -1270,11 +1270,12 @@ namespace magnet {
       numbers \f$a<b\f$, the number of distinct roots of \f$f(x)\f$ in
       \f$(a,b]\f$ is given by \f$\sigma(a)-\sigma(b)\f$.
 
-      This gives a method to calculate the exact number of roots in a
-      region, which can then be used in a bisection routine to bound
-      individual roots. The Sturm sequence can also be easily
-      evaluated at infinite bounds \f$(-\infty,+\infty)\f$ to
-      determine the total number of real roots.
+      This gives a method to calculate the exact number of real and
+      distinct roots in a region, which can then be used in a
+      bisection routine to bound individual distinct roots. The Sturm
+      sequence can also be easily evaluated at infinite bounds
+      \f$(-\infty,+\infty)\f$ to determine the total number of real
+      roots.
 
       Although this method allows the construction of an
       arbitrary-order Polynomial root finder through bisection,
@@ -1287,21 +1288,45 @@ namespace magnet {
       return detail::SturmChain<Order, Real>(f);
     }
 
-    /*! \brief Budan's test for real roots in a Polynomial over the
-        range \f$(0,\,1)\f$.
+    /*! \brief Calculates an upper bound estimate for the number of
+      positive real roots of a Polynomial (including multiples).
+      
+      Descarte's rule of signs states that the number of positive real
+      roots for a single-variable real-coefficient Polynomial is less
+      than or equal to the number of sign changes between consecutive
+      non-zero coefficients in the Polynomial. When the actual root
+      count is less, it is less by an even number. Therefore, the
+      values 0 or 1 are exact.
+     */
+    template<size_t Order, class Real>
+    size_t descartes_rule_of_signs(const Polynomial<Order, Real>& f) {
+      //Count the sign changes
+      size_t sign_changes(0);
+      int last_sign = 0;      
+      for (size_t i(0); i <= Order; ++i) {
+	const int current_sign = (f[i] != 0) * (1 - 2 * std::signbit(f[i]));
+	sign_changes += (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
+	last_sign = (current_sign != 0) ? current_sign : last_sign;
+      }
+      return sign_changes;
+    }
 
-	Budan's test takes a Polynomial \f$f(x)\f$, and calculates the
-	following function:
+    /*! \brief Budan's upper bound estimate for the number of real
+        roots in a Polynomial over the range \f$(0,\,1)\f$.
+
+	Budan's test is actually just Descarte's test, but on a
+	transformed Polynomial \f$p(x)\f$, which is related to
+	\f$f(x)\f$ as follows:
 	
 	\f[
 	p(x) = \left(x+1\right)^d\,f\left(\frac{1}{x+1}\right)
 	\f]
 
-	where \f$d\f$ is the order of the polynomial \f$f(x)\f$, which
-	transforms all roots of \f$f(x)\f$ in the range \f$[0,1]\f$ to
-	now lie in the range \f$[0,\infty]\f$, allowing Descarte's
-	rule of signs to be applied to a limited range of the
-	polynomial.
+	where \f$d\f$ is the order of the polynomial \f$f(x)\f$. The
+	roots of \f$f(x)\f$ in the range \f$[0,1]\f$ are mapped over
+	the range \f$[0,\infty]\f$ of \f$p(x)\f$. This allows
+	Descarte's rule of signs to be applied to a limited range of
+	the original polynomial.
 
 	The actual transformation to \f$p(x)\f$ is carried out using
 	the \ref invert_taylor_shift function, before this is passed
@@ -1314,9 +1339,24 @@ namespace magnet {
     size_t budan_01_test(const Polynomial<Order, Real>& f) {
       return descartes_rule_of_signs(invert_taylor_shift(f));
     }
+
+    /*! \brief Alesina-Galuzzi upper bound estimate for the numer of
+        real roots in a Polynomial over a specified range
+        \f$(a,\,b)\f$.
+
+	This a generalisation of Budan's 01 test (see \ref
+	budan_01_test) and is implemented that way. The polynomial is
+	shifted so that \f$0\f$ corresponds to \f$a\f$, then scaled so
+	that \f$x=1\f$ corresponds to \f$b\f$, before Budan's test is
+	called on the transformed Polynomial.
+    */
+    template<size_t Order, class Real>
+    size_t alesina_galuzzi_test(const Polynomial<Order, Real>& f, const Real& a, const Real& b) {
+      return budan_01_test(scale_poly(shift_polynomial(f, a), b - a));
+    }
     
-    /*! \brief Local-max Quadratic upper bound estimate for the real
-        roots of a Polynomial.
+    /*! \brief Local-max Quadratic upper bound estimate for the value
+        of the real roots of a Polynomial.
 
 	This function is adapted from the thesis "Upper bounds on the
 	values of the positive roots of polynomials" by Panagiotis
@@ -1350,20 +1390,20 @@ namespace magnet {
     }
 
     /*! \brief Local-max Quadratic lower bound estimate for the real
-        roots of a Polynomial.
-
-	Given a Polynomial \f$f(x)\f$, this function performs the
-	transformation:
-	
-	\f[
-	g(x) = x^n\,f(\frac{1}{x})
-	\f]
-
-	Now the upper bound on the real roots of \f$g(x)\f$ is the
-	inverse of the lower bound on the real roots of
-	\f$f(x)\f$. The transformation above is equivalent to
-	reversing the coefficient array of the polynomial \f$f(x)\f$.
-     */
+      roots of a Polynomial.
+      
+      Given a Polynomial \f$f(x)\f$, this function performs the
+      transformation:
+      
+      \f[
+      g(x) = x^n\,f(\frac{1}{x})
+      \f]
+      
+      Now the upper bound on the real roots of \f$g(x)\f$ are the
+      inverse of the lower bound on the real roots of \f$f(x)\f$. The
+      transformation is computationally equivalent to reversing the
+      coefficient array of the polynomial \f$f(x)\f$.
+    */
     template<class Real, size_t Order>
     Real LMQ_lower_bound(const Polynomial<Order, Real>& f) {
       return 1.0 / LMQ_upper_bound(Polynomial<Order, Real>(f.rbegin(), f.rend()));
@@ -1390,16 +1430,16 @@ namespace magnet {
       return HUGE_VAL;
     }
 
-    /*! \brief Calculate bounds on all of the positive real roots in
-        the range \f$(0,1)\f$ of a Polynomial.
-
-	This function uses the VCA algorithm to bound the roots and
-	assumes the polynomial has non-zero constant and leading order
-	coefficients.
-     */
+    /*! \brief Calculate interval bounds on all of the positive real
+      roots between \f$(0,1)\f$ of a squarefree Polynomial.
+      
+      This function uses the VCA algorithm to bound the roots. It
+      assumes that the polynomial has a non-zero constant term and
+      leading order coefficient term.
+    */
     template<size_t Order, class Real>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VCA_root_bounds_worker(const Polynomial<Order, Real>& f) {
+    VCA_real_root_bounds_worker(const Polynomial<Order, Real>& f) {
       //Test how many roots are in the range (0,1)
       switch (budan_01_test(f)) {
       case 0:
@@ -1433,14 +1473,14 @@ namespace magnet {
 	//combine the results.
 
 	//Detect and scale the first range's roots
-	auto retval = VCA_root_bounds_worker(p1);
+	auto retval = VCA_real_root_bounds_worker(p1);
 	for (auto& root_bound : retval) {
 	  root_bound.first /= 2;
 	  root_bound.second /= 2;
 	}
 
 	//Detect, scale, and shift the second range's roots
-	auto second_range = VCA_root_bounds_worker(p2);
+	auto second_range = VCA_real_root_bounds_worker(p2);
 	for (auto& root_bound : second_range)
 	  retval.push_back(std::make_pair(root_bound.first / 2 + 0.5, root_bound.second / 2 + 0.5));
 	
@@ -1457,24 +1497,22 @@ namespace magnet {
 	assumes the polynomial has non-zero constant and leading order
 	coefficients. This function enforces these requirements and
 	then simply scales the Polynomial so that all roots lie in the
-	range (0,1) before passing it to \ref VCA_root_bounds_worker.
+	range (0,1) before passing it to \ref VCA_real_root_bounds_worker.
      */
     template<size_t Order, class Real>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VCA_root_bounds(const Polynomial<Order, Real>& f) {
+    VCA_real_root_bounds(const Polynomial<Order, Real>& f) {
       //Calculate the upper bound on the polynomial real roots, and
       //return if no roots are detected
       const Real upper_bound = LMQ_upper_bound(f);
       if (upper_bound == 0)
 	return containers::StackVector<std::pair<Real,Real>, Order>();
       
-      //Scale the polynomial so that all roots lie in the region (0,1)
-      Polynomial<Order, Real> p(f);
-      Real factor = 1;
-      for (size_t i(1); i <= Order; ++i)
-	p[i] *= (factor *= upper_bound);
+      //Scale the polynomial so that all roots lie in the region
+      //(0,1), then solve for its roots
+      auto bounds = VCA_real_root_bounds_worker(scale_poly(f, upper_bound) );
 
-      auto bounds = VCA_root_bounds_worker(p);
+      //finally, we must undo the scaling on the roots found
       for (auto& bound : bounds) {
 	bound.first *= upper_bound;
 	bound.second *= upper_bound;
@@ -1487,21 +1525,30 @@ namespace magnet {
         applied to a Polynomial.
 	
 	This class is used in the implementation of the
-	VAS_root_bounds_worker function. A mobius transformation is
+	VAS_real_root_bounds_worker function. A mobius transformation is
 	the following function:
 	
 	\[
 	M(x) = \frac{a\,x+b}{c\,x+d}
 	\]
+
+	This allows a polynomial to be transformed and (provided the
+	Mobius transformation has the same operations applied to it)
+	we can map between the original polynomial x and the
+	transformed x.
      */
     template<class Real>
     struct MobiusTransform: public std::array<Real, 4> {
       typedef std::array<Real, 4> Base;
-
+      /*! \brief Constructor for the Mobius transformation.
+       */
       MobiusTransform(Real a, Real b, Real c, Real d):
 	Base({a,b,c,d})
       {}
       
+      /*! \brief Evaluate the Mobius transformation at the transformed
+          \f$x\f$.
+       */
       Real eval(Real x) {
 	//Catch the special case that there is no x term
 	if (((*this)[0] == 0) && ((*this)[2] == 0))
@@ -1523,16 +1570,25 @@ namespace magnet {
 	return numerator / denominator;
       }
 
+      /*!\brief Add the effect of a \ref shift_poly operation
+         to the Mobius transform.
+       */
       void shift(Real x) {
 	(*this)[1] += (*this)[0] * x;
 	(*this)[3] += (*this)[2] * x;
       }
 
+      /*!\brief Add the effect of a \ref scale_poly operation to the
+         Mobius transform.
+       */
       void scale(Real x) {
 	(*this)[0] *= x;
 	(*this)[2] *= x;
       }
-
+      
+      /*!\brief Add the effect of a \ref scale_poly operation to the
+         Mobius transform.
+       */
       void invert_taylor_shift() {
 	Base::operator=(std::array<Real, 4>{(*this)[1], (*this)[0] + (*this)[1], (*this)[3], (*this)[2] + (*this)[3]});
       }
@@ -1551,77 +1607,86 @@ namespace magnet {
      */
     template<size_t Order, class Real>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VAS_root_bounds_worker(const Polynomial<Order, Real>& f, MobiusTransform<Real> M) {
-      //Test how many positive roots exist
-      switch (descartes_rule_of_signs(f)) {
-      case 0:
-    	//No roots, return empty
-    	return containers::StackVector<std::pair<Real,Real>, Order>();
-      case 1: {
-    	//One root! the bounds are M(0) and M(\infty)
-    	const Real a = std::min(M.eval(0), M.eval(HUGE_VAL));
-	const Real b = std::max(M.eval(0), M.eval(HUGE_VAL));
-    	return containers::StackVector<std::pair<Real,Real>, Order>{std::make_pair(a,b)};
-      }
-      default: 
-	break;
-      }
+    VAS_real_root_bounds_worker(Polynomial<Order, Real> f, MobiusTransform<Real> M) {
+      //This while loop is only used to allow restarting the method
+      //without recursion, as this may recurse a large number of
+      //times.
+      while (true) {
+	//Test how many positive roots exist
+	const size_t sign_changes = descartes_rule_of_signs(f);
+	
+	if (sign_changes == 0)
+	  //No roots, return empty
+	  return containers::StackVector<std::pair<Real,Real>, Order>();
+	
+	if (sign_changes == 1)
+	  //One root! the bounds are M(0) and M(\infty)
+	  return containers::StackVector<std::pair<Real,Real>, Order>{std::make_pair(M.eval(0), M.eval(HUGE_VAL))};
+	
+	auto lb = LMQ_lower_bound(f);
+	
+	//Attempt to divide the polynomial range from [0, \infty] up
+	//into [0, 1] and [1, \infty].
+	
+	//If there's a large jump in the lower bound, then this will
+	//take too long to converge. Try rescaling the polynomial. The
+	//factor 16 is empirically selected.
+	if (lb >= 16) {
+	  f = scale_poly(f, lb);
+	  M.scale(lb);
+	  lb = 1;
+	}
 
-      Polynomial<Order, Real> p(f);
-      auto lb = LMQ_lower_bound(f);
+	//Check if the lower bound suggests that this split is a waste
+	//of time, if so, shift the polynomial and try again.
+	if (lb >= 1) {
+	  f = shift_polynomial(f, lb);
+	  M.shift(lb);
+	  continue; //Start again
+	}
       
-      //If there's a large jump in the lower bound, then rescale the
-      //polynomial so the lb is now 1. 16 is an empirical factor.
-      if (lb > 16) {
-	Real factor = 1;
-	for (size_t i(1); i <= Order; ++i)
-	  p[i] *= (factor *= lb);
-	M.scale(lb);
-	lb = 1;
-      }
+	//Finally, take a lot of care with roots at the split
+	//point. Unfortunately, this test is not as cheap as Descarte's
+	//method, but if a root occurs at the split point, numerical
+	//error makes it impossible to stably resolve this. Better to
+	//just avoid it.
+	const Real root_near_1_tol = 1e-8;
+	if (alesina_galuzzi_test(f, 1.0 - root_near_1_tol, 1.0 + root_near_1_tol) > 0) {
+	  //There is a strong chance of a root in the vicinity of
+	  //1. Avoid splitting there by scaling the polynomial to place
+	  //these roots at 0.5 and restart
+	  const Real scale = 2.0;
+	  f = scale_poly(f, scale);
+	  M.scale(scale);
+	  continue; //Start again
+	}
 
-      if (lb >= 1) {
-	p = shift_polynomial(f, lb);
-	M.shift(lb);
-      }
+	containers::StackVector<std::pair<Real,Real>, Order> retval;
+	//Create the polynomial for [0, 1]
+	Polynomial<Order, Real> p01 = invert_taylor_shift(f);
+	auto M01 = M;
+	M01.invert_taylor_shift();
+	//Collect its roots
+	auto first_range = VAS_real_root_bounds_worker(p01, M01);
+	for (const auto& bound: first_range)
+	  retval.push_back(bound);
       
-      containers::StackVector<std::pair<Real,Real>, Order> retval;
+	//Create the polynomial for [1, \infty]
+	Polynomial<Order, Real> p1inf = taylor_shift(f);
+	auto M1inf = M;
+	M1inf.shift(1);
+	//Collect its roots
+	auto second_range = VAS_real_root_bounds_worker(p1inf, M1inf);
+	for (const auto& bound: second_range)
+	  retval.push_back(bound);
 
-      if (p[0] == 0) {
-	//The polynomial is at a root already, deflate the polynomial
-	//and start solving again
-	retval = VAS_root_bounds_worker(deflate_polynomial(p, 0), M);
-	//Add the root we deflated out
-	retval.push_back(std::pair<Real,Real>(M.eval(0), M.eval(0)));
-	//Done!
 	return retval;
       }
-
-      Polynomial<Order, Real> p01 = invert_taylor_shift(p);
-      auto M01 = M;
-      M01.invert_taylor_shift();
-    		
-      Polynomial<Order, Real> p1inf = taylor_shift(p);
-      auto M1inf = M;
-      M1inf.shift(1);
-
-      auto first_range = VAS_root_bounds_worker(p01, M01);
-      for (const auto& bound: first_range)
-	retval.push_back(bound);
-
-      if (eval(p, 1.0) == 0)
-	retval.push_back(std::make_pair(M.eval(1), M.eval(1)));
-
-      auto second_range = VAS_root_bounds_worker(p1inf, M1inf);
-      for (const auto& bound: second_range)
-	retval.push_back(bound);
-
-      return retval;
     }
     
     template<class Real>
     containers::StackVector<std::pair<Real,Real>, 1> 
-    VAS_root_bounds_worker(const Polynomial<0, Real>& f, MobiusTransform<Real> M) {
+    VAS_real_root_bounds_worker(const Polynomial<0, Real>& f, MobiusTransform<Real> M) {
       return containers::StackVector<std::pair<Real,Real>, 1>();
     }
 
@@ -1633,33 +1698,42 @@ namespace magnet {
     	This function uses the VAS algorithm to bound the roots and
     	assumes the polynomial has non-zero constant and leading order
     	coefficients. This function enforces these conditions before
-    	passing it to \ref VAS_root_bounds_worker.
+    	passing it to \ref VAS_real_root_bounds_worker.
      */
     template<size_t Order, class Real>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VAS_root_bounds(const Polynomial<Order, Real>& f) {
+    VAS_real_root_bounds(const Polynomial<Order, Real>& f) {
       //Calculate the upper bound on the polynomial real roots, and
       //return if no roots are detected
       const Real upper_bound = LMQ_upper_bound(f);
       if (upper_bound == 0)
     	return containers::StackVector<std::pair<Real,Real>, Order>();
       
-      auto bounds = VAS_root_bounds_worker(f, MobiusTransform<Real>(1,0,0,1));
-      for (auto& bound: bounds)
+      auto bounds = VAS_real_root_bounds_worker(f, MobiusTransform<Real>(1,0,0,1));
+      for (auto& bound: bounds) {
+	//Sort the bounds into order
+	if (bound.first > bound.second)
+	  std::swap(bound.first, bound.second);
+	//Replace infinite bounds with the upper bound estimate
 	if (std::isinf(bound.second))
 	  bound.second = upper_bound;
+      }
       return bounds;
     }
     
-    /*! \brief Calculate all real roots of a square-free Polynomial.
+    enum class  PolyRootBounder {
+      VCA, VAS
+    };
 
-      This function uses the VCA algorithm to bound the roots, then
-      the false-position or bisection method to calculate them to full
-      precision.
+    /*! \brief Iterative solver for the real roots of a square-free
+        Polynomial.
+
+	This function uses an algorithm (VAS/VCA) to bound the roots,
+	then a method to calculate them to full precision.
      */
-    template<size_t Order, class Real>
-    containers::StackVector<Real, Order> 
-    solve_roots(const Polynomial<Order, Real>& f) {
+    template<PolyRootBounder BoundMode, size_t Order, class Real>
+    containers::StackVector<Real, Order>
+    solve_real_roots_poly(const Polynomial<Order, Real>& f) {
       //Handle special cases 
 
       //The constant coefficient is zero: deflate the polynomial
@@ -1671,11 +1745,22 @@ namespace magnet {
       if (f[Order] == Real())
 	return solve_roots(change_order<Order-1>(f));
 
+      containers::StackVector<std::pair<Real,Real>, Order> bounds;
+      containers::StackVector<std::pair<Real,Real>, Order> neg_bounds;
       //Start by solving for the positive roots
-      auto bounds = VCA_root_bounds(f);
+      switch (BoundMode){
+      case PolyRootBounder::VCA:
+	bounds = VCA_real_root_bounds(f);
+	neg_bounds = VCA_real_root_bounds(reflect_poly(f));
+	break;
+      case PolyRootBounder::VAS:
+	bounds = VAS_real_root_bounds(f);
+	neg_bounds = VAS_real_root_bounds(reflect_poly(f));
+	break;
+      }
       
-      //Now solve for the negative roots
-      auto neg_bounds = VCA_root_bounds(reflect(f));
+      //We need to reflect the x values and put them into the bounds
+      //list
       for (auto bound : neg_bounds)
 	bounds.push_back(std::make_pair(-bound.second, -bound.first));
       
@@ -1687,6 +1772,17 @@ namespace magnet {
 	retval.push_back((root.first + root.second) / 2);
       }
       return retval;
+    }
+    
+    /*\brief Solve for the distinct real roots of a Polynomial.
+      
+      This is just a convenience function to select the preferred root
+      solver combination.
+     */
+    template<size_t Order, class Real>
+    containers::StackVector<Real, Order>
+    solve_roots(const Polynomial<Order, Real>& f) {
+      return solve_real_roots_poly<PolyRootBounder::VAS, Order, Real>(f);
     }
 
     /*! \} */
