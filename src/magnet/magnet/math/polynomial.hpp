@@ -317,14 +317,14 @@ namespace magnet {
       std::array<Real, D+1> retval;
       retval.fill(Real());
       retval[0] = f[Order];
-      for (size_t i(Order); i>0; i--) {
-	for (size_t j = std::min(D, Order-(i-1)); j>0; j--)
+      for (size_t i(Order); i>0; --i) {
+	for (size_t j = std::min(D, Order-(i-1)); j>0; --j)
 	  retval[j] = retval[j] * x + retval[j-1];
 	retval[0] = retval[0] * x + f[i-1];
       }
 
       Real cnst(1.0);
-      for (size_t i(2); i <= D; i++) {
+      for (size_t i(2); i <= D; ++i) {
 	cnst *= i;
 	retval[i] *= cnst;
       }
@@ -1721,8 +1721,17 @@ namespace magnet {
       return bounds;
     }
     
+    /*! \brief Enumeration of the types of root bounding methods we
+        have for \ref solve_real_roots_poly. 
+    */
     enum class  PolyRootBounder {
       VCA, VAS
+    };
+
+    /*! \brief Enumeration of the types of bisection routines we have
+        for \ref solve_real_roots_poly. */
+    enum class  PolyRootBisector {
+      BISECTION, TOMS748
     };
 
     /*! \brief Iterative solver for the real roots of a square-free
@@ -1731,7 +1740,7 @@ namespace magnet {
 	This function uses an algorithm (VAS/VCA) to bound the roots,
 	then a method to calculate them to full precision.
      */
-    template<PolyRootBounder BoundMode, size_t Order, class Real>
+    template<PolyRootBounder BoundMode, PolyRootBisector BisectionMode, size_t Order, class Real>
     containers::StackVector<Real, Order>
     solve_real_roots_poly(const Polynomial<Order, Real>& f) {
       //Handle special cases 
@@ -1766,10 +1775,26 @@ namespace magnet {
       
       //Now bisect to calculate the roots to full precision
       containers::StackVector<Real, Order> retval;
+      
       for (const auto& bound : bounds) {
-	boost::uintmax_t iter = 100;
-	auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, bound.first, bound.second, boost::math::tools::eps_tolerance<Real>(100), iter);
-	retval.push_back((root.first + root.second) / 2);
+	const Real& a = bound.first;
+	const Real& b = bound.second;
+	switch(BisectionMode) {
+	case PolyRootBisector::BISECTION: 
+	  {
+	    boost::uintmax_t iter = 100;
+	    auto root = boost::math::tools::bisect([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
+	    retval.push_back((root.first + root.second) / 2);
+	    break;
+	  }
+	case PolyRootBisector::TOMS748: 
+	  {
+	    boost::uintmax_t iter = 100;
+	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
+	    retval.push_back((root.first + root.second) / 2);
+	    break;
+	  }
+	}
       }
       return retval;
     }
@@ -1782,7 +1807,7 @@ namespace magnet {
     template<size_t Order, class Real>
     containers::StackVector<Real, Order>
     solve_roots(const Polynomial<Order, Real>& f) {
-      return solve_real_roots_poly<PolyRootBounder::VAS, Order, Real>(f);
+      return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real>(f);
     }
 
     /*! \} */
