@@ -643,6 +643,7 @@ namespace dynamo {
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " (" << TPRIME::PRIME_site_names[p1Data.bead_type] << ":"<< p1Data.residue << ") and Particle " << p2.getID()  << " (" << TPRIME::PRIME_site_names[p2Data.bead_type] << ":" << p2Data.residue << ")"
+		   << " are not registered as being inside the well with an upper limit of " << outer_diameter / Sim->units.unitLength()
 		   << " but they are at a distance of " 
 		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
 		   << std::endl;
