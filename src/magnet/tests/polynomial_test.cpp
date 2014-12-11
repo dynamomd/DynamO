@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( poly_shift)
 	auto f = (x - root1) * (x - root2) * (x-root3);
 
 	for (double shift : {-1.0, 2.0, 1e3, 3.14159265, -1e5}) {
-	  auto g = shift_polynomial(f, shift);
+	  auto g = shift_function(f, shift);
 	  
 	  BOOST_CHECK_CLOSE(eval(g, 0), eval(f,shift), 1e-10);
 	  BOOST_CHECK_CLOSE(eval(g, 1e3), eval(f, 1e3 + shift), 1e-10);
