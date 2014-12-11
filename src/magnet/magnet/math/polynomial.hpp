@@ -725,7 +725,7 @@ namespace magnet {
       while avoiding the factorial term.
      */
     template<size_t Order, class Real>
-    inline Polynomial<Order, Real> shift_polynomial(const Polynomial<Order, Real>& f, const double t) {
+    inline Polynomial<Order, Real> shift_function(const Polynomial<Order, Real>& f, const double t) {
       //Check for the simple case where t == 0, nothing to be done
       if (t == 0) return f;
 
@@ -1352,7 +1352,7 @@ namespace magnet {
     */
     template<size_t Order, class Real>
     size_t alesina_galuzzi_test(const Polynomial<Order, Real>& f, const Real& a, const Real& b) {
-      return budan_01_test(scale_poly(shift_polynomial(f, a), b - a));
+      return budan_01_test(scale_poly(shift_function(f, a), b - a));
     }
     
     /*! \brief Local-max Quadratic upper bound estimate for the value
@@ -1640,7 +1640,7 @@ namespace magnet {
 	//Check if the lower bound suggests that this split is a waste
 	//of time, if so, shift the polynomial and try again.
 	if (lb >= 1) {
-	  f = shift_polynomial(f, lb);
+	  f = shift_function(f, lb);
 	  M.shift(lb);
 	  continue; //Start again
 	}
@@ -1785,7 +1785,70 @@ namespace magnet {
       return solve_real_roots_poly<PolyRootBounder::VAS, Order, Real>(f);
     }
 
-    /*! \} */
+    /*! \brief Determine the next positive root of a function.
+
+      This is a generic implementation for Polynomials.
+     */
+    template<size_t Order, class Real>
+    Real next_root(const Polynomial<Order, Real>& f) {
+      static_assert(Order, "Not implemented yet!");
+    }
+    /*! \cond Specializations
+
+      \brief Trivial specialisation for the next positive root of a
+      constant.
+     */
+    template<class Real>
+    Real next_root(const Polynomial<0, Real>& f) {
+      return std::numeric_limits<Real>::infinity();
+    }
+    
+    /*! \brief Generic implementation of \ref next_root which utilises
+      \ref solve_roots.
+      
+      This is mainly useful for functions with fast root detection
+      algorithms. For example, the linear, quadratic, and cubic
+      functions are solved via radicals, so this function is used to
+      provide an implementation of next_root in these cases.
+    */
+    template<class Real, size_t Order>
+    Real next_root_by_solve_roots(const Polynomial<Order, Real>& f) {
+      auto roots = solve_roots(f);
+      std::sort(roots.begin(), roots.end());
+      for (const Real& root : roots)
+	if (root >= 0)
+	  return root;
+      return std::numeric_limits<Real>::infinity();
+    }
+
+    /*! \brief Next positive root for linear functions.
+      
+      This simply redirects to \ref next_root_by_solve_roots.
+    */
+    template<class Real>
+    Real next_root(const Polynomial<1, Real>& f) {
+      return next_root_by_solve_root(f);
+    }
+
+    /*! \brief Next positive root for quadratic functions.
+      
+      This simply redirects to \ref next_root_by_solve_roots.
+    */
+    template<class Real>
+    Real next_root(const Polynomial<2, Real>& f) {
+      return next_root_by_solve_root(f);
+    }
+
+    /*! \brief Next positive root for cubic functions.
+      
+      This simply redirects to \ref next_root_by_solve_roots.
+    */
+    template<class Real>
+    Real next_root(const Polynomial<3, Real>& f) {
+      return next_root_by_solve_root(f);
+    }
+
+    /*! \endcond \} */
     
     /*! \relates Polynomial 
       \name Polynomial bounds
@@ -1825,7 +1888,6 @@ namespace magnet {
     template<class Real>
     inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
     { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
-
 
     /*! \endcond \} */
   }

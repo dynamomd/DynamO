@@ -21,6 +21,70 @@
 
 namespace magnet {
   namespace intersection {
+
+    /*!  \brief Implementation of the generic stable event-detection
+      algorithm.
+
+      For this generic implementation to work, the function f must
+      have implementations of the functions \ref
+      magnet::math::derivative, \ref magnet::math::shift_function, and
+      \ref magnet::math::next_root defined.
+    */
+    template<class Function>
+    double nextEvent(const Function& f)
+    {
+      //Determine the derivative
+      const auto df = ::magnet::math::derivative(f);
+      
+      const double f_start = eval(f, 0.0);
+      const double df_start = eval(df, 0.0);
+
+      double f_shift = 0.0;
+      //Check if starting overlapped
+      if (f_start <= 0) {
+
+	//If we're approaching then the current time is the time of
+	//the next event
+	if (df_start < 0)
+	  return 0;
+
+	//We need to find when the derivative next turns
+	//negative. Here we recurse, as this will correctly check that
+	//the function indeed turns negative.
+	const double next_df_root = nextEvent(df);
+
+	//If the overlap function never becomes negative, then there
+	//is never an event.
+	if (next_df_root == HUGE_VAL)
+	  return HUGE_VAL;
+
+	//If it turns around while still overlapped/in contact, then
+	//the turning point is the next event.
+	if (eval(f, next_df_root) <= 0)
+	  return next_df_root;
+
+	//The turning point of the derivative is in the positive
+	//region, so use this as the starting point of a normal event
+	//search.
+	f = ::magnet::math::shift_function(f, next_df_root);
+	f_shift = next_df_root;
+      }
+      
+      return f_shift + ::magnet::math::next_root(f);
+    }
+
+    //Use a template overload
+    template<size_t Order>
+    double nextEvent(const ::magnet::math::Polynomial<Order>& f) {
+      //If the polynomial is lower order, drop to that solution (it
+      //may be solvable by radicals)
+      if (f[Order] == 0)
+	return nextEvent(::magnet::math::change_order<Order-1>(f));
+
+      //Call the generic template implementation
+      nextEvent<::magnet::math::Polynomial<Order> >(f);
+    }
+    
     /*! \brief Calculate the interval until the 1st order Polynomial
         is negative and has a negative derivative. 
 	
@@ -40,7 +104,7 @@ namespace magnet {
     */
     inline double nextEvent(const ::magnet::math::Polynomial<2>& f) {
       //If the polynomial is linear, drop to that solution
-      if (f[2] == 0) return nextEvent(::magnet::math::Polynomial<1>(f));
+      if (f[2] == 0) return nextEvent(::magnet::math::change_order<1>(f));
       
       const double arg = f[1] * f[1] - 4 * f[2] * f[0];
 
@@ -76,7 +140,7 @@ namespace magnet {
     inline double nextEvent(const ::magnet::math::Polynomial<3>& f)
     {
       //If the polynomial is quadratic, drop to that solution
-      if (f[3] == 0) return nextEvent(::magnet::math::Polynomial<2>(f));
+      if (f[3] == 0) return nextEvent(::magnet::math::change_order<2>(f));
       
       //Calculate and sort the roots of the overlap function
       auto roots = solve_roots(f);
@@ -131,75 +195,6 @@ namespace magnet {
       if ((derivroots[0] > 0) && (roots[0] < derivroots[0]))
 	return std::max(0.0, roots[0]);
       return std::max(0.0, std::max(derivroots[1], roots[roots.size()-1]));
-    }
-    
-    inline double nextEvent(const ::magnet::math::Polynomial<4>& f, double f0char, double precision=1e-16)
-    {
-      //If the polynomial is cubic, drop to that solution
-      if (f[4] == 0) return nextEvent(::magnet::math::Polynomial<3>(f));
-
-      const double rootthreshold = f0char * precision;
-      
-      //Determine and sort the roots of the derivative
-      const auto df = derivative(f);
-      auto droots = solve_roots(df);
-      std::sort(droots.begin(), droots.end());
-      
-      if (droots.size() == 0)
-	M_throw() << "Unexpected, cubic with no roots?";
-
-      double last_point = 0;
-      double last_f = eval(f, last_point);
-      double last_df = eval(df, last_point);
-
-      //Check if the start time satisfies the conditions
-      if ((last_f <= 0) && (last_df < 0)) {
-	return 0;
-      }
-
-      auto bisectFunc = [&] (double t) { return eval(f, t); };
-	
-      //Look through the roots of the derivative to see if we can
-      //bracket a root, or identify a turning point
-      for (double droot : droots) 
-	if (droot > last_point) {
-	  const double new_f = eval(f, droot);
-	  const double new_df = eval(df, droot);
-	  
-	  if (last_f >= 0) {
-	    //Looking for a root
-	    if (new_f < 0)
-	      //Root bisected between [last_point, droot]
-	      return magnet::math::bisect(bisectFunc, last_point, droot, rootthreshold);
-	    //There is no root within the bracket, update the location
-	    //and carry on.
-	  } else {
-	    //We're looking to see if the curve escapes before turning
-	    //back on itself
-	    if (new_f < 0)
-	      //Its curved back while overlapped. This is the start of
-	      //an unstable condition
-	      return new_f;
-	  }
-	  
-	  //Update our current location
-	  last_point = droot;
-	  last_f = new_f;
-	  last_df = new_df;
-	}
-
-      
-      //We've checked all derivative roots to try to bracket any
-      //roots. Only thing left to check
-      if (f[4] < 0) {	
-	double delta_t = std::pow(- 24 * f0char / f[4], 0.25);
-	last_point += delta_t;
-	//Move forward exponentially, looking to bracket the root
-	while (eval(f, last_point) >= 0)
-	  last_point += (delta_t *= 2);
-	return magnet::math::bisect(bisectFunc, last_point - delta_t, last_point, rootthreshold);
-      }
-      return HUGE_VAL;
     }
   }
 }

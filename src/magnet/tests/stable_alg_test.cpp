@@ -2,7 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include <magnet/intersection/stable_poly.hpp>
 #include <magnet/math/polynomial.hpp>
-#include <magnet/intersection/stable_poly.hpp>
 #include <cmath>
 #include <complex>
 #include <random>
@@ -130,7 +129,7 @@ BOOST_AUTO_TEST_CASE( Linear_function )
       
       std::uniform_real_distribution<double> shift_dist(-10, 10);
       for (size_t i(0); i < tests; ++i) {
-	auto s_poly = shift_polynomial(poly, shift_dist(RNG));
+	auto s_poly = shift_function(poly, shift_dist(RNG));
 	auto roots = solve_roots(s_poly);
 	test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-10);
       }
@@ -147,7 +146,7 @@ BOOST_AUTO_TEST_CASE( Quadratic_function )
 	std::uniform_real_distribution<double> shift_dist(-10, 10);
 	for (size_t i(0); i < tests; ++i) {
 	  double shift = shift_dist(RNG);
-	  auto s_poly = shift_polynomial(poly, shift);
+	  auto s_poly = shift_function(poly, shift);
 	  auto roots = solve_roots(s_poly);
 	  test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-8);
 	}
@@ -166,7 +165,7 @@ BOOST_AUTO_TEST_CASE( Cubic_function )
 	    std::uniform_real_distribution<double> shift_dist(-10, 10);
 	    for (size_t i(0); i < tests; ++i) {
 	      double shift = shift_dist(RNG);
-	      auto s_poly = shift_polynomial(poly, shift);
+	      auto s_poly = shift_function(poly, shift);
 	      test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-4);
 	    }
 	  }
