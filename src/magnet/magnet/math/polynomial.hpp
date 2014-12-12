@@ -853,7 +853,9 @@ namespace magnet {
     }
 
     /*! \brief Calcualte the real roots of a 2nd order Polynomial
-        using radicals.
+      using radicals.
+      
+      Roots are always returned sorted lowest-first.
       
       \param f The Polynomial to evaluate.
     */
@@ -875,12 +877,16 @@ namespace magnet {
 	//can approximate the equation as x^2 + a x = 0 to solve for
 	//one root, and use root2 = f[0]/root1 to find the second
 	//root. This should work even with large constant values
-	return containers::StackVector<double, 2>{-f[1], -f[0] / f[1]};
+	containers::StackVector<double, 2> retval{-f[1], -f[0] / f[1]};
+	//Sort them into order
+	if (retval[0] > retval[1])
+	  std::swap(retval[0], retval[1]);
+	return retval;
       }
 
       const double arg = f[1] * f[1] - 4 * f[0];
 
-      //Test if there are real roots   
+      //Test if there are no real roots
       if (arg < 0)
 	return containers::StackVector<double, 2>();
 
@@ -891,7 +897,10 @@ namespace magnet {
       //Return both roots
       const double root1 = -(f[1] + std::copysign(std::sqrt(arg), f[1])) * 0.5;
       const double root2 = f[0] / root1;
-      return containers::StackVector<double, 2>{root1, root2};
+      containers::StackVector<double, 2> retval{root1, root2};
+      if (root1 > root2)
+	std::swap(retval[0], retval[1]);
+      return retval;
     }
 
 
@@ -907,6 +916,7 @@ namespace magnet {
       inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real>& f, Real root) {
 	containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
 	roots.push_back(root);
+	std::sort(roots.begin(), roots.end());
 	return roots;
       }
 
@@ -942,6 +952,8 @@ namespace magnet {
     /*! \brief Calculate the real roots of a 3rd order Polynomial
         using radicals.
       
+	Roots are always returned sorted lowest-first.
+
       \param f The Polynomial to evaluate.
     */
     inline containers::StackVector<double, 3> solve_roots(const Polynomial<3, double>& f_original) {
@@ -1075,7 +1087,7 @@ namespace magnet {
       cubicNewtonRootPolish(f, roots[0]);
       cubicNewtonRootPolish(f, roots[1]);
       cubicNewtonRootPolish(f, roots[2]);
-
+      std::sort(roots.begin(), roots.end());
       return roots;
     }
     /*! \endcond */
@@ -1754,25 +1766,31 @@ namespace magnet {
       if (f[Order] == Real())
 	return solve_roots(change_order<Order-1>(f));
 
-      containers::StackVector<std::pair<Real,Real>, Order> bounds;
+      //Bounds will hold the negative roots at first, before the
+      //positive roots are merged with it
+      containers::StackVector<std::pair<Real,Real>, Order> pos_bounds;
       containers::StackVector<std::pair<Real,Real>, Order> neg_bounds;
-      //Start by solving for the positive roots
-      switch (BoundMode){
+
+      switch (BoundMode) {
       case PolyRootBounder::VCA:
-	bounds = VCA_real_root_bounds(f);
 	neg_bounds = VCA_real_root_bounds(reflect_poly(f));
+	pos_bounds = VCA_real_root_bounds(f);
 	break;
       case PolyRootBounder::VAS:
-	bounds = VAS_real_root_bounds(f);
 	neg_bounds = VAS_real_root_bounds(reflect_poly(f));
+	pos_bounds = VAS_real_root_bounds(f);
 	break;
       }
-      
-      //We need to reflect the x values and put them into the bounds
-      //list
-      for (auto bound : neg_bounds)
+            
+      containers::StackVector<std::pair<Real,Real>, Order> bounds;
+      //We need to flip the sign on the negative roots
+      const size_t N_neg = neg_bounds.size();
+      for (const auto& bound: neg_bounds)
 	bounds.push_back(std::make_pair(-bound.second, -bound.first));
       
+      for (const auto& bound: pos_bounds)
+	bounds.push_back(bound);
+
       //Now bisect to calculate the roots to full precision
       containers::StackVector<Real, Order> retval;
       
@@ -1796,13 +1814,16 @@ namespace magnet {
 	  }
 	}
       }
+      std::sort(retval.begin(), retval.end());
       return retval;
     }
     
     /*\brief Solve for the distinct real roots of a Polynomial.
       
       This is just a convenience function to select the preferred root
-      solver combination.
+      solver combination. Roots are always returned sorted lowest-first.
+
+      Roots should always be returned sorted lowest-first.
      */
     template<size_t Order, class Real>
     containers::StackVector<Real, Order>
@@ -1810,14 +1831,6 @@ namespace magnet {
       return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real>(f);
     }
 
-    /*! \brief Determine the next positive root of a function.
-
-      This is a generic implementation for Polynomials.
-     */
-    template<size_t Order, class Real>
-    Real next_root(const Polynomial<Order, Real>& f) {
-      static_assert(Order, "Not implemented yet!");
-    }
     /*! \cond Specializations
 
       \brief Trivial specialisation for the next positive root of a
@@ -1828,49 +1841,23 @@ namespace magnet {
       return std::numeric_limits<Real>::infinity();
     }
     
-    /*! \brief Generic implementation of \ref next_root which utilises
-      \ref solve_roots.
+    /*! \brief Implementation of \ref next_root which utilises \ref
+      solve_roots.
       
-      This is mainly useful for functions with fast root detection
-      algorithms. For example, the linear, quadratic, and cubic
-      functions are solved via radicals, so this function is used to
-      provide an implementation of next_root in these cases.
+      This is mainly useful for simple functions with fast root
+      detection algorithms. For example, the linear, quadratic, and
+      cubic functions are solved via radicals, so this function is
+      used to provide an implementation of \ref next_root in these
+      cases.
     */
-    template<class Real, size_t Order>
-    Real next_root_by_solve_roots(const Polynomial<Order, Real>& f) {
+    template<class Real, size_t Order//, typename = typename std::enable_if<Order < 4>::type
+	     >
+    Real next_root(const Polynomial<Order, Real>& f) {
       auto roots = solve_roots(f);
-      std::sort(roots.begin(), roots.end());
       for (const Real& root : roots)
 	if (root >= 0)
 	  return root;
       return std::numeric_limits<Real>::infinity();
-    }
-
-    /*! \brief Next positive root for linear functions.
-      
-      This simply redirects to \ref next_root_by_solve_roots.
-    */
-    template<class Real>
-    Real next_root(const Polynomial<1, Real>& f) {
-      return next_root_by_solve_root(f);
-    }
-
-    /*! \brief Next positive root for quadratic functions.
-      
-      This simply redirects to \ref next_root_by_solve_roots.
-    */
-    template<class Real>
-    Real next_root(const Polynomial<2, Real>& f) {
-      return next_root_by_solve_root(f);
-    }
-
-    /*! \brief Next positive root for cubic functions.
-      
-      This simply redirects to \ref next_root_by_solve_roots.
-    */
-    template<class Real>
-    Real next_root(const Polynomial<3, Real>& f) {
-      return next_root_by_solve_root(f);
     }
 
     /*! \endcond \} */
