@@ -1292,7 +1292,8 @@ namespace magnet {
       Although this method allows the construction of an
       arbitrary-order Polynomial root finder through bisection,
       inexact methods for computing the number of roots in a region
-      (such as bodans_01_test) are preferred as they are more
+      (such as \ref descartes_rule_of_signs, used in \ref
+      VAS_real_root_bounds) are preferred as they are more
       computationally efficient.
     */
     template<size_t Order, class Real>
@@ -1723,13 +1724,14 @@ namespace magnet {
       
       auto bounds = VAS_real_root_bounds_worker(f, MobiusTransform<Real>(1,0,0,1));
       for (auto& bound: bounds) {
-	//Sort the bounds into order
+	//Sort the bound values correctly
 	if (bound.first > bound.second)
 	  std::swap(bound.first, bound.second);
 	//Replace infinite bounds with the upper bound estimate
 	if (std::isinf(bound.second))
 	  bound.second = upper_bound;
       }
+
       return bounds;
     }
     
@@ -1850,13 +1852,37 @@ namespace magnet {
       used to provide an implementation of \ref next_root in these
       cases.
     */
-    template<class Real, size_t Order//, typename = typename std::enable_if<Order < 4>::type
-	     >
-    Real next_root(const Polynomial<Order, Real>& f) {
+    template<class Real, size_t Order>
+    typename std::enable_if<(Order < 4), Real>::type 
+    next_root(const Polynomial<Order, Real>& f) {
       auto roots = solve_roots(f);
       for (const Real& root : roots)
 	if (root >= 0)
 	  return root;
+      return std::numeric_limits<Real>::infinity();
+    }
+      
+    template<class Real, size_t Order>
+    typename std::enable_if<(Order > 3), Real>::type 
+    next_root(const Polynomial<Order, Real>& f) {
+      //Drop down to a lower order solver if available
+      if (f[Order] == 0)
+	return next_root(change_order<Order-1>(f));
+      
+      //Test if we're currently at a root already
+      if (f[0] == 0)
+	return 0.0;
+
+      auto pos_root_bounds = VAS_real_root_bounds(f);
+      if (pos_root_bounds.size() != 0) {
+	std::sort(pos_root_bounds.begin(), pos_root_bounds.end());
+	const Real& a = pos_root_bounds[0].first;
+	const Real& b = pos_root_bounds[0].second;
+	boost::uintmax_t iter = 100;
+	auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
+	return (root.first + root.second) / 2;
+      }
+
       return std::numeric_limits<Real>::infinity();
     }
 
