@@ -1786,7 +1786,6 @@ namespace magnet {
             
       containers::StackVector<std::pair<Real,Real>, Order> bounds;
       //We need to flip the sign on the negative roots
-      const size_t N_neg = neg_bounds.size();
       for (const auto& bound: neg_bounds)
 	bounds.push_back(std::make_pair(-bound.second, -bound.first));
       

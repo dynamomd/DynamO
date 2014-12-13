@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_single_roots )
 	      if (roots[0] >= 0)
 		BOOST_CHECK_CLOSE(roots[0], next_root(f), 1e-11);
 	    }
- 	}
+	}
 }
 
 BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
@@ -645,11 +645,12 @@ BOOST_AUTO_TEST_CASE( descartes_sturm_and_budan_01_alesina_rootcount_test )
 		      auto f2 = f1 * (x * x - 3 * x + 4);
 
 		      auto roots_in_range = [&](double a, double b) {
-			return ((root1 > a) && (root1 < b))
+			return size_t
+			(((root1 > a) && (root1 < b))
 			+((root2 > a) && (root2 < b))
 			+((root3 > a) && (root3 < b))
 			+((root4 > a) && (root4 < b))
-			+((root5 > a) && (root5 < b))
+			 +((root5 > a) && (root5 < b)))
 			; };
 
 		      size_t roots_in_01 = roots_in_range(0, 1);
