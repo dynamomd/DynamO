@@ -604,6 +604,37 @@ namespace magnet {
       \{
     */
 
+    /*! \brief Calculate a a maximum error estimate for the evaluation
+        of the polynomial at \f$x\f$.
+	
+	This is used as a convergence criterion for finding roots. Its
+	calculation is outlined in "5.6 Root acceptance and
+	refinement" of "A survey of numerical mathematics" vol.1.
+     */
+    template<class Real, size_t Order, class Real2>
+    Real root_precision(const Polynomial<Order, Real>& f, const Real2& x)
+    {
+      if ((Order == 0) || std::isinf(x))
+	return Real();
+
+      static_assert(std::is_floating_point<Real>::value, "This has only been implemented for floating point types");
+      static_assert(std::numeric_limits<Real>::radix == 2, "This has only been implemented for base-2 floating point types");
+      const int mantissa_digits = std::numeric_limits<Real>::digits;
+      const Real eps = 1.06 / std::pow(2, mantissa_digits);
+
+      Real sum = f[0];
+      Real2 xn = std::abs(x);
+      for(size_t i = 1; i <= Order; --i) {
+	sum += (2 * i + 1) * std::abs(f[i]) * xn;
+	xn *= std::abs(x);
+      }
+
+      std::cout << "f(x)=" << f << std::endl;
+      std::cout << "precision=" << sum * eps << std::endl;
+      return sum * eps;
+    }
+
+
     /*! \brief Factors out a root of a polynomial and returns a
       lower-order polynomial with the remaining roots.
 	
@@ -1657,7 +1688,7 @@ namespace magnet {
 	  M.shift(lb);
 	  continue; //Start again
 	}
-      
+
 	//Finally, take a lot of care with roots at the split
 	//point. Unfortunately, this test is not as cheap as Descarte's
 	//method, but if a root occurs at the split point, numerical
@@ -1674,6 +1705,14 @@ namespace magnet {
 	  continue; //Start again
 	}
 
+//	if (std::abs(eval(f, 1.0) <= 3 * root_precision(f, 1.0))) {
+//	  //There is a root at the point 1.0! deflate it out of the
+//	  //polynomial and carry on.
+//	  containers::StackVector<std::pair<Real,Real>, Order> other_bounds = VAS_real_root_bounds_worker(deflate_polynomial(f, 1.0), M);
+//	  other_bounds.push_back(std::make_pair(M.eval(1.0), M.eval(1.0)));
+//	  return other_bounds;
+//	}
+       
 	containers::StackVector<std::pair<Real,Real>, Order> retval;
 	//Create the polynomial for [0, 1]
 	Polynomial<Order, Real> p01 = invert_taylor_shift(f);
@@ -1809,6 +1848,7 @@ namespace magnet {
 	case PolyRootBisector::TOMS748: 
 	  {
 	    boost::uintmax_t iter = 100;
+	    std::cout << a << "->" << b << std::endl;
 	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
 	    retval.push_back((root.first + root.second) / 2);
 	    break;

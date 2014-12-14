@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE( poly_bounds)
   {//Check PowerOp quartic
     auto f1 = expand(pow<2>(30 * x * x + x - 23));
     
-    auto roots = solve_roots(f1);
+    //auto roots = solve_roots(f1);
     //FIX THIS UNIT TEST!
     //BOOST_CHECK(roots.size() == 2);
     ////NOTE THESE ROOTS ARE DOUBLE ROOTS (roots.size() may equal 2,3, or 4)
