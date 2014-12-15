@@ -110,9 +110,36 @@ namespace dynamo {
   double 
   IPRIME::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());    
-    const double bond_energy = std::get<2>(interaction_data);
-    return bond_energy * isCaptured(p1, p2);
+    TPRIME::BeadData p1Data = getBeadData(p1.getID());
+    TPRIME::BeadData p2Data = getBeadData(p2.getID());
+    double pairEnergy;
+
+    //Need to be careful with HBonds if the pair are both backbone
+    if (p2Data.bead_type <= TPRIME::CO && p1Data.bead_type <= TPRIME::CO)
+      {
+        //If they are NH-CO we apply the Hbond energy where applicable.
+        if (p1Data.bead_type + p2Data.bead_type == TPRIME::NH + TPRIME::CO && p1Data.bead_type != p2Data.bead_type)
+          {
+            size_t NH_res = p1Data.bead_type == TPRIME::NH ? p1Data.residue : p2Data.residue;
+            size_t CO_res = p1Data.bead_type == TPRIME::CO ? p1Data.residue : p2Data.residue;
+            //Are they in an Hbond?
+            if (_HBonds.count(HbondMapType::value_type(NH_res, CO_res)))
+                pairEnergy = - _PRIME_HB_strength;
+            else
+                pairEnergy = isCaptured(p1, p2) * TPRIME::_PRIME_well_depths[ 22 * p1Data.bead_type + p2Data.bead_type];
+          }
+        else
+            pairEnergy = isCaptured(p1, p2) * TPRIME::_PRIME_well_depths[ 22 * p1Data.bead_type + p2Data.bead_type];
+        }
+    //Standard treatment if at least one is side-chain.
+    else
+      {
+        const auto interaction_data = getInteractionParameters(p1.getID(), p2.getID());
+        const double bond_energy = std::get<2>(interaction_data);
+        pairEnergy = isCaptured(p1, p2) * bond_energy;
+      }
+
+    return pairEnergy;
   }
 
 
