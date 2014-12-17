@@ -16,6 +16,7 @@
 */
 #pragma once
 #include <magnet/math/vector.hpp>
+#include <magnet/containers/stack_vector.hpp>
 #include <complex>
 
 namespace magnet {
@@ -24,6 +25,16 @@ namespace magnet {
      */
     struct NullSymbol {
       operator int () const { return 0; }
+
+      /*! \brief Unary negation on NullSymbol has no action.*/
+      const NullSymbol& operator-() const {
+	return *this;
+      }
+
+      /*! \brief Unary positive on NullSymbol has no action.*/
+      const NullSymbol& operator+() const {
+	return *this;
+      }
     };
 
     /*!\brief Compile-time symbolic representation of one.
@@ -32,8 +43,11 @@ namespace magnet {
       operator int () const { return 1; }
     };
 
-    template<char Letter, class Arg> struct VarSubstitution {
-      VarSubstitution(const Arg& val):_val(val) {}
+    /*!\brief Compile-time symbolic representation of a variable
+       substitution.
+     */
+    template<char Letter, class Arg> struct VariableSubstitution {
+      VariableSubstitution(const Arg& val):_val(val) {}
       const Arg& _val;
     };
     
@@ -43,10 +57,10 @@ namespace magnet {
       is a single ASCII character which represents this variable and
       is used to identify it during symbolic actions and output.
      */
-    template<char Letter> struct Var {
+    template<char Letter> struct Variable {
       template<class Arg>
-      VarSubstitution<Letter, Arg>operator=(const Arg& a) {
-	return VarSubstitution<Letter, Arg>(a);
+      VariableSubstitution<Letter, Arg> operator==(const Arg& a) const {
+	return VariableSubstitution<Letter, Arg>(a);
       }
     };
 
@@ -139,17 +153,42 @@ namespace magnet {
     template<class T> 
     const T& expand(const T& f) { return f; }
 
-    /*! \brief Evaluates a symbolic expression at a given point.
-
-      This generic implementation is used for constant terms.
+    /*! \brief Evaluates a symbolic expression by substituting a
+        variable for another expression.
+	
+	If a arithmetic type is substituted, this will likely cause a
+	numerical evaluation of the expression. This "helper"
+	implementation converts to a substitution for the variable
+	'x'.
     */
-    template<class T, class VarArg> 
-    const T& eval(const T& f, const VarArg& x)
+    template<class T, class VarArg>
+    auto eval(const T& f, const VarArg& xval) -> decltype(substitution(f, Variable<'x'>() == xval))
+    { return substitution(f, Variable<'x'>() == xval); }
+
+    /*! \brief Evaluates a symbolic expression using a substitution.
+      
+      This is just a synonym for substitution.
+    */
+    template<class T, char Letter, class Arg>
+    auto eval(const T& f, const VariableSubstitution<Letter, Arg>& x)  -> decltype(substitution(f,x))
+    { return substitution(f,x); }
+    
+    /*! \brief Default implementation of substitution of a symbolic
+        expression at a given point.
+	
+	This implementation is only called if a specialised
+	implementation is not found, therefore it handles all cases
+	where there is NO substitution to be made.
+     */
+    template<class T, char Letter, class Arg>
+    const T& substitution(const T& f, const VariableSubstitution<Letter, Arg>& x)
     { return f; }
 
-    /*! \brief Evaluates a symbolic Var variable expression at a given point.
+    /*! \brief Evaluates a symbolic Variable at a given point.
     */
-    template<char Letter, class Arg> Arg eval(const Var<Letter>& f, const VarSubstitution<Letter, Arg>& x) { return x._val; }
+    template<char Letter, class Arg>
+    const Arg& substitution(const Variable<Letter>& f, const VariableSubstitution<Letter, Arg>& x)
+    { return x._val; }
     
     /*! \brief Output operator for NullSymbol types. */
     inline std::ostream& operator<<(std::ostream& os, const NullSymbol&) {
@@ -163,10 +202,17 @@ namespace magnet {
       return os;
     }
 
-    /*! \brief Output operator for Var types. */
+    /*! \brief Output operator for Variable types. */
     template<char Letter>
-    inline std::ostream& operator<<(std::ostream& os, const Var<Letter>&) {
+    inline std::ostream& operator<<(std::ostream& os, const Variable<Letter>&) {
       os << Letter;
+      return os;
+    }
+
+    /*! \brief Output operator for VariableSubstitution types. */
+    template<char Letter, class Arg>
+    inline std::ostream& operator<<(std::ostream& os, const VariableSubstitution<Letter, Arg>& sub) {
+      os << Letter << " <- " << sub._val;
       return os;
     }
     
@@ -174,16 +220,47 @@ namespace magnet {
   
     /*! \brief Determine the derivative of a symbolic expression.
       
-      This default implementation only applies for arithmetic
-      types. As most symbols are constants or arithmetic types (int,
-      float, double) by default their derivatives are zero.
+      This default implementation gives all consants
+      derivative of zero.
     */
-    template<class T>
-    NullSymbol derivative(const T&) { return NullSymbol();}
+    template<class T, char Letter,
+	     typename = typename std::enable_if<detail::IsConstant<T>::value>::type>
+    NullSymbol derivative(const T&, Variable<Letter>) { return NullSymbol(); }
 
-    /*! \brief Determine the derivative of a symbolic expression.
+    /*! \brief Determine the derivative of a variable.
+
+      If the variable is the variable in which a derivative is being
+      taken, then this overload should be selected to return
+      UnitySymbol.
      */
-    template<char Letter>
-    UnitySymbol derivative(const Var<Letter>&) { return UnitySymbol(); }
+    template<char Letter1, char Letter2,
+	     typename = typename std::enable_if<Letter1 == Letter2>::type>
+    UnitySymbol derivative(Variable<Letter1>, Variable<Letter2>) { return UnitySymbol(); }
+
+    inline containers::StackVector<double, 0> solve_roots(NullSymbol f) {
+      return containers::StackVector<double, 0>();
+    }
+
+    /*! \brief Determine the derivative of a variable by another variable.
+
+      If the variable is NOT the variable in which a derivative is
+      being taken, then this overload should be selected to return
+      NullSymbol.
+     */
+    template<char Letter1, char Letter2,
+	     typename = typename std::enable_if<Letter1 != Letter2>::type>
+    NullSymbol derivative(Variable<Letter1>, Variable<Letter2>) { return NullSymbol(); }
+
+    template<class F, class Real,
+	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
+    inline F shift_function(const F& f, const Real t) {
+      return f;
+    }
+    
+    template<class F, 
+	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
+    inline double next_root(const F& f) {
+      return HUGE_VAL;
+    }
   }
 }

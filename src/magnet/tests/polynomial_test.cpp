@@ -24,6 +24,17 @@ bool compare_expression(const T1& f, const T2& g) {
   return f_str == g_str;
 }
 
+BOOST_AUTO_TEST_CASE( poly_variables )
+{
+  using namespace magnet::math;
+  Polynomial<1> x{0, 1};
+  Polynomial<1,double,'y'> y{0, 1};
+
+  BOOST_CHECK(compare_expression(x * x * x, "x^3"));
+  BOOST_CHECK(compare_expression(y * y * y, "y^3"));
+  BOOST_CHECK(compare_expression(substitution(y * y * y, Variable<'y'>()==Variable<'x'>()), "x^3"));
+}
+
 BOOST_AUTO_TEST_CASE( poly_addition )
 {
   using namespace magnet::math;
@@ -129,7 +140,7 @@ BOOST_AUTO_TEST_CASE( poly_derivative )
   using namespace magnet::math;
   Polynomial<1> x{0, 1};
   auto poly1 = x + x*x + x*x*x + x*x*x*x;
-  auto poly2 = derivative(poly1);
+  auto poly2 = derivative(poly1, Variable<'x'>());
   BOOST_CHECK_EQUAL(poly2[0], 1);
   BOOST_CHECK_EQUAL(poly2[1], 2);
   BOOST_CHECK_EQUAL(poly2[2], 3);  
@@ -138,7 +149,7 @@ BOOST_AUTO_TEST_CASE( poly_derivative )
   BOOST_CHECK_CLOSE(eval(poly2, 3.14159), eval_derivatives<1>(poly1, 3.14159)[1], 1e-10);
 
   auto poly3 = 2.0 - x + 2 * x * x;
-  auto poly4 = derivative(poly3);
+  auto poly4 = derivative(poly3, Variable<'x'>());
   BOOST_CHECK_EQUAL(poly4[0], -1);
   BOOST_CHECK_EQUAL(poly4[1], 4);
   BOOST_CHECK_EQUAL(eval(poly4, 0), -1);
@@ -149,10 +160,10 @@ BOOST_AUTO_TEST_CASE( poly_zero_derivative)
 {
   using namespace magnet::math;
   const Polynomial<1> x{0, 1};
-  const auto poly1 = derivative(x);
+  const auto poly1 = derivative(x, Variable<'x'>());
   BOOST_CHECK_EQUAL(poly1[0], 1);
 
-  const auto poly2 = derivative(poly1);
+  const auto poly2 = derivative(poly1, Variable<'x'>());
   BOOST_CHECK(compare_expression(poly2, NullSymbol()));
 }
 
@@ -479,7 +490,7 @@ BOOST_AUTO_TEST_CASE( poly_bounds)
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], -1.472711896724616002268033950475380144341, 1e-10);
 
-    auto droots = solve_roots(derivative(f1));
+    auto droots = solve_roots(derivative(f1, Variable<'x'>()));
     BOOST_CHECK(droots.size() == 2);
     BOOST_CHECK_CLOSE(droots[0], -1.0/3, 1e-10);
     BOOST_CHECK_CLOSE(droots[1], 0.5, 1e-10);
@@ -497,7 +508,7 @@ BOOST_AUTO_TEST_CASE( poly_bounds)
     BOOST_CHECK_CLOSE(roots[0], -1.949403904489790210996459054473124835057, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], +1.864235880634589025006445510389799368569, 1e-10);
 
-    auto droots = solve_roots(derivative(f1));
+    auto droots = solve_roots(derivative(f1, Variable<'x'>()));
     BOOST_CHECK_EQUAL(droots.size(),3);
     BOOST_CHECK_CLOSE(droots[0], -1.262818836058599076329128653113014315066, 1e-10);
     BOOST_CHECK_CLOSE(droots[1], 0, 1e-10);
@@ -518,7 +529,7 @@ BOOST_AUTO_TEST_CASE( poly_bounds)
     //BOOST_CHECK_CLOSE(roots[0], -0.8924203103613100773375343963347855860436, 1e-7);
     //BOOST_CHECK_CLOSE(roots[1], -0.8924203103613100773375343963347855860436, 1e-7);
 
-    auto droots = solve_roots(derivative(f1));
+    auto droots = solve_roots(derivative(f1, Variable<'x'>()));
     BOOST_CHECK(droots.size() == 3);
     BOOST_CHECK_CLOSE(droots[0], -0.8924203103613100773375343963347855860436, 1e-10);
     BOOST_CHECK_CLOSE(droots[1], -0.01666666666666666666666666666666666666667, 1e-10);

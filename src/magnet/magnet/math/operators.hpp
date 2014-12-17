@@ -42,7 +42,7 @@ namespace magnet {
     };
 
      
-    template<> template<char Letter> struct SymbolicOperators<Var<Letter>> {
+    template<char Letter> struct SymbolicOperators<Variable<Letter> > {
       static const bool value = true;
     };
 
@@ -241,21 +241,21 @@ namespace magnet {
 
     /*! \brief Derivatives of AddOp operations.
      */
-    template<class LHS, class RHS>
-    auto derivative(const AddOp<LHS, RHS>& f) -> decltype(derivative(f._l) + derivative(f._r))
-    { return derivative(f._l) + derivative(f._r); }
+    template<char dVariable, class LHS, class RHS>
+    auto derivative(const AddOp<LHS, RHS>& f, Variable<dVariable>) -> decltype(derivative(f._l, Variable<dVariable>()) + derivative(f._r, Variable<dVariable>()))
+    { return derivative(f._l, Variable<dVariable>()) + derivative(f._r, Variable<dVariable>()); }
 
     /*! \brief Derivatives of SubtractOp operations.
      */
-    template<class LHS, class RHS>
-    auto derivative(const SubtractOp<LHS, RHS>& f) -> decltype(derivative(f._l) - derivative(f._r))
-    { return derivative(f._l) - derivative(f._r); }
+    template<char dVariable, class LHS, class RHS>
+    auto derivative(const SubtractOp<LHS, RHS>& f, Variable<dVariable>) -> decltype(derivative(f._l, Variable<dVariable>()) - derivative(f._r, Variable<dVariable>()))
+    { return derivative(f._l, Variable<dVariable>()) - derivative(f._r, Variable<dVariable>()); }
 
     /*! \brief Derivatives of MultiplyOp operations.
      */
-    template<class LHS, class RHS>
-    auto derivative(const MultiplyOp<LHS, RHS>& f) -> decltype(derivative(f._l) * f._r + f._l * derivative(f._r))
-    { return derivative(f._l) * f._r + f._l * derivative(f._r); }
+    template<char dVariable, class LHS, class RHS>
+    auto derivative(const MultiplyOp<LHS, RHS>& f, Variable<dVariable>) -> decltype(derivative(f._l, Variable<dVariable>()) * f._r + f._l * derivative(f._r, Variable<dVariable>()))
+    { return derivative(f._l, Variable<dVariable>()) * f._r + f._l * derivative(f._r, Variable<dVariable>()); }
 
     /*! \} */
 
@@ -420,21 +420,21 @@ namespace magnet {
 
     /*! \brief Derivatives of PowerOp operations.
      */
-    template<class Arg, size_t Power>
-    auto derivative(const PowerOp<Arg, Power>& f) -> decltype(derivative(f._arg) * PowerOp<Arg, Power-1>(f._arg))
-    { return Power * derivative(f._arg) * PowerOp<Arg, Power-1>(f._arg); }
+    template<char dVariable, class Arg, size_t Power>
+    auto derivative(const PowerOp<Arg, Power>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg))
+    { return Power * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg); }
 
-    template<class Arg>
-    auto derivative(const PowerOp<Arg, 1>& f) -> decltype(derivative(f._arg))
-    { return derivative(f._arg); }
+    template<char dVariable, class Arg>
+    auto derivative(const PowerOp<Arg, 1>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()))
+    { return derivative(f._arg, Variable<dVariable>()); }
 
-    template<class Arg>
-    auto derivative(const PowerOp<Arg, 2>& f) -> decltype(derivative(f._arg) * f._arg)
-    { return 2 * derivative(f._arg) * f._arg; }
+    template<char dVariable, class Arg>
+    auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()) * f._arg)
+    { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
 
-    template<class Arg>
-    double derivative(const PowerOp<Arg, 0>& f)
-    { return 0; }
+    template<char dVariable, class Arg>
+    NullSymbol derivative(const PowerOp<Arg, 0>& f, Variable<dVariable>)
+    { return NullSymbol(); }
 
     /*! \brief The maximum and minimum values of the PowerOp over a specifed range.
       \param f The PowerOp operation to evaluate.

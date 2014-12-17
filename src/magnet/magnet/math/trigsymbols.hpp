@@ -15,8 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <magnet/math/symbolic.hpp>
-#include <magnet/math/polynomial.hpp>
+#include <magnet/math/operators.hpp>
 
 namespace magnet {
   namespace math {
@@ -44,30 +43,61 @@ namespace magnet {
       Function(const Arg& a): _arg(a) {}
     };
 
-    /*! \brief Evaluates a sine Function expression at a given point.
-    */
-    template<class Arg, class Real>
-    auto eval(const Function<Arg, detail::SIN>& f, const Real& x) -> decltype(std::sin(eval(f._arg, x)))
-    { return std::sin(eval(f._arg, x)); }
-
-    /*! \brief Evaluates a cosine Function expression at a given point.
-    */
-    template<class Arg, class Real>
-    auto eval(const Function<Arg, detail::COS>& f, const Real& x) -> decltype(std::cos(eval(f._arg, x)))
-    { return std::cos(eval(f._arg, x)); }
-
     /*! \relates Function
       \name Function creation helper functions
       \{
     */
-    /*! \brief Helper function for creating sine Function types. */
-    template<class A>
-    Function<A, detail::SIN> sin(const A& a) { return Function<A, detail::SIN>(a); }
+    /*! \brief Helper function for creating sine Function types. 
+      
+      This is only instantiated if the argument is a symbolic argument.
+     */
+    template<class A,
+	     typename = typename std::enable_if<!std::is_arithmetic<A>::value>::type>
+    Function<A, detail::SIN> sin(const A& a) 
+    { return Function<A, detail::SIN>(a); }
 
-    /*! \brief Helper function for creating cosine Function types. */
-    template<class A>
+    /*! \brief Specialised helper for evaluating sine Function types. 
+     */
+    template<class A,
+	     typename = typename std::enable_if<std::is_arithmetic<A>::value>::type>
+    auto sin(const A& a) -> decltype(std::sin(a))
+    { return std::sin(a); }
+
+    /*! \brief Helper function for creating cosine Function types. 
+     
+      This is only instantiated if the argument is a symbolic argument.
+     */
+    template<class A,
+	     typename = typename std::enable_if<!std::is_arithmetic<A>::value>::type>
     Function<A, detail::COS> cos(const A& a) { return Function<A, detail::COS>(a); }
+
+    /*! \brief Specialised helper for evaluating cosine Function types. 
+     */
+    template<class A,
+	     typename = typename std::enable_if<std::is_arithmetic<A>::value>::type>
+    auto cos(const A& a) -> decltype(std::cos(a))
+    { return std::cos(a); }
+
     /*! \} */
+
+    /*! \brief Enabling of symbolic operators for Function types 
+     */
+    template<class Arg, detail::Function_t Func>
+    struct SymbolicOperators<Function<Arg, Func> > {
+      static const bool value = true;
+    };
+
+    /*! \brief Evaluates a symbolic sine Function at a given point.
+    */
+    template<char Letter, class Arg1, class Arg2>
+    auto substitution(const Function<Arg1, detail::SIN>& f, const VariableSubstitution<Letter, Arg2>& x) -> decltype(sin(substitution(f._arg, x)))
+    { return sin(substitution(f._arg, x)); }
+
+    /*! \brief Evaluates a symbolic cosine Function at a given point.
+    */
+    template<char Letter, class Arg1, class Arg2>
+    auto substitution(const Function<Arg1, detail::COS>& f, const VariableSubstitution<Letter, Arg2>& x) -> decltype(cos(substitution(f._arg, x)))
+    { return cos(substitution(f._arg, x)); }
 
     /*! \relates Function
       \name Function input/output operators
@@ -95,49 +125,6 @@ namespace magnet {
     template<class A, detail::Function_t Func>
     auto operator-(const Function<A, Func>& f) -> decltype( -1 * f)
     { return -1 * f; }
-
-    /*! \brief Generic left-handed addition operator for Function types.
-     */
-    template<class A, detail::Function_t Func, class RHS>
-    auto operator+(const Function<A, Func>& f, const RHS& r) -> decltype(add(f, r)) 
-    { return add(f, r); }
-
-    /*! \brief Generic right-handed addition operator for Function types.
-     */
-    template<class Real, class A, detail::Function_t Func>
-    auto operator+(const Real& r, const Function<A, Func>& f) -> decltype(add(r, f))
-    { return add(r, f); }
-
-    /*! \brief Generic left-handed subtraction operator for Function types.
-     */
-    template<class A, detail::Function_t Func, class RHS>
-    auto operator-(const Function<A, Func>& f, const RHS& r) -> decltype(subtract(f, r)) 
-    { return subtract(f, r); }
-
-    /*! \brief Generic right-handed subtraction operator for Function types.
-     */
-    template<class Real, class A, detail::Function_t Func>
-    auto operator-(const Real& r, const Function<A, Func>& f) -> decltype(subtract(r, f))
-    { return subtract(r, f); }
-    
-    /*! \brief Generic left-handed multiplication operator for Function types.
-     */
-    template<class A, detail::Function_t Func, class RHS>
-    auto operator*(const Function<A, Func>& f, const RHS& r) -> decltype(multiply(f, r))
-    { return multiply(f, r); }
-    
-    /*! \brief Generic right-handed multiplication operator for Function types.
-     */
-    template<class Real, class A, detail::Function_t Func>
-    auto operator*(const Real& r, const Function<A, Func>& f) -> decltype(multiply(r, f))
-    { return multiply(r, f); }
-
-    /*! \brief Specific multiplication operator for two Function types
-        to prevent ambiguous overloads.
-     */
-    template<class A, detail::Function_t Func,class A2, detail::Function_t Func2>
-    auto operator*(const Function<A, Func>& f1, const Function<A2, Func2>& f2) -> decltype(multiply(f1, f2))
-    { return multiply(f1, f2); }
     /*! \} */
     
     /*! \relates Function
@@ -145,24 +132,14 @@ namespace magnet {
       \{
     */
     /*! \brief Generic derivative of sine functions.*/
-    template<class A>
-    auto derivative(const Function<A, detail::SIN>& f) -> decltype(derivative(f._arg) * cos(f._arg))
-    { return derivative(f._arg) * cos(f._arg); }
-
-    /*! \brief Derivative of a sine function with a constant argument.*/
-    template<class T>
-    Polynomial<0,T> derivative(const Function<Polynomial<0,T>, detail::SIN>& f)
-    { return Polynomial<0, T>{}; }
+    template<char dVariable, class A>
+    auto derivative(const Function<A, detail::SIN>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()) * cos(f._arg))
+    { return derivative(f._arg, Variable<dVariable>()) * cos(f._arg); }
 
     /*! \brief Generic derivative of cosine functions.*/
-    template<class A>
-    auto derivative(const Function<A, detail::COS>& f) -> decltype(-derivative(f._arg) * sin(f._arg))
-    { return -derivative(f._arg) * sin(f._arg); }
-
-    /*! \brief Derivative of a cosine function with a constant argument.*/
-    template<class T>
-    Polynomial<0,T> derivative(const Function<Polynomial<0,T>, detail::COS>& f)
-    { return Polynomial<0, T>{}; }
+    template<char dVariable, class A>
+    auto derivative(const Function<A, detail::COS>& f, Variable<dVariable>) -> decltype(-derivative(f._arg, Variable<dVariable>()) * sin(f._arg))
+    { return (-derivative(f._arg, Variable<dVariable>())) * sin(f._arg); }
 
     /*! \} */
 

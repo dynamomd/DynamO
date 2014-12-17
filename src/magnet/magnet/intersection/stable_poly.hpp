@@ -31,13 +31,15 @@ namespace magnet {
       \ref magnet::math::next_root defined.
     */
     template<class Function>
-    double nextEvent(const Function& f)
+    double nextEvent(Function f)
     {
+      ::magnet::math::Variable<'t'> t;
+
       //Determine the derivative
-      const auto df = ::magnet::math::derivative(f);
+      const auto df = ::magnet::math::derivative(f, t);
       
-      const double f_start = eval(f, 0.0);
-      const double df_start = eval(df, 0.0);
+      const double f_start = eval(f, t == 0.0);
+      const double df_start = eval(df, t == 0.0);
 
       double f_shift = 0.0;
       //Check if starting overlapped
@@ -60,7 +62,7 @@ namespace magnet {
 
 	//If it turns around while still overlapped/in contact, then
 	//the turning point is the next event.
-	if (eval(f, next_df_root) <= 0)
+	if (eval(f, t == next_df_root) <= 0)
 	  return next_df_root;
 
 	//The turning point of the derivative is in the positive
@@ -73,24 +75,16 @@ namespace magnet {
       return f_shift + ::magnet::math::next_root(f);
     }
 
-    //Use a template overload
-    template<size_t Order>
-    double nextEvent(const ::magnet::math::Polynomial<Order>& f) {
-      //If the polynomial is lower order, drop to that solution (it
-      //may be solvable by radicals)
-      if (f[Order] == 0)
-	return nextEvent(::magnet::math::change_order<Order-1>(f));
-
-      //Call the generic template implementation
-      nextEvent<::magnet::math::Polynomial<Order> >(f);
-    }
-    
     /*! \brief Calculate the interval until the 1st order Polynomial
-        is negative and has a negative derivative. 
+        is negative and has a negative derivative.
+
+	This is a specialisation for linear polynomials to close the
+	recursive definition of the general nextEvent implementation.
 	
 	\param f The Polynomial under consideration.
     */
-    inline double nextEvent(const ::magnet::math::Polynomial<1>& f) {
+    template<char Var>
+    inline double nextEvent(const ::magnet::math::Polynomial<1, double, Var>& f) {
       //If the gradient is not negative now, it never will be
       if (f[1] >= 0) return HUGE_VAL;
       //Return the time of the root, or now if we're past the root
@@ -100,9 +94,13 @@ namespace magnet {
     /*! \brief Calculate the interval until the 2nd order Polynomial
         is negative and has a negative derivative.
 	
+	This is an optimised case, as many interactions use quadratic
+	overlap functions.
+	
 	\param f The Polynomial under consideration.
     */
-    inline double nextEvent(const ::magnet::math::Polynomial<2>& f) {
+    template<char Var>
+    inline double nextEvent(const ::magnet::math::Polynomial<2, double, Var>& f) {
       //If the polynomial is linear, drop to that solution
       if (f[2] == 0) return nextEvent(::magnet::math::change_order<1>(f));
       
@@ -121,7 +119,7 @@ namespace magnet {
 	  return std::max(0.0, (-f[1] - std::sqrt(arg)) / (2 * f[2]));
 	else
 	  return std::max(0.0, 2 * f[0] / (-f[1] + std::sqrt(arg)));
-      } 
+      }
       /* else (f[2] > 0)*/
 
       //Interactions only happen if there are roots and we're in the
@@ -130,71 +128,6 @@ namespace magnet {
 
       //Return the time of the root using a stable quadratic formula
       return std::max(0.0, 2 * f[0] / (-f[1] + std::sqrt(arg)));
-    }
-
-    /*! \brief Calculate the interval until the 3rd order Polynomial
-        is negative and has a negative derivative.
-	
-	\param f The Polynomial under consideration.
-    */
-    inline double nextEvent(const ::magnet::math::Polynomial<3>& f)
-    {
-      //If the polynomial is quadratic, drop to that solution
-      if (f[3] == 0) return nextEvent(::magnet::math::change_order<2>(f));
-      
-      //Calculate and sort the roots of the overlap function
-      auto roots = solve_roots(f);
-      std::sort(roots.begin(), roots.end());
-      
-      //Calculate and sort the roots of the overlap function's
-      //derivative
-      auto derivroots = solve_roots(derivative(f));
-      std::sort(derivroots.begin(), derivroots.end());
-      
-      if (f[3] > 0) {
-	//Cubic limits away from overlap at t -> +inf.
-	
-	//The only region where a cubic overlap function with
-	//positive f[3] is decreasing is between the two turning
-	//points (if they exist).
-	
-	//Check there are two turning points, and that we are before
-	//the second one.
-	if (derivroots.size() != 2) return HUGE_VAL;
-	if (derivroots[1] < 0) return HUGE_VAL;
-	
-	//If there is only one root, it must come after the first
-	//turning point (otherwise the two turning points are
-	//outside the overlapped (negative f) zone.
-	if ((roots.size()==1) && (roots[0] < derivroots[0])) return HUGE_VAL;
-	
-	//There is definitely an event. 
-	
-	if ((roots.size() == 1) || (roots.size() == 2))
-	  //If there's one root, the event happens after the first
-	  //turning point. If there's two roots, the first turning
-	  //point must be a point of inflection, and it still
-	  //happens after the first turning point.
-	  return std::max(0.0, derivroots[0]);
-	
-	//If there are three roots it happens after the first event.
-	return std::max(0.0, roots[1]);
-      } 
-      
-      /* else (f[3] < 0)*/ 
-      //Cubic limits towards overlap at t -> +inf
-      
-      if (derivroots.size() == 0) {
-	//If there are no turning points, then the function is always
-	//decreasing, so it must have one root and the collision
-	//happens after this point.
-	return std::max(0.0, roots[0]);
-      }
-      
-      //There must be one or more turning points.
-      if ((derivroots[0] > 0) && (roots[0] < derivroots[0]))
-	return std::max(0.0, roots[0]);
-      return std::max(0.0, std::max(derivroots[1], roots[roots.size()-1]));
     }
   }
 }

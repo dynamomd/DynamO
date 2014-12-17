@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE Symbolic_math_test
 #include <boost/test/included/unit_test.hpp>
+#include <magnet/math/polynomial.hpp>
 #include <magnet/math/trigsymbols.hpp>
 
 using namespace magnet::math;
@@ -16,6 +17,14 @@ bool compare_expression(const T1& f, const T2& g) {
   if (!(f_str == g_str))
     std::cerr << f << " != " << g << std::endl;
   return f_str == g_str;
+}
+
+BOOST_AUTO_TEST_CASE( Substitution_of_variables )
+{
+  Variable<'x'> x;
+  Variable<'y'> y;
+  
+  BOOST_CHECK(compare_expression(substitution(x, x==y), "y"));
 }
 
 BOOST_AUTO_TEST_CASE( expand_null )
@@ -41,7 +50,7 @@ BOOST_AUTO_TEST_CASE( expand_polynomials )
 BOOST_AUTO_TEST_CASE( polynomials_derivative_addition )
 {
   //Test Polynomial derivatives on addition Operation types
-  auto poly1 = derivative(add(2 * x * x,  x));
+  auto poly1 = derivative(add(2 * x * x,  x), Variable<'x'>());
   //derivative will automatically combine polynomials
   BOOST_CHECK_EQUAL(poly1[0], 1);
   BOOST_CHECK_EQUAL(poly1[1], 4);
@@ -50,7 +59,7 @@ BOOST_AUTO_TEST_CASE( polynomials_derivative_addition )
 BOOST_AUTO_TEST_CASE( polynomials_derivative_subtraction )
 {
   //Test Polynomial derivatives on subtraction Operation types
-  auto poly1 = derivative(subtract(2 * x * x,  x));
+  auto poly1 = derivative(subtract(2 * x * x,  x), Variable<'x'>());
   //derivative will automatically combine polynomials
   BOOST_CHECK_EQUAL(poly1[0], -1);
   BOOST_CHECK_EQUAL(poly1[1], 4);
@@ -90,19 +99,17 @@ BOOST_AUTO_TEST_CASE( function_poly_multiplication )
 BOOST_AUTO_TEST_CASE( function_poly_derivatives )
 {
   //Check function and Polynomial derivatives
-  auto poly1 = derivative(x * sin(x));
-  BOOST_CHECK_CLOSE(eval(poly1, 0.5), std::sin(0.5) + 0.5 * std::cos(0.5), 1e-10);
-  auto poly2 = derivative(x * cos(x));
-  BOOST_CHECK_CLOSE(eval(poly2, 0.5), -0.5 * std::sin(0.5) + std::cos(0.5), 1e-10);
+  auto f1 = derivative(x * sin(x), Variable<'x'>());
+  BOOST_CHECK_CLOSE(eval(f1, 0.5), std::sin(0.5) + 0.5 * std::cos(0.5), 1e-10);
+  auto f2 = derivative(x * cos(x), Variable<'x'>());
+  BOOST_CHECK_CLOSE(eval(f2, 0.5), -0.5 * std::sin(0.5) + std::cos(0.5), 1e-10);
 }
 
 BOOST_AUTO_TEST_CASE( function_poly_derivatives_special )
 { //Check special case derivatives of Functions with constant
   //arguments.
-  auto poly1 = derivative(sin(Polynomial<0>{1}));
-  BOOST_CHECK_EQUAL(poly1[0], 0);
-  auto poly2 = derivative(cos(Polynomial<0>{1}));
-  BOOST_CHECK_EQUAL(poly2[0], 0);
+  BOOST_CHECK(compare_expression(derivative(sin(Polynomial<0>{1}), Variable<'x'>()), NullSymbol()));
+  BOOST_CHECK(compare_expression(derivative(cos(Polynomial<0>{1}), Variable<'x'>()), NullSymbol()));
 }
 
 BOOST_AUTO_TEST_CASE( power_basic )
@@ -117,8 +124,8 @@ BOOST_AUTO_TEST_CASE( power_basic )
   BOOST_CHECK_CLOSE(eval(pow<3>(x) * x, 0.75), std::pow(0.75, 3) * 0.75, 1e-10);
 
   //Check special case derivatives
-  BOOST_CHECK(compare_expression(derivative(pow<1>(x)), 1));
-  BOOST_CHECK(compare_expression(derivative(pow<2>(x)), 2 * x));
+  BOOST_CHECK(compare_expression(derivative(pow<1>(x), Variable<'x'>()), 1));
+  BOOST_CHECK(compare_expression(derivative(pow<2>(x), Variable<'x'>()), 2 * x));
 
   //Check expansion
   BOOST_CHECK(compare_expression(expand(pow<3>(x+2)), (x+2) * (x+2) * (x+2)));;
@@ -128,24 +135,24 @@ BOOST_AUTO_TEST_CASE( Null_tests )
 {
   //Check that Null symbols have zero derivative and value
   BOOST_CHECK(compare_expression(NullSymbol(), "Null"));
-  BOOST_CHECK(compare_expression(derivative(NullSymbol()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(NullSymbol(), Variable<'x'>()), "Null"));
   BOOST_CHECK_EQUAL(eval(NullSymbol(), 100), 0);
 
   //Check derivatives of constants becomes Null
-  BOOST_CHECK(compare_expression(derivative(2), "Null"));
-  BOOST_CHECK(compare_expression(derivative(3.141), "Null"));
-  BOOST_CHECK(compare_expression(derivative(Vector{1,2,3}), "Null"));
+  BOOST_CHECK(compare_expression(derivative(2, Variable<'x'>()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(3.141, Variable<'x'>()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(Vector{1,2,3}, Variable<'x'>()), "Null"));
 }
 
 BOOST_AUTO_TEST_CASE( Unity_tests )
 {
   //Check that Null symbols have zero derivative and value
   BOOST_CHECK(compare_expression(UnitySymbol(), "Unity"));
-  BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(UnitySymbol(),Variable<'x'>()), "Null"));
   BOOST_CHECK_EQUAL(eval(UnitySymbol(), 100), 1);
 
   //Check derivatives of Unity
-  BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(UnitySymbol(), Variable<'x'>()), "Null"));
 
   //Check simplification of multiplication with Unity
   BOOST_CHECK(compare_expression(UnitySymbol() * UnitySymbol(), "Unity"));
@@ -159,23 +166,29 @@ BOOST_AUTO_TEST_CASE( Unity_tests )
 
 BOOST_AUTO_TEST_CASE( Var_tests )
 {
-  typedef Var<'z'> x;
-  std::cout << x() << std::endl;
-  std::cout << eval(Var<'x'>(), Var<'x'>()=3.14159265) << std::endl;
+  Variable<'x'> x;
+  Variable<'y'> y;
 
-  //Check that Var is implemented correctly
-  BOOST_CHECK(compare_expression(Var<'x'>(), "x"));
-  BOOST_CHECK(compare_expression(derivative(Var<'x'>()), "Unity"));
-  BOOST_CHECK_EQUAL(eval(Var<'x'>(), Var<'x'>()=3.14159265), 3.14159265);
+  BOOST_CHECK(compare_expression(x, "x")); 
+  BOOST_CHECK(compare_expression(y, "y"));
+  BOOST_CHECK(compare_expression(derivative(x, Variable<'x'>()), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(y, Variable<'x'>()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(y, Variable<'y'>()), "Unity"));
+  BOOST_CHECK(compare_expression(substitution(x, x == 3.14159265), 3.14159265));
 
-  //Check that Var derivatives correctly vanish
-  BOOST_CHECK(compare_expression(derivative(Var<'x'>()), "Unity"));
-  BOOST_CHECK(compare_expression(derivative(sin(Var<'x'>())), cos(Var<'x'>())));
+  //Check that substitutions in the wrong variable do nothing
+  BOOST_CHECK(compare_expression(substitution(y, x == 3.14159265), "y"));
+
+  //Check default substitution is for x
+  BOOST_CHECK(compare_expression(eval(y, 3.14159265), "y"));
+
+  //Check that Var derivatives are correct
+  BOOST_CHECK(compare_expression(derivative(sin(x), Variable<'x'>()), cos(x)));
 
   //Check derivatives of Unity
-  BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
-  BOOST_CHECK(compare_expression(derivative(Var<'x'>()), "Unity"));
-  BOOST_CHECK(compare_expression(derivative(Var<'x'>()*sin(Var<'x'>())), sin(Var<'x'>()) + Var<'x'>() * cos(Var<'x'>())));
+  BOOST_CHECK(compare_expression(derivative(UnitySymbol(), Variable<'x'>()), "Null"));
+  BOOST_CHECK(compare_expression(derivative(x, Variable<'x'>()), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(x * sin(x), Variable<'x'>()), sin(x) + x * cos(x)));
 }
 
 BOOST_AUTO_TEST_CASE( reorder_operations )
@@ -193,9 +206,9 @@ BOOST_AUTO_TEST_CASE( reorder_operations )
   BOOST_CHECK(compare_expression(x * (sin(2*x) * x), x * x * sin(2*x)));
   BOOST_CHECK(compare_expression(x * (x * sin(2*x)), x * x * sin(2*x)));
 
-  //Here we check that constants (such as 2) will become NullSymbol()
+  //Here we check that constants (such as 2) will become NullSymbol
   //types when the derivative is taken, causing their terms to be
   //eliminated.
-  BOOST_CHECK(compare_expression(derivative(2 * cos(x)), -2 * sin(x)));
-  BOOST_CHECK(compare_expression(derivative(2 * sin(x)), 2 * cos(x)));
+  BOOST_CHECK(compare_expression(derivative(2 * cos(x), Variable<'x'>()), -2 * sin(x)));
+  BOOST_CHECK(compare_expression(derivative(2 * sin(x), Variable<'x'>()), 2 * cos(x)));
 }

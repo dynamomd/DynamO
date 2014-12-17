@@ -16,7 +16,6 @@
 */
 #pragma once
 #include <magnet/math/operators.hpp>
-#include <magnet/containers/stack_vector.hpp>
 #include <magnet/math/precision.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/math/vector.hpp>
@@ -28,11 +27,15 @@
 
 namespace magnet {
   namespace math {
-    template<size_t Order, class Real = double> class Polynomial;
+    template<size_t Order, class Real = double, char Letter = 'x'> class Polynomial;
     namespace detail {
-      constexpr size_t max_order(size_t N, size_t M) {
- 	return N > M ? N : M;
-      }
+      constexpr size_t max_order(size_t N, size_t M)
+      { return N > M ? N : M; }
+      
+      template<class Real, char Letter>
+      struct IsConstant<Polynomial<0, Real, Letter> > {
+	static const bool value = true;
+      };
     
       /*! \relates Polynomial 
 	
@@ -131,10 +134,11 @@ namespace magnet {
       \tparam Real The type of the coefficients of the
       Polynomial. These may be NVector types.
     */
-    template<size_t Order, class Real>
+    template<size_t Order, class Real, char Letter>
     class Polynomial : public std::array<Real, Order+1>
     {
       typedef std::array<Real, Order+1> Base;
+
     public:
       using Base::operator[];
       /*! \brief Default constructor.  
@@ -185,7 +189,7 @@ namespace magnet {
       */
       template<size_t N, class Real2,
 	       typename = typename std::enable_if<N <= Order>::type >
-      Polynomial(const Polynomial<N, Real2>& poly) {
+	       Polynomial(const Polynomial<N, Real2, Letter>& poly) {
  	size_t i(0);
  	for (; i <= N; ++i)
  	  Base::operator[](i) = poly[i];
@@ -194,8 +198,8 @@ namespace magnet {
       }
 
       /*! \brief Unary negative operator to change the sign of a Polynomial. */
-      Polynomial<Order> operator-() const {
-	Polynomial<Order> retval;
+      Polynomial operator-() const {
+	Polynomial retval;
 	for (size_t i(0); i <= Order; ++i)
 	  retval[i] = -Base::operator[](i);
 	return retval;
@@ -207,10 +211,10 @@ namespace magnet {
       This can be dangerous, as if the order of a polynomial is
       lowered high order terms are simply truncated.
     */
-    template<size_t NewOrder, size_t Order, class Real>
-    Polynomial<NewOrder, Real> change_order(const Polynomial<Order, Real>& f) {
+    template<size_t NewOrder, size_t Order, class Real, char Letter>
+    Polynomial<NewOrder, Real, Letter> change_order(const Polynomial<Order, Real, Letter>& f) {
       //The default constructor blanks Polynomial coefficients to zero
-      Polynomial<NewOrder, Real> retval;
+      Polynomial<NewOrder, Real, Letter> retval;
       //Just copy the coefficients which overlap between the new and old polynomial orders.
       std::copy(f.begin(), f.begin() + std::min(Order, NewOrder) + 1, retval.begin());
       return retval;
@@ -226,22 +230,23 @@ namespace magnet {
       The empty product is a term whose multiplicative action is null
       (can be ignored).
     */
-    template<size_t Order, class Real> 
-    constexpr Polynomial<Order, Real> empty_product(const Polynomial<Order, Real>&)
-    { return Polynomial<Order, Real>{1}; }
+    template<size_t Order, class Real, char Letter>
+    constexpr Polynomial<Order, Real, Letter> empty_product(const Polynomial<Order, Real, Letter>&)
+    { return Polynomial<Order, Real, Letter>{1}; }
 
     /*! \brief Returns the empty sum of a Polynomial.
       
       The empty sum is a term whose multiplicative action is null (can
       be ignored).
     */
-    template<size_t Order, class Real>
-    constexpr Polynomial<Order, Real> empty_sum(const Polynomial<Order, Real>&)
-    { return Polynomial<Order, Real>{}; }
+    template<size_t Order, class Real, char Letter>
+    constexpr Polynomial<Order, Real, Letter> empty_sum(const Polynomial<Order, Real, Letter>&)
+    { return Polynomial<Order, Real, Letter>{}; }
 
     /*! \} */
-
+    
     /*! \relates Polynomial 
+
       \name Polynomial algebraic operations
       
       For all operations below we do not assume that we have a
@@ -251,6 +256,13 @@ namespace magnet {
       \{
     */
 
+    /*! \brief Performs a substitution of variables on the Polynomial.
+     */
+    template<class Real, size_t Order, char Var1, char Var2>
+    Polynomial<Order, Real, Var2> substitution(const Polynomial<Order, Real, Var1>& f, const VariableSubstitution<Var1, Variable<Var2> >& x_container)
+    { return Polynomial<Order, Real, Var2>(f.begin(), f.end()); }
+
+
     /*! \brief Evaluates a Polynomial expression at a given point.
 
       This function also specially handles the cases where
@@ -259,8 +271,9 @@ namespace magnet {
       x). This behaviour is crucial as it is used in the evaluation of
       Sturm chains.
      */
-    template<class Real, size_t Order, class Real2> 
-    Real eval(const Polynomial<Order, Real>& f, const Real2& x)
+    template<class Real, size_t Order, char Letter, class Real2,
+	     typename = typename std::enable_if<detail::distribute_poly<Real, Real2>::value>::type>
+    Real substitution(const Polynomial<Order, Real, Letter>& f, const VariableSubstitution<Letter, Real2>& x_container)
     {
       //Handle the case where this is actually a constant and not a
       //Polynomial. This is free to evaluate now as Order is a
@@ -268,6 +281,7 @@ namespace magnet {
       if (Order == 0)
 	return f[0];
 
+      const auto & x = x_container._val;
       //Special cases for infinite values of x
       if (std::isinf(x)) {
 	//Look through the Polynomial to find the highest order term
@@ -294,16 +308,6 @@ namespace magnet {
       return sum;
     }
 
-    namespace {
-      constexpr size_t factorial(size_t i) {
-	return (i <= 1) ? 1 : i * factorial(i - 1);
-      }
-
-      constexpr size_t falling_factorial(size_t i, size_t end) {
-	return (i <= end) ? 1 : i * falling_factorial(i - 1, end);
-      }
-    }
-
     /*! \brief Fast evaluation of multiple derivatives of a
         polynomial.
       
@@ -311,8 +315,8 @@ namespace magnet {
       without symbolically taking the derivative (causing a copy of
       the coefficients).
     */
-    template<size_t D, size_t Order, class Real, class Real2>
-    std::array<Real, D+1> eval_derivatives(const Polynomial<Order, Real>& f, const Real2& x)
+    template<size_t D, size_t Order, class Real, char Letter, class Real2>
+    std::array<Real, D+1> eval_derivatives(const Polynomial<Order, Real, Letter>& f, const Real2& x)
     {
       std::array<Real, D+1> retval;
       retval.fill(Real());
@@ -353,21 +357,23 @@ namespace magnet {
       As g(x) may contain leading order coefficients which are zero,
       we cannot lower the order of the quotient polynomial returned.
     */
-    template<size_t Order1, class Real, size_t Order2>
-    std::tuple<Polynomial<Order1, Real>, Polynomial<Order2 - 1, Real> >
-      euclidean_division(const Polynomial<Order1, Real>& f, const Polynomial<Order2, Real>& g)
+    template<size_t Order1, class Real, char Letter, size_t Order2>
+    std::tuple<Polynomial<Order1, Real, Letter>, Polynomial<Order2 - 1, Real, Letter> >
+    euclidean_division(const Polynomial<Order1, Real, Letter>& f, const Polynomial<Order2, Real, Letter>& g)
     {
       static_assert(Order2 < Order1, "Cannot perform division when the order of the denominator is larger than the numerator using this routine");
       static_assert(Order2 > 0, "Constant division fails with these loops");
-      typedef std::tuple<Polynomial<Order1, Real>, Polynomial<Order2 - 1, Real> > RetType;
+      typedef std::tuple<Polynomial<Order1, Real, Letter>, Polynomial<Order2 - 1, Real, Letter> > RetType;
       //If the leading term of g is zero, drop to a lower order
       //euclidean division.
-      if (g[Order2] == 0)
-	return RetType(euclidean_division(f, change_order<Order2 - 1>(g)));
+      if (g[Order2] == 0) {
+	auto lower_order_op = euclidean_division(f, change_order<Order2 - 1>(g));
+	return RetType(std::get<0>(lower_order_op), std::get<1>(lower_order_op));
+      }
 
       //The quotient and remainder.
-      Polynomial<Order1, Real> r(f);
-      Polynomial<Order1, Real> q;
+      Polynomial<Order1, Real, Letter> r(f);
+      Polynomial<Order1, Real, Letter> q;
 
       //Loop from the highest order coefficient of f, down to where we
       //have a polynomial one order lower than g.
@@ -385,16 +391,16 @@ namespace magnet {
     /*!  \cond Specializations
       \brief Specialisation for division by a constant.
      */
-    template<size_t Order1, class Real>
-    std::tuple<Polynomial<Order1, Real>, Polynomial<0, Real> >
-      euclidean_division(const Polynomial<Order1, Real>& f, const Polynomial<0, Real>& g)
+    template<size_t Order1, class Real, char Letter>
+    std::tuple<Polynomial<Order1, Real, Letter>, Polynomial<0, Real, Letter> >
+    euclidean_division(const Polynomial<Order1, Real, Letter>& f, const Polynomial<0, Real, Letter>& g)
     {
-      typedef std::tuple<Polynomial<Order1, Real>, Polynomial<0, Real> > RetType;
+      typedef std::tuple<Polynomial<Order1, Real, Letter>, Polynomial<0, Real, Letter> > RetType;
       if (g[0] == 0)
-	return RetType(Polynomial<Order1, Real>{std::numeric_limits<Real>::infinity()}, 
-		       Polynomial<0, Real>{Real()});
+	return RetType(Polynomial<Order1, Real, Letter>{std::numeric_limits<Real>::infinity()}, 
+		       Polynomial<0, Real, Letter>{Real()});
 
-      return RetType(f * (1.0 / g[0]), Polynomial<0, Real>{Real()});
+      return RetType(f * (1.0 / g[0]), Polynomial<0, Real, Letter>{Real()});
     }
 
     /*! \brief Right-handed addition operation on a Polynomial.
@@ -404,8 +410,9 @@ namespace magnet {
       for distribution over the Polnomial coefficients. This is tested
       using detail::distribute_poly.
     */
-    template<class Real1, class Real2, size_t N>
-    auto operator+(const Real1& r, const Polynomial<N,Real2>& poly) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] + r)> >::type
+    template<class Real1, size_t Order, class Real, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real>::value>::type>
+    auto operator+(const Real1& r, const Polynomial<Order, Real, Letter>& poly) -> Polynomial<Order, decltype(poly[0] + r), Letter>
     { return poly + r; }
 
     /*!\brief Left-handed addition operator for Polynomials 
@@ -415,20 +422,21 @@ namespace magnet {
       for distribution over the Polnomial coefficients. This is tested
       using detail::distribute_poly.
     */
-    template<class Real1, class Real2, size_t N>
-    auto operator+(const Polynomial<N,Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] + r)> >::type
+    template<class Real1, class Real2, size_t N, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real2>::value>::type>
+    auto operator+(const Polynomial<N, Real1, Letter>& poly, const Real2& r) -> Polynomial<N, decltype(poly[0] + r), Letter>
     {
-      Polynomial<N, decltype(poly[0] + r)> retval(poly);
+      Polynomial<N, decltype(poly[0] + r), Letter> retval(poly);
       retval[0] += r;
       return retval;
     }
 
     /*!\brief Addition operator for two Polynomial types. 
      */
-    template<size_t M, size_t N, class Real1, class Real2>
-    auto operator+(const Polynomial<M, Real1>& poly1, const Polynomial<N, Real2>& poly2)->Polynomial<detail::max_order(M, N), decltype(poly1[0] + poly2[0])>
+    template<size_t M, size_t N, class Real1, class Real2, char Letter>
+    auto operator+(const Polynomial<M, Real1, Letter>& poly1, const Polynomial<N, Real2, Letter>& poly2) -> Polynomial<detail::max_order(M, N), decltype(poly1[0] + poly2[0]), Letter>
     {
-      Polynomial<detail::max_order(M, N), decltype(poly1[0] + poly2[0])> retval(poly1);
+      Polynomial<detail::max_order(M, N), decltype(poly1[0] + poly2[0]), Letter> retval(poly1);
       for (size_t i(0); i <= N; ++i)
 	retval[i] += poly2[i];
       return retval;
@@ -440,27 +448,27 @@ namespace magnet {
       operator with an addition if the left-handed addition form
       exists.
     */
-    template<class Real1, class Real2, size_t N>
-    auto operator-(const Real1& r, const Polynomial<N, Real2>& poly) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, decltype((-poly) + r)>::type {
-      return (-poly) + r;
-    }
-    
+    template<class Real1, class Real2, size_t N, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real2>::value>::type>
+    auto operator-(const Real1& r, const Polynomial<N, Real2, Letter>& poly) -> decltype((-poly) + r)
+    { return (-poly) + r; }
+  
     /*! \brief Left-handed subtraction from a Polynomial type.
 
       This will convert the operation to a unary negation operator
       with an addition if the left-handed form exists.
     */
-    template<class Real1, class Real2, size_t N>
-    auto operator-(const Polynomial<N,Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, decltype(poly + (-r))>::type {
-      return poly + (-r);
-    }
+    template<class Real1, class Real2, size_t N, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real2>::value>::type >
+    auto operator-(const Polynomial<N,Real1,Letter>& poly, const Real2& r) -> decltype(poly + (-r))
+    { return poly + (-r); }
 
     /*! \brief Subtraction between two Polynomial types. 
      */
-    template<class Real1, class Real2, size_t M, size_t N>
-    auto operator-(const Polynomial<M,Real1>& poly1, const Polynomial<N,Real2>& poly2) -> Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0])>
+    template<class Real1, class Real2, size_t M, size_t N, char Letter>
+    auto operator-(const Polynomial<M,Real1, Letter>& poly1, const Polynomial<N,Real2, Letter>& poly2) -> Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0]), Letter>
     {
-      Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0])> retval(poly1);
+      Polynomial<detail::max_order(M, N),decltype(poly1[0]-poly2[0]), Letter> retval(poly1);
       for (size_t i(0); i <= N; ++i)
 	retval[i] -= poly2[i];
       return retval;
@@ -473,8 +481,9 @@ namespace magnet {
       for distribution over the Polnomial coefficients. This is tested
       using detail::distribute_poly.
     */
-    template<class Real1, class Real2, size_t N>
-    auto operator*(const Real1& r, const Polynomial<N, Real2>& poly) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] * r)> >::type
+    template<class Real1, class Real2, size_t N, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real2>::value>::type>
+    auto operator*(const Real1& r, const Polynomial<N, Real2, Letter>& poly) -> Polynomial<N, decltype(poly[0] * r), Letter>
     { return poly * r; }
 
     /*! \brief Left-handed multiplication on a Polynomial.
@@ -484,10 +493,11 @@ namespace magnet {
       for distribution over the Polnomial coefficients. This is tested
       using detail::distribute_poly.
     */
-    template<class Real1, class Real2, size_t N>
-    auto operator*(const Polynomial<N, Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] * r)> >::type
+    template<class Real1, class Real2, size_t N, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real2>::value>::type>
+    auto operator*(const Polynomial<N, Real1, Letter>& poly, const Real2& r) -> Polynomial<N, decltype(poly[0] * r), Letter>
     {
-      Polynomial<N, decltype(Real1() * Real2())> retval;
+      Polynomial<N, decltype(Real1() * Real2()), Letter> retval;
       for (size_t i(0); i <= N; ++i)
 	retval[i] = poly[i] * r;
       return retval;
@@ -495,10 +505,10 @@ namespace magnet {
 
     /*! \brief Multiplication between two Polynomial types.
      */
-    template<class Real1, class Real2, size_t M, size_t N>
-    auto operator*(const Polynomial<M, Real1>& poly1, const Polynomial<N, Real2>& poly2) -> Polynomial<M + N, decltype(poly1[0] * poly2[0])>
+    template<class Real1, class Real2, size_t M, size_t N, char Letter>
+    auto operator*(const Polynomial<M, Real1, Letter>& poly1, const Polynomial<N, Real2, Letter>& poly2) -> Polynomial<M + N, decltype(poly1[0] * poly2[0]), Letter>
     {
-      Polynomial<M + N, decltype(poly1[0] * poly2[0])> retval;
+      Polynomial<M + N, decltype(poly1[0] * poly2[0]), Letter> retval;
       for (size_t i(0); i <= N+M; ++i)
 	for (size_t j(i>N?i-N:0); (j <= i) && (j <=M); ++j)
 	  retval[i] += poly1[j] * poly2[i-j];
@@ -506,30 +516,31 @@ namespace magnet {
     }
 
     /*! \brief Division of a Polynomial by a constant. */
-    template<class Real1, class Real2, size_t N>
-    auto operator/(const Polynomial<N, Real1>& poly, const Real2& r) -> typename std::enable_if<detail::distribute_poly<Real1, Real2>::value, Polynomial<N, decltype(poly[0] / r)> >::type
+    template<class Real1, class Real2, size_t N, char Letter,
+	     typename = typename std::enable_if<detail::distribute_poly<Real1, Real2>::value>::type>
+    auto operator/(const Polynomial<N, Real1, Letter>& poly, const Real2& r) -> Polynomial<N, decltype(poly[0] / r), Letter>
     {
-      Polynomial<N, decltype(Real1() / Real2())> retval;
+      Polynomial<N, decltype(Real1() / Real2()), Letter> retval;
       for (size_t i(0); i <= N; ++i)
 	retval[i] = poly[i] / r;
       return retval;
     }
 
     /*! \brief Enable reordering of Polynomial types. */
-    template<class R1, size_t N1, class R2, size_t N2> 
-    struct Reorder<Polynomial<N1, R1>, Polynomial<N2, R2> > {
+    template<class R1, size_t N1, class R2, size_t N2, char Letter> 
+    struct Reorder<Polynomial<N1, R1, Letter>, Polynomial<N2, R2, Letter> > {
       static const bool value = true;
     };
 
     /*! \brief Enable reordering of Polynomial types with arithmetic types. */
-    template<class R1, size_t N1, class R2> 
-    struct Reorder<Polynomial<N1, R1>, R2 > {
+    template<class R1, size_t N1, class R2, char Letter> 
+    struct Reorder<Polynomial<N1, R1, Letter>, R2 > {
       static const bool value = std::is_arithmetic<R2>::value;
     };
 
     /*! \brief Enable reordering of Polynomial types with arithmetic types. */
-    template<class R1, size_t N1, class R2> 
-    struct Reorder<R2,Polynomial<N1, R1> > {
+    template<class R1, size_t N1, class R2, char Letter> 
+    struct Reorder<R2,Polynomial<N1, R1, Letter> > {
       static const bool value = std::is_arithmetic<R2>::value;
     };
 
@@ -542,24 +553,32 @@ namespace magnet {
       \{
     */
 
-    /*! \brief Derivatives of Polynomial classes (constants).*/
-    template<class Real, size_t N>
-    inline Polynomial<N-1, Real> derivative(const Polynomial<N, Real>& f) {
-      Polynomial<N-1, Real> retval;
+    /*! \brief Derivatives of Polynomial types.
+      
+      This specialisation is only activated if this is a derivative in
+      the correct variable AND the Order of the Polynomial is greater
+      than zero.
+     */
+    template<char Letter, class Real, size_t N, char dLetter,
+	     typename = typename std::enable_if<(Letter==dLetter) && (N > 0)>::type>
+      inline Polynomial<N-1, Real, Letter> derivative(const Polynomial<N, Real, Letter>& f, Variable<dLetter>) {
+      Polynomial<N-1, Real, Letter> retval;
       for (size_t i(0); i < N; ++i) {
 	retval[i] = f[i+1] * (i+1);
       }
       return retval;
     }
-    
-    /*! \cond Specializations
-      \brief Specialisation for derivatives of 0th order Polynomial classes (constants).
-    */
-    template<class Real>
-    inline NullSymbol derivative(const Polynomial<0, Real>& f) {
-      return NullSymbol();
-    }
 
+    /*! \brief Derivatives of Polynomial types.
+      
+      This specialisation is only activated if this is a derivative in
+      the incorrect variable.
+     */
+    template<char Letter, class Real, size_t N, char dLetter,
+	     typename = typename std::enable_if<(Letter!=dLetter) && (N > 0)>::type>
+      NullSymbol derivative(const Polynomial<N, Real, Letter>& f, Variable<dLetter>) 
+    { return NullSymbol(); }
+    
     /*! \endcond \} */
 
     /*! \relates Polynomial 
@@ -567,8 +586,8 @@ namespace magnet {
       \{
     */
     /*! \brief Writes a human-readable representation of the Polynomial to the output stream. */
-    template<class Real, size_t N>
-    inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real>& poly) {
+    template<class Real, size_t N, char Letter>
+    inline std::ostream& operator<<(std::ostream& os, const Polynomial<N, Real, Letter>& poly) {
       std::ostringstream oss;
       oss.precision(os.precision());
       size_t terms = 0;
@@ -579,7 +598,7 @@ namespace magnet {
 	++terms;
 	if (poly[i] != empty_product(poly[i]))
 	  oss << poly[i] << " * ";
-	oss << "x";
+	oss << Letter;
 	if (i > 1)
 	  oss << "^" << i;
       }
@@ -612,8 +631,8 @@ namespace magnet {
 	mathematics" vol.1. It is useful for setting accuracy limits
 	while calculating roots.
      */
-    template<class Real, size_t Order, class Real2>
-    Real precision(const Polynomial<Order, Real>& f, const Real2& x)
+    template<class Real, size_t Order, class Real2, char Letter>
+    Real precision(const Polynomial<Order, Real, Letter>& f, const Real2& x)
     {
       if (std::isinf(x))
 	return 0.0;
@@ -693,9 +712,9 @@ namespace magnet {
       \param f The Polynomial to factor a root out of.
       \param root The root to remove.
     */
-    template<size_t Order, class Real>
-    inline Polynomial<Order-1, Real> deflate_polynomial(const Polynomial<Order, Real>& a, const double root) {
-      Polynomial<Order-1, Real> b;
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order-1, Real, Letter> deflate_polynomial(const Polynomial<Order, Real, Letter>& a, const double root) {
+      Polynomial<Order-1, Real, Letter> b;
       
       //Check for the simple case where root==0. If this is the case,
       //then the deflated polynomial is actually just a divide by x.
@@ -757,12 +776,13 @@ namespace magnet {
       eval_derivatives function to actually calculate the derivatives
       while avoiding the factorial term.
      */
-    template<size_t Order, class Real>
-    inline Polynomial<Order, Real> shift_function(const Polynomial<Order, Real>& f, const double t) {
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order, Real, Letter> shift_function(const Polynomial<Order, Real, Letter>& f, const double t) 
+    {
       //Check for the simple case where t == 0, nothing to be done
       if (t == 0) return f;
 
-      Polynomial<Order, Real> retval;
+      Polynomial<Order, Real, Letter> retval;
       retval.fill(Real());
       retval[0] = f[Order];
       for (size_t i(Order); i>0; i--) {
@@ -779,9 +799,9 @@ namespace magnet {
       shift is unity. See \ref shift_polynomial for more
       implementation details
      */
-    template<size_t Order, class Real>
-    inline Polynomial<Order, Real> taylor_shift(const Polynomial<Order, Real>& f) {
-      Polynomial<Order, Real> retval;
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order, Real, Letter> taylor_shift(const Polynomial<Order, Real, Letter>& f) {
+      Polynomial<Order, Real, Letter> retval;
       retval.fill(Real());
       retval[0] = f[Order];
       for (size_t i(Order); i>0; i--) {
@@ -830,9 +850,9 @@ namespace magnet {
 	of the \ref taylor_shift algorithm, which itself is an
 	optimized \ref shift_polynomial function.
      */
-    template<size_t Order, class Real>
-    inline Polynomial<Order, Real> invert_taylor_shift(const Polynomial<Order, Real>& f) {
-      Polynomial<Order, Real> retval;
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order, Real, Letter> invert_taylor_shift(const Polynomial<Order, Real, Letter>& f) {
+      Polynomial<Order, Real, Letter> retval;
       retval.fill(Real());
       retval[0] = f[0];
       for (size_t i(Order); i>0; i--) {
@@ -845,9 +865,9 @@ namespace magnet {
 
     /*! \brief Returns a polynomial \f$g(x)=f\left(-x\right)\f$.
      */
-    template<size_t Order, class Real>
-    inline Polynomial<Order, Real> reflect_poly(const Polynomial<Order, Real>& f) {
-      Polynomial<Order, Real> g(f);
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order, Real, Letter> reflect_poly(const Polynomial<Order, Real, Letter>& f) {
+      Polynomial<Order, Real, Letter> g(f);
       for (size_t i(1); i <= Order; i+=2)
 	g[i] = -g[i];
       return g;
@@ -856,9 +876,9 @@ namespace magnet {
     /*! \brief Returns a polynomial \f$g(x)=f\left(a\,x\right)\f$
         where \f$a\f$ is a scaling factor.
      */
-    template<size_t Order, class Real>
-    inline Polynomial<Order, Real> scale_poly(const Polynomial<Order, Real>& f, const Real& a) {
-      Polynomial<Order, Real> g(f);
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order, Real, Letter> scale_poly(const Polynomial<Order, Real, Letter>& f, const Real& a) {
+      Polynomial<Order, Real, Letter> g(f);
       Real factor = 1;
       for (size_t i(1); i <= Order; ++i)
 	g[i] *= (factor *= a);
@@ -869,7 +889,8 @@ namespace magnet {
       \brief Specialisation for no roots of a 0th order Polynomial.
       \param f The Polynomial to evaluate.
     */
-    inline containers::StackVector<double, 0> solve_roots(const Polynomial<0, double>& f) {
+    template<char Letter>
+    inline containers::StackVector<double, 0> solve_roots(const Polynomial<0, double, Letter>& f) {
       return containers::StackVector<double, 0>();
     }
 
@@ -878,7 +899,8 @@ namespace magnet {
       
       \param f The Polynomial to evaluate.
     */
-    inline containers::StackVector<double, 1> solve_roots(const Polynomial<1, double>& f) {
+    template<char Letter>
+    inline containers::StackVector<double, 1> solve_roots(const Polynomial<1, double, Letter>& f) {
       containers::StackVector<double, 1> roots;
       if (f[1] != 0)
 	roots.push_back(-f[0] / f[1]);
@@ -892,7 +914,8 @@ namespace magnet {
       
       \param f The Polynomial to evaluate.
     */
-    inline containers::StackVector<double, 2> solve_roots(Polynomial<2, double> f) {
+    template<char Letter>
+    inline containers::StackVector<double, 2> solve_roots(Polynomial<2, double, Letter> f) {
       //If this is actually a linear polynomial, drop down to that solver.
       if (f[2] == 0) 
 	return solve_roots(change_order<1>(f));
@@ -945,8 +968,8 @@ namespace magnet {
 	however, do not assume this function will behave well with
 	inaccurate roots.
       */
-      template<size_t Order, class Real>
-      inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real>& f, Real root) {
+      template<size_t Order, class Real, char Letter>
+      inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real, Letter>& f, Real root) {
 	containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
 	roots.push_back(root);
 	std::sort(roots.begin(), roots.end());
@@ -955,10 +978,11 @@ namespace magnet {
 
       /*! \brief Uses a quadratic scheme to polish up a root.
        */
-      inline void cubicNewtonRootPolish(const Polynomial<3, double>& f, double& root)
+      template<char Letter>
+      inline void cubicNewtonRootPolish(const Polynomial<3, double, Letter>& f, double& root)
       {
 	//Stored for comparison later
-	double error = eval(f, root);
+	double error = eval(f, Variable<Letter>() == root);
 	const size_t maxiterations = 4;
 	for (size_t it = 0; (it < maxiterations) && (error != 0); ++it)
 	  {
@@ -967,7 +991,7 @@ namespace magnet {
 	    double dderiv = 6 * root + 2 * f[2];
 	    
 	    //Try a quadratic scheme to improve the root
-	    auto roots = solve_roots(Polynomial<2, double>{error, deriv, 0.5 * dderiv});
+	    auto roots = solve_roots(Polynomial<2, double, Letter>{error, deriv, 0.5 * dderiv});
 	    if (roots.size() == 2)
 	      root += (std::abs(roots[0]) < std::abs(roots[1])) ? roots[0] : roots[1];
 	    else
@@ -977,7 +1001,7 @@ namespace magnet {
 		if (deriv == 0) return;
 		root -= error / deriv;
 	      }
-	    error = eval(f, root);
+	    error = eval(f, Variable<Letter>() == root);
 	  }
       }
     }
@@ -989,7 +1013,8 @@ namespace magnet {
 
       \param f The Polynomial to evaluate.
     */
-    inline containers::StackVector<double, 3> solve_roots(const Polynomial<3, double>& f_original) {
+    template<char Letter>
+    inline containers::StackVector<double, 3> solve_roots(const Polynomial<3, double, Letter>& f_original) {
       //Ensure this is actually a third order polynomial
       if (f_original[3] == 0)
 	return solve_roots(change_order<2>(f_original));
@@ -1129,35 +1154,35 @@ namespace magnet {
       /*! \brief Calculates the negative of the remainder of the
           division of \f$f(x)\f$ by \f$g(x)\f$.
        */
-      template<size_t Order, class Real>
-      Polynomial<Order-2, Real> 
-	mrem(const Polynomial<Order, Real>& f, const Polynomial<Order-1, Real>&g)
+      template<size_t Order, class Real, char Letter>
+      Polynomial<Order-2, Real, Letter> 
+	mrem(const Polynomial<Order, Real, Letter>& f, const Polynomial<Order-1, Real, Letter>&g)
       {
-	Polynomial<Order-2, Real> rem;
+	Polynomial<Order-2, Real, Letter> rem;
 	std::tie(std::ignore, rem) = euclidean_division(f, g);
 	return -rem;
       }
 
       /*! \brief A collection of Polynomials which form a Sturm chain. 
        */
-      template<size_t Order, class Real>
+      template<size_t Order, class Real, char Letter>
       struct SturmChain {
 	/*! \brief Constructor if is the first Polynomial in the
             chain. 
 	*/
-	SturmChain(const Polynomial<Order, Real>& p_n):
-	  _p_n(p_n), _p_nminus1(p_n, derivative(p_n))
+	SturmChain(const Polynomial<Order, Real, Letter>& p_n):
+	  _p_n(p_n), _p_nminus1(p_n, derivative(p_n, Variable<Letter>()))
 	{}
 
 	/*! \brief Constructor if is an intermediate Polynomial in the
             chain.
 	*/
-	SturmChain(const Polynomial<Order+1, Real>& p_nplus1, const Polynomial<Order, Real>& p_n):
+	SturmChain(const Polynomial<Order+1, Real, Letter>& p_nplus1, const Polynomial<Order, Real, Letter>& p_n):
 	  _p_n(p_n), _p_nminus1(p_n, mrem(p_nplus1, p_n))
 	{}
 
-	Polynomial<Order, Real> _p_n;
-	SturmChain<Order-1, Real> _p_nminus1;
+	Polynomial<Order, Real, Letter> _p_n;
+	SturmChain<Order-1, Real, Letter> _p_nminus1;
 	
 	/*! Accessor function for the ith Polynomial in the Sturm
             chain.
@@ -1166,7 +1191,7 @@ namespace magnet {
 	    the original order of the Polynomial as this is done at
 	    runtime.
 	*/
-	Polynomial<Order, Real> get(size_t i) const {
+	Polynomial<Order, Real, Letter> get(size_t i) const {
 	  if (i == 0)
 	    return _p_n;
 	  else
@@ -1223,25 +1248,25 @@ namespace magnet {
       /*! \brief Specialisation for a container holding the last Sturm
           chain Polynomial.
       */
-      template<class Real>
-      struct SturmChain<0, Real> {
+      template<class Real, char Letter>
+      struct SturmChain<0, Real, Letter> {
 	/*! \brief Constructor  is the first and last Polynomial in
             the chain.
 	*/
-	SturmChain(const Polynomial<0, Real>& p_n):
+	SturmChain(const Polynomial<0, Real, Letter>& p_n):
 	  _p_n(p_n)
 	{}
 
 	/*! \brief Constructor if this is the last Polynomial in the
             chain.
 	*/
-	SturmChain(const Polynomial<1, Real>& p_nplus1, const Polynomial<0, Real>& p_n):
+	SturmChain(const Polynomial<1, Real, Letter>& p_nplus1, const Polynomial<0, Real, Letter>& p_n):
 	  _p_n(p_n) {}
 
-	Polynomial<0, Real> get(size_t i) const {
+	Polynomial<0, Real, Letter> get(size_t i) const {
 	  if (i == 0)
 	    return _p_n;
-	  return Polynomial<0,Real>{};
+	  return Polynomial<0, Real, Letter>{};
 	}
 
 	template<class Real2>
@@ -1264,8 +1289,8 @@ namespace magnet {
 	}
       };
       
-      template<size_t Order, class Real>
-      std::ostream& operator<<(std::ostream& os, const SturmChain<Order, Real>& c) {
+      template<size_t Order, class Real, char Letter>
+      std::ostream& operator<<(std::ostream& os, const SturmChain<Order, Real, Letter>& c) {
 	os << "SturmChain{p_0=" << c._p_n;
 	c._p_nminus1.output_helper(os, Order);
 	os << "}";
@@ -1329,9 +1354,9 @@ namespace magnet {
       VAS_real_root_bounds) are preferred as they are more
       computationally efficient.
     */
-    template<size_t Order, class Real>
-    detail::SturmChain<Order, Real> sturm_chain(const Polynomial<Order, Real>& f) {
-      return detail::SturmChain<Order, Real>(f);
+    template<size_t Order, class Real, char Letter>
+    detail::SturmChain<Order, Real, Letter> sturm_chain(const Polynomial<Order, Real, Letter>& f) {
+      return detail::SturmChain<Order, Real, Letter>(f);
     }
 
     /*! \brief Calculates an upper bound estimate for the number of
@@ -1344,8 +1369,8 @@ namespace magnet {
       count is less, it is less by an even number. Therefore, the
       values 0 or 1 are exact.
      */
-    template<size_t Order, class Real>
-    size_t descartes_rule_of_signs(const Polynomial<Order, Real>& f) {
+    template<size_t Order, class Real, char Letter>
+    size_t descartes_rule_of_signs(const Polynomial<Order, Real, Letter>& f) {
       //Count the sign changes
       size_t sign_changes(0);
       int last_sign = 0;      
@@ -1381,8 +1406,8 @@ namespace magnet {
 	\return An upper bound on the number of real roots in the
 	interval \f$(0,\,1)\f$.
      */
-    template<size_t Order, class Real>
-    size_t budan_01_test(const Polynomial<Order, Real>& f) {
+    template<size_t Order, class Real, char Letter>
+    size_t budan_01_test(const Polynomial<Order, Real, Letter>& f) {
       return descartes_rule_of_signs(invert_taylor_shift(f));
     }
 
@@ -1396,8 +1421,8 @@ namespace magnet {
 	that \f$x=1\f$ corresponds to \f$b\f$, before Budan's test is
 	called on the transformed Polynomial.
     */
-    template<size_t Order, class Real>
-    size_t alesina_galuzzi_test(const Polynomial<Order, Real>& f, const Real& a, const Real& b) {
+    template<size_t Order, class Real, char Letter>
+    size_t alesina_galuzzi_test(const Polynomial<Order, Real, Letter>& f, const Real& a, const Real& b) {
       return budan_01_test(scale_poly(shift_function(f, a), b - a));
     }
     
@@ -1410,8 +1435,8 @@ namespace magnet {
 	arbitrary sign on the highest order coefficient, and to allow
 	high-order coefficients with zero values.
      */
-    template<class Real, size_t Order>
-    Real LMQ_upper_bound(const Polynomial<Order, Real>& f) {
+    template<class Real, size_t Order, char Letter>
+    Real LMQ_upper_bound(const Polynomial<Order, Real, Letter>& f) {
       std::array<size_t, Order+1> times_used;
       times_used.fill(1);
       Real ub = Real();
@@ -1450,9 +1475,9 @@ namespace magnet {
       transformation is computationally equivalent to reversing the
       coefficient array of the polynomial \f$f(x)\f$.
     */
-    template<class Real, size_t Order>
-    Real LMQ_lower_bound(const Polynomial<Order, Real>& f) {
-      return 1.0 / LMQ_upper_bound(Polynomial<Order, Real>(f.rbegin(), f.rend()));
+    template<class Real, size_t Order, char Letter>
+    Real LMQ_lower_bound(const Polynomial<Order, Real, Letter>& f) {
+      return 1.0 / LMQ_upper_bound(Polynomial<Order, Real, Letter>(f.rbegin(), f.rend()));
     }
 
     /*! \cond Specializations
@@ -1461,8 +1486,8 @@ namespace magnet {
       estimation for real roots of a Polynomial, where the Polynomial
       is a constant.
     */
-    template<class Real>
-    Real LMQ_upper_bound(const Polynomial<0, Real>& f) {
+    template<class Real, char Letter>
+    Real LMQ_upper_bound(const Polynomial<0, Real, Letter>& f) {
       return 0;
     }
 
@@ -1471,8 +1496,8 @@ namespace magnet {
       lower-bound estimation for real roots of a Polynomial, where the
       Polynomial is a constant.
     */
-    template<class Real>
-    Real LMQ_lower_bound(const Polynomial<0, Real>& f) {
+    template<class Real, char Letter>
+    Real LMQ_lower_bound(const Polynomial<0, Real, Letter>& f) {
       return HUGE_VAL;
     }
 
@@ -1483,9 +1508,9 @@ namespace magnet {
       assumes that the polynomial has a non-zero constant term and
       leading order coefficient term.
     */
-    template<size_t Order, class Real>
+    template<size_t Order, class Real, char Letter>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VCA_real_root_bounds_worker(const Polynomial<Order, Real>& f) {
+    VCA_real_root_bounds_worker(const Polynomial<Order, Real, Letter>& f) {
       //Test how many roots are in the range (0,1)
       switch (budan_01_test(f)) {
       case 0:
@@ -1503,7 +1528,7 @@ namespace magnet {
 	//
 	//We actually generate this function
 	//p1(x) = 2^Order f(x/2)
-	Polynomial<Order, Real> p1(f);
+	Polynomial<Order, Real, Letter> p1(f);
 	for (size_t i(0); i <= Order; ++i)
 	  p1[i] *= (1 << (Order-i)); //This gives (2^Order) / (2^i)
 
@@ -1512,7 +1537,7 @@ namespace magnet {
 	//p2(x) = 2^Order f(x/2 + 0.5) 
 	//
 	//in terms of the original function, f(x).
-	const Polynomial<Order, Real> p2 = taylor_shift(p1);
+	const Polynomial<Order, Real, Letter> p2 = taylor_shift(p1);
 
 	//Now that we have two polynomials, each of which is scaled so
 	//the roots of interest lie in (0,1). Search them both and
@@ -1545,9 +1570,9 @@ namespace magnet {
 	then simply scales the Polynomial so that all roots lie in the
 	range (0,1) before passing it to \ref VCA_real_root_bounds_worker.
      */
-    template<size_t Order, class Real>
+    template<size_t Order, class Real, char Letter>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VCA_real_root_bounds(const Polynomial<Order, Real>& f) {
+    VCA_real_root_bounds(const Polynomial<Order, Real, Letter>& f) {
       //Calculate the upper bound on the polynomial real roots, and
       //return if no roots are detected
       const Real upper_bound = LMQ_upper_bound(f);
@@ -1651,9 +1676,9 @@ namespace magnet {
       coefficients {a,b,c,d}. By default it is a direct mapping to the
       original Polynomial.
      */
-    template<size_t Order, class Real>
+    template<size_t Order, class Real, char Letter>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VAS_real_root_bounds_worker(Polynomial<Order, Real> f, MobiusTransform<Real> M) {
+    VAS_real_root_bounds_worker(Polynomial<Order, Real, Letter> f, MobiusTransform<Real> M) {
       //This while loop is only used to allow restarting the method
       //without recursion, as this may recurse a large number of
       //times.
@@ -1710,7 +1735,7 @@ namespace magnet {
 	}
 
 	//Create and solve the polynomial for [0, 1]
-	Polynomial<Order, Real> p01 = invert_taylor_shift(f);
+	Polynomial<Order, Real, Letter> p01 = invert_taylor_shift(f);
 	auto M01 = M;
 	M01.invert_taylor_shift();
 	auto first_range = VAS_real_root_bounds_worker(p01, M01);
@@ -1718,7 +1743,7 @@ namespace magnet {
 	  retval.push_back(bound);
 	
 	//Create and solve the polynomial for [1, \infty]
-	Polynomial<Order, Real> p1inf = taylor_shift(f);
+	Polynomial<Order, Real, Letter> p1inf = taylor_shift(f);
 	auto M1inf = M;
 	M1inf.shift(1);
 	auto second_range = VAS_real_root_bounds_worker(p1inf, M1inf);
@@ -1729,9 +1754,9 @@ namespace magnet {
       }
     }
     
-    template<class Real>
+    template<class Real, char Letter>
     containers::StackVector<std::pair<Real,Real>, 1> 
-    VAS_real_root_bounds_worker(const Polynomial<0, Real>& f, MobiusTransform<Real> M) {
+    VAS_real_root_bounds_worker(const Polynomial<0, Real, Letter>& f, MobiusTransform<Real> M) {
       return containers::StackVector<std::pair<Real,Real>, 1>();
     }
 
@@ -1745,9 +1770,9 @@ namespace magnet {
     	coefficients. This function enforces these conditions before
     	passing it to \ref VAS_real_root_bounds_worker.
      */
-    template<size_t Order, class Real>
+    template<size_t Order, class Real, char Letter>
     containers::StackVector<std::pair<Real,Real>, Order> 
-    VAS_real_root_bounds(const Polynomial<Order, Real>& f) {
+    VAS_real_root_bounds(const Polynomial<Order, Real, Letter>& f) {
       //Calculate the upper bound on the polynomial real roots, and
       //return if no roots are detected
       const Real upper_bound = LMQ_upper_bound(f);
@@ -1786,9 +1811,9 @@ namespace magnet {
 	This function uses an algorithm (VAS/VCA) to bound the roots,
 	then a method to calculate them to full precision.
      */
-    template<PolyRootBounder BoundMode, PolyRootBisector BisectionMode, size_t Order, class Real>
+    template<PolyRootBounder BoundMode, PolyRootBisector BisectionMode, size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
-    solve_real_roots_poly(const Polynomial<Order, Real>& f) {
+    solve_real_roots_poly(const Polynomial<Order, Real, Letter>& f) {
       //Handle special cases 
 
       //The constant coefficient is zero: deflate the polynomial
@@ -1859,9 +1884,9 @@ namespace magnet {
 
       Roots should always be returned sorted lowest-first.
      */
-    template<size_t Order, class Real>
+    template<size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
-    solve_roots(const Polynomial<Order, Real>& f) {
+    solve_roots(const Polynomial<Order, Real, Letter>& f) {
       return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real>(f);
     }
 
@@ -1870,8 +1895,8 @@ namespace magnet {
       \brief Trivial specialisation for the next positive root of a
       constant.
      */
-    template<class Real>
-    Real next_root(const Polynomial<0, Real>& f) {
+    template<class Real, char Letter>
+    Real next_root(const Polynomial<0, Real, Letter>& f) {
       return std::numeric_limits<Real>::infinity();
     }
     
@@ -1884,9 +1909,9 @@ namespace magnet {
       used to provide an implementation of \ref next_root in these
       cases.
     */
-    template<class Real, size_t Order>
+    template<class Real, size_t Order, char Letter>
     typename std::enable_if<(Order < 4), Real>::type 
-    next_root(const Polynomial<Order, Real>& f) {
+    next_root(const Polynomial<Order, Real, Letter>& f) {
       auto roots = solve_roots(f);
       for (const Real& root : roots)
 	if (root >= 0)
@@ -1894,9 +1919,9 @@ namespace magnet {
       return std::numeric_limits<Real>::infinity();
     }
       
-    template<class Real, size_t Order>
+    template<class Real, size_t Order, char Letter>
     typename std::enable_if<(Order > 3), Real>::type 
-    next_root(const Polynomial<Order, Real>& f) {
+    next_root(const Polynomial<Order, Real, Letter>& f) {
       //Drop down to a lower order solver if available
       if (f[Order] == 0)
 	return next_root(change_order<Order-1>(f));
@@ -1929,10 +1954,10 @@ namespace magnet {
       \param tmin The minimum bound.
       \param tmax The maximum bound.
     */
-    template<class Real, size_t Order>
-    inline auto minmax(const Polynomial<Order, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    template<class Real, size_t Order, char Letter>
+    inline auto minmax(const Polynomial<Order, Real, Letter>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
     {
-      auto roots = solve_roots(derivative(f));
+      auto roots = solve_roots(derivative(f, Variable<Letter>()));
       std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_min))> retval = std::minmax(eval(f, x_min), eval(f, x_max));
       for (auto root : roots)
 	if ((root > x_min) && (root < x_max))
@@ -1946,8 +1971,8 @@ namespace magnet {
       \param x_min The minimum bound.
       \param x_max The maximum bound.
     */
-    template<class Real>
-    inline auto minmax(const Polynomial<0, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    template<class Real, char Letter>
+    inline auto minmax(const Polynomial<0, Real, Letter>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
     { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
 
     /*! \brief The maximum and minimum values of a 1st order Polynomial in a specified range. 
@@ -1955,8 +1980,8 @@ namespace magnet {
       \param x_min The minimum bound.
       \param x_max The maximum bound.
     */
-    template<class Real>
-    inline auto minmax(const Polynomial<1, Real>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
+    template<class Real, char Letter>
+    inline auto minmax(const Polynomial<1, Real, Letter>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
     { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
 
     /*! \endcond \} */
