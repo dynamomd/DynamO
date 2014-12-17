@@ -250,17 +250,35 @@ namespace magnet {
     template<char Letter1, char Letter2,
 	     typename = typename std::enable_if<Letter1 != Letter2>::type>
     NullSymbol derivative(Variable<Letter1>, Variable<Letter2>) { return NullSymbol(); }
+ 
+    /*! \brief Shift a function forward. It returns \f$g(x)=f(x+a)\f$
 
+      For constant terms, these remain the same so this generic
+      implementation does nothing.
+     */
     template<class F, class Real,
 	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
     inline F shift_function(const F& f, const Real t) {
       return f;
     }
     
+    /*! \brief Calculate the next real root of a symbolic function.
+
+      For constant terms, +inf is returned to indicate no root was
+      found.
+     */
     template<class F, 
 	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
     inline double next_root(const F& f) {
       return HUGE_VAL;
+    }
+
+    /*! \brief Estimate the error in evaluating a function at a given time.
+     */
+    template<class F, class Real,
+	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
+    inline double precision(const F& f, const Real) {
+      return 0.0;
     }
   }
 }

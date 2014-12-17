@@ -41,10 +41,11 @@ namespace magnet {
       const double f_start = eval(f, t == 0.0);
       const double df_start = eval(df, t == 0.0);
 
-      double f_shift = 0.0;
-      //Check if starting overlapped
+      const double f_next_root = ::magnet::math::next_root(f);
+      const double df_next_root = ::magnet::math::next_root(df);
+      
+      //Check if starting overlapped.
       if (f_start <= 0) {
-
 	//If we're approaching then the current time is the time of
 	//the next event
 	if (df_start < 0)
@@ -61,18 +62,19 @@ namespace magnet {
 	  return HUGE_VAL;
 
 	//If it turns around while still overlapped/in contact, then
-	//the turning point is the next event.
-	if (eval(f, t == next_df_root) <= 0)
+	//the turning point is the next event. This cannot be a hard
+	//and fast zero, as shifting the function may cause numerical
+	//error
+	if (eval(f, t==next_df_root) <= 4 * precision(f, next_df_root))
 	  return next_df_root;
 
 	//The turning point of the derivative is in the positive
 	//region, so use this as the starting point of a normal event
 	//search.
-	f = ::magnet::math::shift_function(f, next_df_root);
-	f_shift = next_df_root;
+	return next_df_root + ::magnet::math::next_root(shift_function(f, next_df_root));
       }
       
-      return f_shift + ::magnet::math::next_root(f);
+      return f_next_root;
     }
 
     /*! \brief Calculate the interval until the 1st order Polynomial
