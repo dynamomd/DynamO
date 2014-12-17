@@ -131,11 +131,6 @@ BOOST_AUTO_TEST_CASE( Null_tests )
   BOOST_CHECK(compare_expression(derivative(NullSymbol()), "Null"));
   BOOST_CHECK_EQUAL(eval(NullSymbol(), 100), 0);
 
-  //Check the bounds
-  auto limits = minmax(NullSymbol(), -10, 100);
-  BOOST_CHECK_EQUAL(limits.first, 0.0);
-  BOOST_CHECK_EQUAL(limits.second, 0.0);
-
   //Check derivatives of constants becomes Null
   BOOST_CHECK(compare_expression(derivative(2), "Null"));
   BOOST_CHECK(compare_expression(derivative(3.141), "Null"));
@@ -149,15 +144,8 @@ BOOST_AUTO_TEST_CASE( Unity_tests )
   BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
   BOOST_CHECK_EQUAL(eval(UnitySymbol(), 100), 1);
 
-  //Check the bounds
-  auto limits = minmax(UnitySymbol(), -10, 100);
-  BOOST_CHECK_EQUAL(limits.first, 1);
-  BOOST_CHECK_EQUAL(limits.second, 1);
-
-  //Check derivatives of Unity, or expressions that generate Unity
+  //Check derivatives of Unity
   BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
-  BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
-  BOOST_CHECK(compare_expression(derivative(sin(Var())), cos(Var())));
 
   //Check simplification of multiplication with Unity
   BOOST_CHECK(compare_expression(UnitySymbol() * UnitySymbol(), "Unity"));
@@ -171,20 +159,23 @@ BOOST_AUTO_TEST_CASE( Unity_tests )
 
 BOOST_AUTO_TEST_CASE( Var_tests )
 {
-  //Check that Var is implemented correctly
-  BOOST_CHECK(compare_expression(Var(), "v"));
-  BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
-  BOOST_CHECK_EQUAL(eval(Var(), 3.14159265), 3.14159265);
+  typedef Var<'z'> x;
+  std::cout << x() << std::endl;
+  std::cout << eval(Var<'x'>(), Var<'x'>()=3.14159265) << std::endl;
 
-  //Check the bounds
-  auto limits = minmax(Var(), -10, 100);
-  BOOST_CHECK_EQUAL(limits.first, -10);
-  BOOST_CHECK_EQUAL(limits.second, 100);
+  //Check that Var is implemented correctly
+  BOOST_CHECK(compare_expression(Var<'x'>(), "x"));
+  BOOST_CHECK(compare_expression(derivative(Var<'x'>()), "Unity"));
+  BOOST_CHECK_EQUAL(eval(Var<'x'>(), Var<'x'>()=3.14159265), 3.14159265);
+
+  //Check that Var derivatives correctly vanish
+  BOOST_CHECK(compare_expression(derivative(Var<'x'>()), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(sin(Var<'x'>())), cos(Var<'x'>())));
 
   //Check derivatives of Unity
   BOOST_CHECK(compare_expression(derivative(UnitySymbol()), "Null"));
-  BOOST_CHECK(compare_expression(derivative(Var()), "Unity"));
-  BOOST_CHECK(compare_expression(derivative(Var()*sin(Var())), sin(Var()) + Var() * cos(Var())));
+  BOOST_CHECK(compare_expression(derivative(Var<'x'>()), "Unity"));
+  BOOST_CHECK(compare_expression(derivative(Var<'x'>()*sin(Var<'x'>())), sin(Var<'x'>()) + Var<'x'>() * cos(Var<'x'>())));
 }
 
 BOOST_AUTO_TEST_CASE( reorder_operations )

@@ -41,7 +41,8 @@ namespace magnet {
       static const bool value = true;
     };
 
-    template<> struct SymbolicOperators<Var> {
+     
+    template<> template<char Letter> struct SymbolicOperators<Var<Letter>> {
       static const bool value = true;
     };
 

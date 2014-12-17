@@ -32,9 +32,22 @@ namespace magnet {
       operator int () const { return 1; }
     };
 
+    template<char Letter, class Arg> struct VarSubstitution {
+      VarSubstitution(const Arg& val):_val(val) {}
+      const Arg& _val;
+    };
+    
     /*!\brief Symbolic representation of a variable.
+
+      This class is used to denote a variable. The template argument
+      is a single ASCII character which represents this variable and
+      is used to identify it during symbolic actions and output.
      */
-    struct Var {
+    template<char Letter> struct Var {
+      template<class Arg>
+      VarSubstitution<Letter, Arg>operator=(const Arg& a) {
+	return VarSubstitution<Letter, Arg>(a);
+      }
     };
 
     namespace detail {
@@ -130,13 +143,13 @@ namespace magnet {
 
       This generic implementation is used for constant terms.
     */
-    template<class T, class Real> 
-    auto eval(const T& f, const Real& x) -> typename std::enable_if<detail::IsConstant<T>::value, const T&>::type
+    template<class T, class VarArg> 
+    const T& eval(const T& f, const VarArg& x)
     { return f; }
 
     /*! \brief Evaluates a symbolic Var variable expression at a given point.
     */
-    template<class Real> Real eval(const Var& f, const Real& x) { return x; }
+    template<char Letter, class Arg> Arg eval(const Var<Letter>& f, const VarSubstitution<Letter, Arg>& x) { return x._val; }
     
     /*! \brief Output operator for NullSymbol types. */
     inline std::ostream& operator<<(std::ostream& os, const NullSymbol&) {
@@ -151,8 +164,9 @@ namespace magnet {
     }
 
     /*! \brief Output operator for Var types. */
-    inline std::ostream& operator<<(std::ostream& os, const Var&) {
-      os << "v";
+    template<char Letter>
+    inline std::ostream& operator<<(std::ostream& os, const Var<Letter>&) {
+      os << Letter;
       return os;
     }
     
@@ -164,28 +178,12 @@ namespace magnet {
       types. As most symbols are constants or arithmetic types (int,
       float, double) by default their derivatives are zero.
     */
-    template<class T, typename = typename std::enable_if<detail::IsConstant<T>::value> >
+    template<class T>
     NullSymbol derivative(const T&) { return NullSymbol();}
 
     /*! \brief Determine the derivative of a symbolic expression.
      */
-    UnitySymbol derivative(const Var&) { return UnitySymbol(); }
-    
-    /*! \brief Determine the minimum and maximum of a symbolic
-      expression within some bounds of x.
-      
-      For arithmetic types (int, float, double) their bounds are
-      their actual values.
-    */
-    template<class T, class Real, typename = typename std::enable_if<detail::IsConstant<T>::value>::type>
-    std::pair<T, T> minmax(const T& f, const Real& x_min, const Real& x_max)
-    { return std::pair<T, T>(f, f); }
-
-    /*! \brief Determine the minimum and maximum of a Var expression
-      within some bounds of x.
-    */
-    template<class Real>
-    std::pair<Real, Real> minmax(const Var& f, const Real& x_min, const Real& x_max)
-    { return std::pair<Real, Real>(x_min, x_max); }
+    template<char Letter>
+    UnitySymbol derivative(const Var<Letter>&) { return UnitySymbol(); }
   }
 }
