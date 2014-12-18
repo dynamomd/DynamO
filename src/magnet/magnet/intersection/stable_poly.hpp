@@ -21,6 +21,56 @@
 
 namespace magnet {
   namespace intersection {
+    /*! \brief Implementation of \ref next_root which utilises \ref
+      solve_roots.
+      
+      This is mainly useful for simple functions with fast root
+      detection algorithms. For example, the linear, quadratic, and
+      cubic functions are solved via radicals, so this function is
+      used to provide an implementation of \ref next_root in these
+      cases.
+    */
+    template<class Real, size_t Order, char Letter>
+    typename std::enable_if<(Order < 4), Real>::type 
+    next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f) {
+      double next_root = HUGE_VAL;
+      auto roots = magnet::math::solve_roots(f);
+      for (const Real& root : roots)
+	if (root >= 0) {
+	  next_root = root;
+	  break;
+	}
+
+      double sample_point = (next_root != HUGE_VAL) ? (next_root / 2) : 1;
+      if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) > 0)
+	return next_root;
+      else
+	return 0.0;
+    }
+      
+    //template<class Real, size_t Order, char Letter>
+    //typename std::enable_if<(Order > 3), Real>::type 
+    //next_negative(const Polynomial<Order, Real, Letter>& f) {
+    //  //Drop down to a lower order solver if available
+    //  if (f[Order] == 0)
+    //	return next_root(change_order<Order-1>(f));
+    //  
+    //  //Test if we're currently turning negative
+    //  if (f[0] < 0)
+    //	return 0.0;
+    //
+    //  auto pos_root_bounds = VAS_real_root_bounds(f);
+    //  if (pos_root_bounds.size() != 0) {
+    //	std::sort(pos_root_bounds.begin(), pos_root_bounds.end());
+    //	const Real& a = pos_root_bounds[0].first;
+    //	const Real& b = pos_root_bounds[0].second;
+    //	boost::uintmax_t iter = 100;
+    //	auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
+    //	return (root.first + root.second) / 2;
+    //  }
+    //
+    //  return std::numeric_limits<Real>::infinity();
+    //}
 
     /*!  \brief Implementation of the generic stable event-detection
       algorithm.
@@ -41,40 +91,34 @@ namespace magnet {
       const double f_start = eval(f, t == 0.0);
       const double df_start = eval(df, t == 0.0);
 
-      const double f_next_root = ::magnet::math::next_root(f);
-      const double df_next_root = ::magnet::math::next_root(df);
-      
-      //Check if starting overlapped.
-      if (f_start <= 0) {
-	//If we're approaching then the current time is the time of
-	//the next event
-	if (df_start < 0)
-	  return 0;
-
-	//We need to find when the derivative next turns
-	//negative. Here we recurse, as this will correctly check that
-	//the function indeed turns negative.
-	const double next_df_root = nextEvent(df);
-
-	//If the overlap function never becomes negative, then there
-	//is never an event.
-	if (next_df_root == HUGE_VAL)
-	  return HUGE_VAL;
-
-	//If it turns around while still overlapped/in contact, then
-	//the turning point is the next event. This cannot be a hard
-	//and fast zero, as shifting the function may cause numerical
-	//error
-	if (eval(f, t==next_df_root) <= 4 * precision(f, next_df_root))
-	  return next_df_root;
-
-	//The turning point of the derivative is in the positive
-	//region, so use this as the starting point of a normal event
-	//search.
-	return next_df_root + ::magnet::math::next_root(shift_function(f, next_df_root));
+      //Check if starting was not overlapped.
+      if (f_start >= 0) {
+	return next_negative(f);
       }
       
-      return f_next_root;
+      //If we're approaching then the current time is the time of
+      //the next event
+      if (df_start < 0)
+	return 0;
+      
+      //We need to find when the derivative next turns
+      //negative. Here we recurse, as this will correctly check that
+      //the function indeed turns negative.
+      const double df_next_root = next_negative(df);
+      
+      //If the overlap function never becomes negative, then there
+      //is never an event.
+      if (df_next_root == HUGE_VAL)
+	return HUGE_VAL;
+      
+      //If it turns around while still overlapped/in contact, then
+      //the turning point is the next event. 
+      if (eval(f, t==df_next_root) <= 0)
+	return df_next_root;
+      
+      //Ok, try searching after the maxima for events
+      auto shift_f = shift_function(f, df_next_root);
+      return df_next_root + next_negative(shift_f);
     }
 
     /*! \brief Calculate the interval until the 1st order Polynomial

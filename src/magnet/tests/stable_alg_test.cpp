@@ -41,8 +41,10 @@ void test_solution(const F& f, double solution, double tol) {
     } else if (solution == 0) {
       //Immediate collision! Check that the particles are currently
       //approaching and overlapping
-      BOOST_CHECK(eval(f, t==0.0) <= 0);
-      BOOST_CHECK(eval(df, t==0.0) < 0);
+      if (eval(f, t==0.0) > tol)
+	throw std::runtime_error("Not sufficiently overlapped during an immediate collision");
+      if (eval(df, t==0.0) > tol)
+	throw std::runtime_error("Not sufficiently approaching during an immediate collision");
     } else {
       if (eval(f, t==0) >= 0) {
 	//Particles started out not overlapping, therefore the solution
@@ -91,8 +93,10 @@ void test_solution(const F& f, double solution, double tol) {
     std::cout << "f'("<< nextroot <<")=" << eval(df, t==nextroot) << std::endl;
     std::cout << "roots = " << roots << std::endl;
     std::cout << "f' roots = " << droots << std::endl;
-    std::cout << "d|f| = " << precision(f, solution) << std::endl;
-    std::cout << "d|f'| = " << precision(df, solution) << std::endl;
+    std::cout << "d|f|("<<nextroot<<") = " << precision(f, nextroot) << std::endl;
+    std::cout << "d|f'|("<<nextroot<<") = " << precision(df, nextroot) << std::endl;
+    std::cout << "d|f|("<<solution<<") = " << precision(f, solution) << std::endl;
+    std::cout << "d|f'|("<<solution<<") = " << precision(df, solution) << std::endl;
   }
 }
 

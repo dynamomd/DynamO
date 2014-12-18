@@ -1890,59 +1890,6 @@ namespace magnet {
       return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real>(f);
     }
 
-    /*! \cond Specializations
-
-      \brief Trivial specialisation for the next positive root of a
-      constant.
-     */
-    template<class Real, char Letter>
-    Real next_root(const Polynomial<0, Real, Letter>& f) {
-      return std::numeric_limits<Real>::infinity();
-    }
-    
-    /*! \brief Implementation of \ref next_root which utilises \ref
-      solve_roots.
-      
-      This is mainly useful for simple functions with fast root
-      detection algorithms. For example, the linear, quadratic, and
-      cubic functions are solved via radicals, so this function is
-      used to provide an implementation of \ref next_root in these
-      cases.
-    */
-    template<class Real, size_t Order, char Letter>
-    typename std::enable_if<(Order < 4), Real>::type 
-    next_root(const Polynomial<Order, Real, Letter>& f) {
-      auto roots = solve_roots(f);
-      for (const Real& root : roots)
-	if (root >= 0)
-	  return root;
-      return std::numeric_limits<Real>::infinity();
-    }
-      
-    template<class Real, size_t Order, char Letter>
-    typename std::enable_if<(Order > 3), Real>::type 
-    next_root(const Polynomial<Order, Real, Letter>& f) {
-      //Drop down to a lower order solver if available
-      if (f[Order] == 0)
-	return next_root(change_order<Order-1>(f));
-      
-      //Test if we're currently at a root already
-      if (f[0] == 0)
-	return 0.0;
-
-      auto pos_root_bounds = VAS_real_root_bounds(f);
-      if (pos_root_bounds.size() != 0) {
-	std::sort(pos_root_bounds.begin(), pos_root_bounds.end());
-	const Real& a = pos_root_bounds[0].first;
-	const Real& b = pos_root_bounds[0].second;
-	boost::uintmax_t iter = 100;
-	auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
-	return (root.first + root.second) / 2;
-      }
-
-      return std::numeric_limits<Real>::infinity();
-    }
-
     /*! \endcond \} */
     
     /*! \relates Polynomial 
