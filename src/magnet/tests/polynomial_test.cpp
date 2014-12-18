@@ -436,6 +436,8 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
 
   {//Large x term
     auto poly = x * x * x - x * x - largeterm * x + 1.25;
+    std::cout.precision(std::numeric_limits<double>::digits10 + 1);
+    std::cout << poly << std::endl;
     auto roots = solve_roots(poly);
     BOOST_CHECK_EQUAL(roots.size(), 3);
     BOOST_CHECK_CLOSE(roots[0], -1.1579208923731622e78, 1e-10);

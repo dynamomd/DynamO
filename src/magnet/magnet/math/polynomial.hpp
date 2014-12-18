@@ -814,8 +814,8 @@ namespace magnet {
 
       Real denominator = 2 * last_state[1] * last_state[1] - last_state[0] * last_state[2];
       
-      if (denominator == 0)
-	//Cannot proceed with a zero denominator
+      if ((denominator == 0) || !std::isfinite(denominator))
+	//Cannot proceed with a zero denominator, or if it has overflowed (+inf)
 	return false;
 
       //Take a step

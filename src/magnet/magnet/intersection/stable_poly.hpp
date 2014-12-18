@@ -33,23 +33,55 @@ namespace magnet {
     template<class Real, size_t Order, char Letter>
     typename std::enable_if<(Order < 4), Real>::type 
     next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f) {
-      double next_root = HUGE_VAL;
-      auto roots = magnet::math::solve_roots(f);
-      for (const Real& root : roots)
-	if (root >= 0) {
-	  next_root = root;
-	  break;
-	}
 
-      //Roots "near" zero may be missed, so test that the immediate
-      //future is not going to contain a negative section. If it is,
-      //then either we're already negative or there was a root near
-      //zero
-      double sample_point = (next_root != HUGE_VAL) ? (next_root / 2) : 1;
-      if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) > 0)
-	return next_root;
-      else
+      double first_root = HUGE_VAL;
+      double second_root = HUGE_VAL;
+      auto roots = magnet::math::solve_roots(f);
+      auto it = roots.begin();
+
+      //skip negative roots
+      while ((it != roots.end()) && (*it < 0)) ++it;
+      
+      //Grab the next two positive roots (if they exist)
+      if (it != roots.end()) {
+	first_root = *it;
+	if ((++it) != roots.end())
+	  second_root = *it;
+      }
+
+      //There are two numerical cases to be avoided. 
+      //
+      //First, although f(0)>0 on entry to this function, there may be
+      //a sign change numerically at x=0 due to finite precision. The
+      //only way to test for this is to actually test if an unexpected
+      //sign change has happened sometime before the next root (or
+      //infinity if no root has happened). If there is no root change,
+      //then x=1 is a logical point to sample the sign of the
+      //root. Otherwise we must sample in-between now and the next
+      //root.
+      const double sample_point = (first_root == HUGE_VAL) ? 1.0 : first_root / 2;
+      if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) < 0)
+	//They're already approaching, return an instant collision
 	return 0.0;
+
+      //Second, the root detected in the future may have an odd or
+      //even multiplicity. Odd roots are actual sign transitions
+      //whereas even roots are not. Therefore it is not enough to
+      //simply detect the root, we must test that it actually changes
+      //sign. Numerically determining the multiplicity of a root of a
+      //floating point polynomial (or other function) is futile. We
+      //only care if a sign change occurs.
+      
+      if (first_root != HUGE_VAL)
+	do {
+	  const double sample_point = (second_root == HUGE_VAL) ? first_root + 1.0 : (first_root + second_root) / 2;
+	  if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) < 0)
+	    return first_root;
+	  first_root = second_root;
+	  second_root = ((++it) != roots.end()) ? *it : HUGE_VAL;
+	} while (first_root != HUGE_VAL);
+      
+      return HUGE_VAL;
     }
       
     //template<class Real, size_t Order, char Letter>
