@@ -13,8 +13,8 @@ std::mt19937 RNG;
 const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
 const size_t tests = 1000;
 
-template<class F>
-void test_solution(const F& f, double solution, double tol) {
+template<class F, class R>
+void test_solution(const F& f, double solution, double tol, R actual_roots) {
   Variable<'t'> t;
   const auto roots = solve_roots(f);
   const auto df = derivative(f, t);
@@ -91,6 +91,7 @@ void test_solution(const F& f, double solution, double tol) {
     std::cout << "f'("<< solution <<")=" << eval(df, t==solution) << std::endl;
     std::cout << "f("<< nextroot <<")=" << eval(f, t==nextroot) << std::endl;
     std::cout << "f'("<< nextroot <<")=" << eval(df, t==nextroot) << std::endl;
+    std::cout << "actual_roots = " << actual_roots << std::endl;
     std::cout << "roots = " << roots << std::endl;
     std::cout << "f' roots = " << droots << std::endl;
     std::cout << "d|f|("<<nextroot<<") = " << precision(f, nextroot) << std::endl;
@@ -112,7 +113,7 @@ BOOST_AUTO_TEST_CASE( Linear_function )
       for (size_t i(0); i < tests; ++i) {
 	auto s_poly = shift_function(poly, shift_dist(RNG));
 	auto roots = solve_roots(s_poly);
-	test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-10);
+	test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-10, magnet::containers::StackVector<double,1>{root});
       }
     }
 }
@@ -129,7 +130,7 @@ BOOST_AUTO_TEST_CASE( Quadratic_function )
 	  double shift = shift_dist(RNG);
 	  auto s_poly = shift_function(poly, shift);
 	  auto roots = solve_roots(s_poly);
-	  test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-8);
+	  test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-8, magnet::containers::StackVector<double,2>{root1, root2});
 	}
       }
 }
@@ -160,7 +161,7 @@ const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 
 	    for (size_t i(0); i < tests; ++i) {
 	      double shift = shift_dist(RNG);
 	      auto s_poly = shift_function(poly, shift);
-	      test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-4);
+	      test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-4, magnet::containers::StackVector<double,3>{root1, root2, root3});
 	    }
 	  }
 }
