@@ -5,6 +5,7 @@
 #include <cmath>
 #include <complex>
 #include <random>
+#include <fenv.h>
 
 using namespace magnet::math;
 const Polynomial<1, double, 't'> t{0, 1};
@@ -14,90 +15,127 @@ const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 
 const size_t tests = 1000;
 
 template<class F, class R>
-void test_solution(const F& f, double solution, double tol, R actual_roots) {
+void test_solution(const F& f, double tol, R actual_roots) {
+  //Counter of how many tests have been done (to give an idea of where failures are)
+  static size_t counter = 0;
+  ++counter;
+
+  std::sort(actual_roots.begin(), actual_roots.end());
+
+//  if (counter == 222718)
+//    std::cout << "PING" << std::endl;
+
+  double nextroot = HUGE_VAL;
+  const double solution = magnet::intersection::nextEvent(f);
   Variable<'t'> t;
   const auto roots = solve_roots(f);
   const auto df = derivative(f, t);
   const auto droots = solve_roots(df);
 
-  double nextroot = HUGE_VAL;
-  for (double root : roots)
-    if (root > 0)
-      nextroot = std::min(nextroot, root);
-  
-  double nextdroot = HUGE_VAL;
-  for (double root : droots)
-    if (root > 0)
-      nextdroot = std::min(nextdroot, root);
+  //Multiplicity of each root
+  std::map<double, size_t> root_counters;
+  for (auto root : actual_roots)
+    root_counters[root] = 0;
+  for (auto root : actual_roots)
+    ++root_counters[root];
+
 
   try {
-    if (solution == HUGE_VAL) {
-      //No root! so check there really are no roots
-      for (double root : roots)
-	if (root > 0) {
-	  if ((eval(df, t == root) < 0) || ((eval(df, t== root) == 0) && (eval(derivative(df, t), t == root) < 0)))
-	    throw std::runtime_error("Did not detect a root!");
-	}
-    } else if (solution == 0) {
+
+    if (solution == 0) {
       //Immediate collision! Check that the particles are currently
       //approaching and overlapping
-      if (eval(f, t==0.0) > tol)
+      if (eval(f, t==0.0) > 0)
 	throw std::runtime_error("Not sufficiently overlapped during an immediate collision");
-      if (eval(df, t==0.0) > tol)
+      if (eval(df, t==0.0) > 0)
 	throw std::runtime_error("Not sufficiently approaching during an immediate collision");
-    } else {
-      if (eval(f, t==0) >= 0) {
-	//Particles started out not overlapping, therefore the solution
-	//must be an actual root
-	if (nextroot == HUGE_VAL) {
-	  //Check if this is a phantom root
-	  BOOST_CHECK(nextroot == HUGE_VAL);
-	} else {
-	  if (!::boost::test_tools::check_is_close(solution, nextroot, ::boost::test_tools::percent_tolerance(tol)))
-	    throw std::runtime_error("Solution and root are not close!");
+      return;
+    }
+
+    auto it = root_counters.begin();
+
+    if (f[0] < 0) {
+      //Particles have started out overlapping
+    
+      //Check if the event corresponds to a root in the derivative (turning point)
+      for (auto droot : droots)
+	if (!std::isinf(solution) && ::boost::test_tools::check_is_close(solution, droot, ::boost::test_tools::percent_tolerance(tol))) {
+	  //Its a turning point, check there are no roots before it
+	  for (auto root : actual_roots)
+	    if ((root > 0) && (root < droot) && !::boost::test_tools::check_is_close(root, droot, ::boost::test_tools::percent_tolerance(tol)))
+	      throw std::runtime_error("Root between turnaround and current time");
+	  return;
 	}
-      } else /*if (f(0) <= 0)*/ {
-	//The particles started out overlapping, 
-	if (::boost::test_tools::check_is_close(solution, nextdroot, ::boost::test_tools::percent_tolerance(tol))) {
-	  //Its at the next turning point, the root must be overlapping
-	  if (eval(f, t==solution) > 4 * precision(f, solution))
-	    throw std::runtime_error("Turning point event is not within the overlapped zone");
-	  if (eval(df, t==solution) > 4 * precision(df, solution))
-	    throw std::runtime_error("Particles are receeding at turning point root!");
+
+      for (; it != root_counters.end(); ++it) {
+	//Check that this root is in the future
+	if (it->first < 0) continue;
+
+	nextroot = it->first;
+	bool is_odd_root = it->second % 2;
+	if (!is_odd_root) {
+	  //Its an even root, we must detect this!
+	  if (!std::isinf(solution) && !::boost::test_tools::check_is_close(solution, nextroot, ::boost::test_tools::percent_tolerance(tol)))
+	    throw std::runtime_error("Missed a turnback root?");
+	  else
+	    return;
 	} else {
-	  //The detected root must be after the nextroot (which is the
-	  //exit root)
-	  BOOST_CHECK(solution >= nextroot);
-	  if (std::abs(eval(f, t==solution)) > 4 * precision(f, solution)) {
-	    throw std::runtime_error("This is not a root!");
-	  }
-	  double err = HUGE_VAL;
-	  for (double root : roots)
-	    err = std::min(err, std::abs(root - solution));
-	  BOOST_CHECK_SMALL(err, tol);
+	  //Odd root. This means the particle passes through
+	  //this root, to outside. Carry on with the normal detection!
+	  ++it;
+	  break;
 	}
       }
     }
+  
+    //We expect the next, non-negative, odd multiplicity root to be an
+    //event. even-multiplicity roots will be accepted though (as they
+    //may be numerically distinct)
+  
+    for (; it != root_counters.end(); ++it) {
+      if (it->first < 0) continue;
+      nextroot = it->first;
+      bool is_odd_root = it->second % 2;
+      
+      if (is_odd_root) {
+	//Its an odd root, we must detect this!
+	if (!::boost::test_tools::check_is_close(solution, nextroot, ::boost::test_tools::percent_tolerance(tol))
+	    && (std::abs(eval(f, t==solution)) > 4 * precision(f, solution)))
+	  throw std::runtime_error("Missed a root?");
+	else 
+	  return;
+      } else if (!std::isinf(solution) && ::boost::test_tools::check_is_close(solution, nextroot, ::boost::test_tools::percent_tolerance(tol))) 
+	//Detected an even root as a crossing, not a huge error.
+	return;
+      else
+	continue;
+    }
+
+    if (solution != HUGE_VAL)
+      throw std::runtime_error("Detected an extra root?");
+
   } catch (std::exception& e) {
     BOOST_ERROR(e.what());
     std::cout.precision(50);
-    std::cout << "next_event = " << magnet::intersection::nextEvent(f) << std::endl;
+    std::cout << "TEST " << counter << std::endl;
     std::cout << "f(x)=" << f << std::endl;
     std::cout << "f'(x)=" << df << std::endl;
     std::cout << "f''(x)=" << derivative(df, t) << std::endl;
     std::cout << "f(0)=" << eval(f, t==0) << std::endl;
     std::cout << "f'(0)=" << eval(df, t==0) << std::endl;
-    std::cout << "f("<< solution <<")=" << eval(f, t==solution) << std::endl;
-    std::cout << "f'("<< solution <<")=" << eval(df, t==solution) << std::endl;
-    std::cout << "f("<< nextroot <<")=" << eval(f, t==nextroot) << std::endl;
-    std::cout << "f'("<< nextroot <<")=" << eval(df, t==nextroot) << std::endl;
+    std::cout << "solution = " << solution << std::endl;
+    std::cout << "f(solution)=" << eval(f, t==solution) << std::endl;
+    std::cout << "f'(solution)=" << eval(df, t==solution) << std::endl;
+    std::cout << "f(nextroot="<<nextroot<<")=" << eval(f, t==nextroot) << std::endl;
+    std::cout << "f'(nextroot="<<nextroot<<")=" << eval(df, t==nextroot) << std::endl;
     std::cout << "actual_roots = " << actual_roots << std::endl;
     std::cout << "roots = " << roots << std::endl;
     std::cout << "f' roots = " << droots << std::endl;
-    std::cout << "d|f|("<<nextroot<<") = " << precision(f, nextroot) << std::endl;
-    std::cout << "d|f'|("<<nextroot<<") = " << precision(df, nextroot) << std::endl;
-    std::cout << "d|f|("<<solution<<") = " << precision(f, solution) << std::endl;
-    std::cout << "d|f'|("<<solution<<") = " << precision(df, solution) << std::endl;
+    std::cout << "d|f|(nextroot) = " << precision(f, nextroot) << std::endl;
+    std::cout << "d|f'|(nextroot) = " << precision(df, nextroot) << std::endl;
+    std::cout << "d|f|(next_event) = " << precision(f, solution) << std::endl;
+    std::cout << "d|f'|(next_event) = " << precision(df, solution) << std::endl;
+    throw;
   }
 }
 
@@ -111,9 +149,10 @@ BOOST_AUTO_TEST_CASE( Linear_function )
       
       std::uniform_real_distribution<double> shift_dist(-10, 10);
       for (size_t i(0); i < tests; ++i) {
-	auto s_poly = shift_function(poly, shift_dist(RNG));
+	double shift = shift_dist(RNG);
+	auto s_poly = shift_function(poly, shift);
 	auto roots = solve_roots(s_poly);
-	test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-10, magnet::containers::StackVector<double,1>{root});
+	test_solution(s_poly, 1e-10, magnet::containers::StackVector<double,1>{root - shift});
       }
     }
 }
@@ -130,7 +169,7 @@ BOOST_AUTO_TEST_CASE( Quadratic_function )
 	  double shift = shift_dist(RNG);
 	  auto s_poly = shift_function(poly, shift);
 	  auto roots = solve_roots(s_poly);
-	  test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-8, magnet::containers::StackVector<double,2>{root1, root2});
+	  test_solution(s_poly, 1e-2, magnet::containers::StackVector<double,2>{root1 - shift, root2 - shift});
 	}
       }
 }
@@ -138,18 +177,12 @@ BOOST_AUTO_TEST_CASE( Quadratic_function )
 BOOST_AUTO_TEST_CASE( Cubic_function )
 {
   RNG.seed(1);
-  
-const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
+  feenableexcept(FE_INVALID | FE_OVERFLOW);
+  const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
 
-//  double sign = -1;
-//  double root1 = -1e7;
-//  double root2 = 3.14159265;
-//  double root3 = 3.14159265;
-//  double shift = -4.2074071211187300534106725535821169614791870117188;
-//  auto poly = (t - root1) * (t - root2) * (t - root3) * sign;
-//  auto s_poly = shift_function(poly, shift);
-//  auto result = magnet::intersection::nextEvent(s_poly);
-//  test_solution(s_poly, result, 1e-4);
+  std::cout.precision(50);  
+  auto poly = (t*t*t + -7.9258638382968493729663350677583366632461547851562 * t*t + 19.41096616822921561151815694756805896759033203125 * t + -13.674032423594180585268986760638654232025146484375);
+  auto roots = solve_roots(poly);
   
   for (double sign : {-1.0, +1.0})
     for (double root1 : rootvals)
@@ -161,7 +194,7 @@ const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 
 	    for (size_t i(0); i < tests; ++i) {
 	      double shift = shift_dist(RNG);
 	      auto s_poly = shift_function(poly, shift);
-	      test_solution(s_poly, magnet::intersection::nextEvent(s_poly), 1e-4, magnet::containers::StackVector<double,3>{root1, root2, root3});
+	      test_solution(s_poly, 1e-1, magnet::containers::StackVector<double,3>{root1 - shift, root2 - shift, root3 - shift});
 	    }
 	  }
 }
@@ -180,7 +213,7 @@ const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 
 //	      for (size_t i(0); i < tests; ++i) {
 //		double shift = shift_dist(RNG);
 //		auto s_poly = shift_polynomial(poly, shift);
-//		test_solution(s_poly, magnet::intersection::nextEvent(s_poly, 1.0), 1e-4);
+//		test_solution(s_poly, 1e-4);
 //	      }
 //	    }
 //}

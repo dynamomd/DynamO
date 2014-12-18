@@ -617,132 +617,10 @@ namespace magnet {
 
     /*! \} */
     
-
     /*! \relates Polynomial 
-      \name Polynomial roots
+      \name Polynomial transformations
       \{
     */
-
-    /*! \brief Calculate a maximum error estimate for the evaluation
-        of the polynomial at \f$x\f$.
-	
-	The calculation of this value is outlined in "5.6 Root
-	acceptance and refinement" of "A survey of numerical
-	mathematics" vol.1. It is useful for setting accuracy limits
-	while calculating roots.
-     */
-    template<class Real, size_t Order, class Real2, char Letter>
-    Real precision(const Polynomial<Order, Real, Letter>& f, const Real2& x)
-    {
-      if (std::isinf(x))
-	return 0.0;
-
-      if (Order == 0)
-	return 0;
-
-      static_assert(std::is_floating_point<Real>::value, "This has only been implemented for floating point types");
-      static_assert(std::numeric_limits<Real>::radix == 2, "This has only been implemented for base-2 floating point types");
-      const int mantissa_digits = std::numeric_limits<Real>::digits;
-      const Real eps = 1.06 / std::pow(2, mantissa_digits);
-
-      Real sum = f[0];
-      Real2 xn = std::abs(x);
-      for(size_t i = 1; i <= Order; ++i) {
-	sum += (2 * i + 1) * std::abs(f[i]) * xn;
-	xn *= std::abs(x);
-      }
-
-      return sum * eps;
-    }
-
-
-    /*! \brief Factors out a root of a polynomial and returns a
-      lower-order polynomial with the remaining roots.
-	
-      Given a polynomial, we can rearrange it in factored form like so
-      \f[
-      \sum_{i=0}^N a_i\,x^i =(x - r_1)\sum_{i=0}^{N-1} b_i\, x^{i}
-      \f]
-      
-      where \f$r_1\f$ is a root of the polynomial. Equating terms on the
-      LHS with terms on the RHS with equal powers of \f$x\f$, we have:
-
-      \f[
-      b_i=\frac{b_{i-1} - a_i}{r_1}\qquad \textrm{for}\ i\in[1,\,N-1]
-      \f]
-
-      This formula, known as backward deflation, can be used to
-      calculate all coefficients using the starting point \f$b_0=-a_0
-      / r_1\f$. This approach is not always stable (for example if the
-      root is zero, or if \f$b_{i-1}\f$ has the same sign as \f$a_i\f$
-      we might have catastrophic cancellation).
-      
-      An alternative "forward" iterative form may be found by
-      substituting \f$i\to i+1\f$, which gives:
-
-      \f[
-      b_{i} = a_{i+1} + r_1\,b_{i+1} \qquad \textrm{for}\ i\in[0,\,N-2]
-      \f]
-
-      Again this approach may be used given the starting point
-      \f$b_{N-1}=a_N\f$. However, it might also suffer from
-      catastrophic cancellation if \f$a_{i+1}\f$ has the opposite sign
-      to \f$r_1\,b_{i+1}\f$.
-
-      It should be noted that Numerical Recipies states that "Forward
-      deflation is stable if the largest absolute root is always
-      divided out... backward deflation is stable if the smallest
-      absolute root is always divided out". Unfortunately we do not
-      know a priori the magnitude of the root being divided out.
-      
-      As both approaches may suffer from catastrophic cancellation, we
-      decide to switch between them. If we catch the special
-      root-is-zero case, we only must avoid catastrophic
-      cancellation. This arises if two non-zero terms are subtracted
-      from each other (i.e., for the first approach this happens if
-      \f$a_{i+1}\f$ and \f$r_1\,b_{i+1}\f$ are non-zero and have
-      opposite sign). We could use this to monitor the bits of
-      precision "lost" as we calculate from each end and select a
-      point between the two methods where accuracy is highest, but
-      this would require a more detailed analysis of the error. A
-      simple approach is to solve from both ends of the polynomial at
-      the same time and only actually accept whichever has the lowest 
-      catastrophic cancellation accuracy in terms of bits.
-
-      \param f The Polynomial to factor a root out of.
-      \param root The root to remove.
-    */
-    template<size_t Order, class Real, char Letter>
-    inline Polynomial<Order-1, Real, Letter> deflate_polynomial(const Polynomial<Order, Real, Letter>& a, const double root) {
-      Polynomial<Order-1, Real, Letter> b;
-      
-      //Check for the simple case where root==0. If this is the case,
-      //then the deflated polynomial is actually just a divide by x.
-      if (root == 0) {
-	std::copy(a.begin()+1, a.end(), b.begin());
-	return b;
-      }
-	
-      //Calculate the highest and lowest order coefficients using
-      //these stable approaches
-      b[Order-1] = a[Order];
-      b[0] = - a[0] / root;
-
-      size_t i_t = Order-2;
-      size_t i_b = 1;
-      while (i_t >= i_b) {
-	const Real d = root * b[i_t + 1];	
-	if (subtraction_precision(b[i_b], a[i_b]) > addition_precision(a[i_t+1], d)) {
-	  b[i_b] = (b[i_b-1] - a[i_b]) / root;
-	  ++i_b;
-	} else {
-	  b[i_t] = a[i_t+1] + d;
-	  --i_t;
-	}
-      }
-      return b;
-    }
-    
     /*! \brief Returns a polynomial \f$g(x)=f(x+t)\f$.
       
       Given a polynomial \f$f(x)\f$:
@@ -884,7 +762,299 @@ namespace magnet {
 	g[i] *= (factor *= a);
       return g;
     }
+    /*! \} */
 
+    /*! \relates Polynomial 
+      \name Polynomial algorithms
+      \{
+    */
+    
+    /*! \brief Update and checking of safeguards, called after an
+        iterative step is taken towards a root.
+     */
+    template<size_t Order, class Real, char Letter, size_t Derivatives>
+    inline bool process_iterative_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state, Real& x, Real new_x, Real& low_bound, Real& high_bound) {
+      if ((new_x >= high_bound) || (new_x <= low_bound))
+	//Out of bounds step, abort
+	return false;
+      
+      //Re evalulate the derivatives
+      auto new_state = eval_derivatives<Derivatives-1>(f, new_x);
+
+      if (std::abs(new_state[0]) >= std::abs(last_state[0]))
+	//The function did not decrease, abort 
+	return false;
+      
+      //Accept this step
+      low_bound = std::min(low_bound, x);
+      high_bound = std::max(high_bound, x);
+      last_state = new_state;
+      x = new_x;
+
+      return true;
+    }
+
+    /*! \brief A single step of the Newton-Raphson method for finding roots.
+     */
+    template<size_t Order, class Real, char Letter, size_t Derivatives>
+    inline bool newton_raphson_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state,  Real& x, Real& low_bound, Real& high_bound) {
+      static_assert(Derivatives >= 1, "Can only perform newton raphson if at least 1 derivative is available");
+      if (last_state[1] == 0)
+	//Zero derivatives cause x to diverge, so abort
+	return false;
+
+      return process_iterative_step(f, last_state, x, x - last_state[0] / last_state[1], low_bound, high_bound);
+    }
+    
+    /*! \brief A single step of Halley's method for finding roots.
+     */
+    template<size_t Order, class Real, char Letter, size_t Derivatives>
+    inline bool halley_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state,  Real& x, Real& low_bound, Real& high_bound) {
+      static_assert(Derivatives >= 2, "Can only perform Halley iteration if at least 1 derivative is available");
+
+      Real denominator = 2 * last_state[1] * last_state[1] - last_state[0] * last_state[2];
+      
+      if (denominator == 0)
+	//Cannot proceed with a zero denominator
+	return false;
+
+      //Take a step
+      return process_iterative_step(f, last_state, x, x - 2 * last_state[0] * last_state[1] / denominator, low_bound, high_bound);
+    }
+
+    /*! \brief A single step of Schroeder's method for finding roots.
+     */
+    template<size_t Order, class Real, char Letter, size_t Derivatives>
+    inline bool schroeder_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state,  Real& x, Real& low_bound, Real& high_bound) {
+      static_assert(Derivatives >= 2, "Can only perform Halley iteration if at least 1 derivative is available");
+
+      if (last_state[1] == 0)
+	//Cannot proceed with a zero first derivative
+	return false;
+
+      //Take a step
+      return process_iterative_step(f, last_state, x, x - 2 * last_state[0] * last_state[1] - last_state[2] * last_state[0] * last_state[0] / (2 * last_state[1] * last_state[1] * last_state[1]), low_bound, high_bound);
+    }
+
+    /*! \brief A single bisection step.
+     */
+    template<size_t Order, class Real, char Letter>
+    inline bool bisection_step(const Polynomial<Order, Real, Letter>& f, Real& low_bound, Real& high_bound) {
+      if ((low_bound >= high_bound) || std::isinf(low_bound) || std::isinf(high_bound))
+	//This is not a valid interval
+	return false;
+
+      Real f_low = eval(f, Variable<Letter>() == low_bound);
+      Real f_high = eval(f, Variable<Letter>() == high_bound);
+      
+      if (std::signbit(f_low) == std::signbit(f_high))
+	//No sign change in the interval
+	return false;
+
+      Real x_mid = (low_bound + high_bound) / 2;
+      Real f_mid = eval(f, Variable<Letter>() == x_mid);
+
+      if (std::signbit(f_mid) == std::signbit(f_high))
+	high_bound = x_mid;
+      else
+	low_bound = x_mid;
+
+      return true;
+    }
+
+    /*! \brief Safeguarded newton_raphson method for detecting a root.
+
+      This returns false if further iterations would improve the root.
+     */
+    template<size_t Order, class Real, char Letter>
+    bool newton_raphson(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL) 
+    {
+      auto last_state = eval_derivatives<1>(f, x);
+
+      //Bound where the function can go
+      if (last_state[1] > 0)
+	high_bound = std::min(high_bound, x);
+      if (last_state[1] < 0)
+	low_bound = std::max(low_bound, x);
+      
+      while (--iterations)
+	if (!newton_raphson_step(f, last_state, x, low_bound, high_bound)) {
+	  //Newton Raphson failed, try a bisection step
+	  if (bisection_step(f, low_bound, high_bound))
+	    x = (low_bound + high_bound) / 2;
+	  else
+	    //This failed, return current best estimation
+	    return iterations;
+	}
+      
+      return iterations;
+    }
+
+    /*! \brief Safeguarded Halley's method for detecting a root.
+
+      This returns false if further iterations (when allowed) would improve the root.
+     */
+    template<size_t Order, class Real, char Letter>
+    bool halleys_method(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL) 
+    {
+      auto last_state = eval_derivatives<2>(f, x);
+
+      if (last_state[0] == 0)
+	return iterations;
+
+      if (last_state[1] != 0) {
+	Real direction = - last_state[0] / last_state[1];
+	//Bound where the function can go
+	if (direction < 0)
+	  high_bound = std::min(high_bound, x);
+	else
+	  low_bound = std::max(low_bound, x);
+      }
+      
+      while (--iterations)
+	if (!halley_step(f, last_state, x, low_bound, high_bound)) {
+	  //Halley step failed, try a Newton-Raphson step
+	  if (!newton_raphson_step(f, last_state, x, low_bound, high_bound)) {
+	    //Newton-Raphson failed! Try a bisection
+	    if (bisection_step(f, low_bound, high_bound))
+	      x = (low_bound + high_bound) / 2;
+	    else
+	      //This failed, return current best estimation
+	      return iterations;
+	  }
+	}
+      
+      return iterations;
+    }
+
+    /*! \} */
+
+    /*! \relates Polynomial 
+      \name Polynomial roots
+      \{
+    */
+    
+
+    /*! \brief Calculate a maximum error estimate for the evaluation
+        of the polynomial at \f$x\f$.
+	
+	The calculation of this value is outlined in "5.6 Root
+	acceptance and refinement" of "A survey of numerical
+	mathematics" vol.1. It is useful for setting accuracy limits
+	while calculating roots.
+     */
+    template<class Real, size_t Order, class Real2, char Letter>
+    Real precision(const Polynomial<Order, Real, Letter>& f, const Real2& x)
+    {
+      if (std::isinf(x))
+	return 0.0;
+
+      if (Order == 0)
+	return 0;
+
+      static_assert(std::is_floating_point<Real>::value, "This has only been implemented for floating point types");
+      static_assert(std::numeric_limits<Real>::radix == 2, "This has only been implemented for base-2 floating point types");
+      const int mantissa_digits = std::numeric_limits<Real>::digits;
+      const Real eps = 1.06 / std::pow(2, mantissa_digits);
+
+      Real sum = f[0];
+      Real2 xn = std::abs(x);
+      for(size_t i = 1; i <= Order; ++i) {
+	sum += (2 * i + 1) * std::abs(f[i]) * xn;
+	xn *= std::abs(x);
+      }
+
+      return sum * eps;
+    }
+
+
+    /*! \brief Factors out a root of a polynomial and returns a
+      lower-order polynomial with the remaining roots.
+	
+      Given a polynomial, we can rearrange it in factored form like so
+      \f[
+      \sum_{i=0}^N a_i\,x^i =(x - r_1)\sum_{i=0}^{N-1} b_i\, x^{i}
+      \f]
+      
+      where \f$r_1\f$ is a root of the polynomial. Equating terms on the
+      LHS with terms on the RHS with equal powers of \f$x\f$, we have:
+
+      \f[
+      b_i=\frac{b_{i-1} - a_i}{r_1}\qquad \textrm{for}\ i\in[1,\,N-1]
+      \f]
+
+      This formula, known as backward deflation, can be used to
+      calculate all coefficients using the starting point \f$b_0=-a_0
+      / r_1\f$. This approach is not always stable (for example if the
+      root is zero, or if \f$b_{i-1}\f$ has the same sign as \f$a_i\f$
+      we might have catastrophic cancellation).
+      
+      An alternative "forward" iterative form may be found by
+      substituting \f$i\to i+1\f$, which gives:
+
+      \f[
+      b_{i} = a_{i+1} + r_1\,b_{i+1} \qquad \textrm{for}\ i\in[0,\,N-2]
+      \f]
+
+      Again this approach may be used given the starting point
+      \f$b_{N-1}=a_N\f$. However, it might also suffer from
+      catastrophic cancellation if \f$a_{i+1}\f$ has the opposite sign
+      to \f$r_1\,b_{i+1}\f$.
+
+      It should be noted that Numerical Recipies states that "Forward
+      deflation is stable if the largest absolute root is always
+      divided out... backward deflation is stable if the smallest
+      absolute root is always divided out". Unfortunately we do not
+      know a priori the magnitude of the root being divided out.
+      
+      As both approaches may suffer from catastrophic cancellation, we
+      decide to switch between them. If we catch the special
+      root-is-zero case, we only must avoid catastrophic
+      cancellation. This arises if two non-zero terms are subtracted
+      from each other (i.e., for the first approach this happens if
+      \f$a_{i+1}\f$ and \f$r_1\,b_{i+1}\f$ are non-zero and have
+      opposite sign). We could use this to monitor the bits of
+      precision "lost" as we calculate from each end and select a
+      point between the two methods where accuracy is highest, but
+      this would require a more detailed analysis of the error. A
+      simple approach is to solve from both ends of the polynomial at
+      the same time and only actually accept whichever has the lowest 
+      catastrophic cancellation accuracy in terms of bits.
+
+      \param f The Polynomial to factor a root out of.
+      \param root The root to remove.
+    */
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order-1, Real, Letter> deflate_polynomial(const Polynomial<Order, Real, Letter>& a, const double root) {
+      Polynomial<Order-1, Real, Letter> b;
+      
+      //Check for the simple case where root==0. If this is the case,
+      //then the deflated polynomial is actually just a divide by x.
+      if (root == 0) {
+	std::copy(a.begin()+1, a.end(), b.begin());
+	return b;
+      }
+	
+      //Calculate the highest and lowest order coefficients using
+      //these stable approaches
+      b[Order-1] = a[Order];
+      b[0] = - a[0] / root;
+
+      size_t i_t = Order-2;
+      size_t i_b = 1;
+      while (i_t >= i_b) {
+	const Real d = root * b[i_t + 1];	
+	if (subtraction_precision(b[i_b], a[i_b]) > addition_precision(a[i_t+1], d)) {
+	  b[i_b] = (b[i_b-1] - a[i_b]) / root;
+	  ++i_b;
+	} else {
+	  b[i_t] = a[i_t+1] + d;
+	  --i_t;
+	}
+      }
+      return b;
+    }
+    
     /*!  \cond Specializations
       \brief Specialisation for no roots of a 0th order Polynomial.
       \param f The Polynomial to evaluate.
@@ -959,7 +1129,6 @@ namespace magnet {
       return retval;
     }
 
-
     namespace {
       /*! \brief Deflate a Polynomial and solves for the remaining
 	roots.
@@ -971,38 +1140,14 @@ namespace magnet {
       template<size_t Order, class Real, char Letter>
       inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real, Letter>& f, Real root) {
 	containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
+	//The roots obtained through deflation are not the roots of
+	//the original equation.  They will need polishing using the
+	//original function:
+	for (auto& root : roots)
+	  halleys_method(f, root);
 	roots.push_back(root);
 	std::sort(roots.begin(), roots.end());
 	return roots;
-      }
-
-      /*! \brief Uses a quadratic scheme to polish up a root.
-       */
-      template<char Letter>
-      inline void cubicNewtonRootPolish(const Polynomial<3, double, Letter>& f, double& root)
-      {
-	//Stored for comparison later
-	double error = eval(f, Variable<Letter>() == root);
-	const size_t maxiterations = 4;
-	for (size_t it = 0; (it < maxiterations) && (error != 0); ++it)
-	  {
-	    //Calculate the 1st and 2nd derivatives
-	    double deriv = (3 * root + 2 * f[2]) * root + f[1];
-	    double dderiv = 6 * root + 2 * f[2];
-	    
-	    //Try a quadratic scheme to improve the root
-	    auto roots = solve_roots(Polynomial<2, double, Letter>{error, deriv, 0.5 * dderiv});
-	    if (roots.size() == 2)
-	      root += (std::abs(roots[0]) < std::abs(roots[1])) ? roots[0] : roots[1];
-	    else
-	      { //Switch to a linear scheme if the quadratic fails,
-		//but if the derivative is zero then just accept this
-		//is the closest we will get.
-		if (deriv == 0) return;
-		root -= error / deriv;
-	      }
-	    error = eval(f, Variable<Letter>() == root);
-	  }
       }
     }
     
@@ -1099,8 +1244,9 @@ namespace magnet {
 
       if (j > 0) 
 	{//Only one root (but this test can be wrong due to a
-	  //catastrophic cancellation in j 
-	  //(i.e. (uo3sq4 * uo3) == v * v)
+	  //catastrophic cancellation in j) (i.e. (uo3sq4 * uo3) == v
+	  //* v) so we solve for this root then solve the deflated
+	  //quadratic.
 
 	  const double w = std::sqrt(j);
 	  double root;
@@ -1108,12 +1254,14 @@ namespace magnet {
 	    root = std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - f[2] / 3.0;
 	  else
 	    root = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0;
+	  
+	  halleys_method(f, root);
 
 	  return deflate_and_solve_polynomial(f, root);
 	}
   
       if (uo3 >= 0)
-	//Multiple root detected
+	//Triple root detected
 	return containers::StackVector<double, 3>{std::cbrt(v) - f[2] / 3.0};
 
       const double muo3 = - uo3;
@@ -1128,7 +1276,10 @@ namespace magnet {
       if (scube == 0)
 	return containers::StackVector<double, 3>{ -f[2] / 3.0 };
       
-      const double t = - v / (scube + scube);
+      double t = - v / (scube + scube);
+      //Clamp t, as in certain edge cases it might numerically fall
+      //outside of the valid range of acos
+      t = std::min(std::max(t, -1.0), +1.0);
       const double k = std::acos(t) / 3.0;
       const double cosk = std::cos(k);
       
@@ -1142,9 +1293,9 @@ namespace magnet {
       roots.push_back(s * (-cosk + rt3sink) - f[2] / 3.0);
       roots.push_back(s * (-cosk - rt3sink) - f[2] / 3.0);
 
-      cubicNewtonRootPolish(f, roots[0]);
-      cubicNewtonRootPolish(f, roots[1]);
-      cubicNewtonRootPolish(f, roots[2]);
+      halleys_method(f, roots[0]);
+      halleys_method(f, roots[1]);
+      halleys_method(f, roots[2]);
       std::sort(roots.begin(), roots.end());
       return roots;
     }

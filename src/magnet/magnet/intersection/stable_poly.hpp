@@ -41,6 +41,10 @@ namespace magnet {
 	  break;
 	}
 
+      //Roots "near" zero may be missed, so test that the immediate
+      //future is not going to contain a negative section. If it is,
+      //then either we're already negative or there was a root near
+      //zero
       double sample_point = (next_root != HUGE_VAL) ? (next_root / 2) : 1;
       if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) > 0)
 	return next_root;
@@ -101,13 +105,11 @@ namespace magnet {
       if (df_start < 0)
 	return 0;
       
-      //We need to find when the derivative next turns
-      //negative. Here we recurse, as this will correctly check that
-      //the function indeed turns negative.
+      //We need to find when the derivative next turns negative.
       const double df_next_root = next_negative(df);
       
-      //If the overlap function never becomes negative, then there
-      //is never an event.
+      //If the overlap function never becomes negative, then there is
+      //never an event.
       if (df_next_root == HUGE_VAL)
 	return HUGE_VAL;
       
