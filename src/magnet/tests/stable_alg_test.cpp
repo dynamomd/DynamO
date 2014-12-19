@@ -16,21 +16,30 @@ const size_t tests = 1000;
 
 template<class F, class R>
 void test_solution(const F& f, double tol, R actual_roots) {
-  //Counter of how many tests have been done (to give an idea of where failures are)
   static size_t counter = 0;
   ++counter;
+
+  Variable<'t'> t;
+
+  const auto df = derivative(f, t);
+  double solution;
+  double nextroot;
+  decltype(solve_roots(f)) roots;
+  decltype(solve_roots(df)) droots;
+  
+  try {
+  //Counter of how many tests have been done (to give an idea of where failures are)
 
   std::sort(actual_roots.begin(), actual_roots.end());
 
 //  if (counter == 1222030)
 //    std::cout << "PING" << std::endl;
 
-  double nextroot = HUGE_VAL;
-  const double solution = magnet::intersection::nextEvent(f);
-  Variable<'t'> t;
-  const auto roots = solve_roots(f);
-  const auto df = derivative(f, t);
-  const auto droots = solve_roots(df);
+  nextroot = HUGE_VAL;
+  solution = magnet::intersection::nextEvent(f);
+
+  roots = solve_roots(f);
+  droots = solve_roots(df);
 
   //Multiplicity of each root
   std::map<double, size_t> root_counters;
@@ -40,7 +49,6 @@ void test_solution(const F& f, double tol, R actual_roots) {
     ++root_counters[root];
 
 
-  try {
     if (solution == 0) {
       //Immediate collision! Check that the particles are currently
       //approaching and overlapping
@@ -223,16 +231,19 @@ BOOST_AUTO_TEST_CASE( Cubic_function )
 //
 //  for (double sign : {-1.0, +1.0})
 //    for (double root1 : rootvals)
-//      for (double root2 : rootvals) 
-//	for (double root3 : rootvals) 
-//	  for (double root4 : rootvals) 
-//	    {
-//	      auto poly = (t - root1) * (t - root2) * (t - root3) * (t - root4) * sign;
-//	      std::uniform_real_distribution<double> shift_dist(-10, 10);
-//	      for (size_t i(0); i < tests; ++i) {
-//		double shift = shift_dist(RNG);
-//		auto s_poly = shift_function(poly, shift);
-//		test_solution(s_poly, 1e-1, magnet::containers::StackVector<double,4>{root1 - shift, root2 - shift, root3 - shift, root4 - shift});
-//	      }
-//	    }
+//      for (double root2 : rootvals)
+//	if (root1 != root2)
+//	  for (double root3 : rootvals) 
+//	    if ((root3 != root1) && (root3 != root2))
+//	      for (double root4 : rootvals) 
+//		if ((root4 != root1) && (root4 != root2) && (root4 != root3))
+//		  {
+//		    auto poly = (t - root1) * (t - root2) * (t - root3) * (t - root4) * sign;
+//		    std::uniform_real_distribution<double> shift_dist(-10, 10);
+//		    for (size_t i(0); i < tests; ++i) {
+//		      double shift = shift_dist(RNG);
+//		      auto s_poly = shift_function(poly, shift);
+//		      test_solution(s_poly, 1e-1, magnet::containers::StackVector<double,4>{root1 - shift, root2 - shift, root3 - shift, root4 - shift});
+//		    }
+//		  }
 //}
