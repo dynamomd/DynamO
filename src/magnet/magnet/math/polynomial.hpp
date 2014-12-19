@@ -1980,26 +1980,23 @@ namespace magnet {
       //positive roots are merged with it
       containers::StackVector<std::pair<Real,Real>, Order> pos_bounds;
       containers::StackVector<std::pair<Real,Real>, Order> neg_bounds;
+      containers::StackVector<std::pair<Real,Real>, Order> bounds;
 
       switch (BoundMode) {
       case PolyRootBounder::VCA:
+	bounds = VCA_real_root_bounds(f);
 	neg_bounds = VCA_real_root_bounds(reflect_poly(f));
-	pos_bounds = VCA_real_root_bounds(f);
 	break;
       case PolyRootBounder::VAS:
+	bounds = VAS_real_root_bounds(f);
 	neg_bounds = VAS_real_root_bounds(reflect_poly(f));
-	pos_bounds = VAS_real_root_bounds(f);
 	break;
       }
             
-      containers::StackVector<std::pair<Real,Real>, Order> bounds;
-      //We need to flip the sign on the negative roots
-      for (const auto& bound: neg_bounds)
-	bounds.push_back(std::make_pair(-bound.second, -bound.first));
+	//We need to flip the sign on the negative roots
+	for (const auto& bound: neg_bounds)
+	  bounds.push_back(std::make_pair(-bound.second, -bound.first));
       
-      for (const auto& bound: pos_bounds)
-	bounds.push_back(bound);
-
       //Now bisect to calculate the roots to full precision
       containers::StackVector<Real, Order> retval;
       

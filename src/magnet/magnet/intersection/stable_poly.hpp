@@ -32,15 +32,14 @@ namespace magnet {
     */
     template<class Real, size_t Order, char Letter>
     typename std::enable_if<(Order < 5), Real>::type 
-    next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f) {
-
+    next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f, double t_origin = 0) {
       double first_root = HUGE_VAL;
       double second_root = HUGE_VAL;
       auto roots = magnet::math::solve_roots(f);
       auto it = roots.begin();
 
       //skip negative roots
-      while ((it != roots.end()) && (*it < 0)) ++it;
+      while ((it != roots.end()) && (*it < t_origin)) ++it;
       
       //Grab the next two positive roots (if they exist)
       if (it != roots.end()) {
@@ -59,10 +58,10 @@ namespace magnet {
       //then x=1 is a logical point to sample the sign of the
       //root. Otherwise we must sample in-between now and the next
       //root.
-      const double sample_point = (first_root == HUGE_VAL) ? 1.0 : first_root / 2;
+      const double sample_point = (first_root == HUGE_VAL) ? t_origin + 1.0 : (t_origin + first_root) / 2;
       if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) < 0)
 	//They're already approaching, return an instant collision
-	return 0.0;
+	return t_origin;
 
       //Second, the root detected in the future may have an odd or
       //even multiplicity. Odd roots are actual sign transitions
@@ -117,19 +116,19 @@ namespace magnet {
       \ref magnet::math::next_root defined.
     */
     template<class Function>
-    double nextEvent(Function f)
+    double nextEvent(Function f, double t_origin = 0)
     {
       ::magnet::math::Variable<'t'> t;
 
       //Determine the derivative
       const auto df = ::magnet::math::derivative(f, t);
       
-      const double f_start = eval(f, t == 0.0);
-      const double df_start = eval(df, t == 0.0);
+      const double f_start = eval(f, t == t_origin);
+      const double df_start = eval(df, t == t_origin);
 
       //Check if starting was not overlapped.
       if (f_start >= 0) {
-	return next_negative(f);
+	return next_negative(f, t_origin);
       }
       
       //If we're approaching then the current time is the time of
@@ -138,7 +137,7 @@ namespace magnet {
 	return 0;
       
       //We need to find when the derivative next turns negative.
-      const double df_next_root = next_negative(df);
+      const double df_next_root = next_negative(df, t_origin);
       
       //If the overlap function never becomes negative, then there is
       //never an event.
@@ -147,12 +146,11 @@ namespace magnet {
       
       //If it turns around while still overlapped/in contact, then
       //the turning point is the next event. 
-      if (eval(f, t==df_next_root) <= 0)
+      if (eval(f, t == df_next_root) <= 0)
 	return df_next_root;
       
       //Ok, try searching after the maxima for events
-      auto shift_f = shift_function(f, df_next_root);
-      return df_next_root + next_negative(shift_f);
+      return next_negative(f, t_origin + df_next_root);
     }
 
     /*! \brief Calculate the interval until the 1st order Polynomial

@@ -79,9 +79,18 @@ namespace magnet {
 
     template<class T, size_t Nmax>
     std::ostream& operator<<(std::ostream& os, const StackVector<T,Nmax>&s) {
-      os << "StackVector{";
+      os << "StackVector{ ";
       for (const auto& val : s)
 	os << val << " ";
+      os << "}";
+      return os;
+    }
+
+    template<class T1, class T2, size_t Nmax>
+    std::ostream& operator<<(std::ostream& os, const StackVector<std::pair<T1,T2>,Nmax>&s) {
+      os << "StackVector{ ";
+      for (const auto& val : s)
+	os << "[" << val.first << ", " << val.second << "] ";
       os << "}";
       return os;
     }
