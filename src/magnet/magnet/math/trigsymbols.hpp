@@ -142,27 +142,5 @@ namespace magnet {
     { return (-derivative(f._arg, Variable<dVariable>())) * sin(f._arg); }
 
     /*! \} */
-
-    /*! \relates Function
-      \name Function bounds
-      \{
-    */
-    /*! \brief Estimates of the maximum and minimum value of a
-        Function in a defined range.
-
-      For sine and cosine, we return the trivial value [-1, +1]
-      without attempting to specialise for sections of the
-      oscillation.
-     */
-    template<class Arg, detail::Function_t Op, class Real>
-    inline std::pair<double, double> minmax(const Function<Arg, Op>& f, const Real x_min, const Real x_max)
-    {
-      switch (Op) {
-      case detail::SIN:
-      case detail::COS: 
-	return std::pair<double, double>(-1, 1);
-      };
-    }
-    /* \} */
   }
 }

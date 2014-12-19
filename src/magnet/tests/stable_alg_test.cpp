@@ -215,21 +215,24 @@ BOOST_AUTO_TEST_CASE( Cubic_function )
 	  }
 }
 
+
 //BOOST_AUTO_TEST_CASE( Quartic_function )
 //{
 //  RNG.seed(1);
+//  const double rootvals[] = {-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
+//
 //  for (double sign : {-1.0, +1.0})
 //    for (double root1 : rootvals)
 //      for (double root2 : rootvals) 
 //	for (double root3 : rootvals) 
 //	  for (double root4 : rootvals) 
 //	    {
-//	      auto poly = (x - root1) * (x - root2) * (x - root3) * (x - root4) * sign;
+//	      auto poly = (t - root1) * (t - root2) * (t - root3) * (t - root4) * sign;
 //	      std::uniform_real_distribution<double> shift_dist(-10, 10);
 //	      for (size_t i(0); i < tests; ++i) {
 //		double shift = shift_dist(RNG);
-//		auto s_poly = shift_polynomial(poly, shift);
-//		test_solution(s_poly, 1e-4);
+//		auto s_poly = shift_function(poly, shift);
+//		test_solution(s_poly, 1e-1, magnet::containers::StackVector<double,4>{root1 - shift, root2 - shift, root3 - shift, root4 - shift});
 //	      }
 //	    }
 //}

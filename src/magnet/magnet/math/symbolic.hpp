@@ -69,7 +69,7 @@ namespace magnet {
 
 	This is used to enable the derivative operation to convert
 	these types to NullSymbol types. It is also to apply a
-	specialised eval and minmax function to these types.
+	specialised functions to these types.
        */
       template<class T>
       struct IsConstant {

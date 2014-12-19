@@ -1382,7 +1382,7 @@ namespace magnet {
 	 */
 	template<class Real2>
 	size_t sign_change_helper(const int last_sign, const Real2& x) const {
-	  const Real currentx = eval(_p_n, x);
+	  const Real currentx = eval(_p_n, Variable<Letter>() == x);
 	  const int current_sign = (currentx != 0) * (1 - 2 * std::signbit(currentx));
 	  const bool sign_change = (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
 
@@ -1429,7 +1429,7 @@ namespace magnet {
 
 	template<class Real2>
 	size_t sign_change_helper(const int last_sign, const Real2& x) const {
-	  const Real currentx = eval(_p_n, x);
+	  const Real currentx = eval(_p_n, Variable<Letter>() == x);
 	  const int current_sign = (currentx != 0) * (1 - 2 * std::signbit(currentx));
 	  const bool sign_change = (current_sign != 0) && (last_sign != 0) && (current_sign != last_sign);
 	  return sign_change;
@@ -1867,7 +1867,7 @@ namespace magnet {
 	  continue; //Start again
 	}
 
-	if (std::abs(eval(f, 1.0)) <= (100 * precision(f, 1.0))) {
+	if (std::abs(eval(f, Variable<Letter>() == 1.0)) <= (100 * precision(f, 1.0))) {
 	  //There is probably a root near x=1.0 as its approached zero
 	  //closely. Rather than trying to divide it out or do
 	  //anything too smart, just scale the polynomial so that next
@@ -2010,7 +2010,7 @@ namespace magnet {
 	case PolyRootBisector::BISECTION: 
 	  {
 	    boost::uintmax_t iter = 100;
-	    auto root = boost::math::tools::bisect([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
+	    auto root = boost::math::tools::bisect([&](Real x) { return eval(f, Variable<Letter>() == x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
 	    retval.push_back((root.first + root.second) / 2);
 	    break;
 	  }
@@ -2018,7 +2018,7 @@ namespace magnet {
 	  {
 	    boost::uintmax_t iter = 100;
 	    //std::cout << a << "->" << b << std::endl;
-	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
+	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
 	    retval.push_back((root.first + root.second) / 2);
 	    break;
 	  }
@@ -2038,49 +2038,8 @@ namespace magnet {
     template<size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
     solve_roots(const Polynomial<Order, Real, Letter>& f) {
-      return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real>(f);
+      return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
     }
-
-    /*! \endcond \} */
-    
-    /*! \relates Polynomial 
-      \name Polynomial bounds
-      \{
-    */
-    /*! \brief The maximum absolute value of an arbitrary order Polynomial in a specified range.
-      \param f The Polynomial to evaluate.
-      \param tmin The minimum bound.
-      \param tmax The maximum bound.
-    */
-    template<class Real, size_t Order, char Letter>
-    inline auto minmax(const Polynomial<Order, Real, Letter>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
-    {
-      auto roots = solve_roots(derivative(f, Variable<Letter>()));
-      std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_min))> retval = std::minmax(eval(f, x_min), eval(f, x_max));
-      for (auto root : roots)
-	if ((root > x_min) && (root < x_max))
-	  retval = std::minmax({retval.first, retval.second, eval(f, root)});
-      return retval;
-    }
-
-    /*! \cond Specializations
-      \brief The maximum and minimum values of a 0th order Polynomial in a specified range. 
-      \param f The Polynomial to evaluate.
-      \param x_min The minimum bound.
-      \param x_max The maximum bound.
-    */
-    template<class Real, char Letter>
-    inline auto minmax(const Polynomial<0, Real, Letter>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
-    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
-
-    /*! \brief The maximum and minimum values of a 1st order Polynomial in a specified range. 
-      \param f The Polynomial to evaluate.
-      \param x_min The minimum bound.
-      \param x_max The maximum bound.
-    */
-    template<class Real, char Letter>
-    inline auto minmax(const Polynomial<1, Real, Letter>& f, const Real x_min, const Real x_max) -> std::pair<decltype(eval(f, x_min)), decltype(eval(f, x_max))>
-    { return std::pair<Real, Real>{eval(f, x_min), eval(f, x_max)}; }
 
     /*! \endcond \} */
   }

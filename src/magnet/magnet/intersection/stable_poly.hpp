@@ -31,7 +31,7 @@ namespace magnet {
       cases.
     */
     template<class Real, size_t Order, char Letter>
-    typename std::enable_if<(Order < 4), Real>::type 
+    typename std::enable_if<(Order < 5), Real>::type 
     next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f) {
 
       double first_root = HUGE_VAL;
