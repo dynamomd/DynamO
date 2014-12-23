@@ -188,6 +188,9 @@ namespace dynamo {
   void 
   SysUmbrella::outputData(magnet::xml::XmlStream& XML) const
   {
+    _histogram[_stepID] += Sim->systemTime - _lastSystemTime;
+    _lastSystemTime = Sim->systemTime;
+
     using namespace magnet::xml;
     XML << tag("System")
 	<< attr("Name") << sysName

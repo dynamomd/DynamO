@@ -49,7 +49,7 @@ namespace dynamo {
     shared_ptr<IDRange> range2;    
     double _energyScale;
     double _lengthScale;
-    std::map<size_t, double> _histogram;
-    long double _lastSystemTime;
+    mutable std::map<size_t, double> _histogram;
+    mutable long double _lastSystemTime;
   };
 }
