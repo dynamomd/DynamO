@@ -25,12 +25,12 @@ void test_solution(const F& f, double tol, R actual_roots) {
   const auto df = derivative(f, t);
   double solution;
   double nextroot;
-  decltype(solve_roots(f)) roots;
-  decltype(solve_roots(df)) droots;
+  decltype(solve_real_roots(f)) roots;
+  decltype(solve_real_roots(df)) droots;
   
   try {
-  roots = solve_roots(f);
-  droots = solve_roots(df);
+  roots = solve_real_roots(f);
+  droots = solve_real_roots(df);
 
   std::sort(actual_roots.begin(), actual_roots.end());
 

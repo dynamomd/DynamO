@@ -22,25 +22,31 @@
 namespace magnet {
   namespace intersection {
     /*! \brief Implementation of \ref next_root which utilises \ref
-      solve_roots.
-      
-      This is mainly useful for simple functions with fast root
-      detection algorithms. For example, the linear, quadratic, and
-      cubic functions are solved via radicals, so this function is
-      used to provide an implementation of \ref next_root in these
-      cases.
+      solve_real_roots or \ref solve_real_positive_roots_poly.
     */
     template<class Real, size_t Order, char Letter>
-    typename std::enable_if<(Order < 5), Real>::type 
-    next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f, double t_origin = 0) {
+    Real next_negative(const ::magnet::math::Polynomial<Order, Real, Letter>& f, double t_origin = 0) {
+      using namespace magnet::math;
       double first_root = HUGE_VAL;
       double second_root = HUGE_VAL;
-      auto roots = magnet::math::solve_roots(f);
-      auto it = roots.begin();
+      containers::StackVector<Real, Order> roots;
+      typename containers::StackVector<Real, Order>::const_iterator it;
 
-      //skip negative roots
-      while ((it != roots.end()) && (*it < t_origin)) ++it;
-      
+      //Where the equation is solved by radicals (3rd or lower order
+      //polynomials), use those solutions. These return negative AND
+      //positive roots so filter the negative roots out.
+      if (Order < 4) {
+	roots = solve_real_roots(f);
+	it = roots.begin();
+	//skip negative roots
+	while ((it != roots.end()) && (*it < t_origin)) ++it;
+      }
+      else {
+	//For higher order polynomials, determine the positive roots
+	roots = solve_real_positive_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
+	it = roots.begin();
+      }
+
       //Grab the next two positive roots (if they exist)
       if (it != roots.end()) {
 	first_root = *it;
@@ -59,7 +65,7 @@ namespace magnet {
       //root. Otherwise we must sample in-between now and the next
       //root.
       const double sample_point = (first_root == HUGE_VAL) ? t_origin + 1.0 : (t_origin + first_root) / 2;
-      if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) < 0)
+      if (eval(f, Variable<Letter>() == sample_point) < 0)
 	//They're already approaching, return an instant collision
 	return t_origin;
 
@@ -74,7 +80,7 @@ namespace magnet {
       if (first_root != HUGE_VAL)
 	do {
 	  const double sample_point = (second_root == HUGE_VAL) ? first_root + 1.0 : (first_root + second_root) / 2;
-	  if (magnet::math::eval(f, magnet::math::Variable<Letter>() == sample_point) < 0)
+	  if (eval(f, Variable<Letter>() == sample_point) < 0)
 	    return first_root;
 	  first_root = second_root;
 	  second_root = ((++it) != roots.end()) ? *it : HUGE_VAL;
@@ -83,30 +89,6 @@ namespace magnet {
       return HUGE_VAL;
     }
       
-    //template<class Real, size_t Order, char Letter>
-    //typename std::enable_if<(Order > 3), Real>::type 
-    //next_negative(const Polynomial<Order, Real, Letter>& f) {
-    //  //Drop down to a lower order solver if available
-    //  if (f[Order] == 0)
-    //	return next_root(change_order<Order-1>(f));
-    //  
-    //  //Test if we're currently turning negative
-    //  if (f[0] < 0)
-    //	return 0.0;
-    //
-    //  auto pos_root_bounds = VAS_real_root_bounds(f);
-    //  if (pos_root_bounds.size() != 0) {
-    //	std::sort(pos_root_bounds.begin(), pos_root_bounds.end());
-    //	const Real& a = pos_root_bounds[0].first;
-    //	const Real& b = pos_root_bounds[0].second;
-    //	boost::uintmax_t iter = 100;
-    //	auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, x); }, a, b, boost::math::tools::eps_tolerance<Real>(100), iter);
-    //	return (root.first + root.second) / 2;
-    //  }
-    //
-    //  return std::numeric_limits<Real>::infinity();
-    //}
-
     /*!  \brief Implementation of the generic stable event-detection
       algorithm.
 

@@ -231,14 +231,14 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
   
   {//Quadratic with no roots
     auto poly = x * x - 3 * x + 4;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 0);
     //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
   
   {//Quadratic with one root
     auto poly = -4 * x * x + 12 * x - 9;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     if (roots.size() == 1)
       BOOST_CHECK_CLOSE(roots[0], 1.5, 1e-10);
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
   
   {//quadratic but linear function with one root
     auto poly =  0 * x * x + 12 * x - 9;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     if (roots.size() == 1)
       BOOST_CHECK_CLOSE(roots[0], 0.75, 1e-10);
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
 
   {//constant function, with no roots
     auto poly =  0 * x * x + 0 * x - 9;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 0);
     //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
   
   {//Quadratic with catastrophic cancellation of error
     auto poly = x * x + 712345.12 * x + 1.25;  
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 2);
     BOOST_CHECK_CLOSE(roots[0], -712345.1199985961, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], -1.754767408250742e-6, 1e-10);
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
   const double largeterm = maxsqrt * 100;
   {//Large linear coefficient
     auto poly = x * x + largeterm * x + 1.25;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 2);
     //Mathematica value
     BOOST_CHECK_CLOSE(roots[0], -1.3407807929942599e156, 1e-10);
@@ -291,13 +291,13 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
 
   {//Large (+ve) constant coefficient
     auto poly = x * x + x + largeterm;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 0);
     //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
   {//Large (-ve) constant coefficient
     auto poly = x * x + x - largeterm;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 2);
 
     //Mathematica value
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_triple_roots )
 	      //Don't test the case where there is only one root (x^3=c)
 	      if ((f[2] == 0) && (f[1] == 0)) continue;
 
-	      auto roots = solve_roots(f);
+	      auto roots = solve_real_roots(f);
 	      decltype(roots) actual_roots = {root1, root2, root3};
 	      std::sort(actual_roots.begin(), actual_roots.end());
 
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_single_roots )
 	  
 	  Polynomial<3, double> f = poly_c[0].real() + poly_c[1].real() * x + poly_c[2].real() * x * x + poly_c[3].real() * x * x * x;
 
-	  auto roots = solve_roots(f);
+	  auto roots = solve_real_roots(f);
 	  BOOST_CHECK_MESSAGE(roots.size() == 1, "rootcount=" << roots.size() << " " << f << " roots=[" << roots[0] << "," << roots[1] << "," << roots[2] << "] actual_roots=[" << root1 << "," << root2real << " +- " << root2im << "i]");
 
 	  if (roots.size() == 1)
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
 
   {//Zero constant term with three roots
     auto poly = (x * x + 712345.12 * x + 1.25) * x;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 3);
     BOOST_CHECK_CLOSE(roots[0], -712345.1199985961, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], -1.754767408250742e-6, 1e-10);
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
 
   {//Zero constant term with one root
     auto poly = (x * x - 3 * x + 4) * x;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], 0, 1e-10);
     //BOOST_CHECK_CLOSE(next_root(poly), 0, 1e-11);
@@ -410,12 +410,12 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
 
   {//Special case where f(x) = a * x^3 + d
     auto poly = x * x * x + 1e3;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], -10, 1e-10);
 
     poly = x * x * x - 1e3;
-    roots = solve_roots(poly);
+    roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], 10, 1e-10);
     //BOOST_CHECK_CLOSE(next_root(poly), 10, 1e-11);
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
 
   {//Large x^2 term
     auto poly = x * x * x - largeterm * x * x + 1.25;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK_EQUAL(roots.size(), 3);
     BOOST_CHECK_CLOSE(roots[0], -9.655529977168658e-79, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], +9.655529977168658e-79, 1e-10);
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
 
   {//Large x term
     auto poly = x * x * x - x * x - largeterm * x + 1.25;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK_EQUAL(roots.size(), 3);
     BOOST_CHECK_CLOSE(roots[0], -1.1579208923731622e78, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], 9.322925914000258e-157, 1e-10);
@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
   {
     //Large v term
     auto poly = x * x * x  - smallerterm * x * x - smallerterm * x + 2;
-    auto roots = solve_roots(poly);
+    auto roots = solve_real_roots(poly);
     BOOST_CHECK_EQUAL(roots.size(), 3);
     BOOST_CHECK_CLOSE(roots[0], -1.0, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], 1.491668146240041472864517142264024641421371730393e-153, 1e-10);
@@ -465,11 +465,11 @@ BOOST_AUTO_TEST_CASE( poly_root_tests)
   {//Check cubic
     auto f1 = 4 * (x*x*x) - x * x - 2*x +12;
     
-    auto roots = solve_roots(f1);
+    auto roots = solve_real_roots(f1);
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], -1.472711896724616002268033950475380144341, 1e-10);
     
-    auto droots = solve_roots(derivative(f1, Variable<'x'>()));
+    auto droots = solve_real_roots(derivative(f1, Variable<'x'>()));
     BOOST_CHECK(droots.size() == 2);
     BOOST_CHECK_CLOSE(droots[0], -1.0/3, 1e-10);
     BOOST_CHECK_CLOSE(droots[1], 0.5, 1e-10);
@@ -478,12 +478,12 @@ BOOST_AUTO_TEST_CASE( poly_root_tests)
   {//Check quartic
     auto f1 = 10 * (x*x*x*x) + x*x*x - 30 * x * x -23;
 
-    auto roots = solve_roots(f1);
+    auto roots = solve_real_roots(f1);
     BOOST_CHECK_EQUAL(roots.size(), 2);
     BOOST_CHECK_CLOSE(roots[0], -1.949403904489790210996459054473124835057, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], +1.864235880634589025006445510389799368569, 1e-10);
 
-    auto droots = solve_roots(derivative(f1, Variable<'x'>()));
+    auto droots = solve_real_roots(derivative(f1, Variable<'x'>()));
     BOOST_CHECK_EQUAL(droots.size(),3);
     BOOST_CHECK_CLOSE(droots[0], -1.262818836058599076329128653113014315066, 1e-10);
     BOOST_CHECK_CLOSE(droots[1], 0, 1e-10);
@@ -493,14 +493,14 @@ BOOST_AUTO_TEST_CASE( poly_root_tests)
   {//Check PowerOp quartic
     auto f1 = expand(pow<2>(30 * x * x + x - 23));
     
-    //auto roots = solve_roots(f1);
+    //auto roots = solve_real_roots(f1);
     //FIX THIS UNIT TEST!
     //BOOST_CHECK(roots.size() == 2);
     ////NOTE THESE ROOTS ARE DOUBLE ROOTS (roots.size() may equal 2,3, or 4)
     //BOOST_CHECK_CLOSE(roots[0], -0.8924203103613100773375343963347855860436, 1e-7);
     //BOOST_CHECK_CLOSE(roots[1], -0.8924203103613100773375343963347855860436, 1e-7);
 
-    auto droots = solve_roots(derivative(f1, Variable<'x'>()));
+    auto droots = solve_real_roots(derivative(f1, Variable<'x'>()));
     BOOST_CHECK(droots.size() == 3);
     BOOST_CHECK_CLOSE(droots[0], -0.8924203103613100773375343963347855860436, 1e-10);
     BOOST_CHECK_CLOSE(droots[1], -0.01666666666666666666666666666666666666667, 1e-10);
@@ -794,7 +794,7 @@ void check_roots(magnet::containers::StackVector<Real, Order1> sol, magnet::cont
 }
 
 
-BOOST_AUTO_TEST_CASE( generic_solve_roots )
+BOOST_AUTO_TEST_CASE( generic_solve_real_roots )
 {
   using namespace magnet::math;
   const Polynomial<1> x{0, 1};
@@ -820,8 +820,8 @@ BOOST_AUTO_TEST_CASE( generic_solve_roots )
 			auto f2 = f1 * (x * x - 3 * x + 4);
 
 			//Test the default implementation (VAS + TOMS748)
-			check_roots(solve_roots(f1), test_roots);
-			check_roots(solve_roots(f2), test_roots);
+			check_roots(solve_real_roots(f1), test_roots);
+			check_roots(solve_real_roots(f2), test_roots);
 			
 			//Test VCA + TOMS748
 			check_roots(solve_real_roots_poly<PolyRootBounder::VCA, PolyRootBisector::TOMS748>(f1), test_roots);

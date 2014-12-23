@@ -1068,7 +1068,7 @@ namespace magnet {
       \param f The Polynomial to evaluate.
     */
     template<char Letter>
-    inline containers::StackVector<double, 0> solve_roots(const Polynomial<0, double, Letter>& f) {
+    inline containers::StackVector<double, 0> solve_real_roots(const Polynomial<0, double, Letter>& f) {
       return containers::StackVector<double, 0>();
     }
 
@@ -1078,7 +1078,7 @@ namespace magnet {
       \param f The Polynomial to evaluate.
     */
     template<char Letter>
-    inline containers::StackVector<double, 1> solve_roots(const Polynomial<1, double, Letter>& f) {
+    inline containers::StackVector<double, 1> solve_real_roots(const Polynomial<1, double, Letter>& f) {
       containers::StackVector<double, 1> roots;
       if (f[1] != 0)
 	roots.push_back(-f[0] / f[1]);
@@ -1093,10 +1093,10 @@ namespace magnet {
       \param f The Polynomial to evaluate.
     */
     template<char Letter>
-    inline containers::StackVector<double, 2> solve_roots(Polynomial<2, double, Letter> f) {
+    inline containers::StackVector<double, 2> solve_real_roots(Polynomial<2, double, Letter> f) {
       //If this is actually a linear polynomial, drop down to that solver.
       if (f[2] == 0) 
-	return solve_roots(change_order<1>(f));
+	return solve_real_roots(change_order<1>(f));
       
       //Scale the constant of x^2 to 1
       f = f / f[2];
@@ -1147,7 +1147,7 @@ namespace magnet {
       */
       template<size_t Order, class Real, char Letter>
       inline containers::StackVector<Real, Order> deflate_and_solve_polynomial(const Polynomial<Order, Real, Letter>& f, Real root) {
-	containers::StackVector<Real, Order> roots = solve_roots(deflate_polynomial(f, root));
+	containers::StackVector<Real, Order> roots = solve_real_roots(deflate_polynomial(f, root));
 	//The roots obtained through deflation are not the roots of
 	//the original equation.  They will need polishing using the
 	//original function:
@@ -1167,10 +1167,10 @@ namespace magnet {
       \param f The Polynomial to evaluate.
     */
     template<char Letter>
-    inline containers::StackVector<double, 3> solve_roots(const Polynomial<3, double, Letter>& f_original) {
+    inline containers::StackVector<double, 3> solve_real_roots(const Polynomial<3, double, Letter>& f_original) {
       //Ensure this is actually a third order polynomial
       if (f_original[3] == 0)
-	return solve_roots(change_order<2>(f_original));
+	return solve_real_roots(change_order<2>(f_original));
       
       if (f_original[0] == 0)
 	//If the constant is zero, one root is x=0.  We can divide
@@ -1969,42 +1969,20 @@ namespace magnet {
 
 	This function uses an algorithm (VAS/VCA) to bound the roots,
 	then a method to calculate them to full precision.
+
+	This function assumes that the polynomial has non-zero high
+	and constant coefficients.
      */
     template<PolyRootBounder BoundMode, PolyRootBisector BisectionMode, size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
-    solve_real_roots_poly(const Polynomial<Order, Real, Letter>& f) {
-      //Handle special cases 
-
-      //The constant coefficient is zero: deflate the polynomial
-      if (f[0] == Real())
-	return deflate_and_solve_polynomial(f, Real());
-      
-      //The highest order coefficient is zero: drop to lower order
-      //solvers
-      if (f[Order] == Real())
-	return solve_roots(change_order<Order-1>(f));
-
-      //Bounds will hold the negative roots at first, before the
-      //positive roots are merged with it
-      containers::StackVector<std::pair<Real,Real>, Order> pos_bounds;
-      containers::StackVector<std::pair<Real,Real>, Order> neg_bounds;
+    solve_real_positive_roots_poly(const Polynomial<Order, Real, Letter>& f) {
       containers::StackVector<std::pair<Real,Real>, Order> bounds;
 
       switch (BoundMode) {
-      case PolyRootBounder::VCA:
-	bounds = VCA_real_root_bounds(f);
-	neg_bounds = VCA_real_root_bounds(reflect_poly(f));
-	break;
-      case PolyRootBounder::VAS:
-	bounds = VAS_real_root_bounds(f);
-	neg_bounds = VAS_real_root_bounds(reflect_poly(f));
-	break;
+      case PolyRootBounder::VCA: bounds = VCA_real_root_bounds(f); break;
+      case PolyRootBounder::VAS: bounds = VAS_real_root_bounds(f); break;
       }
             
-	//We need to flip the sign on the negative roots
-	for (const auto& bound: neg_bounds)
-	  bounds.push_back(std::make_pair(-bound.second, -bound.first));
-      
       //Now bisect to calculate the roots to full precision
       containers::StackVector<Real, Order> retval;
       
@@ -2029,6 +2007,7 @@ namespace magnet {
 	  }
 	}
       }
+
       std::sort(retval.begin(), retval.end());
       return retval;
     }
@@ -2040,12 +2019,35 @@ namespace magnet {
 
       Roots should always be returned sorted lowest-first.
      */
-    template<size_t Order, class Real, char Letter>
+    template<PolyRootBounder BoundMode, PolyRootBisector BisectionMode, size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
-    solve_roots(const Polynomial<Order, Real, Letter>& f) {
-      return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
+    solve_real_roots_poly(const Polynomial<Order, Real, Letter>& f) {
+      //Handle special cases 
+      //The constant coefficient is zero: deflate the polynomial
+      if (f[0] == Real())
+	return deflate_and_solve_polynomial(f, Real());
+      
+      //The highest order coefficient is zero: drop to lower order
+      //solvers
+      if (f[Order] == Real())
+	return solve_real_roots(change_order<Order-1>(f));
+
+      auto roots = solve_real_positive_roots_poly<BoundMode, BisectionMode, Order, Real, Letter>(f);
+      auto neg_roots = solve_real_positive_roots_poly<BoundMode, BisectionMode, Order, Real, Letter>(reflect_poly(f));
+
+      //We need to flip the sign on the negative roots
+      for (const auto& root: neg_roots)
+	roots.push_back(-root);
+      
+      std::sort(roots.begin(), roots.end());
+      return roots;
     }
 
+    template<size_t Order, class Real, char Letter>
+    containers::StackVector<Real, Order>
+    solve_real_roots(const Polynomial<Order, Real, Letter>& f) {
+      return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
+    }
     /*! \endcond \} */
   }
 }

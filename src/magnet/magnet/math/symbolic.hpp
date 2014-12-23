@@ -237,7 +237,7 @@ namespace magnet {
 	     typename = typename std::enable_if<Letter1 == Letter2>::type>
     UnitySymbol derivative(Variable<Letter1>, Variable<Letter2>) { return UnitySymbol(); }
 
-    inline containers::StackVector<double, 0> solve_roots(NullSymbol f) {
+    inline containers::StackVector<double, 0> solve_real_roots(NullSymbol f) {
       return containers::StackVector<double, 0>();
     }
 
