@@ -678,7 +678,7 @@ namespace magnet {
       implementation details
      */
     template<size_t Order, class Real, char Letter>
-    inline Polynomial<Order, Real, Letter> taylor_shift(const Polynomial<Order, Real, Letter>& f) {
+    inline Polynomial<Order, Real, Letter> shift_function(const Polynomial<Order, Real, Letter>& f, UnitySymbol) {
       Polynomial<Order, Real, Letter> retval;
       retval.fill(Real());
       retval[0] = f[Order];
@@ -718,15 +718,14 @@ namespace magnet {
 	
 	This operation may be performed simply by reversing the order
 	of the coefficient array in the Polynomial. Then, a \ref
-	taylor_shift is applied to complete the transformation:
+	shift_function is applied to complete the transformation:
 
 	\f[
 	p_2(x) = p_1\left(x+1\right)
 	\f]
 
 	This entire operation is performed using an optimised version
-	of the \ref taylor_shift algorithm, which itself is an
-	optimized \ref shift_polynomial function.
+	of the \ref shift_polynomial function.
      */
     template<size_t Order, class Real, char Letter>
     inline Polynomial<Order, Real, Letter> invert_taylor_shift(const Polynomial<Order, Real, Letter>& f) {
@@ -1026,15 +1025,10 @@ namespace magnet {
     */
     template<size_t Order, class Real, char Letter>
     inline Polynomial<Order-1, Real, Letter> deflate_polynomial(const Polynomial<Order, Real, Letter>& a, const double root) {
-      Polynomial<Order-1, Real, Letter> b;
+      if (root == Real())
+	return deflate_polynomial(a, NullSymbol());
       
-      //Check for the simple case where root==0. If this is the case,
-      //then the deflated polynomial is actually just a divide by x.
-      if (root == 0) {
-	std::copy(a.begin()+1, a.end(), b.begin());
-	return b;
-      }
-	
+      Polynomial<Order-1, Real, Letter> b;
       //Calculate the highest and lowest order coefficients using
       //these stable approaches
       b[Order-1] = a[Order];
@@ -1052,6 +1046,20 @@ namespace magnet {
 	  --i_t;
 	}
       }
+      return b;
+    }
+
+    /*! \brief A specialisation of deflation where the root is at
+        zero. 
+	
+	Deflating out a root at zero becomes a division by x. As the
+	constant term is zero, there is no residual and the division
+	becomes a simple shifted copy.
+    */
+    template<size_t Order, class Real>
+    inline Polynomial<Order-1, Real> deflate_polynomial(const Polynomial<Order, Real>& a, const NullSymbol) {
+      Polynomial<Order-1, Real> b;
+      std::copy(a.begin()+1, a.end(), b.begin());
       return b;
     }
     
@@ -1688,7 +1696,7 @@ namespace magnet {
 	//p2(x) = 2^Order f(x/2 + 0.5) 
 	//
 	//in terms of the original function, f(x).
-	const Polynomial<Order, Real, Letter> p2 = taylor_shift(p1);
+	const Polynomial<Order, Real, Letter> p2 = shift_function(p1, UnitySymbol());
 
 	//Now that we have two polynomials, each of which is scaled so
 	//the roots of interest lie in (0,1). Search them both and
@@ -1894,7 +1902,7 @@ namespace magnet {
 	  retval.push_back(bound);
 	
 	//Create and solve the polynomial for [1, \infty]
-	Polynomial<Order, Real, Letter> p1inf = taylor_shift(f);
+	Polynomial<Order, Real, Letter> p1inf = shift_function(f, UnitySymbol());
 	auto M1inf = M;
 	M1inf.shift(1);
 	auto second_range = VAS_real_root_bounds_worker(p1inf, M1inf);
