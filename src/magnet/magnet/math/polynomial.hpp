@@ -639,11 +639,11 @@ namespace magnet {
       \f$f(x)\f$ about the point \f$t\f$, we have:
       
       \f[
-      g(x) = f(t+x) = \sum_{i=0}^n \frac{f^i(t)}{i!}x^i
+      g(x) = f(t+x) = \sum_{i=0}^N \frac{f^i(t)}{i!}x^i
       \f]
       
       where \f$f^i(x)\f$ is the \f$i\f$th derivative of \f$f(x)\f$ and
-      \f$n\f$ is the order of the polynomial \f$f\f$. Each coefficient
+      \f$N\f$ is the order of the polynomial \f$f\f$. Each coefficient
       of \f$g\f$ is then given by:
       
       \f[
@@ -690,10 +690,9 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief Returns a polynomial \f$g(x)=(x+1)^{N}
+    /*! \brief Returns a polynomial \f$g(x)=(x+1)^{d}
         f\left(\frac{1}{x+1}\right)\f$.
 
-	
 	The creation of \f$p(x)\f$, given by
 	\f[
 	p(x) = \left(x+1\right)^d\,f\left(\frac{1}{x+1}\right)
@@ -751,7 +750,7 @@ namespace magnet {
     }
 
     /*! \brief Returns a polynomial \f$g(x)=f\left(a\,x\right)\f$
-        where \f$a\f$ is a scaling factor.
+        where \f$a\f$ is the scaling factor.
      */
     template<size_t Order, class Real, char Letter>
     inline Polynomial<Order, Real, Letter> scale_poly(const Polynomial<Order, Real, Letter>& f, const Real& a) {
