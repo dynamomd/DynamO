@@ -2,9 +2,13 @@ Source: dynamo
 Section: science
 Priority: optional
 Maintainer: Marcus Bannerman <support@dynamomd.org>
-Build-Depends: debhelper, 
+Build-Depends: debhelper,
+ gcc (>= 4:4.8.0), g++ (>= 4:4.8.0),
  libbz2-dev,
- libboost-all-dev,
+ libboost-program-options1.55-dev,
+ libboost-filesystem1.55-dev,
+ libboost-iostreams1.55-dev,
+ libboost-test1.55-dev,
  libgtkmm-2.4-dev, 
  freeglut3-dev, 
  libglew-dev, 
