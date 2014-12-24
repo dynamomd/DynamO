@@ -214,12 +214,17 @@ namespace dynamo {
       handle negative time events provided the dynamics allow it.
     */
     const size_t rejectionLimit = 10;
+    const size_t systemParticleID = Sim->N();
 
     if (next_event._type == RECALCULATE)
       {
-	//This is a special event type which requires that the
-	// events for this particle recalculated.
-	this->fullUpdate(Sim->particles[next_event._particle1ID]);
+	if (next_event._particle1ID == systemParticleID)
+	  rebuildSystemEvents();
+	else
+	  //This is a special event type which requires that the
+	  // events for this particle recalculated.
+	  this->fullUpdate(Sim->particles[next_event._particle1ID]);
+
 	return;
       }
     
