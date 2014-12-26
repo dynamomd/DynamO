@@ -99,6 +99,11 @@ namespace magnet {
     auto substitution(const Function<Arg1, detail::COS>& f, const VariableSubstitution<Letter, Arg2>& x) -> decltype(cos(substitution(f._arg, x)))
     { return cos(substitution(f._arg, x)); }
 
+    //template<size_t Order, char Letter, class Arg>
+    //auto taylor_expansion(const Function<Arg, detail::SIN>& f) {
+    //  return taylor_expansion<Order, Letter>;
+    //}
+
     /*! \relates Function
       \name Function input/output operators
       \{

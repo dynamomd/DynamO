@@ -174,21 +174,33 @@ namespace magnet {
     { return substitution(f,x); }
     
     /*! \brief Default implementation of substitution of a symbolic
-        expression at a given point.
-	
-	This implementation is only called if a specialised
-	implementation is not found, therefore it handles all cases
-	where there is NO substitution to be made.
+      expression at a given point.
+      
+      This implementation only applies if the term is a constant term.
      */
-    template<class T, char Letter, class Arg>
+    template<class T, char Letter, class Arg,
+	     typename = typename std::enable_if<detail::IsConstant<T>::value>::type >
     const T& substitution(const T& f, const VariableSubstitution<Letter, Arg>& x)
     { return f; }
 
     /*! \brief Evaluates a symbolic Variable at a given point.
+      
+      This is only used if the Variable is the correct letter for the
+      substitution.
     */
     template<char Letter, class Arg>
     const Arg& substitution(const Variable<Letter>& f, const VariableSubstitution<Letter, Arg>& x)
     { return x._val; }
+
+    /*! \brief Evaluates a symbolic Variable at a given point.
+      
+      This is only used if the Variable is not the correct letter for the
+      substitution.
+    */
+    template<char Letter1, class Arg, char Letter2,
+	     typename = typename std::enable_if<Letter1 != Letter2>::type>
+    const Variable<Letter1>& substitution(const Variable<Letter1>& f, const VariableSubstitution<Letter2, Arg>& x)
+    { return f; }
     
     /*! \brief Output operator for NullSymbol types. */
     inline std::ostream& operator<<(std::ostream& os, const NullSymbol&) {
@@ -279,6 +291,16 @@ namespace magnet {
 	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
     inline double precision(const F& f, const Real) {
       return 0.0;
+    }
+
+    /*! \brief Performs a taylor expansion of the symbolic expression.
+      
+      This specialisation is only activated for constants.
+     */
+    template<size_t Order, char Letter, class F,
+	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
+    inline const F& taylor_expansion(const F& f) {
+      return f;
     }
   }
 }

@@ -59,6 +59,11 @@ namespace magnet {
     template<class T1, class T2> struct Reorder {
       static const bool value = std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value;
     };
+
+    template<char Letter1, char Letter2> 
+    struct Reorder<Variable<Letter1>, Variable<Letter2> > {
+      static const bool value = Letter1 == Letter2;
+    };
     
 #define CREATE_BINARY_OP(HELPERNAME, CLASSNAME, OP)			\
     template<class LHStype, class RHStype>				\
@@ -84,6 +89,12 @@ namespace magnet {
     template<class LHS, class RHS>					\
     auto expand(const CLASSNAME<LHS, RHS>& f) -> decltype(expand(f._l) OP expand(f._r)) { \
       return expand(f._l) OP expand(f._r);				\
+    }									\
+									\
+    /*! \brief Pass the expand operator to the arguments of the operation */ \
+    template<size_t Order, char Letter, class LHS, class RHS>		\
+    auto taylor_expansion(const CLASSNAME<LHS, RHS>& f) -> decltype(taylor_expansion<Order, Letter>(f._l) OP taylor_expansion<Order, Letter>(f._r)) { \
+      return taylor_expansion<Order, Letter>(f._l) OP taylor_expansion<Order, Letter>(f._r); \
     }									\
 									\
     /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
@@ -417,6 +428,22 @@ namespace magnet {
     auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpEval<Power>::eval(f._arg))
     { return PowerOpEval<Power>::eval(f._arg); }
 
+    /*! \brief Optimised multiply of two Variables to convert it to a PowerOp. */
+    template<char Letter>
+    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
+    { return PowerOp<Variable<Letter>, 2>(Variable<Letter>()); }
+    
+    /*! \brief Optimised LHS multiply of a  PowerOp and the corresponding variable. */
+    template<char Letter, size_t Order>
+    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&,
+						const Variable<Letter>&)
+    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
+
+    /*! \brief Optimised RHS multiply of a  PowerOp and the corresponding variable. */
+    template<char Letter, size_t Order>
+    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&,
+						const PowerOp<Variable<Letter>, Order>&)
+    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
 
     /*! \brief Derivatives of PowerOp operations.
      */

@@ -212,3 +212,34 @@ BOOST_AUTO_TEST_CASE( reorder_operations )
   BOOST_CHECK(compare_expression(derivative(2 * cos(x), Variable<'x'>()), -2 * sin(x)));
   BOOST_CHECK(compare_expression(derivative(2 * sin(x), Variable<'x'>()), 2 * cos(x)));
 }
+
+BOOST_AUTO_TEST_CASE( polynomial_substitution_function )
+{
+  //Test substitution and expansion of a Polynomial 
+  BOOST_CHECK(compare_expression(eval(x * x - 3 * x + 2, Variable<'x'>() == x+1), x * x - x));
+}
+
+BOOST_AUTO_TEST_CASE( taylor_expansion_test )
+{
+  Variable<'y'> y;
+
+  //Expanding in the wrong variable
+  BOOST_CHECK(compare_expression(taylor_expansion<3, 'x'>(y*y*y), y*y*y));
+
+  //Expanding PowerOp expressions into Polynomial
+  BOOST_CHECK(compare_expression(taylor_expansion<3, 'y'>(y*y*y), Polynomial<3,int,'y'>{0,0,0,1}));
+
+  //Test truncation of PowerOp expressions when the order is too high
+  BOOST_CHECK(compare_expression(taylor_expansion<2, 'y'>(y*y*y), NullSymbol()));
+  
+  //Partially truncate a Polynomial through expansion
+  BOOST_CHECK(compare_expression(taylor_expansion<2, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<2,int,'y'>{1,2,3}));
+  
+  //Keep the order the same
+  BOOST_CHECK(compare_expression(taylor_expansion<3, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<3,int,'y'>{1,2,3,4}));
+
+  //Taylor expand at a higher order
+  BOOST_CHECK(compare_expression(taylor_expansion<4, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<3,int,'y'>{1,2,3,4}));
+
+  //Test taylor expansion of special functions
+}
