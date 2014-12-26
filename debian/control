@@ -3,7 +3,7 @@ Section: science
 Priority: optional
 Maintainer: Marcus Bannerman <support@dynamomd.org>
 Build-Depends: debhelper,
- gcc (>= 4:4.8.0), g++ (>= 4:4.8.0),
+ g++-4.8,
  libbz2-dev,
  libboost-program-options1.55-dev,
  libboost-filesystem1.55-dev,
