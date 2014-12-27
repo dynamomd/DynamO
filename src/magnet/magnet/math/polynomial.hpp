@@ -27,7 +27,6 @@
 
 namespace magnet {
   namespace math {
-    template<size_t Order, class Real = double, char Letter = 'x'> class Polynomial;
     namespace detail {
       constexpr size_t max_order(size_t N, size_t M)
       { return N > M ? N : M; }
@@ -147,6 +146,11 @@ namespace magnet {
  	zero.
       */
       Polynomial() { Base::fill(Real()); }
+
+      Polynomial(const PowerOp<Variable<Letter>, Order>&) { 
+	Base::fill(Real());
+	Base::operator[](Order) = Real(1);
+      }
     
       /*! \brief List initializer for simple Polynomial construction. 
 	
@@ -262,6 +266,12 @@ namespace magnet {
     template<class Real, size_t Order, char Var1, char Var2>
     Polynomial<Order, Real, Var2> substitution(const Polynomial<Order, Real, Var1>& f, const VariableSubstitution<Var1, Variable<Var2> >& x_container)
     { return Polynomial<Order, Real, Var2>(f.begin(), f.end()); }
+
+    /*! \brief Optimised Polynomial substitution for NullSymbol insertions.
+     */
+    template<size_t Order, class Real, char Letter>
+    Real substitution(const Polynomial<Order, Real, Letter>& f, const VariableSubstitution<Letter, NullSymbol>&)
+    { return f[0]; }
 
     /*! \brief Numerically Evaluates a Polynomial expression at a given point.
 
@@ -2099,95 +2109,111 @@ namespace magnet {
       return f;
     }
 
-    /*! \brief Performs a taylor expansion of a symbolic Variable expression.
-     
-      This is where a Taylor expansion is not in the variable passed
-      as an argument.
-     */
-    template<size_t Order, char Letter1, char Letter2,
-	     typename = typename std::enable_if<Letter1 != Letter2>::type>
-    inline const Variable<Letter2>& taylor_expansion(const Variable<Letter2>& f) {
-      return f;
-    }
-
-    /*! \brief Performs a Taylor expansion of a symbolic Variable expression.
-     
-      This is where a Taylor expansion is in the variable passed
-      as an argument.
-    */
-    template<size_t Order, char Letter>
-    inline Polynomial<1, int, Letter> taylor_expansion(const Variable<Letter>& f) {
-      return Polynomial<1, int, Letter>{0, 1};
-    }
-
-    /*! \brief Performs a Taylor expansion of a symbolic Polynomial expression.
-     
-      This specialisation is applied where the Taylor expansion is not
-      in the variable of the Polynomial.
-    */
-    template<size_t Order, char Letter, size_t POrder, class Real, char PLetter,
-	     typename = typename std::enable_if<Letter != PLetter>::type>
-    inline const Polynomial<POrder, Real, PLetter>& taylor_expansion(const Polynomial<POrder, Real, PLetter>& f) {
-      return f;
-    }
-
-    /*! \brief Performs a Taylor expansion of a symbolic Polynomial expression.
-     
-      This specialisation is applied where the Taylor expansion IS
-      in the variable of the Polynomial and the order will be reduced.
-     */
-    template<size_t Order, char Letter, size_t POrder, class Real>
-    inline typename std::enable_if<(Order < POrder), Polynomial<POrder, Real, Letter> >::type
-    taylor_expansion(const Polynomial<POrder, Real, Letter>& f) {
-      return change_order<Order>(f);
-    }
-
-    /*! \brief Performs a Taylor expansion of a symbolic Polynomial
-      expression.
-      
-      This specialisation is applied where the Taylor expansion IS in
-      the variable of the Polynomial, but the order will not be
-      reduced.
-     */
-    template<size_t Order, char Letter, size_t POrder, class Real>
-    inline typename std::enable_if<(Order >= POrder), const Polynomial<POrder, Real, Letter>& >::type
-    taylor_expansion(const Polynomial<POrder, Real, Letter>& f) {
-      return f;
-    }
-
-    /*! \brief Performs a Taylor expansion of a Power of a Variable,
-        but in the incorrect Variable.
-      
-      This returns the original term as the PowerOp is in a different
-      variable.
-     */
-    template<size_t Order, char Letter1, size_t POrder, char Letter2>
-    typename std::enable_if<Letter1 != Letter2, const PowerOp<Variable<Letter2>, POrder>&>::type 
-    taylor_expansion(const PowerOp<Variable<Letter2>, POrder>&f) {
-      return f;
-    }
-
-    /*! \brief Performs a Taylor expansion of a Power of a Variable.
-      
-      This truncates the term as its power is above the order of the
-      Taylor expansion.
-     */
-    template<size_t Order, char Letter, size_t POrder>
-    typename std::enable_if<(Order < POrder), NullSymbol>::type 
-    taylor_expansion(const PowerOp<Variable<Letter>, POrder>&) {
-      return NullSymbol();
-    }
-      
-    /*! \brief Performs a Taylor expansion of a PowerOp of a Variable.
-
-      This returns a Polynomial representation of the PowerOp.
-     */
-    template<size_t Order, char Letter, size_t POrder>
-    typename std::enable_if<(Order >= POrder), Polynomial<POrder, int, Letter> >::type
-    taylor_expansion(const PowerOp<Variable<Letter>, POrder>&) {
-      Polynomial<POrder, int, Letter> retval;
-      retval[POrder] = 1;
+    /*! \brief Optimisation of a Polynomial LHS multiplied by a
+        Variable. */
+    template<char Letter, size_t Order, class Real>
+    Polynomial<Order+1, Real, Letter> multiply(const Variable<Letter>&, const Polynomial<Order, Real, Letter>& p)
+    { 
+      Polynomial<Order+1, Real, Letter> retval;
+      retval[0] = Real();
+      std::copy(p.begin(), p.end(), retval.begin() + 1);
       return retval;
     }
+
+    /*! \brief Optimisation of a Polynomial RHS multiplied by a
+        Variable. */
+    template<char Letter, size_t Order, class Real>
+    Polynomial<Order+1, Real, Letter> multiply(const Polynomial<Order, Real, Letter>& p, const Variable<Letter>& v)
+    { return multiply(v, p); }
+
+    /*! \brief Optimisation of a Polynomial LHS multiplied by a
+        PowerOp of a Variable. */
+    template<char Letter, size_t Order, class Real, size_t POrder>
+    Polynomial<Order+POrder, Real, Letter> multiply(const PowerOp<Variable<Letter>, POrder>&, const Polynomial<Order, Real, Letter>& p)
+    {
+      Polynomial<Order+POrder, Real, Letter> retval;
+      std::copy(p.begin(), p.end(), retval.begin() + POrder);
+      return retval;
+    }
+
+    /*! \brief Optimisation of a Polynomial RHS multiplied by a
+        PowerOp of a Variable. */
+    template<char Letter, size_t Order, class Real, size_t POrder>
+    Polynomial<Order+POrder, Real, Letter> multiply(const Polynomial<Order, Real, Letter>& p, const PowerOp<Variable<Letter>, POrder>& v)
+    { return multiply(v, p); }
+
+    /*! \brief Conversion of PowerOp RHS multiplied by a constant to a
+        Polynomial. */
+    template<char Letter, size_t Order, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<Order, Real, Letter> >::type 
+    multiply(const PowerOp<Variable<Letter>, Order>&, const Real& a)
+    {
+      Polynomial<Order, Real, Letter> retval;
+      retval[Order] = a;
+      return retval;
+    }
+
+    /*! \brief Conversion of PowerOp LHS multiplied by a constant to a
+        Polynomial. */
+    template<char Letter, size_t Order, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<Order, Real, Letter> >::type 
+    multiply(const Real& a, const PowerOp<Variable<Letter>, Order>&)
+    { 
+      Polynomial<Order, Real, Letter> retval;
+      retval[Order] = a;
+      return retval;
+    }
+
+    /*! \brief Conversion of Variable RHS multiplied by a constant to a
+        Polynomial. */
+    template<char Letter, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
+    multiply(const Variable<Letter>&, const Real& a)
+    { return Polynomial<1, Real, Letter>{0,a}; }
+
+    /*! \brief Conversion of Variable LHS multiplied by a constant to a
+        Polynomial. */
+    template<char Letter, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
+    multiply(const Real& a, const Variable<Letter>&)
+    { return Polynomial<1, Real, Letter>{0,a}; }
+
+    /*! \brief Conversion of PowerOp LHS added with a constant to a
+        Polynomial. */
+    template<char Letter, size_t Order, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<Order, Real, Letter> >::type 
+    add(const PowerOp<Variable<Letter>, Order>&, const Real& a)
+    { 
+      Polynomial<Order, Real, Letter> retval;
+      retval[Order] = Real(1);
+      retval[0] = a;
+      return retval;
+    }
+
+    /*! \brief Conversion of PowerOp RHS added by a constant to a
+        Polynomial. */
+    template<char Letter, size_t Order, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<Order, Real, Letter> >::type 
+    add(const Real& a, const PowerOp<Variable<Letter>, Order>&)
+    { 
+      Polynomial<Order, Real, Letter> retval;
+      retval[Order] = Real(1);
+      retval[0] = a;
+      return retval;
+    }
+
+    /*! \brief Conversion of PowerOp LHS added with a constant to a
+        Polynomial. */
+    template<char Letter, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
+    add(const Variable<Letter>&, const Real& a)
+    { return Polynomial<1, Real, Letter>{a, Real(1)}; }
+
+    /*! \brief Conversion of PowerOp RHS added by a constant to a
+        Polynomial. */
+    template<char Letter, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
+    add(const Real& a, const Variable<Letter>&)
+    { return Polynomial<1, Real, Letter>{a, Real(1)}; }
   }
 }

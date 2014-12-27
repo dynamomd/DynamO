@@ -27,13 +27,13 @@ namespace magnet {
       operator int () const { return 0; }
 
       /*! \brief Unary negation on NullSymbol has no action.*/
-      const NullSymbol& operator-() const {
-	return *this;
+      NullSymbol operator-() const {
+	return NullSymbol();
       }
 
       /*! \brief Unary positive on NullSymbol has no action.*/
-      const NullSymbol& operator+() const {
-	return *this;
+      NullSymbol operator+() const {
+	return NullSymbol();
       }
     };
 
@@ -44,11 +44,11 @@ namespace magnet {
     };
 
     /*!\brief Compile-time symbolic representation of a variable
-       substitution.
-     */
+      substitution.
+    */
     template<char Letter, class Arg> struct VariableSubstitution {
       VariableSubstitution(const Arg& val):_val(val) {}
-      const Arg& _val;
+      Arg _val;
     };
     
     /*!\brief Symbolic representation of a variable.
@@ -56,7 +56,7 @@ namespace magnet {
       This class is used to denote a variable. The template argument
       is a single ASCII character which represents this variable and
       is used to identify it during symbolic actions and output.
-     */
+    */
     template<char Letter> struct Variable {
       template<class Arg>
       VariableSubstitution<Letter, Arg> operator==(const Arg& a) const {
@@ -70,7 +70,7 @@ namespace magnet {
 	This is used to enable the derivative operation to convert
 	these types to NullSymbol types. It is also to apply a
 	specialised functions to these types.
-       */
+      */
       template<class T>
       struct IsConstant {
 	static const bool value = std::is_arithmetic<T>::value;
@@ -151,7 +151,7 @@ namespace magnet {
       The operation on constant terms is to do nothing.
     */
     template<class T, typename = typename std::enable_if<detail::IsConstant<T>::value> ::type>
-    const T& expand(const T& f) { return f; }
+    T expand(const T& f) { return f; }
 
     /*! \brief Provides expansion (and simplification) of symbolic
       functions.
@@ -159,15 +159,15 @@ namespace magnet {
       The operation on Variable terms is to do nothing.
     */
     template<char Letter>
-    const Variable<Letter>& expand(const Variable<Letter>& f) { return f; }
+    Variable<Letter> expand(const Variable<Letter>& f) { return f; }
 
     /*! \brief Evaluates a symbolic expression by substituting a
-        variable for another expression.
+      variable for another expression.
 	
-	If a arithmetic type is substituted, this will likely cause a
-	numerical evaluation of the expression. This "helper"
-	implementation converts to a substitution for the variable
-	'x'.
+      If a arithmetic type is substituted, this will likely cause a
+      numerical evaluation of the expression. This "helper"
+      implementation converts to a substitution for the variable
+      'x'.
     */
     template<class T, class VarArg>
     auto eval(const T& f, const VarArg& xval) -> decltype(substitution(f, Variable<'x'>() == xval))
@@ -178,17 +178,17 @@ namespace magnet {
       This is just a synonym for substitution.
     */
     template<class T, char Letter, class Arg>
-    auto eval(const T& f, const VariableSubstitution<Letter, Arg>& x)  -> decltype(substitution(f,x))
+    auto eval(const T& f, const VariableSubstitution<Letter, Arg>& x)  -> decltype(substitution(f, x))
     { return substitution(f,x); }
     
     /*! \brief Default implementation of substitution of a symbolic
       expression at a given point.
       
       This implementation only applies if the term is a constant term.
-     */
+    */
     template<class T, char Letter, class Arg,
 	     typename = typename std::enable_if<detail::IsConstant<T>::value>::type >
-    const T& substitution(const T& f, const VariableSubstitution<Letter, Arg>& x)
+    T substitution(const T& f, const VariableSubstitution<Letter, Arg>&)
     { return f; }
 
     /*! \brief Evaluates a symbolic Variable at a given point.
@@ -197,7 +197,7 @@ namespace magnet {
       substitution.
     */
     template<char Letter, class Arg>
-    const Arg& substitution(const Variable<Letter>& f, const VariableSubstitution<Letter, Arg>& x)
+    Arg substitution(const Variable<Letter>& f, const VariableSubstitution<Letter, Arg>& x)
     { return x._val; }
 
     /*! \brief Evaluates a symbolic Variable at a given point.
@@ -207,7 +207,7 @@ namespace magnet {
     */
     template<char Letter1, class Arg, char Letter2,
 	     typename = typename std::enable_if<Letter1 != Letter2>::type>
-    const Variable<Letter1>& substitution(const Variable<Letter1>& f, const VariableSubstitution<Letter2, Arg>& x)
+    Variable<Letter1> substitution(const Variable<Letter1>& f, const VariableSubstitution<Letter2, Arg>& x)
     { return f; }
     
     /*! \brief Output operator for NullSymbol types. */
@@ -252,7 +252,7 @@ namespace magnet {
       If the variable is the variable in which a derivative is being
       taken, then this overload should be selected to return
       UnitySymbol.
-     */
+    */
     template<char Letter1, char Letter2,
 	     typename = typename std::enable_if<Letter1 == Letter2>::type>
     UnitySymbol derivative(Variable<Letter1>, Variable<Letter2>) { return UnitySymbol(); }
@@ -266,7 +266,7 @@ namespace magnet {
       If the variable is NOT the variable in which a derivative is
       being taken, then this overload should be selected to return
       NullSymbol.
-     */
+    */
     template<char Letter1, char Letter2,
 	     typename = typename std::enable_if<Letter1 != Letter2>::type>
     NullSymbol derivative(Variable<Letter1>, Variable<Letter2>) { return NullSymbol(); }
@@ -275,7 +275,7 @@ namespace magnet {
 
       For constant terms, these remain the same so this generic
       implementation does nothing.
-     */
+    */
     template<class F, class Real,
 	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
     inline F shift_function(const F& f, const Real t) {
@@ -286,7 +286,7 @@ namespace magnet {
 
       For constant terms, +inf is returned to indicate no root was
       found.
-     */
+    */
     template<class F, 
 	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
     inline double next_root(const F& f) {
@@ -301,14 +301,73 @@ namespace magnet {
       return 0.0;
     }
 
-    /*! \brief Performs a taylor expansion of the symbolic expression.
-      
-      This specialisation is only activated for constants.
+    template<size_t Order, class Real = double, char Letter = 'x'> class Polynomial;
+
+    /*! \brief Symbolic Factorial function.
+     
+      This template implementation returns UnitySymbol for 0! and 1!,
+      allowing simplification of symbolic expressions.
      */
-    template<size_t Order, char Letter, class F,
-	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
-    inline const F& taylor_expansion(const F& f) {
-      return f;
+    template<size_t i> struct Factorial {
+      static size_t eval() { return i * Factorial<i-1>::eval(); }
+    };
+    
+    template<> struct Factorial<1> {
+      static UnitySymbol eval() { return UnitySymbol(); }
+    };
+
+    template<> struct Factorial<0> {
+      static UnitySymbol eval() { return UnitySymbol(); }
+    };
+
+    /*! \brief Symbolic Inverse factorial function.
+     
+      This template implementation returns UnitySymbol for 1/0! and 1/1!,
+      allowing simplification of symbolic expressions.
+     */
+    template<size_t i> struct InvFactorial {
+      static double eval() { return 1.0 / Factorial<i>::eval(); }
+    };
+    
+    template<> struct InvFactorial<1> {
+      static UnitySymbol eval() { return UnitySymbol(); }
+    };
+
+    template<> struct InvFactorial<0> {
+      static UnitySymbol eval() { return UnitySymbol(); }
+    };
+    
+    namespace detail {
+      template<size_t State, size_t max_Order, char Letter>
+      struct TaylorSeriesWorker {
+	template<class Real>
+	static NullSymbol eval(const NullSymbol& f, const Real& a)
+	{ return NullSymbol(); }
+
+	template<class F, class Real>
+	static auto eval(const F& f, const Real& a) -> decltype(InvFactorial<State>::eval() * substitution(f, Variable<Letter>() == a) + (Variable<Letter>() - a) * TaylorSeriesWorker<State+1, max_Order, Letter>::eval(derivative(f, Variable<Letter>()), a))
+	{
+	  return InvFactorial<State>::eval() * substitution(f, Variable<Letter>() == a) + (Variable<Letter>()-a) * TaylorSeriesWorker<State+1, max_Order, Letter>::eval(derivative(f, Variable<Letter>()), a);
+	}
+      };
+
+      template<size_t max_Order, char Letter>
+      struct TaylorSeriesWorker<max_Order,max_Order,Letter> {
+	template<class F, class Real>
+	static auto eval(const F& f, const Real& a) -> decltype(InvFactorial<max_Order>::eval() * substitution(f, Variable<Letter>() == a))
+	{ return InvFactorial<max_Order>::eval() * substitution(f, Variable<Letter>() == a); }
+
+	template<class Real>
+	static NullSymbol eval(const NullSymbol& f, const Real& a)
+	{ return NullSymbol(); }
+      };
     }
+
+    /*! \brief Generate a Taylor series representation of a Symbolic
+        expression.
+     */
+    template<size_t Order, char Letter, class F, class Real>
+    auto taylor_series(const F& f, Real a) -> decltype(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a))
+    { return detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a); }
   }
 }

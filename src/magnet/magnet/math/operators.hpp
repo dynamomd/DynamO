@@ -76,10 +76,11 @@ namespace magnet {
       static const bool value = true;					\
     };									\
 									\
-    template<class LHS, class RHS, class Real>				\
-    auto eval(const CLASSNAME<LHS, RHS>& f, const Real& x)		\
-      -> decltype(eval(f._l, x) OP eval(f._r, x))			\
-    { return eval(f._l, x) OP eval(f._r, x); }				\
+    template<class LHS, class RHS, char Letter, class Arg>		\
+    auto substitution(const CLASSNAME<LHS, RHS>& f, const VariableSubstitution<Letter, Arg>& x)	\
+      -> decltype(substitution(f._l, x) OP substitution(f._r, x))	\
+    { return substitution(f._l, x) OP substitution(f._r, x); }		\
+									\
     template<class LHS, class RHS>					\
     /*! \brief Helper function for creating this BinaryOp. */		\
     CLASSNAME<LHS, RHS> HELPERNAME(const LHS& l, const RHS& r)		\
@@ -87,14 +88,13 @@ namespace magnet {
 									\
     /*! \brief Pass the expand operator to the arguments of the operation */ \
     template<class LHS, class RHS>					\
-    auto expand(const CLASSNAME<LHS, RHS>& f) -> decltype(expand(f._l) OP expand(f._r)) { \
-      return expand(f._l) OP expand(f._r);				\
-    }									\
+    auto expand(const CLASSNAME<LHS, RHS>& f) -> decltype(expand(f._l) OP expand(f._r)) \
+    { return expand(f._l) OP expand(f._r); }				\
 									\
     /*! \brief Pass the expand operator to the arguments of the operation */ \
-    template<size_t Order, char Letter, class LHS, class RHS>		\
-    auto taylor_expansion(const CLASSNAME<LHS, RHS>& f) -> decltype(taylor_expansion<Order, Letter>(f._l) OP taylor_expansion<Order, Letter>(f._r)) { \
-      return taylor_expansion<Order, Letter>(f._l) OP taylor_expansion<Order, Letter>(f._r); \
+    template<size_t Order, char Letter, class LHS, class RHS, class A>	\
+    auto taylor_series(const CLASSNAME<LHS, RHS>& f, const A& a) -> decltype(taylor_series<Order, Letter>(f._l, a) OP taylor_series<Order, Letter>(f._r, a)) { \
+      return taylor_series<Order, Letter>(f._l, a) OP taylor_series<Order, Letter>(f._r, a); \
     }									\
 									\
     /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
@@ -133,63 +133,25 @@ namespace magnet {
     /*! \relates BinaryOp
       \name BinaryOp optimisations
     */
-    
-    /*! \brief Optimised multiply if the LHS term is a NullSymbol. */
-    template<class RHS>
-    NullSymbol multiply(const NullSymbol& l, const RHS& r)
-    { return NullSymbol(); }
-    
-    /*! \brief Optimised multiply if the RHS term is a NullSymbol. */
-    template<class LHS>
-    NullSymbol multiply(const LHS& l, const NullSymbol& r)
-    { return NullSymbol(); }
-    
-    /*! \brief Optimised multiply if both terms are NullSymbol types. */
-    NullSymbol multiply(const NullSymbol& l, const NullSymbol& r)
-    { return NullSymbol(); }
 
-    /*! \brief Optimised multiply if the LHS term is a UnitySymbol. */
-    template<class RHS>
-    RHS multiply(const UnitySymbol& l, const RHS& r)
-    { return r; }
-    
-    /*! \brief Optimised multiply if the RHS term is a UnitySymbol. */
-    template<class LHS>
-    LHS multiply(const LHS& l, const UnitySymbol& r)
-    { return l; }
-    
-    /*! \brief Optimised multiply if both terms are UnitySymbol types. */
-    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&)
-    { return UnitySymbol(); }
+    template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
+    template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
+    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
+    template<class RHS> NullSymbol multiply(const NullSymbol&, const RHS&) { return NullSymbol(); }
+    template<class LHS> NullSymbol multiply(const LHS&, const NullSymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const UnitySymbol&, const NullSymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const NullSymbol&, const UnitySymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
 
-    /*! \brief Optimised addition if the LHS term is a NullSymbol. */
-    template<class RHS>
-    RHS add(const NullSymbol& l, const RHS& r)
-    { return r; }
-    
-    /*! \brief Optimised addition if the RHS term is a NullSymbol. */
-    template<class LHS>
-    LHS add(const LHS& l, const NullSymbol& r)
-    { return l; }
-    
-    /*! \brief Optimised addition if both terms are NullSymbol types. */
-    NullSymbol add(const NullSymbol& l, const NullSymbol& r)
-    { return NullSymbol(); }
+    NullSymbol add(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+    template<class LHS> LHS add(const LHS& l, const NullSymbol& r) { return l; }
+    template<class RHS> RHS add(const NullSymbol& l, const RHS& r) { return r; }
 
-    /*! \brief Optimised addition if the LHS term is a NullSymbol. */
-    template<class RHS>
-    auto subtract(const NullSymbol& l, const RHS& r) -> decltype(-r)
-    { return -r; }
+    template<class LHS> LHS subtract(const LHS& l, const NullSymbol&) { return l; }
+    template<class RHS> auto subtract(const NullSymbol&, const RHS& r) -> decltype(-r) { return -r; }
+    NullSymbol subtract(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
     
-    /*! \brief Optimised addition if the RHS term is a NullSymbol. */
-    template<class LHS>
-    LHS subtract(const LHS& l, const NullSymbol& r)
-    { return l; }
-    
-    /*! \brief Optimised addition if both terms are NullSymbol types. */
-    NullSymbol subtract(const NullSymbol& l, const NullSymbol& r)
-    { return NullSymbol(); }
-
+    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
 
     /*! \brief Expand multiplication and addition operations. */
     template<class LHS1, class RHS1, class RHS>
@@ -270,32 +232,6 @@ namespace magnet {
 
     /*! \} */
 
-    /*! \brief Determines the max and min over a certain range. */
-    template<class LHS, class RHS, class Real>
-    auto minmax(const AddOp<LHS, RHS>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), 
-											   decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)>
-    {
-      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first + minmax(f._r, x_min, x_max).first), 
-			decltype(minmax(f._l, x_min, x_max).second + minmax(f._r, x_min, x_max).second)> 
-	RetType;
-      auto lv = minmax(f._l, x_min, x_max);
-      auto rv = minmax(f._r, x_min, x_max);
-      return RetType(lv.first + rv.first, lv.second + rv.second);
-    }
-
-    /*! \brief Determines the max and min over a certain range. */
-    template<class LHS, class RHS, class Real>
-    auto minmax(const MultiplyOp<LHS, RHS>& f, const Real x_min, const Real x_max) -> std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), 
-												decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)>
-    {
-      typedef std::pair<decltype(minmax(f._l, x_min, x_max).first * minmax(f._r, x_min, x_max).first), 
-			decltype(minmax(f._l, x_min, x_max).second * minmax(f._r, x_min, x_max).second)> RetType;
-      auto lv = minmax(f._l, x_min, x_max);
-      auto rv = minmax(f._r, x_min, x_max);
-      return RetType(lv.first * rv.first, lv.second * rv.second);
-    }
-    /*! \} */
-
     /*! \relates BinaryOp
       \name BinaryOp input/output operators
       \{
@@ -338,16 +274,16 @@ namespace magnet {
 	achieves this.
       */
       template<size_t Power>
-      struct PowerOpEval {
+      struct PowerOpSubstitution {
 	template<class Arg_t>
-	static auto eval(Arg_t x) -> decltype(PowerOpEval<Power-1>::eval(x) * x) {
-	  return PowerOpEval<Power-1>::eval(x) * x;
+	static auto eval(Arg_t x) -> decltype(PowerOpSubstitution<Power-1>::eval(x) * x) {
+	  return PowerOpSubstitution<Power-1>::eval(x) * x;
 	}
 	static UnitySymbol eval(UnitySymbol) { return UnitySymbol(); }
       };
 
       template<>
-      struct PowerOpEval<1> {
+      struct PowerOpSubstitution<1> {
 	template<class Arg_t>
 	static Arg_t eval(Arg_t x) {
 	  return x;
@@ -356,7 +292,7 @@ namespace magnet {
       };
 
       template<>
-      struct PowerOpEval<0> {
+      struct PowerOpSubstitution<0> {
 	template<class Arg_t>
 	static UnitySymbol eval(Arg_t x) {
 	  return UnitySymbol();
@@ -378,17 +314,21 @@ namespace magnet {
       argument is an arithmetic type. If this is the case, the
       evaluation is passed to std::pow.
     */
-    template<class Arg, size_t Power, class Real>
-    auto eval(const PowerOp<Arg, Power>& f, const Real& x) -> typename std::enable_if<std::is_arithmetic<decltype(eval(f._arg, x))>::value, decltype(std::pow(eval(f._arg, x), Power))>::type
-    { return std::pow(eval(f._arg, x), Power); }
+    template<class Arg1, size_t Power, class Arg2, char Letter>
+    auto substitution(const PowerOp<Arg1, Power>& f, const VariableSubstitution<Letter, Arg2>& x)
+      -> typename std::enable_if<std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
+				 decltype(std::pow(substitution(f._arg, x), Power))>::type
+    { return std::pow(substitution(f._arg, x), Power); }
 
     /*! \brief Evaluate PowerOp symbol at a value of x.
       
       This is the general implementation for PowerOp.
     */
-    template<class Arg, size_t Power, class Real>
-    auto eval(const PowerOp<Arg, Power>& f, const Real& x) -> typename std::enable_if<!std::is_arithmetic<decltype(f._arg(x))>::value, decltype(PowerOpEval<Power>::eval(eval(f._arg, x)))>
-    { return PowerOpEval<Power>::eval(eval(f._arg, x)); }
+    template<class Arg1, size_t Power, class Arg2, char Letter>
+    auto substitution(const PowerOp<Arg1, Power>& f, const VariableSubstitution<Letter, Arg2>& x)
+      -> typename std::enable_if<!std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
+				 decltype(PowerOpSubstitution<Power>::eval(substitution(f._arg, x)))>::type
+    { return PowerOpSubstitution<Power>::eval(substitution(f._arg, x)); }
 
 
     /*! \relates PowerOp
@@ -425,8 +365,8 @@ namespace magnet {
 
     /*! \brief Expansion operator for PowerOp types. */
     template<class Arg, size_t Power> 
-    auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpEval<Power>::eval(f._arg))
-    { return PowerOpEval<Power>::eval(f._arg); }
+    auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpSubstitution<Power>::eval(f._arg))
+    { return PowerOpSubstitution<Power>::eval(f._arg); }
 
     /*! \brief Optimised multiply of two Variables to convert it to a PowerOp. */
     template<char Letter>
@@ -448,20 +388,20 @@ namespace magnet {
     /*! \brief Derivatives of PowerOp operations.
      */
     template<char dVariable, class Arg, size_t Power>
-    auto derivative(const PowerOp<Arg, Power>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg))
+    auto derivative(const PowerOp<Arg, Power>& f, Variable<dVariable>) -> decltype(Power * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg))
     { return Power * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg); }
+
+    template<char dVariable, class Arg>
+    NullSymbol derivative(const PowerOp<Arg, 0>& f, Variable<dVariable>)
+    { return NullSymbol(); }
 
     template<char dVariable, class Arg>
     auto derivative(const PowerOp<Arg, 1>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()))
     { return derivative(f._arg, Variable<dVariable>()); }
 
     template<char dVariable, class Arg>
-    auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(derivative(f._arg, Variable<dVariable>()) * f._arg)
+    auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(2 * derivative(f._arg, Variable<dVariable>()) * f._arg)
     { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
-
-    template<char dVariable, class Arg>
-    NullSymbol derivative(const PowerOp<Arg, 0>& f, Variable<dVariable>)
-    { return NullSymbol(); }
     /*! \}*/
   }
 }

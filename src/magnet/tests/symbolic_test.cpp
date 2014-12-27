@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( function_poly_derivatives_special )
 BOOST_AUTO_TEST_CASE( power_basic )
 {
   //Check evaluation of powers
-  BOOST_CHECK_CLOSE(eval(pow<3>(x), 4.0), 4.0*4.0*4.0, 1e-10);
+  BOOST_CHECK_CLOSE(substitution(pow<3>(x), Variable<'x'>()==4.0), 4.0*4.0*4.0, 1e-10);
   BOOST_CHECK_CLOSE(eval(pow<3>(x), 0.75), std::pow(0.75, 3), 1e-10);
 
   //Test PowerOp algebraic operations
@@ -137,7 +137,11 @@ BOOST_AUTO_TEST_CASE( Null_tests )
   BOOST_CHECK(compare_expression(NullSymbol(), "Null"));
   BOOST_CHECK(compare_expression(derivative(NullSymbol(), Variable<'x'>()), "Null"));
   BOOST_CHECK_EQUAL(eval(NullSymbol(), 100), 0);
-
+  
+  //Check some substitutions
+  Variable<'y'> y;
+  BOOST_CHECK(compare_expression(substitution(y*y*y, y == NullSymbol()), "Null"));
+  
   //Check derivatives of constants becomes Null
   BOOST_CHECK(compare_expression(derivative(2, Variable<'x'>()), "Null"));
   BOOST_CHECK(compare_expression(derivative(3.141, Variable<'x'>()), "Null"));
@@ -219,31 +223,34 @@ BOOST_AUTO_TEST_CASE( polynomial_substitution_function )
   BOOST_CHECK(compare_expression(eval(x * x - 3 * x + 2, Variable<'x'>() == x+1), x * x - x));
 }
 
-BOOST_AUTO_TEST_CASE( taylor_expansion_test )
+BOOST_AUTO_TEST_CASE( taylor_series_test )
 {
   Variable<'y'> y;
 
   //Expanding in the wrong variable
-  BOOST_CHECK(compare_expression(taylor_expansion<3, 'x'>(y*y*y), y*y*y));
+  BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(y*y*y, NullSymbol()), y*y*y));
 
   //Expanding PowerOp expressions into Polynomial
-  BOOST_CHECK(compare_expression(taylor_expansion<3, 'y'>(y*y*y), Polynomial<3,int,'y'>{0,0,0,1}));
+  BOOST_CHECK(compare_expression(taylor_series<3, 'y'>(y*y*y, NullSymbol()), Polynomial<3,int,'y'>{0,0,0,1}));
 
   //Test truncation of PowerOp expressions when the order is too high
-  BOOST_CHECK(compare_expression(taylor_expansion<2, 'y'>(y*y*y), NullSymbol()));
+  BOOST_CHECK(compare_expression(taylor_series<2, 'y'>(y*y*y, NullSymbol()), 0));
   
   //Partially truncate a Polynomial through expansion
-  BOOST_CHECK(compare_expression(taylor_expansion<2, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<2,int,'y'>{1,2,3}));
+  BOOST_CHECK(compare_expression(taylor_series<2, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<2,int,'y'>{1,2,3}));
   
   //Keep the order the same
-  BOOST_CHECK(compare_expression(taylor_expansion<3, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<3,int,'y'>{1,2,3,4}));
+  BOOST_CHECK(compare_expression(taylor_series<3, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<3,int,'y'>{1,2,3,4}));
 
   //Taylor expand at a higher order
-  BOOST_CHECK(compare_expression(taylor_expansion<4, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<3,int,'y'>{1,2,3,4}));
+  BOOST_CHECK(compare_expression(taylor_series<4, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<3,int,'y'>{1,2,3,4}));
 
   //Test simple Taylor expansion of sine
-  Polynomial<1, double, 'y'> yp{0,1};
-  BOOST_CHECK(compare_expression(taylor_expansion<6, 'y'>(sin(Variable<'y'>())), (1.0/120) * yp*yp*yp*yp*yp - (1.0/6) * yp*yp*yp + yp ));
-  //Test Taylor expansion of sine with a complex expression
-  BOOST_CHECK(compare_expression(taylor_expansion<8, 'y'>(sin(Variable<'y'>() * Variable<'y'>())), - (1.0/6) * yp*yp*yp*yp*yp*yp + yp*yp));
+  
+  //Polynomial<1, double, 'y'> yp{0,1};
+  //BOOST_CHECK(compare_expression(taylor_series<6, 'y'>(sin(Variable<'y'>()), NullSymbol()), (1.0/120) * yp*yp*yp*yp*yp - (1.0/6) * yp*yp*yp + yp ));
+  ////Test Taylor expansion of sine with a complex expression
+  //BOOST_CHECK(compare_expression(taylor_series<8, 'y'>(sin(Variable<'y'>() * Variable<'y'>()), NullSymbol()), - (1.0/6) * yp*yp*yp*yp*yp*yp + yp*yp));
+  //
+  //std::cout << taylor_series<5, 'x'>(sin(Variable<'x'>()+2*std::atan(1))) << std::endl;
 }
