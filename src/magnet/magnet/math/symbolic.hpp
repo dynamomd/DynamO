@@ -148,10 +148,18 @@ namespace magnet {
       evaluations. This should not change the calculated values, but
       should optimise for use under repeated evaluations.
 
-      The default operation is to do nothing.
+      The operation on constant terms is to do nothing.
     */
-    template<class T> 
+    template<class T, typename = typename std::enable_if<detail::IsConstant<T>::value> ::type>
     const T& expand(const T& f) { return f; }
+
+    /*! \brief Provides expansion (and simplification) of symbolic
+      functions.
+
+      The operation on Variable terms is to do nothing.
+    */
+    template<char Letter>
+    const Variable<Letter>& expand(const Variable<Letter>& f) { return f; }
 
     /*! \brief Evaluates a symbolic expression by substituting a
         variable for another expression.

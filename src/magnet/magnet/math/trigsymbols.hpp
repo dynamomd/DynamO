@@ -99,10 +99,42 @@ namespace magnet {
     auto substitution(const Function<Arg1, detail::COS>& f, const VariableSubstitution<Letter, Arg2>& x) -> decltype(cos(substitution(f._arg, x)))
     { return cos(substitution(f._arg, x)); }
 
-    //template<size_t Order, char Letter, class Arg>
-    //auto taylor_expansion(const Function<Arg, detail::SIN>& f) {
-    //  return taylor_expansion<Order, Letter>;
-    //}
+    namespace detail {
+      constexpr int factorial(int i) {
+	return (i<=1) ? 1 : i * factorial(i-1);
+      }
+      
+      constexpr int sinTaylorFactor(int i) {
+	return (1 - 2 * ((i / 2) % 2)) * factorial(i);
+      }
+
+      template<size_t State, size_t max_Order>
+      struct TaylorExpandWorker {
+	template<size_t POrder, class Real, char PLetter>
+	static auto Sin(const Polynomial<POrder, Real, PLetter>& p) -> decltype(expand(pow<State>(change_order<max_Order / State>(p))) * (1.0/ sinTaylorFactor(State)) + TaylorExpandWorker<State - 2, max_Order>::Sin(p))
+	{
+	  return expand(pow<State>(change_order<max_Order / State>(p))) * (1.0/ sinTaylorFactor(State)) + TaylorExpandWorker<State - 2, max_Order>::Sin(p);
+	}
+      };
+
+      template<size_t max_Order>
+      struct TaylorExpandWorker<1, max_Order> {
+      	template<class Arg>
+      	static const Arg& Sin(const Arg& p)
+      	{ return p; }
+      };
+      
+      template<size_t max_Order>
+      struct TaylorExpandWorker<0, max_Order> {
+      	template<class Arg>
+      	static const NullSymbol Sin(const Arg& p)
+      	{ return NullSymbol(); }
+      };
+    }
+
+    template<size_t Order, char Letter, class Arg>
+    auto taylor_expansion(const Function<Arg, detail::SIN>& f) -> decltype(detail::TaylorExpandWorker<Order + (Order % 2) - (Order!=0), Order>::Sin(taylor_expansion<Order, Letter>(f._arg)))
+    { return detail::TaylorExpandWorker<Order + (Order % 2) - (Order!=0), Order>::Sin(taylor_expansion<Order, Letter>(f._arg)); }
 
     /*! \relates Function
       \name Function input/output operators

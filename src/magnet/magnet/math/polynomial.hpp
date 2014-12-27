@@ -263,25 +263,6 @@ namespace magnet {
     Polynomial<Order, Real, Var2> substitution(const Polynomial<Order, Real, Var1>& f, const VariableSubstitution<Var1, Variable<Var2> >& x_container)
     { return Polynomial<Order, Real, Var2>(f.begin(), f.end()); }
 
-    namespace detail {
-      template<size_t Stage>
-      struct PolySubWorker {
-	template<size_t Order, char Letter, class Real, class X>
-	static auto eval(const Polynomial<Order, Real, Letter>& f, const X& x) -> decltype(f[Order - Stage] + x * PolySubWorker<Stage - 1>::eval(f, x))
-	{
-	  return f[Order - Stage] + x * PolySubWorker<Stage - 1>::eval(f, x);
-	}
-      };
-      
-      template<>
-      struct PolySubWorker<0> {
-	template<size_t Order, char Letter, class Real, class X>
-	static auto eval(const Polynomial<Order, Real, Letter>& f, const X& x) -> decltype(f[Order]) {
-	  return f[Order];
-	}
-      };
-    }
-
     /*! \brief Numerically Evaluates a Polynomial expression at a given point.
 
       This function also specially handles the cases where
@@ -291,7 +272,7 @@ namespace magnet {
       Sturm chains.
      */
     template<class Real, size_t Order, char Letter, class Real2,
-	     typename = typename std::enable_if<detail::distribute_poly<Real, Real2>::value>::type>
+	     typename = typename std::enable_if<std::is_arithmetic<Real2>::value>::type>
     decltype(Real() * Real2()) substitution(const Polynomial<Order, Real, Letter>& f, const VariableSubstitution<Letter, Real2>& x_container)
     {
       //Handle the case where this is actually a constant and not a
@@ -328,8 +309,41 @@ namespace magnet {
       return sum;
     }
 
+    namespace detail {
+      /*! \brief Worker class for symbolically evaluating a substitution on
+          a Polynomial.
+       */
+      template<size_t Stage>
+      struct PolySubWorker {
+	template<size_t Order, char Letter, class Real, class X>
+	static auto eval(const Polynomial<Order, Real, Letter>& f, const X& x) -> decltype(f[Order - Stage] + x * PolySubWorker<Stage - 1>::eval(f, x))
+	{
+	  return f[Order - Stage] + x * PolySubWorker<Stage - 1>::eval(f, x);
+	}
+      };
+      
+      /*! \brief Worker class for symbolically evaluating a substitution on
+          a Polynomial.
+	  
+	  This is the closure for the evaluation.
+       */
+      template<>
+      struct PolySubWorker<0> {
+	template<size_t Order, char Letter, class Real, class X>
+	static auto eval(const Polynomial<Order, Real, Letter>& f, const X& x) -> decltype(f[Order]) {
+	  return f[Order];
+	}
+      };
+    }
+    /*! \brief Symbolically evaluates a Polynomial expression.
+
+      As the intermediate and final return types of a symbolic
+      evaluation are unknown, this must be handled using template
+      metaprogramming to unfold the multiplication. This is provided
+      by the detail::PolySubWorker classes.
+     */
     template<class Real, size_t Order, char Letter, class Real2,
-	     typename = typename std::enable_if<!detail::distribute_poly<Real, Real2>::value>::type>
+	     typename = typename std::enable_if<!std::is_arithmetic<Real2>::value>::type>
     auto substitution(const Polynomial<Order, Real, Letter>& f, const VariableSubstitution<Letter, Real2>& x_container) -> decltype(detail::PolySubWorker<Order>::eval(f, x_container._val))
     { return detail::PolySubWorker<Order>::eval(f, x_container._val); }
 
@@ -2073,6 +2087,17 @@ namespace magnet {
       return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
     }
     /*! \endcond \} */
+
+
+    /*! \brief Specialisation of expand for Polynomial types.
+      
+      No expansion should be performed on Polynomials, they're already
+      "simple".
+     */
+    template<size_t POrder, class Real, char PLetter>
+    inline const Polynomial<POrder, Real, PLetter>& expand(const Polynomial<POrder, Real, PLetter>& f) {
+      return f;
+    }
 
     /*! \brief Performs a taylor expansion of a symbolic Variable expression.
      

@@ -241,5 +241,9 @@ BOOST_AUTO_TEST_CASE( taylor_expansion_test )
   //Taylor expand at a higher order
   BOOST_CHECK(compare_expression(taylor_expansion<4, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}), Polynomial<3,int,'y'>{1,2,3,4}));
 
-  //Test taylor expansion of special functions
+  //Test simple Taylor expansion of sine
+  Polynomial<1, double, 'y'> yp{0,1};
+  BOOST_CHECK(compare_expression(taylor_expansion<6, 'y'>(sin(Variable<'y'>())), (1.0/120) * yp*yp*yp*yp*yp - (1.0/6) * yp*yp*yp + yp ));
+  //Test Taylor expansion of sine with a complex expression
+  BOOST_CHECK(compare_expression(taylor_expansion<8, 'y'>(sin(Variable<'y'>() * Variable<'y'>())), - (1.0/6) * yp*yp*yp*yp*yp*yp + yp*yp));
 }

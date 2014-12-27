@@ -462,37 +462,7 @@ namespace magnet {
     template<char dVariable, class Arg>
     NullSymbol derivative(const PowerOp<Arg, 0>& f, Variable<dVariable>)
     { return NullSymbol(); }
-
-    /*! \brief The maximum and minimum values of the PowerOp over a specifed range.
-      \param f The PowerOp operation to evaluate.
-      \param x_min The minimum x bound.
-      \param x_max The maximum x bound.
-    */
-    template<class Arg, size_t Power, class Real>
-    inline auto minmax(const PowerOp<Arg, Power>& f, const Real x_min, const Real x_max) -> std::pair<decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).first)),
-												      decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).second))>
-    {
-      typedef std::pair<decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).first)), decltype(PowerOpEval<Power>::eval(minmax(f._arg, x_min, x_max).second))> RetType;
-      auto val = minmax(f._arg, x_min, x_max);
-      
-      auto min_pow = PowerOpEval<Power>::eval(val.first);
-      auto max_pow = PowerOpEval<Power>::eval(val.second);
-      
-      //For odd powers, sign is preserved, so the arguments min^Power
-      //is always less than the arguments max^Power
-      if (Power % 2)
-	return RetType(min_pow, max_pow);
-      else {
-	auto min = std::min(min_pow, max_pow);
-	auto max = std::max(min_pow, max_pow);
-	//If min-max range spans zero, we must include it.
-	if ((val.first < 0) && (val.second > 0))
-	  min = std::min(min, 0.0);
-
-	return RetType(min, max);
-      }
-    }
-    /*! \} */
+    /*! \}*/
   }
 }
     
