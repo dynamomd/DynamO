@@ -156,7 +156,8 @@ BOOST_AUTO_TEST_CASE( Unity_tests )
   BOOST_CHECK(compare_expression(derivative(UnitySymbol(),Variable<'x'>()), NullSymbol()));
   BOOST_CHECK_EQUAL(eval(UnitySymbol(), 100), 1);
 
-  BOOST_CHECK(compare_expression(UnitySymbol() + UnitySymbol(), "2"));
+  BOOST_CHECK(compare_expression(UnitySymbol() + UnitySymbol(), 2));
+  BOOST_CHECK(compare_expression(UnitySymbol() + 1.1, 2.1));
 
   BOOST_CHECK(compare_expression(UnitySymbol() + NullSymbol(), UnitySymbol()));
   BOOST_CHECK(compare_expression(NullSymbol() + UnitySymbol(), UnitySymbol()));
@@ -253,11 +254,10 @@ BOOST_AUTO_TEST_CASE( taylor_series_test )
 
   //Test simple Taylor expansion of sine  
   BOOST_CHECK(compare_expression(taylor_series<6, 'y'>(sin(y), NullSymbol()), (1.0/120) * y*y*y*y*y - (1.0/6) * y*y*y + y));
-
-  //Test Taylor expansion of sine with a complex expression
   BOOST_CHECK(compare_expression(taylor_series<8, 'y'>(sin(y*y), NullSymbol()), - (1.0/6) * y*y*y*y*y*y + y*y));
   
-  //std::cout << UnitySymbol() + UnitySymbol() << std::endl;
-  BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), NullSymbol()), 
-				 (3.0 * std::sin(4.0)/2.0 + (std::cos(4.0)/6.0)) * x*x*x + (3*std::cos(4.0)/2.0 - std::sin(4.0)/2.0) * x*x - std::cos(4.0) * x + std::sin(4.0)));
+  //Test Taylor expansion of a complex expression at zero
+  BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), NullSymbol()), (3.0 * std::sin(4.0)/2.0 + (std::cos(4.0)/6.0)) * x*x*x + (3*std::cos(4.0)/2.0 - std::sin(4.0)/2.0) * x*x - std::cos(4.0) * x + std::sin(4.0)));
+  //Test Taylor expansion again at a non-zero location
+  BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), 3.0), 82.77908670866608 * x*x*x - 688.8330378984795 * x*x + 1895.079543801394 * x - 1721.740734454172));
 }

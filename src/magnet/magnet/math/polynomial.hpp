@@ -2306,18 +2306,28 @@ namespace magnet {
       return retval;
     }
 
-    /*! \brief Conversion of PowerOp LHS added with a constant to a
-        Polynomial. */
+    /*! \brief Conversion of a Variable RHS added with a constant. */
     template<char Letter, class Real>
     typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
     add(const Variable<Letter>&, const Real& a)
     { return Polynomial<1, Real, Letter>{a, Real(1)}; }
 
-    /*! \brief Conversion of PowerOp RHS added by a constant to a
-        Polynomial. */
+    /*! \brief Conversion of a Variable LHS added with a constant. */
     template<char Letter, class Real>
     typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
     add(const Real& a, const Variable<Letter>&)
     { return Polynomial<1, Real, Letter>{a, Real(1)}; }
+
+    /*! \brief Conversion of a Variable RHS added with a constant. */
+    template<char Letter, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
+    subtract(const Variable<Letter>&, const Real& a)
+    { return Polynomial<1, Real, Letter>{-a, Real(1)}; }
+
+    /*! \brief Conversion of a Variable LHS added with a constant. */
+    template<char Letter, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
+    subtract(const Real& a, const Variable<Letter>&)
+    { return Polynomial<1, Real, Letter>{a, -Real(1)}; }
   }
 }
