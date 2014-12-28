@@ -34,19 +34,10 @@ namespace magnet {
     /*! \brief Type trait which enables symbolic operators for
         algebraic operations (*+-). */
     template<class T> struct SymbolicOperators {
-      static const bool value = false;
+      static const bool value = detail::IsSymbolicConstant<T>::value;
     };
-
-    template<> struct SymbolicOperators<UnitySymbol> {
-      static const bool value = true;
-    };
-
      
     template<char Letter> struct SymbolicOperators<Variable<Letter> > {
-      static const bool value = true;
-    };
-
-    template<> struct SymbolicOperators<NullSymbol> {
       static const bool value = true;
     };
      
@@ -54,10 +45,11 @@ namespace magnet {
         reordered to bring these types together. 
 
 	This is true for all arithmetic types, as operations on these
-	generally can be collapsed into a single term.
+	generally can be precalculate by the compiler into a single
+	term. All symbolic constants are also reordered.
     */
     template<class T1, class T2> struct Reorder {
-      static const bool value = std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value;
+      static const bool value = detail::IsConstant<T1>::value && detail::IsConstant<T2>::value;
     };
 
     template<char Letter1, char Letter2> 
@@ -80,11 +72,15 @@ namespace magnet {
     auto substitution(const CLASSNAME<LHS, RHS>& f, const VariableSubstitution<Letter, Arg>& x)	\
       -> decltype(substitution(f._l, x) OP substitution(f._r, x))	\
     { return substitution(f._l, x) OP substitution(f._r, x); }		\
+    									\
+    template<class LHS, class RHS>					\
+    typename std::enable_if<!(detail::IsConstant<LHS>::value && detail::IsConstant<RHS>::value), CLASSNAME<LHS, RHS> >::type \
+    HELPERNAME(const LHS& l, const RHS& r)				\
+    { return CLASSNAME<LHS, RHS>(l, r); }				\
 									\
     template<class LHS, class RHS>					\
-    /*! \brief Helper function for creating this BinaryOp. */		\
-    CLASSNAME<LHS, RHS> HELPERNAME(const LHS& l, const RHS& r)		\
-    { return CLASSNAME<LHS, RHS>(l, r); }				\
+    auto HELPERNAME(const LHS& l, const RHS& r) -> decltype(toArithmetic(l) OP toArithmetic(r)) \
+    { return toArithmetic(l) OP toArithmetic(r); }			\
 									\
     /*! \brief Pass the expand operator to the arguments of the operation */ \
     template<class LHS, class RHS>					\
@@ -123,7 +119,13 @@ namespace magnet {
 	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\
     auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
       -> CLASSNAME<decltype(l OP r._r), T2>				\
-    { return HELPERNAME(l OP r._r, r._l); }				
+    { return HELPERNAME(l OP r._r, r._l); }				\
+									\
+    template<class LHS, class RHS>					\
+    inline std::ostream& operator<<(std::ostream& os, const CLASSNAME<LHS, RHS>& op) {\
+      os << "(" << op._l << ") " #OP " (" << op._r << ")";		\
+	return os;							\
+    }
     
     CREATE_BINARY_OP(add, AddOp, +)
     CREATE_BINARY_OP(subtract, SubtractOp, -)
@@ -134,6 +136,7 @@ namespace magnet {
       \name BinaryOp optimisations
     */
 
+    //The implementations below perform simplification of expressions
     template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
     template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
     UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
@@ -188,6 +191,17 @@ namespace magnet {
       static const bool value = SymbolicOperators<LHS>::value || (!SymbolicOperators<LHS>::value && SymbolicOperators<RHS>::value);
     };
 
+    /*! \brief Symbolic unary positive operator. */
+    template<class Arg,
+	     typename = typename std::enable_if<SymbolicOperators<Arg>::value>::type>
+    Arg operator+(const Arg& l) { return l; }
+
+    /*! \brief Symbolic unary negation operator. */
+    template<class Arg,
+	     typename = typename std::enable_if<SymbolicOperators<Arg>::value>::type>
+    auto operator-(const Arg& l) -> decltype(-1 * l)
+    { return -1 * l; }
+
     /*! \brief Symbolic addition operator. */
     template<class LHS, class RHS,
 	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
@@ -230,39 +244,6 @@ namespace magnet {
     auto derivative(const MultiplyOp<LHS, RHS>& f, Variable<dVariable>) -> decltype(derivative(f._l, Variable<dVariable>()) * f._r + f._l * derivative(f._r, Variable<dVariable>()))
     { return derivative(f._l, Variable<dVariable>()) * f._r + f._l * derivative(f._r, Variable<dVariable>()); }
 
-    /*! \} */
-
-    /*! \relates BinaryOp
-      \name BinaryOp input/output operators
-      \{
-    */
-    /*! \brief Writes a human-readable representation of the AddOp to the output stream. */
-    template<class LHS, class RHS>
-    inline std::ostream& operator<<(std::ostream& os, const AddOp<LHS, RHS>& op) {
-      os << "(" << op._l << ") + (" << op._r << ")";
-      return os;
-    }
-
-    /*! \brief Writes a human-readable representation of the SubtractOp to the output stream. */
-    template<class LHS, class RHS>
-    inline std::ostream& operator<<(std::ostream& os, const SubtractOp<LHS, RHS>& op) {
-      os << "(" << op._l << ") - (" << op._r << ")";
-      return os;
-    }
-
-    /*! \brief Writes a human-readable representation of the MultiplyOp to the output stream. */
-    template<class LHS, class RHS>
-    inline std::ostream& operator<<(std::ostream& os, const MultiplyOp<LHS, RHS>& op) {
-      os << "(" << op._l << ") * (" << op._r << ")";
-      return os;
-    }
-
-    /*! \brief Writes a human-readable representation of the DivideOp to the output stream. */
-    template<class LHS, class RHS>
-    inline std::ostream& operator<<(std::ostream& os, const DivideOp<LHS, RHS>& op) {
-      os << "(" << op._l << ") / (" << op._r << ")";
-      return os;
-    }
     /*! \} */
 
     namespace {

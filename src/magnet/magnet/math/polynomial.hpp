@@ -1104,9 +1104,9 @@ namespace magnet {
 	constant term is zero, there is no residual and the division
 	becomes a simple shifted copy.
     */
-    template<size_t Order, class Real>
-    inline Polynomial<Order-1, Real> deflate_polynomial(const Polynomial<Order, Real>& a, const NullSymbol) {
-      Polynomial<Order-1, Real> b;
+    template<size_t Order, class Real, char Letter>
+    inline Polynomial<Order-1, Real, Letter> deflate_polynomial(const Polynomial<Order, Real, Letter>& a, NullSymbol) {
+      Polynomial<Order-1, Real, Letter> b;
       std::copy(a.begin()+1, a.end(), b.begin());
       return b;
     }
@@ -1938,7 +1938,7 @@ namespace magnet {
 	containers::StackVector<std::pair<Real,Real>, Order> retval;
 	if (f[0] == 0) {
 	  retval.push_back(std::make_pair(M.eval(0), M.eval(0)));
-	  f = deflate_polynomial(f, 0);
+	  f = deflate_polynomial(f, NullSymbol());
 	}
 
 	//Create and solve the polynomial for [0, 1]
@@ -2102,7 +2102,7 @@ namespace magnet {
     /*! \brief Specialisation of expand for Polynomial types.
       
       No expansion should be performed on Polynomials, they're already
-      "simple".
+      "expanded".
      */
     template<size_t POrder, class Real, char PLetter>
     inline const Polynomial<POrder, Real, PLetter>& expand(const Polynomial<POrder, Real, PLetter>& f) {
@@ -2126,6 +2126,78 @@ namespace magnet {
     Polynomial<Order+1, Real, Letter> multiply(const Polynomial<Order, Real, Letter>& p, const Variable<Letter>& v)
     { return multiply(v, p); }
 
+    /*! \brief Optimisation of a Polynomial LHS added to a
+        Variable. */
+    template<char Letter, size_t Order, class Real>
+    Polynomial<Order+1, Real, Letter> add(const Polynomial<Order, Real, Letter>& p, const Variable<Letter>& v)
+    { return add(v, p); }
+
+    /*! \brief Optimisation of a Polynomial RHS added to a
+        Variable. */
+    template<char Letter, size_t Order, class Real>
+    Polynomial<(Order > 0) ? Order : 1, Real, Letter> add(const Variable<Letter>& v, const Polynomial<Order, Real, Letter>& p)
+    {
+      Polynomial<(Order > 0) ? Order : 1, Real, Letter> retval(p);
+      retval[1] += Real(1);
+      return retval;
+    }
+
+    /*! \brief Optimisation of a Polynomial LHS subtracted from a
+        Variable. */
+    template<char Letter, size_t Order, class Real>
+    Polynomial<(Order > 0) ? Order : 1, Real, Letter> subtract(const Polynomial<Order, Real, Letter>& p, const Variable<Letter>& v)
+    {
+      Polynomial<(Order > 0) ? Order : 1, Real, Letter> retval(p);
+      retval[1] -= Real(1);
+      return retval;
+    }
+
+    /*! \brief Optimisation of a Polynomial RHS subtracted from a
+        Variable. */
+    template<char Letter, size_t Order, class Real>
+    Polynomial<(Order > 0) ? Order : 1, Real, Letter> subtract(const Variable<Letter>& v, const Polynomial<Order, Real, Letter>& p)
+    {
+      Polynomial<(Order > 0) ? Order : 1, Real, Letter> retval(-p);
+      retval[1] += Real(1);
+      return retval;
+    }
+
+    /*! \brief Optimisation of a Polynomial LHS added to a
+        PowerOp of the Variable. */
+    template<char Letter, size_t Order, class Real, size_t POrder>
+    Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> add(const Polynomial<Order, Real, Letter>& p, const PowerOp<Variable<Letter>, POrder>& v)
+    { return add(v, p); }
+
+    /*! \brief Optimisation of a Polynomial RHS added to a
+        PowerOp of the Variable. */
+    template<char Letter, size_t Order, class Real, size_t POrder>
+    Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> add(const PowerOp<Variable<Letter>, POrder>& v, const Polynomial<Order, Real, Letter>& p)
+    {
+      Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> retval(p);
+      retval[POrder] += Real(1);
+      return retval;
+    }
+
+    /*! \brief Optimisation of a Polynomial LHS subtracted from the
+        PowerOp of the Variable. */
+    template<char Letter, size_t Order, class Real, size_t POrder>
+    Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> subtract(const Polynomial<Order, Real, Letter>& p, const Variable<Letter>& v)
+    {
+      Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> retval(p);
+      retval[1] -= Real(1);
+      return retval;
+    }
+
+    /*! \brief Optimisation of a Polynomial RHS subtracted from a
+        PowerOp of the Variable. */
+    template<char Letter, size_t Order, class Real, size_t POrder>
+    Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> subtract(const PowerOp<Variable<Letter>, POrder>& v, const Polynomial<Order, Real, Letter>& p)
+    {
+      Polynomial<(Order > POrder) ? Order : POrder, Real, Letter> retval(-p);
+      retval[POrder] += Real(1);
+      return retval;
+    }
+
     /*! \brief Optimisation of a Polynomial LHS multiplied by a
         PowerOp of a Variable. */
     template<char Letter, size_t Order, class Real, size_t POrder>
@@ -2137,10 +2209,42 @@ namespace magnet {
     }
 
     /*! \brief Optimisation of a Polynomial RHS multiplied by a
-        PowerOp of a Variable. */
+      PowerOp of a Variable. */
     template<char Letter, size_t Order, class Real, size_t POrder>
     Polynomial<Order+POrder, Real, Letter> multiply(const Polynomial<Order, Real, Letter>& p, const PowerOp<Variable<Letter>, POrder>& v)
     { return multiply(v, p); }
+
+    /*! \brief Optimisation of a Polynomial LHS added to a UnitySymbol. */
+    template<size_t Order, class Real, char Letter>
+    Polynomial<Order, Real, Letter> add(const Polynomial<Order, Real, Letter>& p, const UnitySymbol& v)
+    { return multiply(v, p); }
+
+    /*! \brief Optimisation of a Polynomial RHS added to a UnitySymbol. */
+    template<size_t Order, class Real, char Letter>
+    Polynomial<Order, Real, Letter> add(const UnitySymbol& v, const Polynomial<Order, Real, Letter>& p)
+    { 
+      Polynomial<Order, Real, Letter> retval(p);
+      retval[0] += Real(1);
+      return retval; 
+    }
+
+    /*! \brief Optimisation of a Polynomial subtracted by a UnitySymbol. */
+    template<size_t Order, class Real, char Letter>
+    Polynomial<Order, Real, Letter> subtract(const Polynomial<Order, Real, Letter>& p, const UnitySymbol& v)
+    { 
+      Polynomial<Order, Real, Letter> retval(p);
+      retval[0] -= Real(1);
+      return retval; 
+    }
+
+    /*! \brief Optimisation of a Polynomial added to a UnitySymbol. */
+    template<size_t Order, class Real, char Letter>
+    Polynomial<Order, Real, Letter> subtract(const UnitySymbol& v, const Polynomial<Order, Real, Letter>& p)
+    { 
+      Polynomial<Order, Real, Letter> retval(-p);
+      retval[0] += Real(1);
+      return retval; 
+    }
 
     /*! \brief Conversion of PowerOp RHS multiplied by a constant to a
         Polynomial. */

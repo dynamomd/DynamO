@@ -21,27 +21,52 @@
 
 namespace magnet {
   namespace math {
-    /*!\brief Compile-time symbolic representation of zero.
-     */
-    struct NullSymbol {
-      operator int () const { return 0; }
+    namespace detail {
+      /*!\brief Type trait to determine if a certain type is a
+	symbolic representation of a constant.
+	
+	This is used to enable the derivative operation to convert
+	these types to NullSymbol types. It is also to apply a
+	specialised functions to these types.
+      */
+      template <class T>
+      struct IsSymbolicConstant {
+	static const bool value = false;
+      };
+    }
 
-      /*! \brief Unary negation on NullSymbol has no action.*/
-      NullSymbol operator-() const {
-	return NullSymbol();
-      }
+    template<class T,
+	     typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+    T toArithmetic(T val) { return val; }
 
-      /*! \brief Unary positive on NullSymbol has no action.*/
-      NullSymbol operator+() const {
-	return NullSymbol();
-      }
-    };
-
-    /*!\brief Compile-time symbolic representation of one.
-     */
-    struct UnitySymbol {
-      operator int () const { return 1; }
-    };
+#define SYMBOLIC_CONSTANT(NAME, VALUE)					\
+    struct NAME {							\
+      bool operator==(NAME) const { return true; }			\
+									\
+      template<class T>							\
+      typename std::enable_if<std::is_arithmetic<T>::value, bool>::type \
+      operator==(const T& a) const { return VALUE == a; }		\
+      									\
+      template<class T>							\
+      typename std::enable_if<!std::is_arithmetic<T>::value, bool>::type \
+      operator==(const T& a) const { return false; }			\
+    };									\
+									\
+    decltype(VALUE) toArithmetic(const NAME&) { return VALUE; }		\
+									\
+    namespace detail {							\
+      template<> struct IsSymbolicConstant<NAME> {			\
+	static const bool value = true;					\
+      };								\
+    }									\
+									\
+    inline std::ostream& operator<<(std::ostream& os, NAME) {		\
+      os << (#NAME);							\
+      return os;							\
+    }
+    
+    SYMBOLIC_CONSTANT(NullSymbol, 0)
+    SYMBOLIC_CONSTANT(UnitySymbol, 1)
 
     /*!\brief Compile-time symbolic representation of a variable
       substitution.
@@ -73,27 +98,17 @@ namespace magnet {
       */
       template<class T>
       struct IsConstant {
-	static const bool value = std::is_arithmetic<T>::value;
+	static const bool value = std::is_arithmetic<T>::value || IsSymbolicConstant<T>::value;
       };
 
       template<class T, size_t N>
       struct IsConstant<NVector<T, N> > {
-	static const bool value = true;
+	static const bool value = IsConstant<T>::value;
       };
 
       template<class T>
       struct IsConstant<std::complex<T> > {
-	static const bool value = true;
-      };
-
-      template<>
-      struct IsConstant<NullSymbol> {
-	static const bool value = true;
-      };
-
-      template<>
-      struct IsConstant<UnitySymbol> {
-	static const bool value = true;
+	static const bool value = IsConstant<T>::value;
       };
     }
 
@@ -210,18 +225,6 @@ namespace magnet {
     Variable<Letter1> substitution(const Variable<Letter1>& f, const VariableSubstitution<Letter2, Arg>& x)
     { return f; }
     
-    /*! \brief Output operator for NullSymbol types. */
-    inline std::ostream& operator<<(std::ostream& os, const NullSymbol&) {
-      os << "Null";
-      return os;
-    }
-
-    /*! \brief Output operator for UnitySymbol types. */
-    inline std::ostream& operator<<(std::ostream& os, const UnitySymbol&) {
-      os << "Unity";
-      return os;
-    }
-
     /*! \brief Output operator for Variable types. */
     template<char Letter>
     inline std::ostream& operator<<(std::ostream& os, const Variable<Letter>&) {

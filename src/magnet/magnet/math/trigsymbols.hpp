@@ -78,6 +78,15 @@ namespace magnet {
     auto cos(const A& a) -> decltype(std::cos(a))
     { return std::cos(a); }
 
+
+    /*! \brief Specialised helper for evaluating sine Function types. 
+     */
+    NullSymbol sin(const NullSymbol&) { return NullSymbol(); }
+
+    /*! \brief Specialised helper for evaluating cosine Function types. 
+     */
+    UnitySymbol cos(const NullSymbol&) { return UnitySymbol(); }
+
     /*! \} */
 
     /*! \brief Enabling of symbolic operators for Function types 
@@ -115,16 +124,6 @@ namespace magnet {
       os << s._arg << ")";
       return os;
     }
-    /*! \} */
-
-    /*! \relates Function
-      \name Function algebraic operators
-     */    
-    /*! \brief Unary negation operator for Function types.
-     */
-    template<class A, detail::Function_t Func>
-    auto operator-(const Function<A, Func>& f) -> decltype(-1 * f)
-    { return -1 * f; }
     /*! \} */
     
     /*! \relates Function
