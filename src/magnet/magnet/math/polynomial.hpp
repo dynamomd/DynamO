@@ -704,12 +704,12 @@ namespace magnet {
       while avoiding the factorial term.
      */
     template<size_t Order, class Real, char Letter>
-    inline Polynomial<Order, Real, Letter> shift_function(const Polynomial<Order, Real, Letter>& f, const double t) 
+    inline Polynomial<Order, double, Letter> shift_function(const Polynomial<Order, Real, Letter>& f, const double t) 
     {
       //Check for the simple case where t == 0, nothing to be done
       if (t == 0) return f;
 
-      Polynomial<Order, Real, Letter> retval;
+      Polynomial<Order, double, Letter> retval;
       retval.fill(Real());
       retval[0] = f[Order];
       for (size_t i(Order); i>0; i--) {
@@ -914,27 +914,37 @@ namespace magnet {
       This returns false if further iterations would improve the root.
      */
     template<size_t Order, class Real, char Letter>
-    bool newton_raphson(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL) 
+    bool newton_raphson(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL, int digits = std::numeric_limits<Real>::digits / 2)
     {
       auto last_state = eval_derivatives<1>(f, x);
 
+      Real factor = static_cast<Real>(ldexp(1.0, 1 - digits));
+   
       //Bound where the function can go
       if (last_state[1] > 0)
 	high_bound = std::min(high_bound, x);
       if (last_state[1] < 0)
 	low_bound = std::max(low_bound, x);
       
-      while (--iterations)
+      Real old_x = std::numeric_limits<Real>::max();
+
+      while (--iterations) {
 	if (!newton_raphson_step(f, last_state, x, low_bound, high_bound)) {
 	  //Newton Raphson failed, try a bisection step
 	  if (bisection_step(f, low_bound, high_bound))
 	    x = (low_bound + high_bound) / 2;
 	  else
-	    //This failed, return current best estimation
-	    return iterations;
+	    return false;
 	}
+
+	Real delta = x - old_x;
+	if (std::abs(x * factor) < std::abs(delta))
+	  return true;
+      }
       
-      return iterations;
+      //Convergence failure
+
+      return false;
     }
 
     /*! \brief Safeguarded Halley's method for detecting a root.
@@ -942,12 +952,14 @@ namespace magnet {
       This returns false if further iterations (when allowed) would improve the root.
      */
     template<size_t Order, class Real, char Letter>
-    bool halleys_method(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL) 
+    bool halleys_method(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL, int digits = std::numeric_limits<Real>::digits / 2)
     {
       auto last_state = eval_derivatives<2>(f, x);
 
+      Real factor = static_cast<Real>(ldexp(1.0, 1 - digits));
+
       if (last_state[0] == 0)
-	return iterations;
+	return true;
 
       if (last_state[1] != 0) {
 	Real direction = - last_state[0] / last_state[1];
@@ -958,7 +970,9 @@ namespace magnet {
 	  low_bound = std::max(low_bound, x);
       }
       
-      while (--iterations)
+      Real old_x = std::numeric_limits<Real>::max();
+
+      while (--iterations) {
 	if (!halley_step(f, last_state, x, low_bound, high_bound)) {
 	  //Halley step failed, try a Newton-Raphson step
 	  if (!newton_raphson_step(f, last_state, x, low_bound, high_bound)) {
@@ -966,12 +980,16 @@ namespace magnet {
 	    if (bisection_step(f, low_bound, high_bound))
 	      x = (low_bound + high_bound) / 2;
 	    else
-	      //This failed, return current best estimation
-	      return iterations;
+	      return false;
 	  }
 	}
+	
+	Real delta = x - old_x;
+	if (std::abs(x * factor) < std::abs(delta))
+	  return true;
+      }
       
-      return iterations;
+      return false;
     }
 
     /*! \} */
