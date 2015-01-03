@@ -2324,6 +2324,30 @@ namespace magnet {
       return retval;
     }
 
+    /*! \brief Conversion of PowerOp LHS subtracted with a constant to a
+        Polynomial. */
+    template<char Letter, size_t Order, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<Order, Real, Letter> >::type 
+    subtract(const PowerOp<Variable<Letter>, Order>&, const Real& a)
+    { 
+      Polynomial<Order, Real, Letter> retval;
+      retval[Order] = Real(1);
+      retval[0] = -a;
+      return retval;
+    }
+
+    /*! \brief Conversion of PowerOp RHS subtracted by a constant to a
+        Polynomial. */
+    template<char Letter, size_t Order, class Real>
+    typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<Order, Real, Letter> >::type 
+    subtract(const Real& a, const PowerOp<Variable<Letter>, Order>&)
+    { 
+      Polynomial<Order, Real, Letter> retval;
+      retval[Order] = -Real(1);
+      retval[0] = a;
+      return retval;
+    }
+
     /*! \brief Conversion of a Variable RHS added with a constant. */
     template<char Letter, class Real>
     typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type 
