@@ -19,6 +19,7 @@
 #include <magnet/math/precision.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/math/vector.hpp>
+#include <magnet/math/numeric.hpp>
 #include <boost/math/tools/roots.hpp>
 #include <stdexcept>
 #include <ostream>
@@ -812,189 +813,6 @@ namespace magnet {
     /*! \} */
 
     /*! \relates Polynomial 
-      \name Polynomial algorithms
-      \{
-    */
-    
-    /*! \brief Update and checking of safeguards, called after an
-        iterative step is taken towards a root.
-     */
-    template<size_t Order, class Real, char Letter, size_t Derivatives>
-    inline bool process_iterative_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state, Real& x, Real new_x, Real& low_bound, Real& high_bound) {
-      if ((new_x >= high_bound) || (new_x <= low_bound))
-	//Out of bounds step, abort
-	return false;
-      
-      //Re evalulate the derivatives
-      auto new_state = eval_derivatives<Derivatives-1>(f, new_x);
-
-      if (std::abs(new_state[0]) >= std::abs(last_state[0]))
-	//The function did not decrease, abort 
-	return false;
-      
-      //Accept this step
-      low_bound = std::min(low_bound, x);
-      high_bound = std::max(high_bound, x);
-      last_state = new_state;
-      x = new_x;
-
-      return true;
-    }
-
-    /*! \brief A single step of the Newton-Raphson method for finding roots.
-     */
-    template<size_t Order, class Real, char Letter, size_t Derivatives>
-    inline bool newton_raphson_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state,  Real& x, Real& low_bound, Real& high_bound) {
-      static_assert(Derivatives >= 1, "Can only perform newton raphson if at least 1 derivative is available");
-      if (last_state[1] == 0)
-	//Zero derivatives cause x to diverge, so abort
-	return false;
-
-      return process_iterative_step(f, last_state, x, x - last_state[0] / last_state[1], low_bound, high_bound);
-    }
-    
-    /*! \brief A single step of Halley's method for finding roots.
-     */
-    template<size_t Order, class Real, char Letter, size_t Derivatives>
-    inline bool halley_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state,  Real& x, Real& low_bound, Real& high_bound) {
-      static_assert(Derivatives >= 2, "Can only perform Halley iteration if at least 1 derivative is available");
-
-      Real denominator = 2 * last_state[1] * last_state[1] - last_state[0] * last_state[2];
-      
-      if ((denominator == 0) || !std::isfinite(denominator))
-	//Cannot proceed with a zero denominator, or if it has overflowed (+inf)
-	return false;
-
-      //Take a step
-      return process_iterative_step(f, last_state, x, x - 2 * last_state[0] * last_state[1] / denominator, low_bound, high_bound);
-    }
-
-    /*! \brief A single step of Schroeder's method for finding roots.
-     */
-    template<size_t Order, class Real, char Letter, size_t Derivatives>
-    inline bool schroeder_step(const Polynomial<Order, Real, Letter>& f, std::array<Real, Derivatives>& last_state,  Real& x, Real& low_bound, Real& high_bound) {
-      static_assert(Derivatives >= 2, "Can only perform Halley iteration if at least 1 derivative is available");
-
-      if (last_state[1] == 0)
-	//Cannot proceed with a zero first derivative
-	return false;
-
-      //Take a step
-      return process_iterative_step(f, last_state, x, x - 2 * last_state[0] * last_state[1] - last_state[2] * last_state[0] * last_state[0] / (2 * last_state[1] * last_state[1] * last_state[1]), low_bound, high_bound);
-    }
-
-    /*! \brief A single bisection step.
-     */
-    template<size_t Order, class Real, char Letter>
-    inline bool bisection_step(const Polynomial<Order, Real, Letter>& f, Real& low_bound, Real& high_bound) {
-      if ((low_bound >= high_bound) || std::isinf(low_bound) || std::isinf(high_bound))
-	//This is not a valid interval
-	return false;
-
-      Real f_low = eval(f, Variable<Letter>() == low_bound);
-      Real f_high = eval(f, Variable<Letter>() == high_bound);
-      
-      if (std::signbit(f_low) == std::signbit(f_high))
-	//No sign change in the interval
-	return false;
-
-      Real x_mid = (low_bound + high_bound) / 2;
-      Real f_mid = eval(f, Variable<Letter>() == x_mid);
-
-      if (std::signbit(f_mid) == std::signbit(f_high))
-	high_bound = x_mid;
-      else
-	low_bound = x_mid;
-
-      return true;
-    }
-
-    /*! \brief Safeguarded newton_raphson method for detecting a root.
-
-      This returns false if further iterations would improve the root.
-     */
-    template<size_t Order, class Real, char Letter>
-    bool newton_raphson(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL, int digits = std::numeric_limits<Real>::digits / 2)
-    {
-      auto last_state = eval_derivatives<1>(f, x);
-
-      Real factor = static_cast<Real>(ldexp(1.0, 1 - digits));
-   
-      //Bound where the function can go
-      if (last_state[1] > 0)
-	high_bound = std::min(high_bound, x);
-      if (last_state[1] < 0)
-	low_bound = std::max(low_bound, x);
-      
-      Real old_x = std::numeric_limits<Real>::max();
-
-      while (--iterations) {
-	if (!newton_raphson_step(f, last_state, x, low_bound, high_bound)) {
-	  //Newton Raphson failed, try a bisection step
-	  if (bisection_step(f, low_bound, high_bound))
-	    x = (low_bound + high_bound) / 2;
-	  else
-	    return false;
-	}
-
-	Real delta = x - old_x;
-	if (std::abs(x * factor) < std::abs(delta))
-	  return true;
-      }
-      
-      //Convergence failure
-
-      return false;
-    }
-
-    /*! \brief Safeguarded Halley's method for detecting a root.
-
-      This returns false if further iterations (when allowed) would improve the root.
-     */
-    template<size_t Order, class Real, char Letter>
-    bool halleys_method(const Polynomial<Order, Real, Letter>& f, Real& x, size_t iterations = 20, Real low_bound = -HUGE_VAL, Real high_bound = +HUGE_VAL, int digits = std::numeric_limits<Real>::digits / 2)
-    {
-      auto last_state = eval_derivatives<2>(f, x);
-
-      Real factor = static_cast<Real>(ldexp(1.0, 1 - digits));
-
-      if (last_state[0] == 0)
-	return true;
-
-      if (last_state[1] != 0) {
-	Real direction = - last_state[0] / last_state[1];
-	//Bound where the function can go
-	if (direction < 0)
-	  high_bound = std::min(high_bound, x);
-	else
-	  low_bound = std::max(low_bound, x);
-      }
-      
-      Real old_x = std::numeric_limits<Real>::max();
-
-      while (--iterations) {
-	if (!halley_step(f, last_state, x, low_bound, high_bound)) {
-	  //Halley step failed, try a Newton-Raphson step
-	  if (!newton_raphson_step(f, last_state, x, low_bound, high_bound)) {
-	    //Newton-Raphson failed! Try a bisection
-	    if (bisection_step(f, low_bound, high_bound))
-	      x = (low_bound + high_bound) / 2;
-	    else
-	      return false;
-	  }
-	}
-	
-	Real delta = x - old_x;
-	if (std::abs(x * factor) < std::abs(delta))
-	  return true;
-      }
-      
-      return false;
-    }
-
-    /*! \} */
-
-    /*! \relates Polynomial 
       \name Polynomial roots
       \{
     */
@@ -1218,7 +1036,9 @@ namespace magnet {
 	//the original equation.  They will need polishing using the
 	//original function:
 	for (auto& root : roots)
-	  halleys_method(f, root);
+	  if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, root))
+	    M_throw() << "Failed to polish root";
+	
 	roots.push_back(root);
 	std::sort(roots.begin(), roots.end());
 	return roots;
@@ -1329,7 +1149,8 @@ namespace magnet {
 	  else
 	    root = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0;
 	  
-	  halleys_method(f, root);
+	  if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, root))
+	    M_throw() << "Failed to polish root";
 
 	  return deflate_and_solve_polynomial(f, root);
 	}
@@ -1367,9 +1188,15 @@ namespace magnet {
       roots.push_back(s * (-cosk + rt3sink) - f[2] / 3.0);
       roots.push_back(s * (-cosk - rt3sink) - f[2] / 3.0);
 
-      halleys_method(f, roots[0]);
-      halleys_method(f, roots[1]);
-      halleys_method(f, roots[2]);
+      if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[0]))
+	M_throw() << "Failed to polish root";
+      
+      if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[1]))
+	M_throw() << "Failed to polish root";
+      
+      if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[2]))
+	M_throw() << "Failed to polish root";
+      
       std::sort(roots.begin(), roots.end());
       return roots;
     }

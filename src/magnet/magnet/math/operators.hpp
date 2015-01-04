@@ -49,7 +49,7 @@ namespace magnet {
 	term. All symbolic constants are also reordered.
     */
     template<class T1, class T2> struct Reorder {
-      static const bool value = detail::IsConstant<T1>::value && detail::IsConstant<T2>::value;
+      static const bool value = std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value;
     };
 
     template<char Letter1, char Letter2> 
