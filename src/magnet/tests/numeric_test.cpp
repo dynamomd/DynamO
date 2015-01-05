@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE( NewtonRaphson_root )
   auto f = x*x - 4.0;
   auto df = derivative(f, x);
   double xroot = 6.0;
-  BOOST_CHECK(newton_raphson([&](double x){ return std::array<double, 2>{eval(f, x), eval(df, x)}; }, xroot));
+  BOOST_CHECK(newton_raphson([&](double x){ return std::array<double, 2>{{eval(f, x), eval(df, x)}}; }, xroot));
   BOOST_CHECK_CLOSE(xroot, 2.0, 1e-10);
   
   xroot = 6.0;
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( Halley_root )
   auto ddf = derivative(df, x);
 
   double xroot = 6.0;
-  BOOST_CHECK(halleys_method([&](double x){ return std::array<double, 3>{eval(f, x), eval(df, x), eval(ddf, x)}; }, xroot));
+  BOOST_CHECK(halleys_method([&](double x){ return std::array<double, 3>{{eval(f, x), eval(df, x), eval(ddf, x)}}; }, xroot));
   BOOST_CHECK_CLOSE(xroot, 2.0, 1e-10);
   
   xroot = 6.0;

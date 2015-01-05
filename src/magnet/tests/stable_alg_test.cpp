@@ -11,7 +11,7 @@ using namespace magnet::math;
 const Polynomial<1, double, 't'> t{0, 1};
 std::mt19937 RNG;
 
-const std::array<double, 10> rootvals{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
+const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
 const size_t tests = 1000;
 
 template<class F, class R>
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( Cubic_function )
 {
   RNG.seed(1);
 
-  const std::array<double, 10> rootvals{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
+  const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
   
   for (auto it1 = rootvals.begin(); it1 != rootvals.end(); ++it1)
     for (auto it2 = it1; it2 != rootvals.end(); ++it2)
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( Cubic_function )
 BOOST_AUTO_TEST_CASE( Quartic_function )
 {
   RNG.seed(1);
-  const std::array<double, 10> rootvals{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
+  const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
   
   for (auto it1 = rootvals.begin(); it1 != rootvals.end(); ++it1)
     for (auto it2 = it1+1; it2 != rootvals.end(); ++it2)
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( Quartic_function )
 BOOST_AUTO_TEST_CASE( Quintic_function )
 {
   RNG.seed(1);
-  const std::array<double, 10> rootvals{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 };
+  const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
   
   for (auto it1 = rootvals.begin(); it1 != rootvals.end(); ++it1)
     for (auto it2 = it1+1; it2 != rootvals.end(); ++it2)

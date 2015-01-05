@@ -1715,7 +1715,7 @@ namespace magnet {
          Mobius transform.
        */
       void invert_taylor_shift() {
-	Base::operator=(std::array<Real, 4>{(*this)[1], (*this)[0] + (*this)[1], (*this)[3], (*this)[2] + (*this)[3]});
+	Base::operator=(std::array<Real, 4>{{(*this)[1], (*this)[0] + (*this)[1], (*this)[3], (*this)[2] + (*this)[3]}});
       }
     };
 
