@@ -32,9 +32,14 @@ namespace magnet {
       inline int process_iterative_step(const F& f, std::array<Real, Derivatives>& curr_state,
 					Real& x, Real new_x, Real& low_bound, Real& high_bound, Real x_precision) {
 
-	if ((new_x >= high_bound) || (new_x <= low_bound))
+	//std::cout << "new_x = " << new_x << std::endl;
+	//std::cout << "[" << low_bound << "," << high_bound << "]" << std::endl;
+
+	if ((new_x >= high_bound) || (new_x <= low_bound)) {
+	  //std::cout << "Out of bounds" << std::endl;
 	  //Out of bounds step, failed!
 	  return 0;
+	}
 	
 	//Re evalulate the derivatives
 	auto new_state = f(new_x);
@@ -43,6 +48,7 @@ namespace magnet {
 	Real delta = new_x - x;
 
 	if ((std::abs(delta) < std::abs(x_precision * new_x)) || (new_state[0] == Real(0))) {
+	  //std::cout << "Converged" << std::endl;
 	  //We've converged
 	  x = new_x;
 	  curr_state = new_state;
@@ -50,9 +56,11 @@ namespace magnet {
 	}
 	
 	//Check if the function has increased
-	if (std::abs(new_state[0]) > std::abs(curr_state[0]))
+	if (std::abs(new_state[0]) > std::abs(curr_state[0])) {
+	  //std::cout << "Function increased!" << std::endl;
 	  //The function increased! method has failed
 	  return 0;
+	}
 
 	//Not converged or failed, update bounds and continue
 	if (delta >= 0)
@@ -64,6 +72,8 @@ namespace magnet {
 	curr_state = new_state;
 	x = new_x;
 
+	//std::cout << "new bounds [" << low_bound << "," << high_bound << "]" << std::endl;
+
 	return 1;
       }
     }
@@ -74,9 +84,13 @@ namespace magnet {
     inline int newton_raphson_step(const F& f, std::array<Real, Derivatives>& curr_state,  
 				    Real& x, Real& low_bound, Real& high_bound, Real x_precision) {
       static_assert(Derivatives >= 1, "Can only perform newton raphson if at least 1 derivative is available");
-      if (curr_state[1] == 0)
+
+      //std::cout << "NR Method" << std::endl;
+      if (curr_state[1] == 0) {
+	//std::cout << "Zero derivative!" << std::endl;
 	//Zero derivatives cause x to diverge, so abort
 	return 0;
+      }
 
       return detail::process_iterative_step(f, curr_state, x, x - curr_state[0] / curr_state[1], low_bound, high_bound, x_precision);
     }
@@ -88,13 +102,31 @@ namespace magnet {
 			    Real& x, Real& low_bound, Real& high_bound, Real x_precision) {
       static_assert(Derivatives >= 2, "Can only perform Halley iteration if at least 1 derivative is available");
 
+      //std::cout << "Halley Method" << std::endl;
+      Real numerator = 2 * curr_state[0] * curr_state[1];
       Real denominator = 2 * curr_state[1] * curr_state[1] - curr_state[0] * curr_state[2];
       
-      if ((denominator == 0) || !std::isfinite(denominator))
-	//Cannot proceed with a zero denominator, or if it has overflowed (+inf)
+      if ((denominator == 0) || !std::isfinite(denominator)) {
+	//std::cout << "Halley Overflow!" << std::endl;
+	//Cannot proceed with a zero or infinite denominator, or if the div
+	//has overflowed (+inf)
 	return 0;
+      }
       
-      return detail::process_iterative_step(f, curr_state, x, x - 2 * curr_state[0] * curr_state[1] / denominator, low_bound, high_bound, x_precision);
+      Real delta = - numerator / denominator;
+      Real deltaNR = - curr_state[0] / curr_state[1];
+      //std::cout << "delta = " << delta << std::endl;
+      //std::cout << "deltaNR = " << deltaNR << std::endl;
+      if (std::signbit(delta) != std::signbit(deltaNR)) {
+	//std::cout << "Halley != NR" << std::endl;
+	//The Halley and Newton Raphson iterations would proceed in
+	//opposite directions. This happens near multiple roots where
+	//the second derivative causes overcompensation. Fail so NR is
+	//used instead.
+	return 0;
+      }
+
+      return detail::process_iterative_step(f, curr_state, x, x + delta, low_bound, high_bound, x_precision);
     }
 
     /*! \brief A single step of Schroeder's method for finding roots.
@@ -118,19 +150,25 @@ namespace magnet {
 	//This is not a valid interval
 	return 0;
 
+      //std::cout << "Bisection" << std::endl;
       auto f_low = f(low_bound);
       auto f_high = f(high_bound);
       
-      if (std::signbit(f_low[0]) == std::signbit(f_high[0]))
+      if (std::signbit(f_low[0]) == std::signbit(f_high[0])) {
+	//std::cout << "No sign change!" << std::endl;
 	//No sign change in the interval
 	return 0;
-      
+      }
+
       Real x_mid = (low_bound + high_bound) / 2;
       auto new_state = f(x_mid);
+
+      //std::cout << "new_x = " << x_mid << std::endl;
 
       Real delta = x_mid - x;
       
       if ((std::abs(delta) < std::abs(x_precision * x_mid)) || (new_state[0] == Real(0))) {
+	//std::cout << "Converged!" << std::endl;
 	//We've converged
 	x = x_mid;
 	curr_state = new_state;
@@ -144,6 +182,7 @@ namespace magnet {
 	low_bound = x_mid;
       }
       
+      //std::cout << "new bounds [" << low_bound << "," << high_bound << "]" << std::endl;
       x = x_mid;
       curr_state = new_state;
       
@@ -198,7 +237,8 @@ namespace magnet {
 
       if (last_state[0] == 0)
 	return true;
-  
+
+      //std::cout << "x0=" << x << std::endl;
       int status = 1;
       while ((--iterations) && (status != 2)) {
 	status = halley_step(f, last_state, x, low_bound, high_bound, x_precision);
@@ -209,7 +249,7 @@ namespace magnet {
 	    if (!status)
 	      return false;
 	  }
-	}	
+	}
       }
       return (status == 2);
     }

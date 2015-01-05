@@ -1036,8 +1036,10 @@ namespace magnet {
 	//the original equation.  They will need polishing using the
 	//original function:
 	for (auto& root : roots)
-	  if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, root))
-	    M_throw() << "Failed to polish root";
+	  //We don't test if the polishing fails. Without established
+	  //bounds polishing is hard to do for multiple roots, so we
+	  //just accept a polished root if it is available
+	  halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, root);
 	
 	roots.push_back(root);
 	std::sort(roots.begin(), roots.end());
@@ -1149,8 +1151,10 @@ namespace magnet {
 	  else
 	    root = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - f[2] / 3.0;
 	  
-	  if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, root))
-	    M_throw() << "Failed to polish root";
+	  //We don't test if the polishing fails. Without established
+	  //bounds polishing is hard to do for multiple roots, so we
+	  //just accept a polished root if it is available
+	  halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, root);
 
 	  return deflate_and_solve_polynomial(f, root);
 	}
@@ -1188,14 +1192,12 @@ namespace magnet {
       roots.push_back(s * (-cosk + rt3sink) - f[2] / 3.0);
       roots.push_back(s * (-cosk - rt3sink) - f[2] / 3.0);
 
-      if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[0]))
-	M_throw() << "Failed to polish root";
-      
-      if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[1]))
-	M_throw() << "Failed to polish root";
-      
-      if (!halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[2]))
-	M_throw() << "Failed to polish root";
+      //We don't test if the polishing fails. Without established
+      //bounds polishing is "hard" with multiple real roots, so we
+      //just accept a polished root if it is available
+      halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[0]);
+      halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[1]);
+      halleys_method([&](double x){ return eval_derivatives<2>(f, x); }, roots[2]);
       
       std::sort(roots.begin(), roots.end());
       return roots;
