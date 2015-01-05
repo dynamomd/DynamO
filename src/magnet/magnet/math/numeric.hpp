@@ -168,8 +168,6 @@ namespace magnet {
       if (last_state[0] == 0)
 	return true;
     
-      Real old_x = x;
-
       int status = 1;
       while ((--iterations) && (status != 2)) {
 	status = newton_raphson_step(f, last_state, x, low_bound, high_bound, x_precision);
@@ -201,8 +199,6 @@ namespace magnet {
       if (last_state[0] == 0)
 	return true;
   
-      Real old_x = x;
-
       int status = 1;
       while ((--iterations) && (status != 2)) {
 	status = halley_step(f, last_state, x, low_bound, high_bound, x_precision);

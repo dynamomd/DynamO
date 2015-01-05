@@ -1666,7 +1666,7 @@ namespace magnet {
       /*! \brief Constructor for the Mobius transformation.
        */
       MobiusTransform(Real a, Real b, Real c, Real d):
-	Base({a,b,c,d})
+	Base{{a,b,c,d}}
       {}
       
       /*! \brief Evaluate the Mobius transformation at the transformed
