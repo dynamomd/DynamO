@@ -15,8 +15,6 @@ set(BRANCH "experimental")
 set(CTEST_SOURCE_DIRECTORY "/home/mjki2mb2/CTest/dynamo/${BRANCH}/source")
 set(CTEST_BINARY_DIRECTORY "/home/mjki2mb2/CTest/dynamo/${BRANCH}/build")
 
-
-ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 SET (CTEST_COMMAND "ctest")
 find_program(CTEST_GIT_COMMAND NAMES git)
 
@@ -37,6 +35,7 @@ set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} \"-G${CTEST_CMAKE_GENERA
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} \"${CTEST_SOURCE_DIRECTORY}\"")
 
 while (1)
+ ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
  set(START_TIME ${CTEST_ELAPSED_TIME})
  ctest_start("Continuous")
  ctest_update(RETURN_VALUE HAD_UPDATES)
