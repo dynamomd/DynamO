@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <magnet/math/polynomial.hpp>
 #include <magnet/math/trigsymbols.hpp>
+#include <magnet/math/matrix.hpp>
 
 using namespace magnet::math;
 const Polynomial<1> x{0, 1};
@@ -260,4 +261,31 @@ BOOST_AUTO_TEST_CASE( taylor_series_test )
   BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), NullSymbol()), (3.0 * std::sin(4.0)/2.0 + (std::cos(4.0)/6.0)) * x*x*x + (3*std::cos(4.0)/2.0 - std::sin(4.0)/2.0) * x*x - std::cos(4.0) * x + std::sin(4.0)));
   //Test Taylor expansion again at a non-zero location
   BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), 3.0), 82.77908670866608 * x*x*x - 688.8330378984795 * x*x + 1895.079543801394 * x - 1721.740734454172));
+}
+
+BOOST_AUTO_TEST_CASE( Vector_symbolic )
+{
+  using namespace magnet::math;
+  const Polynomial<1> x{0, 1};
+
+  const size_t testcount = 100;
+  const double errlvl = 1e-10;
+
+  //A tough test is to implement the Rodriugues formula symbolically.
+  RNG.seed();
+  for (size_t i(0); i < testcount; ++i)
+    {
+      double angle = angle_dist(RNG);
+      Vector axis = random_unit_vec();
+      Vector start = random_unit_vec();
+      Vector end = Rodrigues(axis * angle) * start;
+      
+      Vector r = axis * (axis * start);
+      auto f = (start - r) * cos(x) + (axis ^ start) * sin(x) + r;
+      Vector err = end - eval(f, angle);
+      
+      BOOST_CHECK(std::abs(err[0]) < errlvl);
+      BOOST_CHECK(std::abs(err[1]) < errlvl);
+      BOOST_CHECK(std::abs(err[2]) < errlvl);
+    }
 }

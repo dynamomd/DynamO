@@ -329,33 +329,3 @@ BOOST_AUTO_TEST_CASE( matrix_inverse_4D )
     BOOST_CHECK_CLOSE(Matrix::identity()(i), I(i), 0.0000001);
 }
 
-#include <magnet/math/polynomial.hpp>
-#include <magnet/math/matrix.hpp>
-#include <magnet/math/trigsymbols.hpp>
-
-const size_t testcount = 100;
-const double errlvl = 1e-10;
-
-BOOST_AUTO_TEST_CASE( Vector_symbolic )
-{
-  using namespace magnet::math;
-  const Polynomial<1> x{0, 1};
-
-  //A tough test is to implement the Rodriugues formula symbolically.
-  RNG.seed();
-  for (size_t i(0); i < testcount; ++i)
-    {
-      double angle = angle_dist(RNG);
-      Vector axis = random_unit_vec();
-      Vector start = random_unit_vec();
-      Vector end = Rodrigues(axis * angle) * start;
-      
-      Vector r = axis * (axis * start);
-      auto f = (start - r) * cos(x) + (axis ^ start) * sin(x) + r;
-      Vector err = end - eval(f, angle);
-      
-      BOOST_CHECK(std::abs(err[0]) < errlvl);
-      BOOST_CHECK(std::abs(err[1]) < errlvl);
-      BOOST_CHECK(std::abs(err[2]) < errlvl);
-    }
-}

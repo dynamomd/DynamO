@@ -93,7 +93,7 @@ namespace dynamo {
       // Each vertex can be represented by three bools. Each bool
       // indicates if the position is at the minimum (false) or the
       // maximum (true) in that direction. This is assuming an axis aligned cube.
-      std::array<bool, 3> frontvertex = {false, false, false};
+      std::array<bool, 3> frontvertex = {{false, false, false}};
 
       auto vertexPos = [&](const std::array<bool, 3>& vertex){ return magnet::math::elementwiseMultiply(Vector{float(vertex[0]),float(vertex[1]),float(vertex[2])} - Vector{0.5,0.5,0.5}, Sim->primaryCellSize); };
 
@@ -103,7 +103,7 @@ namespace dynamo {
       double max_distance = -HUGE_VAL;
       double min_distance = +HUGE_VAL;
       for (size_t i(0); i < 8; ++i) {
-	std::array<bool, 3> vertex = {bool((i >> 0) & 1), bool((i >> 1) & 1), bool((i >> 2) & 1)};
+	std::array<bool, 3> vertex = {{bool((i >> 0) & 1), bool((i >> 1) & 1), bool((i >> 2) & 1)}};
 	
 	const Vector vertexpos = vertexPos(vertex);
 
@@ -120,16 +120,16 @@ namespace dynamo {
 
       //We genertate an ordering of vertices corresponding to the
       //example in Fig. 3.
-      std::array<std::array<bool, 3>, 8> vertex_bits = {
-	 frontvertex[0],  frontvertex[0],  frontvertex[0],
-	!frontvertex[0],  frontvertex[0],  frontvertex[0],
-	 frontvertex[0], !frontvertex[0],  frontvertex[0],
-	 frontvertex[0],  frontvertex[0], !frontvertex[0],
-	!frontvertex[0],  frontvertex[0], !frontvertex[0],
-	!frontvertex[0], !frontvertex[0],  frontvertex[0],
-	 frontvertex[0], !frontvertex[0], !frontvertex[0],
-	!frontvertex[0], !frontvertex[0], !frontvertex[0]
-      };
+      std::array<std::array<bool, 3>, 8> vertex_bits = {{
+	  {{frontvertex[0],  frontvertex[0],  frontvertex[0],}},
+	  {{!frontvertex[0],  frontvertex[0],  frontvertex[0]}},
+	  {{frontvertex[0], !frontvertex[0],  frontvertex[0]}},
+	  {{frontvertex[0],  frontvertex[0], !frontvertex[0]}},
+	  {{!frontvertex[0],  frontvertex[0], !frontvertex[0]}},
+	  {{!frontvertex[0], !frontvertex[0],  frontvertex[0]}},
+	  {{frontvertex[0], !frontvertex[0], !frontvertex[0]}},
+	  {{!frontvertex[0], !frontvertex[0], !frontvertex[0]}}
+      }};
 
       std::array<Vector, 8> vertex_pos;
       for (size_t i(0); i < 8; ++i)
@@ -141,7 +141,7 @@ namespace dynamo {
 							     
       
       Vector P0;
-      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{0,1, 1,4, 4,7}) {
+      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{{{{0,1}}, {{1,4}}, {{4,7}}}}) {
 	const double l = lambda(id_pair[0], id_pair[1]);
 	if ((l >=0) && (l <= 1)) {
 	  P0 = (1 - l) * vertex_pos[id_pair[0]] + l * vertex_pos[id_pair[1]];
@@ -150,7 +150,7 @@ namespace dynamo {
       }
 
       Vector P2;
-      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{0,2, 2,5, 5,7}) {
+      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{{{{0,2}}, {{2,5}}, {{5,7}}}}) {
 	double l = lambda(id_pair[0], id_pair[1]);
 	if ((l >=0) && (l <= 1)) {
 	  P2 = (1 - l) * vertex_pos[id_pair[0]] + l * vertex_pos[id_pair[1]];
@@ -159,7 +159,7 @@ namespace dynamo {
       }
 
       Vector P4;
-      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{0,3, 3,6, 6,7}) {
+      for (auto id_pair : std::array<std::array<size_t, 2>, 3>{{{{0,3}}, {{3,6}}, {{6,7}}}}) {
 	double l = lambda(id_pair[0], id_pair[1]);
 	if ((l >=0) && (l <= 1)) {
 	  P4 = (1 - l) * vertex_pos[id_pair[0]] + l * vertex_pos[id_pair[1]];
