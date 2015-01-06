@@ -4,8 +4,18 @@
 #include <magnet/math/trigsymbols.hpp>
 #include <magnet/math/matrix.hpp>
 
+std::mt19937 RNG;
+std::normal_distribution<double> normal_dist(0, 1);
+std::uniform_real_distribution<double> angle_dist(0, std::atan(1)*4);
+
 using namespace magnet::math;
 const Polynomial<1> x{0, 1};
+
+Vector random_unit_vec() {
+  Vector vec{normal_dist(RNG), normal_dist(RNG), normal_dist(RNG)};
+  return vec / vec.nrm();
+}
+
 
 template<class T1, class T2>
 bool compare_expression(const T1& f, const T2& g) {

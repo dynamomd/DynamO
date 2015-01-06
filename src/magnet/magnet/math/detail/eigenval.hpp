@@ -148,7 +148,7 @@ namespace magnet {
 
 	double f = 0.0;
 	double tst1 = 0.0;
-	double eps = pow(2.0,-52.0);
+	double eps = std::pow(2.0,-52.0);
 	for (int l = 0; l < 3; l++) {
 
 	  // Find small subdiagonal element
