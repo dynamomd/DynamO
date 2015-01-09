@@ -172,6 +172,7 @@ if(CXX11_TYPE_MANGLING)
   magnet_test(symbolic_test)
   magnet_test(stable_alg_test)
   magnet_test(numeric_test)
+  magnet_test(symbolic_performance)  
 endif()
 
 if(JUDY_SUPPORT)

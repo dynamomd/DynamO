@@ -87,12 +87,6 @@ namespace magnet {
     auto expand(const CLASSNAME<LHS, RHS>& f) -> decltype(expand(f._l) OP expand(f._r)) \
     { return expand(f._l) OP expand(f._r); }				\
 									\
-    /*! \brief Pass the expand operator to the arguments of the operation */ \
-    template<size_t Order, char Letter, class LHS, class RHS, class A>	\
-    auto taylor_series(const CLASSNAME<LHS, RHS>& f, const A& a) -> decltype(taylor_series<Order, Letter>(f._l, a) OP taylor_series<Order, Letter>(f._r, a)) { \
-      return taylor_series<Order, Letter>(f._l, a) OP taylor_series<Order, Letter>(f._r, a); \
-    }									\
-									\
     /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
     template<class T1, class T2, class T3,				\
 	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\

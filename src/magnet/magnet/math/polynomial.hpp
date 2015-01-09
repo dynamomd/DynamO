@@ -223,7 +223,7 @@ namespace magnet {
       //Just copy the coefficients which overlap between the new and old polynomial orders.
       std::copy(f.begin(), f.begin() + std::min(Order, NewOrder) + 1, retval.begin());
       return retval;
-    };
+    }
 
     /*! \relates Polynomial 
       \name Polynomial set properties
