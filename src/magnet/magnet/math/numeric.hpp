@@ -15,10 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <magnet/math/operators.hpp>
+#include <magnet/math/symbolic.hpp>
 #include <magnet/math/precision.hpp>
 #include <magnet/exception.hpp>
-#include <boost/math/tools/roots.hpp>
 
 namespace magnet {
   namespace math {

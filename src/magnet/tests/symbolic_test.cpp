@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE Symbolic_math_test
 #include <boost/test/included/unit_test.hpp>
-#include <magnet/math/polynomial.hpp>
-#include <magnet/math/trigsymbols.hpp>
+#include <magnet/math/symbolic.hpp>
 #include <magnet/math/matrix.hpp>
 
 std::mt19937 RNG;
@@ -38,19 +37,27 @@ BOOST_AUTO_TEST_CASE( Substitution_of_variables )
   BOOST_CHECK(compare_expression(substitution(x, x==y), "y"));
 }
 
-BOOST_AUTO_TEST_CASE( expand_null )
+BOOST_AUTO_TEST_CASE( expand_tests )
 {
   //Test that expand does nothing when it has nothing to do
-  auto poly1 = expand(2 * x * x);
+  auto poly1 = try_expand(2 * x * x);
   BOOST_CHECK_EQUAL(poly1[0], 0);
   BOOST_CHECK_EQUAL(poly1[1], 0);
-  BOOST_CHECK_EQUAL(poly1[2], 2);    
+  BOOST_CHECK_EQUAL(poly1[2], 2);
+
+  Variable<'y'> y;
+
+  //Check that expansions exist for these functions
+  expand(y+y);
+  expand(y+y+y);
+  //expand(y*y*y);
+  expand(y*y*2);
 }
   
 BOOST_AUTO_TEST_CASE( expand_polynomials )
 {
   //Test addition and simplification of Polynomials
-  auto poly1 = expand(add(2 * x * x, x));
+  auto poly1 = 2 * x * x + x;
   //This should become a Polynomial class, with its coefficients
   //accessible by the array operator.
   BOOST_CHECK_EQUAL(poly1[0], 0);
@@ -79,7 +86,7 @@ BOOST_AUTO_TEST_CASE( polynomials_derivative_subtraction )
 BOOST_AUTO_TEST_CASE( polynomials_multiply_expansion )
 {
   //Test Polynomial simplification on multiplication Operation types
-  auto poly1 = expand(multiply(x + 1,  x + 3));
+  auto poly1 = (x + 1) *  (x + 3);
 
   //derivative will automatically combine polynomials
   BOOST_CHECK_EQUAL(poly1[0], 3);
@@ -139,7 +146,7 @@ BOOST_AUTO_TEST_CASE( power_basic )
   BOOST_CHECK(compare_expression(derivative(pow<2>(x), Variable<'x'>()), 2 * x));
 
   //Check expansion
-  BOOST_CHECK(compare_expression(expand(pow<3>(x+2)), (x+2) * (x+2) * (x+2)));;
+  BOOST_CHECK(compare_expression(expand_powerop_impl(pow<3>(x+2), detail::select_overload{}), (x+2) * (x+2) * (x+2)));;
 }
 
 BOOST_AUTO_TEST_CASE( Null_tests )
@@ -168,7 +175,7 @@ BOOST_AUTO_TEST_CASE( Unity_tests )
   BOOST_CHECK_EQUAL(eval(UnitySymbol(), 100), 1);
 
   BOOST_CHECK(compare_expression(UnitySymbol() + UnitySymbol(), 2));
-  BOOST_CHECK(compare_expression(UnitySymbol() + 1.1, 2.1));
+  BOOST_CHECK(compare_expression(add(UnitySymbol(),1.1), 2.1));
 
   BOOST_CHECK(compare_expression(UnitySymbol() + NullSymbol(), UnitySymbol()));
   BOOST_CHECK(compare_expression(NullSymbol() + UnitySymbol(), UnitySymbol()));
@@ -252,7 +259,7 @@ BOOST_AUTO_TEST_CASE( taylor_series_test )
   BOOST_CHECK(compare_expression(taylor_series<3, 'y'>(y*y*y, NullSymbol()), Polynomial<3,int,'y'>{0,0,0,1}));
 
   //Test truncation of PowerOp expressions when the order is too high
-  BOOST_CHECK(compare_expression(taylor_series<2, 'y'>(y*y*y, NullSymbol()), 0));
+  BOOST_CHECK(compare_expression(taylor_series<2, 'y'>(y*y*y, NullSymbol()), NullSymbol()));
   
   //Partially truncate a Polynomial through expansion
   BOOST_CHECK(compare_expression(taylor_series<2, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<2,int,'y'>{1,2,3}));
@@ -263,9 +270,9 @@ BOOST_AUTO_TEST_CASE( taylor_series_test )
   //Taylor expand at a higher order
   BOOST_CHECK(compare_expression(taylor_series<4, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<3,int,'y'>{1,2,3,4}));
 
-  //Test simple Taylor expansion of sine  
-  BOOST_CHECK(compare_expression(taylor_series<6, 'y'>(sin(y), NullSymbol()), (1.0/120) * y*y*y*y*y - (1.0/6) * y*y*y + y));
-  BOOST_CHECK(compare_expression(taylor_series<8, 'y'>(sin(y*y), NullSymbol()), - (1.0/6) * y*y*y*y*y*y + y*y));
+  //Test simple Taylor expansion of sine 
+  BOOST_CHECK(compare_expression(taylor_series<6, 'y'>(sin(y), NullSymbol()), expand((1.0/120) * y*y*y*y*y - (1.0/6) * y*y*y + y)));
+  BOOST_CHECK(compare_expression(taylor_series<8, 'y'>(sin(y*y), NullSymbol()), expand(- (1.0/6) * y*y*y*y*y*y + y*y)));
   
   //Test Taylor expansion of a complex expression at zero
   BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), NullSymbol()), (3.0 * std::sin(4.0)/2.0 + (std::cos(4.0)/6.0)) * x*x*x + (3*std::cos(4.0)/2.0 - std::sin(4.0)/2.0) * x*x - std::cos(4.0) * x + std::sin(4.0)));

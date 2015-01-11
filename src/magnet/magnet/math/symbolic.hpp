@@ -61,7 +61,7 @@ namespace magnet {
     }									\
 									\
     inline std::ostream& operator<<(std::ostream& os, NAME) {		\
-      os << (#NAME);							\
+      os << "symbolic(" #NAME")";					\
       return os;							\
     }
     
@@ -154,27 +154,6 @@ namespace magnet {
     constexpr auto empty_sum(const T&) -> typename std::enable_if<detail::IsConstant<T>::value, T>::type { 
       return T();
     }
-
-    /*! \brief Provides expansion (and simplification) of symbolic
-      functions.
-
-      The purpose of this function is to reduce the complexity of
-      symbolic expressions to accelerate any successive
-      evaluations. This should not change the calculated values, but
-      should optimise for use under repeated evaluations.
-
-      The operation on constant terms is to do nothing.
-    */
-    template<class T, typename = typename std::enable_if<detail::IsConstant<T>::value> ::type>
-    T expand(const T& f) { return f; }
-
-    /*! \brief Provides expansion (and simplification) of symbolic
-      functions.
-
-      The operation on Variable terms is to do nothing.
-    */
-    template<char Letter>
-    Variable<Letter> expand(const Variable<Letter>& f) { return f; }
 
     /*! \brief Evaluates a symbolic expression by substituting a
       variable for another expression.
@@ -370,7 +349,12 @@ namespace magnet {
         expression.
      */
     template<size_t Order, char Letter, class F, class Real>
-    auto taylor_series(const F& f, Real a) -> decltype(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a))
-    { return detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a); }
+    auto taylor_series(const F& f, Real a) -> decltype(try_expand(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)))
+    { return try_expand(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)); }
   }
 }
+
+#include <magnet/math/symbolic/operators.hpp>
+#include <magnet/math/symbolic/functions.hpp>
+#include <magnet/math/symbolic/polynomial.hpp>
+#include <magnet/math/symbolic/expand.hpp>

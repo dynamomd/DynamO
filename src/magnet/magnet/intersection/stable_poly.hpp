@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <magnet/math/polynomial.hpp>
+#include <magnet/math/symbolic.hpp>
 #include <magnet/math/bisect.hpp>
 
 namespace magnet {

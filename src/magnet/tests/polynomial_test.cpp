@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE Polynomial_test
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
-#include <magnet/math/polynomial.hpp>
+#include <magnet/math/symbolic.hpp>
 #include <magnet/math/vector.hpp>
 #include <cmath>
 #include <complex>
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
     auto q = x * x * x + 3 * x - 2;
     auto g = x * x - 2 * x;
     auto r = 4 * x - 2;
-    auto f = expand(q * g + r);
+    auto f = q * g + r;
     auto euclid = euclidean_division(f, g);  
     BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
     BOOST_CHECK(compare_expression(r, std::get<1>(euclid)));
@@ -526,7 +526,7 @@ BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
     auto q = x * x * x + 3 * x - 2;
     auto g = x * x - 2 * x;
     auto r = 0;
-    auto f = expand(q * g + r);
+    auto f = q * g + r;
     auto euclid = euclidean_division(f, g);
     
     BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
@@ -537,7 +537,7 @@ BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
     auto q = x * x * x + 3 * x - 2;
     auto g = 0 * x*x*x + x*x - 2 * x;
     auto r = 0;
-    auto f = expand(q * g + r);
+    auto f = q * g + r;
     auto euclid = euclidean_division(f, g);
     
     BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
@@ -548,7 +548,7 @@ BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
     auto q = x * x * x + 3 * x - 2;
     auto g = Polynomial<0>{0.5};
     auto r = 0;
-    auto f = expand(q * g + r);
+    auto f = q * g + r;
     auto euclid = euclidean_division(f, g);
     
     BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));
@@ -559,7 +559,7 @@ BOOST_AUTO_TEST_CASE( poly_Euclidean_division )
     auto q = x * x * x + 3 * x - 2;
     auto g = Polynomial<3>{0.25};
     auto r = 0;
-    auto f = expand(q * g + r);
+    auto f = q * g + r;
     auto euclid = euclidean_division(f, g);
     
     BOOST_CHECK(compare_expression(q, std::get<0>(euclid)));

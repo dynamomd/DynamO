@@ -16,8 +16,6 @@
 */
 #pragma once
 
-#include <magnet/math/symbolic.hpp>
-
 namespace magnet {
   namespace math {
     namespace detail {
@@ -29,7 +27,18 @@ namespace magnet {
 	RHStype _r;
 	BinaryOp(const LHStype& l, const RHStype& r): _l(l), _r(r) {}
       };
+
+      template<unsigned I>
+      struct choice : choice<I+1>{};
+      
+      // terminate recursive inheritence at a convenient point,
+      // large enough to cover all cases
+      template<> struct choice<10>{};
+      
+      // I like it for clarity
+      struct select_overload : choice<0>{};
     }
+
 
     /*! \brief Type trait which enables symbolic operators for
         algebraic operations (*+-). */
@@ -81,36 +90,59 @@ namespace magnet {
     template<class LHS, class RHS>					\
     auto HELPERNAME(const LHS& l, const RHS& r) -> decltype(toArithmetic(l) OP toArithmetic(r)) \
     { return toArithmetic(l) OP toArithmetic(r); }			\
-									\
-    /*! \brief Pass the expand operator to the arguments of the operation */ \
-    template<class LHS, class RHS>					\
-    auto expand(const CLASSNAME<LHS, RHS>& f) -> decltype(expand(f._l) OP expand(f._r)) \
-    { return expand(f._l) OP expand(f._r); }				\
-									\
-    /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
-    template<class T1, class T2, class T3,				\
-	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\
-    auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
-      -> CLASSNAME<decltype(l._l OP r), T2>				\
-    { return HELPERNAME(l._l OP r, l._r); }				\
     									\
+    template<class LHS, class RHS>					\
+    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<0>) -> decltype(expand(expand(f._l) OP expand(f._r))) \
+    { return expand(expand(f._l) OP expand(f._r)); }			\
+									\
+    template<class LHS, class RHS>					\
+    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<1>) -> decltype(expand(f._l OP expand(f._r))) \
+    { return expand(f._l OP expand(f._r)); }				\
+									\
+    template<class LHS, class RHS>					\
+    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<2>) -> decltype(expand(expand(f._l) OP f._r)) \
+    { return expand(expand(f._l) OP f._r); }				\
+									\
+    template<class LHS, class RHS>					\
+    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<3>) -> decltype(expand(f._l) OP expand(f._r)) \
+    { return expand(f._l) OP expand(f._r); }			\
+									\
+    template<class LHS, class RHS>					\
+    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<4>) -> decltype(f._l OP expand(f._r)) \
+    { return f._l OP expand(f._r); }					\
+									\
+    template<class LHS, class RHS>					\
+    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<5>) -> decltype(expand(f._l) OP f._r) \
+    { return expand(f._l) OP f._r; }				\
+									\
+    template<class LHS, class RHS>					\
+    auto expand(const CLASSNAME<LHS, RHS>& f) ->decltype(expand_##HELPERNAME##_impl(f, detail::select_overload{})) \
+    { return expand_##HELPERNAME##_impl(f, detail::select_overload{}); }		\
+									\
     /*! \brief Helper function which reorders (A*B)*C to (B*C)*A operations. */	\
     template<class T1, class T2, class T3,				\
-	     typename = typename std::enable_if<Reorder<T2, T3>::value>::type>	\
+	     typename = typename std::enable_if<Reorder<T2, T3>::value && !Reorder<T1, T2>::value>::type>	\
     auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
       -> CLASSNAME<decltype(l._r OP r), T1>				\
     { return HELPERNAME(l._r OP r, l._l); }				\
 									\
+    /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
+    template<class T1, class T2, class T3,				\
+	     typename = typename std::enable_if<Reorder<T1, T3>::value && !Reorder<T1, T2>::value && !Reorder<T2, T3>::value>::type>	\
+    auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
+      -> CLASSNAME<decltype(l._l OP r), T2>				\
+    { return HELPERNAME(l._l OP r, l._r); }				\
+    									\
     /*! \brief Helper function which reorders A*(B*C) to (A*B)*C operations. */	\
     template<class T1, class T2, class T3,				\
-	     typename = typename std::enable_if<Reorder<T1, T2>::value>::type>	\
+	     typename = typename std::enable_if<Reorder<T1, T2>::value && !Reorder<T2, T3>::value>::type>	\
     auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
       -> CLASSNAME<decltype(l OP r._l), T3>				\
     { return HELPERNAME(l OP r._l, r._r); }				\
 									\
     /*! \brief Helper function which reorders A*(B*C) to (A*C)*B operations. */	\
     template<class T1, class T2, class T3,				\
-	     typename = typename std::enable_if<Reorder<T1, T3>::value>::type>	\
+	     typename = typename std::enable_if<Reorder<T1, T3>::value  && !Reorder<T1, T2>::value  && !Reorder<T2, T3>::value>::type>	\
     auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
       -> CLASSNAME<decltype(l OP r._r), T2>				\
     { return HELPERNAME(l OP r._r, r._l); }				\
@@ -125,53 +157,6 @@ namespace magnet {
     CREATE_BINARY_OP(subtract, SubtractOp, -)
     CREATE_BINARY_OP(multiply, MultiplyOp, *)
     CREATE_BINARY_OP(divide, DivideOp, /)
-
-    /*! \relates BinaryOp
-      \name BinaryOp optimisations
-    */
-
-    //The implementations below perform simplification of expressions
-    template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
-    template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
-    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
-    template<class RHS> NullSymbol multiply(const NullSymbol&, const RHS&) { return NullSymbol(); }
-    template<class LHS> NullSymbol multiply(const LHS&, const NullSymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const UnitySymbol&, const NullSymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const NullSymbol&, const UnitySymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-
-    NullSymbol add(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-    template<class LHS> LHS add(const LHS& l, const NullSymbol& r) { return l; }
-    template<class RHS> RHS add(const NullSymbol& l, const RHS& r) { return r; }
-
-    template<class LHS> LHS subtract(const LHS& l, const NullSymbol&) { return l; }
-    template<class RHS> auto subtract(const NullSymbol&, const RHS& r) -> decltype(-r) { return -r; }
-    NullSymbol subtract(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-    
-    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
-
-    /*! \brief Expand multiplication and addition operations. */
-    template<class LHS1, class RHS1, class RHS>
-    auto expand(const MultiplyOp<AddOp<LHS1, RHS1>, RHS>& f)
-      -> decltype(expand(f._l._l * f._r + f._l._r * f._r)) {
-      return expand(f._l._l * f._r + f._l._r * f._r);
-    }
-
-    /*! \brief Expand multiplication and addition operations. */
-    template<class LHS1, class RHS1, class RHS>
-    auto expand(const MultiplyOp<RHS, AddOp<LHS1, RHS1> >& f)
-      -> decltype(expand(f._l * f._r._l + f._l * f._r._r)) {
-      return expand(f._l * f._r._l + f._l * f._r._r);
-    }
-
-    /*! \brief Expand multiplication and addition operations. */
-    template<class LHS1, class RHS1, class LHS2, class RHS2>
-    auto expand(const MultiplyOp<AddOp<LHS1, RHS1>,  AddOp<LHS2, RHS2> >& f)
-      -> decltype(expand(f._l._l * f._r._l + f._l._l * f._r._r + f._l._r * f._r._l + f._l._r * f._r._r)) {
-      return expand(f._l._l * f._r._l + f._l._l * f._r._r + f._l._r * f._r._l + f._l._r * f._r._r);
-    }
-
-    /*! \} */
 
     /*! \name Symbolic algebra
       \{
@@ -338,28 +323,6 @@ namespace magnet {
       static const bool value = true;
     };
 
-    /*! \brief Expansion operator for PowerOp types. */
-    template<class Arg, size_t Power> 
-    auto expand(const PowerOp<Arg, Power>& f) -> decltype(PowerOpSubstitution<Power>::eval(f._arg))
-    { return PowerOpSubstitution<Power>::eval(f._arg); }
-
-    /*! \brief Optimised multiply of two Variables to convert it to a PowerOp. */
-    template<char Letter>
-    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
-    { return PowerOp<Variable<Letter>, 2>(Variable<Letter>()); }
-    
-    /*! \brief Optimised LHS multiply of a  PowerOp and the corresponding variable. */
-    template<char Letter, size_t Order>
-    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&,
-						const Variable<Letter>&)
-    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
-
-    /*! \brief Optimised RHS multiply of a  PowerOp and the corresponding variable. */
-    template<char Letter, size_t Order>
-    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&,
-						const PowerOp<Variable<Letter>, Order>&)
-    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
-
     /*! \brief Derivatives of PowerOp operations.
      */
     template<char dVariable, class Arg, size_t Power>
@@ -378,6 +341,52 @@ namespace magnet {
     auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(2 * derivative(f._arg, Variable<dVariable>()) * f._arg)
     { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
     /*! \}*/
+
+
+    /*! \relates BinaryOp
+      \name BinaryOp simplification rules.
+      
+      These 
+      \{
+    */
+
+    //The implementations below perform basic simplification of expressions
+    template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
+    template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
+    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
+    template<class RHS> NullSymbol multiply(const NullSymbol&, const RHS&) { return NullSymbol(); }
+    template<class LHS> NullSymbol multiply(const LHS&, const NullSymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const UnitySymbol&, const NullSymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const NullSymbol&, const UnitySymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+
+    NullSymbol add(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+    template<class LHS> LHS add(const LHS& l, const NullSymbol& r) { return l; }
+    template<class RHS> RHS add(const NullSymbol& l, const RHS& r) { return r; }
+
+    constexpr int add(const UnitySymbol&, const UnitySymbol&) { return 2; }
+
+    template<class LHS> LHS subtract(const LHS& l, const NullSymbol&) { return l; }
+    template<class RHS> auto subtract(const NullSymbol&, const RHS& r) -> decltype(-r) { return -r; }
+    NullSymbol subtract(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+    
+    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
+
+
+    template<char Letter>
+    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
+    { return PowerOp<Variable<Letter>, 2>(Variable<Letter>()); }
+    
+    template<char Letter, size_t Order>
+    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&, const Variable<Letter>&)
+    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
+    
+    template<char Letter, size_t Order>
+    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&, const PowerOp<Variable<Letter>, Order>&)
+    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
+
+    /*! \} */
+
   }
 }
     

@@ -19,8 +19,7 @@
 #include <chrono>
 #include <cmath>
 #include <random>
-#include <magnet/math/trigsymbols.hpp>
-#include <magnet/math/polynomial.hpp>
+#include <magnet/math/symbolic.hpp>
 
 std::mt19937 RNG;
 auto dist = std::uniform_real_distribution<double>(-1, 1);
@@ -48,10 +47,20 @@ bool check_close(T f1, T f2) {
   return std::abs(std::abs(f1) - std::abs(f2)) > (std::abs(f1) + std::abs(f2)) * 1e-8;
 }
 
+double std_val, psym_val, sym_val;
+
+void testValues() {
+  if (check_close(sym_val, std_val) || check_close(psym_val, std_val)) {
+    std::cout << "  WARNING! Mismatch in results!" << std::endl;
+    std::cout << "   standard                = " << std_val << std::endl;
+    std::cout << "   pre-calculated symbolic = " << psym_val << std::endl;	      
+    std::cout << "   symbolic                = " << sym_val << std::endl;	      
+  }
+}
+
 int main(int argv, const char** argc)
 {
   const size_t tests = 1000000;
-  double std_val, sym_val;
   //Just for convenience, define x
   magnet::math::Variable<'x'> x;
 
@@ -59,9 +68,9 @@ int main(int argv, const char** argc)
   //////////////////////////// TEST ///////////////////////////////
   /////////////////////////////////////////////////////////////////
   std::cout << "f(x) = x^2 + 2 x - 3" << std::endl;  
+  RNG.seed(12345);
   {
-    RNG.seed(12345);
-    TimeScope timer(" Standard");
+    TimeScope timer(" Standard                 ");
     std_val = 0;
     for (size_t i(0); i < tests; ++i) {
       auto y = dist(RNG);
@@ -70,9 +79,33 @@ int main(int argv, const char** argc)
     }
   }
 
+  RNG.seed(12345);
   {
-    RNG.seed(12345);
-    TimeScope timer(" Symbolic");
+    TimeScope timer(" Symbolic (pre-calculated)");
+    using namespace magnet::math;
+    auto f = x*x+2*x-3;
+    psym_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      psym_val += substitution(f, x==dist(RNG));
+      ++timer;
+    }
+  }
+
+  RNG.seed(12345);
+  {
+    TimeScope timer(" Symbolic (pc & expanded) ");
+    using namespace magnet::math;
+    auto f = expand(x*x+2*x-3);
+    psym_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      psym_val += substitution(f, x==dist(RNG));
+      ++timer;
+    }
+  }
+
+  RNG.seed(12345);
+  {
+    TimeScope timer(" Symbolic                 ");
     using namespace magnet::math;
     sym_val = 0;
     for (size_t i(0); i < tests; ++i) {
@@ -80,19 +113,16 @@ int main(int argv, const char** argc)
       ++timer;
     }
   }
-  if (check_close(sym_val, std_val)) {
-    std::cout << "  WARNING! Mismatch in results!" << std::endl;
-    std::cout << "   standard = " << std_val << std::endl;
-    std::cout << "   symbolic = " << sym_val << std::endl;	      
-  }
+
+  testValues();
 
   /////////////////////////////////////////////////////////////////
   //////////////////////////// TEST ///////////////////////////////
   /////////////////////////////////////////////////////////////////
   std::cout << "\nf(x) = sin(x^2 + 2 x - 3) - 2 * cos(x)" << std::endl;  
+  RNG.seed(12345);
   {
-    RNG.seed(12345);
-    TimeScope timer(" Standard");
+    TimeScope timer(" Standard                 ");
     std_val = 0;
     for (size_t i(0); i < tests; ++i) {
       auto y = dist(RNG);
@@ -101,9 +131,21 @@ int main(int argv, const char** argc)
     }
   }
 
+  RNG.seed(12345);
   {
-    RNG.seed(12345);
-    TimeScope timer(" Symbolic");
+    TimeScope timer(" Symbolic (pre-calculated)");
+    using namespace magnet::math;
+    psym_val = 0;
+    auto f = sin(x*x+2*x-3) - 2*cos(x);
+    for (size_t i(0); i < tests; ++i) {
+      psym_val += substitution(f, x==dist(RNG));
+      ++timer;
+    }
+  }
+
+  RNG.seed(12345);
+  {
+    TimeScope timer(" Symbolic                 ");
     using namespace magnet::math;
     sym_val = 0;
     for (size_t i(0); i < tests; ++i) {
@@ -111,6 +153,8 @@ int main(int argv, const char** argc)
       ++timer;
     }
   }
+  testValues();
+
   if (check_close(sym_val, std_val)) {
     std::cout << "  WARNING! Mismatch in results!" << std::endl;
     std::cout << "   standard = " << std_val << std::endl;
@@ -123,7 +167,7 @@ int main(int argv, const char** argc)
   std::cout << "\nf'(x), where f(x) = sin(x^2 + 2 x - 3) - 2 * cos(x)" << std::endl;  
   {
     RNG.seed(12345);
-    TimeScope timer(" Standard");
+    TimeScope timer(" Standard                 ");
     std_val = 0;
     for (size_t i(0); i < tests; ++i) {
       auto y = dist(RNG);
@@ -134,19 +178,28 @@ int main(int argv, const char** argc)
 
   {
     RNG.seed(12345);
-    TimeScope timer(" Symbolic");
-    sym_val = 0;
+    TimeScope timer(" Symbolic (pre-calculated)");
+    psym_val = 0;
+    auto f = derivative(sin(x*x+2*x-3) - 2*cos(x), x);
     using namespace magnet::math;
     for (size_t i(0); i < tests; ++i) {
-      sym_val += substitution(derivative(sin(x*x+2*x-3) - 2*cos(x), x), x==dist(RNG));
+      psym_val += substitution(f, x==dist(RNG));
       ++timer;
     }
   }
-  if (check_close(sym_val, std_val)) {
-    std::cout << "  WARNING! Mismatch in results!" << std::endl;
-    std::cout << "   standard = " << std_val << std::endl;
-    std::cout << "   symbolic = " << sym_val << std::endl;	      
+
+  {
+    RNG.seed(12345);
+    TimeScope timer(" Symbolic                 ");
+    sym_val = 0;
+    auto f = derivative(sin(x*x+2*x-3) - 2*cos(x), x);
+    using namespace magnet::math;
+    for (size_t i(0); i < tests; ++i) {
+      sym_val += substitution(f, x==dist(RNG));
+      ++timer;
+    }
   }
+  testValues();
 
   /////////////////////////////////////////////////////////////////
   //////////////////////////// TEST ///////////////////////////////
@@ -154,7 +207,7 @@ int main(int argv, const char** argc)
   std::cout << "\n5th order Taylor expansion of f(x) = sin(x^2 + 2 x - 3) - 2 * cos(x)" << std::endl;  
   {
     RNG.seed(12345);
-    TimeScope timer(" Precalculated at z=3 (standard)");
+    TimeScope timer(" Standard                 ");
     std_val = 0;
     for (size_t i(0); i < tests; ++i) {
       auto y = dist(RNG);
@@ -171,17 +224,24 @@ int main(int argv, const char** argc)
     using namespace magnet::math;
     auto f = taylor_series<5, 'x'>(sin(x*x + 2*x - 3) - 2 * cos(x), 3.0);
     RNG.seed(12345);
-    TimeScope timer(" Precalculated at z=3 (symbolic)");
-    sym_val = 0;
+    TimeScope timer(" Symbolic (pre-calculated)");
+    psym_val = 0;
     for (size_t i(0); i < tests; ++i) {
-      sym_val += substitution(f, x==dist(RNG));
+      psym_val += substitution(f, x==dist(RNG));
       ++timer;
     }
   }
 
-  if (check_close(sym_val, std_val)) {
-    std::cout << "  WARNING! Mismatch in results!" << std::endl;
-    std::cout << "   standard = " << std_val << std::endl;
-    std::cout << "   symbolic = " << sym_val << std::endl;	      
+  {
+    using namespace magnet::math;
+    RNG.seed(12345);
+    TimeScope timer(" Symbolic                 ");
+    sym_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      sym_val += substitution(taylor_series<5, 'x'>(sin(x*x + 2*x - 3) - 2 * cos(x), 3.0), x==dist(RNG));
+      ++timer;
+    }
   }
+
+  testValues();
 }

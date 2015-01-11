@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE Stable_intersection_test
 #include <boost/test/included/unit_test.hpp>
 #include <magnet/intersection/stable_poly.hpp>
-#include <magnet/math/polynomial.hpp>
+#include <magnet/math/symbolic.hpp>
 #include <cmath>
 #include <complex>
 #include <random>

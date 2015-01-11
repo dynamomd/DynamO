@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE Numeric_math_test
 #include <boost/test/included/unit_test.hpp>
 #include <magnet/math/numeric.hpp>
-#include <magnet/math/polynomial.hpp>
+#include <magnet/math/symbolic.hpp>
 
 using namespace magnet::math;
 const Variable<'x'> x = Variable<'x'>();
@@ -22,7 +22,7 @@ bool compare_expression(const T1& f, const T2& g) {
 BOOST_AUTO_TEST_CASE( NewtonRaphson_root )
 {
   //Simple check for positive roots, using manual derivatives
-  auto f = x*x - 4.0;
+  auto f = expand(x*x - 4.0);
   auto df = derivative(f, x);
   double xroot = 6.0;
   BOOST_CHECK(newton_raphson([&](double x){ return std::array<double, 2>{{eval(f, x), eval(df, x)}}; }, xroot));
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( NewtonRaphson_root )
   BOOST_CHECK_CLOSE(xroot, 2.0, 1e-10);
 
   //Test "difficult" equations for NR.
-  auto f2 = x*x*x - 2.0 * x + 2.0;
+  auto f2 = expand(x*x*x - 2.0 * x + 2.0);
   xroot = 0.0;
   //This oscillates between 0 and 1, check that an early exit is found!
   BOOST_CHECK(!newton_raphson([&](double x){ return eval_derivatives<1>(f2, x); }, xroot));
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE( NewtonRaphson_root )
 BOOST_AUTO_TEST_CASE( Halley_root )
 {
   //Simple check for positive roots, using manual derivatives
-  auto f = x*x - 4.0;
+  auto f = expand(x*x - 4.0);
   auto df = derivative(f, x);
   auto ddf = derivative(df, x);
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( Halley_root )
   BOOST_CHECK_CLOSE(xroot, 2.0, 1e-10);
 
   //Test "difficult" equations for NR.
-  auto f2 = 1.0 - x*x;
+  auto f2 = expand(1.0 - x*x);
   xroot = 0.0;
   BOOST_CHECK(!halleys_method([&](double x){ return eval_derivatives<2>(f2, x); }, xroot));
 
