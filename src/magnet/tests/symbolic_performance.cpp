@@ -244,4 +244,66 @@ int main(int argv, const char** argc)
   }
 
   testValues();
+
+  /////////////////////////////////////////////////////////////////
+  //////////////////////////// TEST ///////////////////////////////
+  /////////////////////////////////////////////////////////////////
+  std::cout << "\nSolve roots of f(x) = x^2 + 2 x - 3" << std::endl;  
+  {
+    RNG.seed(12345);
+    TimeScope timer(" Standard                 ");
+    std_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      double root1 = dist(RNG);
+      double root2 = dist(RNG);
+      double a = dist(RNG);
+      double b = a * (-root1 -root2);
+      double c = a * root1 * root2;
+      double arg = b*b-4*a*c;
+      double root1_solved = (-b +std::sqrt(arg)) / (2 * a);
+      double root2_solved = (-b -std::sqrt(arg)) / (2 * a);
+      std_val += root1_solved + root2_solved;
+      ++timer;
+    }
+  }
+
+  {
+    using namespace magnet::math;
+    auto f = taylor_series<5, 'x'>(sin(x*x + 2*x - 3) - 2 * cos(x), 3.0);
+    RNG.seed(12345);
+    TimeScope timer(" Symbolic (Polynomial)");
+    psym_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      double root1 = dist(RNG);
+      double root2 = dist(RNG);
+      double a = dist(RNG);
+      double b = a * (-root1 -root2);
+      double c = a * root1 * root2;
+      auto f = Polynomial<2>{c,b,a};
+      auto roots = solve_real_roots(f);
+      psym_val += roots[0] + roots[1];
+      ++timer;
+    }
+  }
+
+  {
+    using namespace magnet::math;
+    RNG.seed(12345);
+    TimeScope timer(" Symbolic (expanded)      ");
+    sym_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      double root1 = dist(RNG);
+      double root2 = dist(RNG);
+      double a = dist(RNG);
+      double b = a * (-root1 -root2);
+      double c = a * root1 * root2;
+      auto f = expand(a * (x - root1) * (x - root2));
+      auto roots = solve_real_roots(f);
+      sym_val += roots[0] + roots[1];
+      ++timer;
+    }
+  }
+
+  testValues();
+
 }
