@@ -66,7 +66,7 @@ namespace magnet {
       static const bool value = Letter1 == Letter2;
     };
     
-#define CREATE_BINARY_OP(HELPERNAME, CLASSNAME, OP)			\
+#define CREATE_BINARY_OP(HELPERNAME, CLASSNAME, OP, PRINTFORM)		\
     template<class LHStype, class RHStype>				\
     struct CLASSNAME : public detail::BinaryOp<LHStype, RHStype> {	\
       typedef detail::BinaryOp<LHStype, RHStype> Base;			\
@@ -149,14 +149,14 @@ namespace magnet {
 									\
     template<class LHS, class RHS>					\
     inline std::ostream& operator<<(std::ostream& os, const CLASSNAME<LHS, RHS>& op) {\
-      os << "(" << op._l << ") " #OP " (" << op._r << ")";		\
+      os << "(" << op._l << ") " PRINTFORM " (" << op._r << ")";		\
 	return os;							\
     }
     
-    CREATE_BINARY_OP(add, AddOp, +)
-    CREATE_BINARY_OP(subtract, SubtractOp, -)
-    CREATE_BINARY_OP(multiply, MultiplyOp, *)
-    CREATE_BINARY_OP(divide, DivideOp, /)
+    CREATE_BINARY_OP(add, AddOp, +, "+")
+    CREATE_BINARY_OP(subtract, SubtractOp, -, "-")
+    CREATE_BINARY_OP(multiply, MultiplyOp, *, "×")
+    CREATE_BINARY_OP(divide, DivideOp, /, "÷")
 
     /*! \name Symbolic algebra
       \{

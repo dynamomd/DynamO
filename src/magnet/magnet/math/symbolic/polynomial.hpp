@@ -645,10 +645,14 @@ namespace magnet {
 	  oss << " + ";
 	++terms;
 	if (poly[i] != empty_product(poly[i]))
-	  oss << poly[i] << " * ";
+	  oss << poly[i] << " × ";
 	oss << Letter;
 	if (i > 1)
-	  oss << "^" << i;
+	  switch (i) {
+	  case 2: oss << "²"; break;
+	  case 3: oss << "³"; break;
+	  default: oss << "^" << i; break;
+	  }
       }
       if ((poly[0] != empty_sum(poly[0])) || (terms == 0)) {
 	if (terms != 0)
