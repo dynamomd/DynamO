@@ -269,16 +269,15 @@ int main(int argv, const char** argc)
 
   {
     using namespace magnet::math;
-    auto f = taylor_series<5, 'x'>(sin(x*x + 2*x - 3) - 2 * cos(x), 3.0);
     RNG.seed(12345);
     TimeScope timer(" Symbolic (Polynomial)");
     psym_val = 0;
     for (size_t i(0); i < tests; ++i) {
-      double root1 = dist(RNG);
-      double root2 = dist(RNG);
-      double a = dist(RNG);
-      double b = a * (-root1 -root2);
-      double c = a * root1 * root2;
+      const double root1 = dist(RNG);
+      const double root2 = dist(RNG);
+      const double a = dist(RNG);
+      const double b = a * (-root1 -root2);
+      const double c = a * root1 * root2;
       auto f = Polynomial<2>{c,b,a};
       auto roots = solve_real_roots(f);
       psym_val += roots[0] + roots[1];
@@ -292,11 +291,9 @@ int main(int argv, const char** argc)
     TimeScope timer(" Symbolic (expanded)      ");
     sym_val = 0;
     for (size_t i(0); i < tests; ++i) {
-      double root1 = dist(RNG);
-      double root2 = dist(RNG);
-      double a = dist(RNG);
-      double b = a * (-root1 -root2);
-      double c = a * root1 * root2;
+      const double root1 = dist(RNG);
+      const double root2 = dist(RNG);
+      const double a = dist(RNG);
       auto f = expand(a * (x - root1) * (x - root2));
       auto roots = solve_real_roots(f);
       sym_val += roots[0] + roots[1];
