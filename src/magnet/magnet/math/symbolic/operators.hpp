@@ -275,7 +275,7 @@ namespace magnet {
       evaluation is passed to std::pow.
     */
     template<class Arg1, size_t Power, class Arg2, char Letter>
-    auto substitution(const PowerOp<Arg1, Power>& f, const VariableSubstitution<Letter, Arg2>& x)
+    constexpr auto substitution(const PowerOp<Arg1, Power>& f, const VariableSubstitution<Letter, Arg2>& x)
       -> typename std::enable_if<std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
 				 decltype(std::pow(substitution(f._arg, x), Power))>::type
     { return std::pow(substitution(f._arg, x), Power); }
@@ -342,6 +342,56 @@ namespace magnet {
     { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
     /*! \}*/
 
+    /*! \brief Symbolic representation of a (positive) power operator.
+     */
+    template<class Arg>
+    struct ModulusOp {
+      Arg _arg;
+      ModulusOp(Arg a): _arg(a) {}
+    };
+
+    template<class Arg>
+    struct SymbolicOperators<ModulusOp<Arg> > {
+      static const bool value = true;
+    };
+
+    template<class Arg>
+    ModulusOp<Arg> abs(const Arg& a)
+    { return ModulusOp<Arg>(a); }
+
+    template<class Arg, char dVariable>
+    auto derivative(const ModulusOp<Arg>& f, Variable<dVariable>)
+      -> decltype(f._arg * derivative(f._arg, Variable<dVariable>()) / f)
+    { return f._arg * derivative(f._arg, Variable<dVariable>()) / f; }
+
+    template<class Arg>
+    inline std::ostream& operator<<(std::ostream& os, const ModulusOp<Arg>& f) {
+      os << "|" << f._arg << "|";
+      return os;
+    }
+
+    /*! \brief Evaluate PowerOp symbol at a value of x.
+      
+      This operator is only used if the result of evaluating the
+      argument is an arithmetic type. If this is the case, the
+      evaluation is passed to std::pow.
+    */
+    template<class Arg1, class Arg2, char Letter>
+    constexpr auto substitution(const ModulusOp<Arg1>& f, const VariableSubstitution<Letter, Arg2>& x)
+      -> typename std::enable_if<std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
+				 decltype(std::abs(substitution(f._arg, x)))>::type
+    { return std::abs(substitution(f._arg, x)); }
+
+    /*! \brief Evaluate PowerOp symbol at a value of x.
+      
+      This is the general implementation for PowerOp.
+    */
+    template<class Arg1, class Arg2, char Letter>
+    auto substitution(const ModulusOp<Arg1>& f, const VariableSubstitution<Letter, Arg2>& x)
+      -> typename std::enable_if<!std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
+				 decltype(abs(substitution(f._arg, x)))>::type
+    { return abs(substitution(f._arg, x)); }
+    
 
     /*! \relates BinaryOp
       \name BinaryOp simplification rules.

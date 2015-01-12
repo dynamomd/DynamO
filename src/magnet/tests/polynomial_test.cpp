@@ -30,9 +30,9 @@ BOOST_AUTO_TEST_CASE( poly_variables )
   Polynomial<1> x{0, 1};
   Polynomial<1,double,'y'> y{0, 1};
 
-  BOOST_CHECK(compare_expression(x * x * x, "x^3"));
-  BOOST_CHECK(compare_expression(y * y * y, "y^3"));
-  BOOST_CHECK(compare_expression(substitution(y * y * y, Variable<'y'>()==Variable<'x'>()), "x^3"));
+  BOOST_CHECK(compare_expression(x * x * x, "x³"));
+  BOOST_CHECK(compare_expression(y * y * y, "y³"));
+  BOOST_CHECK(compare_expression(substitution(y * y * y, Variable<'y'>()==Variable<'x'>()), "x³"));
 }
 
 BOOST_AUTO_TEST_CASE( poly_addition )

@@ -47,7 +47,7 @@ namespace magnet {
 									\
     template<class A,							\
 	     typename = typename std::enable_if<std::is_arithmetic<A>::value>::type> \
-    auto HELPERNAME(const A& x) -> decltype(NUMERIC_IMPL)		\
+    constexpr auto HELPERNAME(const A& x) -> decltype(NUMERIC_IMPL)		\
     { return NUMERIC_IMPL; }						\
 									\
     template<char Letter, class Arg1, class Arg2>			\
@@ -67,7 +67,7 @@ namespace magnet {
     CREATE_FUNCTION(sin, std::sin(x), cos(f._arg), 0)
     CREATE_FUNCTION(cos, std::cos(x), -sin(f._arg), 1)
 
-    NullSymbol sin(const NullSymbol&) { return NullSymbol(); }
-    UnitySymbol cos(const NullSymbol&) { return UnitySymbol(); }
+    constexpr NullSymbol sin(const NullSymbol&) { return NullSymbol(); }
+    constexpr UnitySymbol cos(const NullSymbol&) { return UnitySymbol(); }
   }
 }
