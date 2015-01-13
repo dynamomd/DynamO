@@ -68,7 +68,7 @@ int main(int argv, const char** argc)
   //////////////////////////// TEST ///////////////////////////////
   /////////////////////////////////////////////////////////////////
   std::cout << "±" << std::endl;
-  std::cout << "f(x) = " << expand(x*x+2*x-3) << std::endl;  
+  std::cout << "f(x) = " << simplify(x*x+2*x-3) << std::endl;  
   RNG.seed(12345);
   {
     TimeScope timer(" Standard                 ");
@@ -94,9 +94,9 @@ int main(int argv, const char** argc)
 
   RNG.seed(12345);
   {
-    TimeScope timer(" Symbolic (pc & expanded) ");
+    TimeScope timer(" Symbolic (pc & simplifyed) ");
     using namespace magnet::math;
-    auto f = expand(x*x+2*x-3);
+    auto f = simplify(x*x+2*x-3);
     psym_val = 0;
     for (size_t i(0); i < tests; ++i) {
       psym_val += substitution(f, x==dist(RNG));
@@ -289,13 +289,13 @@ int main(int argv, const char** argc)
   {
     using namespace magnet::math;
     RNG.seed(12345);
-    TimeScope timer(" Symbolic (expanded)      ");
+    TimeScope timer(" Symbolic (simplifyed)      ");
     sym_val = 0;
     for (size_t i(0); i < tests; ++i) {
       const double root1 = dist(RNG);
       const double root2 = dist(RNG);
       const double a = dist(RNG);
-      auto f = expand(a * (x - root1) * (x - root2));
+      auto f = simplify(a * (x - root1) * (x - root2));
       auto roots = solve_real_roots(f);
       sym_val += roots[0] + roots[1];
       ++timer;

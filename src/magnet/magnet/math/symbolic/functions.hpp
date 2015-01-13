@@ -40,14 +40,15 @@ namespace magnet {
       static const bool value = true;
     };
 
-#define CREATE_FUNCTION(HELPERNAME, NUMERIC_IMPL, ARG_DERIVATIVE, ID)	\
+#define CREATE_FUNCTION(HELPERNAME, NUMERIC_IMPL, ARG_DERIVATIVE, TEXT_REPRESENTATION, ID) \
+    template <class Arg> using HELPERNAME##F = Function<Arg, ID>;	\
     template<class A,							\
 	     typename = typename std::enable_if<!std::is_arithmetic<A>::value>::type> \
-    Function<A, ID> HELPERNAME(const A& a) { return Function<A, ID>(a); } \
+    HELPERNAME##F<A> HELPERNAME(const A& a) { return a; } \
 									\
     template<class A,							\
 	     typename = typename std::enable_if<std::is_arithmetic<A>::value>::type> \
-    constexpr auto HELPERNAME(const A& x) -> decltype(NUMERIC_IMPL)		\
+    auto HELPERNAME(const A& x) -> decltype(NUMERIC_IMPL)		\
     { return NUMERIC_IMPL; }						\
 									\
     template<char Letter, class Arg1, class Arg2>			\
@@ -56,18 +57,22 @@ namespace magnet {
     { return HELPERNAME(substitution(f._arg, x)); }			\
 									\
     template<class A>							\
-    inline std::ostream& operator<<(std::ostream& os, const Function<A, ID>& s) \
-    { return os << #HELPERNAME "(" << s._arg << ")"; }			\
+    inline std::ostream& operator<<(std::ostream& os, const Function<A, ID>& f) \
+    { return os << TEXT_REPRESENTATION; }			\
 									\
     template<char dVariable, class A>					\
-    auto derivative(const Function<A, ID>& f, Variable<dVariable>)	\
+    auto derivative(const HELPERNAME##F<A>& f, Variable<dVariable>)	\
       -> decltype(derivative(f._arg, Variable<dVariable>()) * (ARG_DERIVATIVE)) \
     { return derivative(f._arg, Variable<dVariable>()) * (ARG_DERIVATIVE); }
     
-    CREATE_FUNCTION(sin, std::sin(x), cos(f._arg), 0)
-    CREATE_FUNCTION(cos, std::cos(x), -sin(f._arg), 1)
-
+    CREATE_FUNCTION(sin, std::sin(x), cos(f._arg), "sin(" << f._arg << ")", 0)
+    CREATE_FUNCTION(cos, std::cos(x), -sin(f._arg), "cos(" << f._arg << ")", 1)
+    CREATE_FUNCTION(abs, std::abs(x), f._arg / f, "|" << f._arg << "|", 2)
+    CREATE_FUNCTION(arbsign, arbsign(std::abs(x)), arbsign(UnitySymbol()), "±|" << f._arg << "|", 3)
+    
     constexpr NullSymbol sin(const NullSymbol&) { return NullSymbol(); }
     constexpr UnitySymbol cos(const NullSymbol&) { return UnitySymbol(); }
+    constexpr NullSymbol abs(const NullSymbol&) { return NullSymbol(); }
+    constexpr UnitySymbol abs(const UnitySymbol&) { return UnitySymbol(); }
   }
 }

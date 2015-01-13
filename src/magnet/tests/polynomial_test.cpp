@@ -491,7 +491,7 @@ BOOST_AUTO_TEST_CASE( poly_root_tests)
   }
 
   {//Check PowerOp quartic
-    auto f1 = expand(pow<2>(30 * x * x + x - 23));
+    auto f1 = simplify(pow<2>(30 * x * x + x - 23));
     
     //auto roots = solve_real_roots(f1);
     //FIX THIS UNIT TEST!

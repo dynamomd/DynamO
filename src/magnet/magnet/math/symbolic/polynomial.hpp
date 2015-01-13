@@ -660,10 +660,7 @@ namespace magnet {
 	++terms;
 	oss << poly[0];
       }
-      if (terms > 1)
-	os << "(" << oss.str() << ")";
-      else
-	os << oss.str();
+      os << oss.str();
       return os;
     }
 

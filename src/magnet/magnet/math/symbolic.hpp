@@ -349,12 +349,12 @@ namespace magnet {
         expression.
      */
     template<size_t Order, char Letter, class F, class Real>
-    auto taylor_series(const F& f, Real a) -> decltype(try_expand(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)))
-    { return try_expand(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)); }
+    auto taylor_series(const F& f, Real a) -> decltype(try_simplify(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)))
+    { return try_simplify(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)); }
   }
 }
 
 #include <magnet/math/symbolic/operators.hpp>
 #include <magnet/math/symbolic/functions.hpp>
 #include <magnet/math/symbolic/polynomial.hpp>
-#include <magnet/math/symbolic/expand.hpp>
+#include <magnet/math/symbolic/simplify.hpp>

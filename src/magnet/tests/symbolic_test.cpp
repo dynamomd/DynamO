@@ -37,10 +37,10 @@ BOOST_AUTO_TEST_CASE( Substitution_of_variables )
   BOOST_CHECK(compare_expression(substitution(x, x==y), "y"));
 }
 
-BOOST_AUTO_TEST_CASE( expand_tests )
+BOOST_AUTO_TEST_CASE( simplify_tests )
 {
-  //Test that expand does nothing when it has nothing to do
-  auto poly1 = try_expand(2 * x * x);
+  //Test that simplify does nothing when it has nothing to do
+  auto poly1 = try_simplify(2 * x * x);
   BOOST_CHECK_EQUAL(poly1[0], 0);
   BOOST_CHECK_EQUAL(poly1[1], 0);
   BOOST_CHECK_EQUAL(poly1[2], 2);
@@ -48,13 +48,13 @@ BOOST_AUTO_TEST_CASE( expand_tests )
   Variable<'y'> y;
 
   //Check that expansions exist for these functions
-  expand(y+y);
-  expand(y+y+y);
-  //expand(y*y*y);
-  expand(y*y*2);
+  simplify(y+y);
+  simplify(y+y+y);
+  //simplify(y*y*y);
+  simplify(y*y*2);
 }
   
-BOOST_AUTO_TEST_CASE( expand_polynomials )
+BOOST_AUTO_TEST_CASE( simplify_polynomials )
 {
   //Test addition and simplification of Polynomials
   auto poly1 = 2 * x * x + x;
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( power_basic )
   BOOST_CHECK(compare_expression(derivative(pow<2>(x), Variable<'x'>()), 2 * x));
 
   //Check expansion
-  BOOST_CHECK(compare_expression(expand_powerop_impl(pow<3>(x+2), detail::select_overload{}), (x+2) * (x+2) * (x+2)));;
+  BOOST_CHECK(compare_expression(simplify_powerop_impl(pow<3>(x+2), detail::select_overload{}), (x+2) * (x+2) * (x+2)));;
 }
 
 BOOST_AUTO_TEST_CASE( Null_tests )
@@ -252,10 +252,10 @@ BOOST_AUTO_TEST_CASE( taylor_series_test )
 {
   Variable<'y'> y;
 
-  //Expanding in the wrong variable
+  //Simplifying in the wrong variable
   BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(y*y*y, NullSymbol()), y*y*y));
 
-  //Expanding PowerOp expressions into Polynomial
+  //Simplifying PowerOp expressions into Polynomial
   BOOST_CHECK(compare_expression(taylor_series<3, 'y'>(y*y*y, NullSymbol()), Polynomial<3,int,'y'>{0,0,0,1}));
 
   //Test truncation of PowerOp expressions when the order is too high
@@ -267,12 +267,12 @@ BOOST_AUTO_TEST_CASE( taylor_series_test )
   //Keep the order the same
   BOOST_CHECK(compare_expression(taylor_series<3, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<3,int,'y'>{1,2,3,4}));
 
-  //Taylor expand at a higher order
+  //Taylor simplify at a higher order
   BOOST_CHECK(compare_expression(taylor_series<4, 'y'>(Polynomial<3,int,'y'>{1,2,3,4}, NullSymbol()), Polynomial<3,int,'y'>{1,2,3,4}));
 
   //Test simple Taylor expansion of sine 
-  BOOST_CHECK(compare_expression(taylor_series<6, 'y'>(sin(y), NullSymbol()), expand((1.0/120) * y*y*y*y*y - (1.0/6) * y*y*y + y)));
-  BOOST_CHECK(compare_expression(taylor_series<8, 'y'>(sin(y*y), NullSymbol()), expand(- (1.0/6) * y*y*y*y*y*y + y*y)));
+  BOOST_CHECK(compare_expression(taylor_series<6, 'y'>(sin(y), NullSymbol()), simplify((1.0/120) * y*y*y*y*y - (1.0/6) * y*y*y + y)));
+  BOOST_CHECK(compare_expression(taylor_series<8, 'y'>(sin(y*y), NullSymbol()), simplify(- (1.0/6) * y*y*y*y*y*y + y*y)));
   
   //Test Taylor expansion of a complex expression at zero
   BOOST_CHECK(compare_expression(taylor_series<3, 'x'>(sin(cos(x)+2*x*x - x + 3), NullSymbol()), (3.0 * std::sin(4.0)/2.0 + (std::cos(4.0)/6.0)) * x*x*x + (3*std::cos(4.0)/2.0 - std::sin(4.0)/2.0) * x*x - std::cos(4.0) * x + std::sin(4.0)));
@@ -305,4 +305,27 @@ BOOST_AUTO_TEST_CASE( Vector_symbolic )
       BOOST_CHECK(std::abs(err[1]) < errlvl);
       BOOST_CHECK(std::abs(err[2]) < errlvl);
     }
+}
+
+BOOST_AUTO_TEST_CASE( symbolic_abs_arbsign )
+{
+  Variable<'x'> x;
+
+  BOOST_CHECK(compare_expression(abs(x), "|x|"));
+  BOOST_CHECK_EQUAL(substitution(abs(x*x - 5*x), x==2), 6);
+  BOOST_CHECK(compare_expression(abs(UnitySymbol()), UnitySymbol()));
+  BOOST_CHECK(compare_expression(abs(NullSymbol()), NullSymbol()));
+  BOOST_CHECK(compare_expression(abs(NullSymbol()), NullSymbol()));
+  BOOST_CHECK(compare_expression(derivative(arbsign(x), x), arbsign(UnitySymbol())));
+  BOOST_CHECK(compare_expression(derivative(arbsign(x), Variable<'y'>()), NullSymbol()));
+
+  BOOST_CHECK(compare_expression(simplify(x * arbsign(x)), arbsign(pow<2>(x))));
+  BOOST_CHECK(compare_expression(simplify(arbsign(x) * x), arbsign(pow<2>(x))));
+  BOOST_CHECK(compare_expression(simplify(arbsign(x) * arbsign(x)), arbsign(pow<2>(x))));
+
+  BOOST_CHECK(compare_expression(simplify(x / arbsign(x)), arbsign(UnitySymbol())));
+  BOOST_CHECK(compare_expression(simplify(arbsign(x) / x), arbsign(UnitySymbol())));
+  BOOST_CHECK(compare_expression(simplify(arbsign(x) / arbsign(x)), arbsign(UnitySymbol())));
+
+  BOOST_CHECK(compare_expression(simplify(arbsign(arbsign(x))), arbsign(x)));
 }

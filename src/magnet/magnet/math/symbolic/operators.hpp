@@ -92,32 +92,32 @@ namespace magnet {
     { return toArithmetic(l) OP toArithmetic(r); }			\
     									\
     template<class LHS, class RHS>					\
-    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<0>) -> decltype(expand(expand(f._l) OP expand(f._r))) \
-    { return expand(expand(f._l) OP expand(f._r)); }			\
+    auto simplify_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<0>) -> decltype(simplify(simplify(f._l) OP simplify(f._r))) \
+    { return simplify(simplify(f._l) OP simplify(f._r)); }			\
 									\
     template<class LHS, class RHS>					\
-    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<1>) -> decltype(expand(f._l OP expand(f._r))) \
-    { return expand(f._l OP expand(f._r)); }				\
+    auto simplify_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<1>) -> decltype(simplify(f._l OP simplify(f._r))) \
+    { return simplify(f._l OP simplify(f._r)); }				\
 									\
     template<class LHS, class RHS>					\
-    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<2>) -> decltype(expand(expand(f._l) OP f._r)) \
-    { return expand(expand(f._l) OP f._r); }				\
+    auto simplify_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<2>) -> decltype(simplify(simplify(f._l) OP f._r)) \
+    { return simplify(simplify(f._l) OP f._r); }				\
 									\
     template<class LHS, class RHS>					\
-    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<3>) -> decltype(expand(f._l) OP expand(f._r)) \
-    { return expand(f._l) OP expand(f._r); }			\
+    auto simplify_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<3>) -> decltype(simplify(f._l) OP simplify(f._r)) \
+    { return simplify(f._l) OP simplify(f._r); }			\
 									\
     template<class LHS, class RHS>					\
-    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<4>) -> decltype(f._l OP expand(f._r)) \
-    { return f._l OP expand(f._r); }					\
+    auto simplify_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<4>) -> decltype(f._l OP simplify(f._r)) \
+    { return f._l OP simplify(f._r); }					\
 									\
     template<class LHS, class RHS>					\
-    auto expand_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<5>) -> decltype(expand(f._l) OP f._r) \
-    { return expand(f._l) OP f._r; }				\
+    auto simplify_##HELPERNAME##_impl(const CLASSNAME<LHS, RHS>& f, detail::choice<5>) -> decltype(simplify(f._l) OP f._r) \
+    { return simplify(f._l) OP f._r; }				\
 									\
     template<class LHS, class RHS>					\
-    auto expand(const CLASSNAME<LHS, RHS>& f) ->decltype(expand_##HELPERNAME##_impl(f, detail::select_overload{})) \
-    { return expand_##HELPERNAME##_impl(f, detail::select_overload{}); }		\
+    auto simplify(const CLASSNAME<LHS, RHS>& f) ->decltype(simplify_##HELPERNAME##_impl(f, detail::select_overload{})) \
+    { return simplify_##HELPERNAME##_impl(f, detail::select_overload{}); }		\
 									\
     /*! \brief Helper function which reorders (A*B)*C to (B*C)*A operations. */	\
     template<class T1, class T2, class T3,				\
@@ -340,58 +340,7 @@ namespace magnet {
     template<char dVariable, class Arg>
     auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(2 * derivative(f._arg, Variable<dVariable>()) * f._arg)
     { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
-    /*! \}*/
-
-    /*! \brief Symbolic representation of a (positive) power operator.
-     */
-    template<class Arg>
-    struct ModulusOp {
-      Arg _arg;
-      ModulusOp(Arg a): _arg(a) {}
-    };
-
-    template<class Arg>
-    struct SymbolicOperators<ModulusOp<Arg> > {
-      static const bool value = true;
-    };
-
-    template<class Arg>
-    ModulusOp<Arg> abs(const Arg& a)
-    { return ModulusOp<Arg>(a); }
-
-    template<class Arg, char dVariable>
-    auto derivative(const ModulusOp<Arg>& f, Variable<dVariable>)
-      -> decltype(f._arg * derivative(f._arg, Variable<dVariable>()) / f)
-    { return f._arg * derivative(f._arg, Variable<dVariable>()) / f; }
-
-    template<class Arg>
-    inline std::ostream& operator<<(std::ostream& os, const ModulusOp<Arg>& f) {
-      os << "|" << f._arg << "|";
-      return os;
-    }
-
-    /*! \brief Evaluate PowerOp symbol at a value of x.
-      
-      This operator is only used if the result of evaluating the
-      argument is an arithmetic type. If this is the case, the
-      evaluation is passed to std::pow.
-    */
-    template<class Arg1, class Arg2, char Letter>
-    constexpr auto substitution(const ModulusOp<Arg1>& f, const VariableSubstitution<Letter, Arg2>& x)
-      -> typename std::enable_if<std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
-				 decltype(std::abs(substitution(f._arg, x)))>::type
-    { return std::abs(substitution(f._arg, x)); }
-
-    /*! \brief Evaluate PowerOp symbol at a value of x.
-      
-      This is the general implementation for PowerOp.
-    */
-    template<class Arg1, class Arg2, char Letter>
-    auto substitution(const ModulusOp<Arg1>& f, const VariableSubstitution<Letter, Arg2>& x)
-      -> typename std::enable_if<!std::is_arithmetic<decltype(substitution(f._arg, x))>::value,
-				 decltype(abs(substitution(f._arg, x)))>::type
-    { return abs(substitution(f._arg, x)); }
-    
+    /*! \}*/    
 
     /*! \relates BinaryOp
       \name BinaryOp simplification rules.
@@ -422,6 +371,8 @@ namespace magnet {
     
     template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
 
+    template<char Letter> UnitySymbol divide(const Variable<Letter>& l, const Variable<Letter>&) { return UnitySymbol(); }
+
 
     template<char Letter>
     PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
@@ -436,7 +387,6 @@ namespace magnet {
     { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
 
     /*! \} */
-
   }
 }
     
