@@ -304,4 +304,46 @@ int main(int argv, const char** argc)
 
   testValues();
 
+  /////////////////////////////////////////////////////////////////
+  //////////////////////////// TEST ///////////////////////////////
+  /////////////////////////////////////////////////////////////////
+  std::cout << "\n f(x) = sin(x) * (1 - x) / x + 2 * x" << std::endl;  
+  {
+    RNG.seed(12345);
+    TimeScope timer(" Standard                 ");
+    std_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      double x = dist(RNG);
+      std_val += std::sin(x) * (x/x -1) / x + 2 * x;
+      ++timer;
+    }
+  }
+
+  {
+    using namespace magnet::math;
+    RNG.seed(12345);
+    TimeScope timer(" Symbolic                 ");
+    auto f = sin(x) * (x / x - 1) + 2 * x;
+    psym_val = 0;
+    for (size_t i(0); i < tests; ++i) {
+      double xval = dist(RNG);
+      psym_val += substitution(f, x == xval);
+      ++timer;
+    }
+  }
+
+  {
+    using namespace magnet::math;
+    RNG.seed(12345);
+    TimeScope timer(" Symbolic (simplifyed)    ");
+    sym_val = 0;
+    auto f = simplify(sin(x) * ((x / x) - UnitySymbol()) + 2 * x);
+    for (size_t i(0); i < tests; ++i) {
+      double xval = dist(RNG);
+      sym_val += substitution(f, x == xval);
+      ++timer;
+    }
+  }
+
+  testValues();
 }

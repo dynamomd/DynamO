@@ -341,52 +341,6 @@ namespace magnet {
     auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(2 * derivative(f._arg, Variable<dVariable>()) * f._arg)
     { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
     /*! \}*/    
-
-    /*! \relates BinaryOp
-      \name BinaryOp simplification rules.
-      
-      These 
-      \{
-    */
-
-    //The implementations below perform basic simplification of expressions
-    template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
-    template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
-    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
-    template<class RHS> NullSymbol multiply(const NullSymbol&, const RHS&) { return NullSymbol(); }
-    template<class LHS> NullSymbol multiply(const LHS&, const NullSymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const UnitySymbol&, const NullSymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const NullSymbol&, const UnitySymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-
-    NullSymbol add(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-    template<class LHS> LHS add(const LHS& l, const NullSymbol& r) { return l; }
-    template<class RHS> RHS add(const NullSymbol& l, const RHS& r) { return r; }
-
-    constexpr int add(const UnitySymbol&, const UnitySymbol&) { return 2; }
-
-    template<class LHS> LHS subtract(const LHS& l, const NullSymbol&) { return l; }
-    template<class RHS> auto subtract(const NullSymbol&, const RHS& r) -> decltype(-r) { return -r; }
-    NullSymbol subtract(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-    
-    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
-
-    template<char Letter> UnitySymbol divide(const Variable<Letter>& l, const Variable<Letter>&) { return UnitySymbol(); }
-
-
-    template<char Letter>
-    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
-    { return PowerOp<Variable<Letter>, 2>(Variable<Letter>()); }
-    
-    template<char Letter, size_t Order>
-    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&, const Variable<Letter>&)
-    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
-    
-    template<char Letter, size_t Order>
-    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&, const PowerOp<Variable<Letter>, Order>&)
-    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
-
-    /*! \} */
   }
 }
     

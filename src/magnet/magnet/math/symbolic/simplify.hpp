@@ -18,6 +18,49 @@
 
 namespace magnet {
   namespace math {
+
+    //The implementations below perform basic simplification of expressions
+    template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
+    template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
+    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
+    template<class RHS> NullSymbol multiply(const NullSymbol&, const RHS&) { return NullSymbol(); }
+    template<class LHS> NullSymbol multiply(const LHS&, const NullSymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const UnitySymbol&, const NullSymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const NullSymbol&, const UnitySymbol&) { return NullSymbol(); }
+    NullSymbol multiply(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+
+    NullSymbol add(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+    template<class LHS> LHS add(const LHS& l, const NullSymbol& r) { return l; }
+    template<class RHS> RHS add(const NullSymbol& l, const RHS& r) { return r; }
+
+    int add(const UnitySymbol&, const UnitySymbol&) { return 2; }
+    constexpr NullSymbol subtract(const UnitySymbol&, const UnitySymbol&) { return NullSymbol(); }
+
+    template<class LHS> LHS subtract(const LHS& l, const NullSymbol&) { return l; }
+    template<class RHS> auto subtract(const NullSymbol&, const RHS& r) -> decltype(-r) { return -r; }
+    NullSymbol subtract(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+    
+    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
+
+    template<char Letter> UnitySymbol divide(const Variable<Letter>& l, const Variable<Letter>&) { return UnitySymbol(); }
+
+    template<char Letter>
+    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
+    { return PowerOp<Variable<Letter>, 2>(Variable<Letter>()); }
+    
+    template<char Letter, size_t Order>
+    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&, const Variable<Letter>&)
+    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
+    
+    template<char Letter, size_t Order>
+    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&, const PowerOp<Variable<Letter>, Order>&)
+    { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
+
+
+
+
+
+
 //    /*! \brief Simplify multiplication and addition operations. */
 //    template<class LHS1, class RHS1, class RHS>
 //    auto simplify(const MultiplyOp<AddOp<LHS1, RHS1>, RHS>& f)
@@ -363,7 +406,7 @@ namespace magnet {
     template<char Letter, class Real>
     typename std::enable_if<std::is_arithmetic<Real>::value, Polynomial<1, Real, Letter> >::type
     simplify(const SubtractOp<Real, Variable<Letter> >& f)
-    { return Polynomial<1, Real, Letter>{f._r, Real(-1)}; }
+    { return Polynomial<1, Real, Letter>{f._l, Real(-1)}; }
 
 
     //                      FUNCTION SIMPLIFICATION
