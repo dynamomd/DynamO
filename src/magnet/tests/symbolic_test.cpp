@@ -329,3 +329,12 @@ BOOST_AUTO_TEST_CASE( symbolic_abs_arbsign )
 
   BOOST_CHECK(compare_expression(simplify(arbsign(arbsign(x))), arbsign(x)));
 }
+
+BOOST_AUTO_TEST_CASE( symbolic_ratio )
+{
+  Variable<'x'> x;
+
+  std::cout << ratio<1,2>() << std::endl;
+
+  std::cout << substitution(ratio<1,2>() * x, x == 2) << std::endl;
+}

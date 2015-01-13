@@ -19,6 +19,8 @@
 #include <magnet/containers/stack_vector.hpp>
 #include <complex>
 
+#include <magnet/math/symbolic/ratio.hpp>
+
 namespace magnet {
   namespace math {
     namespace detail {
@@ -32,6 +34,11 @@ namespace magnet {
       template <class T>
       struct IsSymbolicConstant {
 	static const bool value = false;
+      };
+
+      template<std::intmax_t Num, std::intmax_t Denom>
+      struct IsSymbolicConstant<ratio<Num, Denom> > {
+	static const bool value = true;
       };
     }
 
