@@ -19,8 +19,6 @@
 #include <magnet/containers/stack_vector.hpp>
 #include <complex>
 
-#include <magnet/math/symbolic/ratio.hpp>
-
 namespace magnet {
   namespace math {
     //This has to be a type in the magnet::math namespace for operator lookups to succeed.
