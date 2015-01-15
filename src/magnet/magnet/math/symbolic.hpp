@@ -18,6 +18,7 @@
 #include <magnet/math/vector.hpp>
 #include <magnet/containers/stack_vector.hpp>
 #include <complex>
+#include <ratio>
 
 namespace magnet {
   namespace math {
