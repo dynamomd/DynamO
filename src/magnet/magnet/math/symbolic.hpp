@@ -23,6 +23,11 @@
 
 namespace magnet {
   namespace math {
+    //This has to be a type in the magnet::math namespace for operator lookups to succeed.
+    template<std::intmax_t Num, std::intmax_t Denom = 1>
+    struct ratio : std::ratio<Num, Denom> {
+    };
+
     namespace detail {
       /*!\brief Type trait to determine if a certain type is a
 	symbolic representation of a constant.
@@ -41,39 +46,24 @@ namespace magnet {
 	static const bool value = true;
       };
     }
+    
+    template<class stdratio>
+    using ratio_wrap = ratio<stdratio::num, stdratio::den>;
 
     template<class T,
 	     typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
     T toArithmetic(T val) { return val; }
-
-#define SYMBOLIC_CONSTANT(NAME, VALUE)					\
-    struct NAME {							\
-      bool operator==(NAME) const { return true; }			\
-									\
-      template<class T>							\
-      typename std::enable_if<std::is_arithmetic<T>::value, bool>::type \
-      operator==(const T& a) const { return VALUE == a; }		\
-      									\
-      template<class T>							\
-      typename std::enable_if<!std::is_arithmetic<T>::value, bool>::type \
-      operator==(const T& a) const { return false; }			\
-    };									\
-									\
-    decltype(VALUE) toArithmetic(const NAME&) { return VALUE; }		\
-									\
-    namespace detail {							\
-      template<> struct IsSymbolicConstant<NAME> {			\
-	static const bool value = true;					\
-      };								\
-    }									\
-									\
-    inline std::ostream& operator<<(std::ostream& os, NAME) {		\
-      os << "symbolic(" #NAME")";					\
-      return os;							\
-    }
     
-    SYMBOLIC_CONSTANT(NullSymbol, 0)
-    SYMBOLIC_CONSTANT(UnitySymbol, 1)
+    template<std::intmax_t n1, std::intmax_t d1, 
+    	     typename = typename std::enable_if<!(n1 % d1)>::type> 
+    std::intmax_t toArithmetic(ratio<n1,d1> val) { return n1 / d1; }
+    
+    template<std::intmax_t n1, std::intmax_t d1, 
+    	     typename = typename std::enable_if<n1 % d1>::type>
+    double toArithmetic(ratio<n1,d1> val) { return double(n1) / double(d1); }
+
+    typedef ratio<0> NullSymbol;
+    typedef ratio<1> UnitySymbol;
 
     /*!\brief Compile-time symbolic representation of a variable
       substitution.
@@ -82,7 +72,7 @@ namespace magnet {
       VariableSubstitution(const Arg& val):_val(val) {}
       Arg _val;
     };
-    
+
     /*!\brief Symbolic representation of a variable.
 
       This class is used to denote a variable. The template argument
@@ -325,7 +315,16 @@ namespace magnet {
     template<> struct InvFactorial<0> {
       static UnitySymbol eval() { return UnitySymbol(); }
     };
-    
+  }
+}
+
+#include <magnet/math/symbolic/operators.hpp>
+#include <magnet/math/symbolic/functions.hpp>
+#include <magnet/math/symbolic/polynomial.hpp>
+#include <magnet/math/symbolic/simplify.hpp>
+
+namespace magnet {
+  namespace math {
     namespace detail {
       template<size_t State, size_t max_Order, char Letter>
       struct TaylorSeriesWorker {
@@ -358,10 +357,5 @@ namespace magnet {
     template<size_t Order, char Letter, class F, class Real>
     auto taylor_series(const F& f, Real a) -> decltype(try_simplify(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)))
     { return try_simplify(detail::TaylorSeriesWorker<0, Order, Letter>::eval(f, a)); }
-  }
 }
-
-#include <magnet/math/symbolic/operators.hpp>
-#include <magnet/math/symbolic/functions.hpp>
-#include <magnet/math/symbolic/polynomial.hpp>
-#include <magnet/math/symbolic/simplify.hpp>
+}

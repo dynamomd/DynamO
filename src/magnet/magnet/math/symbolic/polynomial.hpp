@@ -29,12 +29,7 @@ namespace magnet {
     namespace detail {
       constexpr size_t max_order(size_t N, size_t M)
       { return N > M ? N : M; }
-      
-      template<class Real, char Letter>
-      struct IsConstant<Polynomial<0, Real, Letter> > {
-	static const bool value = true;
-      };
-    
+          
       /*! \relates Polynomial 
 	
  	\brief Type trait which determines if an operation
@@ -623,10 +618,10 @@ namespace magnet {
       the incorrect variable.
      */
     template<char Letter, class Real, size_t N, char dLetter,
-	     typename = typename std::enable_if<(Letter!=dLetter) && (N > 0)>::type>
+	     typename = typename std::enable_if<(Letter!=dLetter) || (N==0)>::type>
       NullSymbol derivative(const Polynomial<N, Real, Letter>& f, Variable<dLetter>) 
     { return NullSymbol(); }
-    
+
     /*! \endcond \} */
 
     /*! \relates Polynomial 

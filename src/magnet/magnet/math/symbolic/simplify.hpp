@@ -19,46 +19,90 @@
 namespace magnet {
   namespace math {
 
+    template<class T> struct is_ratio { static const bool value = false; };
+    template<std::intmax_t N, std::intmax_t D> struct is_ratio<ratio<N,D> > { static const bool value = true; };
+
     //The implementations below perform basic simplification of expressions
-    template<class LHS> LHS multiply(const LHS& l, const UnitySymbol& r) { return l; }
-    template<class RHS> RHS multiply(const UnitySymbol& l, const RHS& r) { return r; }
-    UnitySymbol multiply(const UnitySymbol&, const UnitySymbol&) { return UnitySymbol(); }
-    template<class RHS> NullSymbol multiply(const NullSymbol&, const RHS&) { return NullSymbol(); }
-    template<class LHS> NullSymbol multiply(const LHS&, const NullSymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const UnitySymbol&, const NullSymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const NullSymbol&, const UnitySymbol&) { return NullSymbol(); }
-    NullSymbol multiply(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-
-    NullSymbol add(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
-    template<class LHS> LHS add(const LHS& l, const NullSymbol& r) { return l; }
-    template<class RHS> RHS add(const NullSymbol& l, const RHS& r) { return r; }
-
-    int add(const UnitySymbol&, const UnitySymbol&) { return 2; }
-    constexpr NullSymbol subtract(const UnitySymbol&, const UnitySymbol&) { return NullSymbol(); }
-
-    template<class LHS> LHS subtract(const LHS& l, const NullSymbol&) { return l; }
-    template<class RHS> auto subtract(const NullSymbol&, const RHS& r) -> decltype(-r) { return -r; }
-    NullSymbol subtract(const NullSymbol&, const NullSymbol&) { return NullSymbol(); }
+    //
+    //These simplify expressions dramatically, so they have the highest priority
+    template<class RHS>
+    typename std::enable_if<!is_ratio<RHS>::value, NullSymbol>::type 
+    multiply(const NullSymbol&, const RHS&, detail::choice<0>) { return NullSymbol(); }
     
-    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&) { return l; }
+    template<class LHS>
+    typename std::enable_if<!is_ratio<LHS>::value, NullSymbol>::type 
+    multiply(const LHS&, const NullSymbol&, detail::choice<0>) { return NullSymbol(); }
 
-    template<char Letter> UnitySymbol divide(const Variable<Letter>& l, const Variable<Letter>&) { return UnitySymbol(); }
+    template<class LHS>
+    typename std::enable_if<!is_ratio<LHS>::value, LHS>::type 
+    multiply(const LHS& l, const UnitySymbol& r, detail::choice<0>) { return l; }
+    template<class RHS> 
+    typename std::enable_if<!is_ratio<RHS>::value, RHS>::type 
+    multiply(const UnitySymbol& l, const RHS& r, detail::choice<0>) { return r; }
+    
+
+    template<class LHS> 
+    typename std::enable_if<!is_ratio<LHS>::value, LHS>::type 
+    add(const LHS& l, const NullSymbol& r, detail::choice<0>) { return l; }
+    template<class RHS> 
+    typename std::enable_if<!is_ratio<RHS>::value, RHS>::type
+    add(const NullSymbol& l, const RHS& r, detail::choice<0>) { return r; }
+
+    template<class LHS> 
+    typename std::enable_if<!is_ratio<LHS>::value, LHS>::type 
+    subtract(const LHS& l, const NullSymbol&, detail::choice<0>) { return l; }
+    template<class RHS> 
+    auto subtract(const NullSymbol&, const RHS& r, detail::choice<0>) -> typename std::enable_if<!is_ratio<RHS>::value, decltype(-r)>::type { return -r; }
+    
+    template<class LHS> LHS divide(const LHS& l, const UnitySymbol&, detail::choice<0>) { return l; }
+
+    template<char Letter> UnitySymbol divide(const Variable<Letter>& l, const Variable<Letter>&, detail::choice<0>) { return UnitySymbol(); }
 
     template<char Letter>
-    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&)
+    PowerOp<Variable<Letter>, 2> multiply(const Variable<Letter>&, const Variable<Letter>&, detail::choice<0>)
     { return PowerOp<Variable<Letter>, 2>(Variable<Letter>()); }
     
     template<char Letter, size_t Order>
-    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&, const Variable<Letter>&)
+    PowerOp<Variable<Letter>, Order+1> multiply(const PowerOp<Variable<Letter>, Order>&, const Variable<Letter>&, detail::choice<0>)
     { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
     
     template<char Letter, size_t Order>
-    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&, const PowerOp<Variable<Letter>, Order>&)
+    PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&, const PowerOp<Variable<Letter>, Order>&, detail::choice<0>)
     { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
 
 
+    //Ratio operators (these are lower priority than above
+    template<std::intmax_t Num1, std::intmax_t Denom1, std::intmax_t Num2, std::intmax_t Denom2>
+    ratio_wrap<std::ratio_multiply<std::ratio<Num1, Denom1>, std::ratio<Num2, Denom2> > >
+    multiply(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&, detail::choice<1>)
+    { return {};}
 
+    template<std::intmax_t Num1, std::intmax_t Denom1, std::intmax_t Num2, std::intmax_t Denom2>
+    ratio_wrap<std::ratio_add<std::ratio<Num1, Denom1>, std::ratio<Num2, Denom2> > >
+    add(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&, detail::choice<1>)
+    { return {};}
 
+    template<std::intmax_t Num1, std::intmax_t Denom1, std::intmax_t Num2, std::intmax_t Denom2>
+    ratio_wrap<std::ratio_divide<std::ratio<Num1, Denom1>, std::ratio<Num2, Denom2> > >
+    divide(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&, detail::choice<1>)
+    { return {};}
+
+    template<std::intmax_t Num1, std::intmax_t Denom1, std::intmax_t Num2, std::intmax_t Denom2>
+    ratio_wrap<std::ratio_subtract<std::ratio<Num1, Denom1>, std::ratio<Num2, Denom2> > >
+    subtract(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&, detail::choice<1>)
+    { return {};}
+
+    template<std::intmax_t Num1, std::intmax_t Denom1, std::intmax_t Num2, std::intmax_t Denom2>
+    constexpr bool operator==(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&)
+    { return std::ratio_equal<ratio<Num1, Denom1>, ratio<Num2, Denom2> >::value; }
+
+    template<std::intmax_t Num, std::intmax_t Denom>
+    inline std::ostream& operator<<(std::ostream& os, const std::ratio<Num, Denom>) {
+      os << Num;
+      if (Denom != 1)
+	os << "/" << Denom ;
+      return os;
+    }
 
 
 //    /*! \brief Simplify multiplication and addition operations. */

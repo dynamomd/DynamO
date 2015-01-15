@@ -13,6 +13,7 @@ bool err(double val, double expected)
 
 template<class T1, class T2>
 bool compare_expression(const T1& f, const T2& g) {
+  using namespace magnet::math;
   std::ostringstream os;
   os << f;
   std::string f_str = os.str();

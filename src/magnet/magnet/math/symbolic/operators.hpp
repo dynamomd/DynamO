@@ -33,8 +33,10 @@ namespace magnet {
       
       // terminate recursive inheritence at a convenient point,
       // large enough to cover all cases
-      template<> struct choice<10>{};
-      
+      static const int LAST_OVERLOAD_LVL = 10;
+      template<> struct choice<LAST_OVERLOAD_LVL>{};
+      typedef choice<LAST_OVERLOAD_LVL> last_choice;
+
       // I like it for clarity
       struct select_overload : choice<0>{};
     }
@@ -65,6 +67,12 @@ namespace magnet {
     struct Reorder<Variable<Letter1>, Variable<Letter2> > {
       static const bool value = Letter1 == Letter2;
     };
+
+    template<std::intmax_t n1, std::intmax_t d1, std::intmax_t n2, std::intmax_t d2> 
+    struct Reorder<ratio<n1,d1>, ratio<n2,d2> > {
+      static const bool value = true;
+    };
+
     
 #define CREATE_BINARY_OP(HELPERNAME, CLASSNAME, OP, PRINTFORM)		\
     template<class LHStype, class RHStype>				\
@@ -84,11 +92,11 @@ namespace magnet {
     									\
     template<class LHS, class RHS>					\
     typename std::enable_if<!(detail::IsConstant<LHS>::value && detail::IsConstant<RHS>::value), CLASSNAME<LHS, RHS> >::type \
-    HELPERNAME(const LHS& l, const RHS& r)				\
+    HELPERNAME(const LHS& l, const RHS& r, detail::last_choice)		\
     { return CLASSNAME<LHS, RHS>(l, r); }				\
 									\
     template<class LHS, class RHS>					\
-    auto HELPERNAME(const LHS& l, const RHS& r) -> decltype(toArithmetic(l) OP toArithmetic(r)) \
+    auto HELPERNAME(const LHS& l, const RHS& r, detail::last_choice) -> decltype(toArithmetic(l) OP toArithmetic(r)) \
     { return toArithmetic(l) OP toArithmetic(r); }			\
     									\
     template<class LHS, class RHS>					\
@@ -122,30 +130,30 @@ namespace magnet {
     /*! \brief Helper function which reorders (A*B)*C to (B*C)*A operations. */	\
     template<class T1, class T2, class T3,				\
 	     typename = typename std::enable_if<Reorder<T2, T3>::value && !Reorder<T1, T2>::value>::type>	\
-    auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
+      auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r, detail::choice<0>) \
       -> CLASSNAME<decltype(l._r OP r), T1>				\
-    { return HELPERNAME(l._r OP r, l._l); }				\
+    { return HELPERNAME(l._r OP r, l._l, detail::select_overload{}); }				\
 									\
     /*! \brief Helper function which reorders (A*B)*C to (A*C)*B operations. */	\
     template<class T1, class T2, class T3,				\
 	     typename = typename std::enable_if<Reorder<T1, T3>::value && !Reorder<T1, T2>::value && !Reorder<T2, T3>::value>::type>	\
-    auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r)		\
+      auto HELPERNAME(const CLASSNAME<T1, T2>& l, const T3& r, detail::choice<0>)		\
       -> CLASSNAME<decltype(l._l OP r), T2>				\
-    { return HELPERNAME(l._l OP r, l._r); }				\
+    { return HELPERNAME(l._l OP r, l._r, detail::select_overload{}); }				\
     									\
     /*! \brief Helper function which reorders A*(B*C) to (A*B)*C operations. */	\
     template<class T1, class T2, class T3,				\
-	     typename = typename std::enable_if<Reorder<T1, T2>::value && !Reorder<T2, T3>::value>::type>	\
-    auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
+	     typename = typename std::enable_if<Reorder<T1, T2>::value && !Reorder<T2, T3>::value>::type> \
+      auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r, detail::choice<0>) \
       -> CLASSNAME<decltype(l OP r._l), T3>				\
-    { return HELPERNAME(l OP r._l, r._r); }				\
+    { return HELPERNAME(l OP r._l, r._r, detail::select_overload{}); }	\
 									\
     /*! \brief Helper function which reorders A*(B*C) to (A*C)*B operations. */	\
     template<class T1, class T2, class T3,				\
-	     typename = typename std::enable_if<Reorder<T1, T3>::value  && !Reorder<T1, T2>::value  && !Reorder<T2, T3>::value>::type>	\
-    auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r)		\
+	     typename = typename std::enable_if<Reorder<T1, T3>::value  && !Reorder<T1, T2>::value  && !Reorder<T2, T3>::value>::type> \
+      auto HELPERNAME(const T1& l, const CLASSNAME<T2, T3>& r, detail::choice<0>) \
       -> CLASSNAME<decltype(l OP r._r), T2>				\
-    { return HELPERNAME(l OP r._r, r._l); }				\
+    { return HELPERNAME(l OP r._r, r._l, detail::select_overload{}); }				\
 									\
     template<class LHS, class RHS>					\
     inline std::ostream& operator<<(std::ostream& os, const CLASSNAME<LHS, RHS>& op) {\
@@ -184,26 +192,26 @@ namespace magnet {
     /*! \brief Symbolic addition operator. */
     template<class LHS, class RHS,
 	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
-    auto operator+(const LHS& l, const RHS& r) -> decltype(add(l, r))
-    { return add(l,r); }
+    auto operator+(const LHS& l, const RHS& r) -> decltype(add(l, r, detail::select_overload{}))
+    { return add(l,r, detail::select_overload{}); }
 
     /*! \brief Symbolic multiplication operator. */
     template<class LHS, class RHS,
 	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
-    auto operator*(const LHS& l, const RHS& r) -> decltype(multiply(l, r))
-    { return multiply(l,r); }
+    auto operator*(const LHS& l, const RHS& r) -> decltype(multiply(l, r, detail::select_overload{}))
+    { return multiply(l,r, detail::select_overload{}); }
 
     /*! \brief Symbolic subtraction operator. */
     template<class LHS, class RHS,
 	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
-    auto operator-(const LHS& l, const RHS& r) -> decltype(subtract(l, r))
-    { return subtract(l,r); }
+    auto operator-(const LHS& l, const RHS& r) -> decltype(subtract(l, r, detail::select_overload{}))
+    { return subtract(l,r, detail::select_overload{}); }
 
     /*! \brief Symbolic divide operator. */
     template<class LHS, class RHS,
 	     typename = typename std::enable_if<ApplySymbolicOps<LHS, RHS>::value>::type>
-    auto operator/(const LHS& l, const RHS& r) -> decltype(divide(l, r))
-    { return divide(l,r); }
+    auto operator/(const LHS& l, const RHS& r) -> decltype(divide(l, r, detail::select_overload{}))
+    { return divide(l,r, detail::select_overload{}); }
 
     /*! \brief Derivatives of AddOp operations.
      */
@@ -239,7 +247,6 @@ namespace magnet {
 	static auto eval(Arg_t x) -> decltype(PowerOpSubstitution<Power-1>::eval(x) * x) {
 	  return PowerOpSubstitution<Power-1>::eval(x) * x;
 	}
-	static UnitySymbol eval(UnitySymbol) { return UnitySymbol(); }
       };
 
       template<>
@@ -248,7 +255,6 @@ namespace magnet {
 	static Arg_t eval(Arg_t x) {
 	  return x;
 	}
-	static UnitySymbol eval(UnitySymbol) { return UnitySymbol(); }
       };
 
       template<>
@@ -326,8 +332,8 @@ namespace magnet {
     /*! \brief Derivatives of PowerOp operations.
      */
     template<char dVariable, class Arg, size_t Power>
-    auto derivative(const PowerOp<Arg, Power>& f, Variable<dVariable>) -> decltype(Power * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg))
-    { return Power * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg); }
+    auto derivative(const PowerOp<Arg, Power>& f, Variable<dVariable>) -> decltype(ratio<Power>() * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg))
+    { return ratio<Power>() * derivative(f._arg, Variable<dVariable>()) * PowerOp<Arg, Power-1>(f._arg); }
 
     template<char dVariable, class Arg>
     NullSymbol derivative(const PowerOp<Arg, 0>& f, Variable<dVariable>)
@@ -338,8 +344,8 @@ namespace magnet {
     { return derivative(f._arg, Variable<dVariable>()); }
 
     template<char dVariable, class Arg>
-    auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(2 * derivative(f._arg, Variable<dVariable>()) * f._arg)
-    { return 2 * derivative(f._arg, Variable<dVariable>()) * f._arg; }
+    auto derivative(const PowerOp<Arg, 2>& f, Variable<dVariable>) -> decltype(ratio<2>() * derivative(f._arg, Variable<dVariable>()) * f._arg)
+    { return ratio<2>() * derivative(f._arg, Variable<dVariable>()) * f._arg; }
     /*! \}*/    
   }
 }
