@@ -22,10 +22,11 @@
 
 namespace magnet {
   namespace math {
-    //This has to be a type in the magnet::math namespace for operator lookups to succeed.
+
+    //This has to be a type in the magnet::math namespace for operator
+    //lookups to succeed.
     template<std::intmax_t Num, std::intmax_t Denom = 1>
-    struct ratio : std::ratio<Num, Denom> {
-    };
+    struct ratio : std::ratio<Num, Denom> {};
 
     namespace detail {
       /*!\brief Type trait to determine if a certain type is a
