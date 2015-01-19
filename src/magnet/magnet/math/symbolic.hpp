@@ -28,6 +28,14 @@ namespace magnet {
     template<std::intmax_t Num, std::intmax_t Denom = 1>
     struct ratio : std::ratio<Num, Denom> {};
 
+    template<std::intmax_t Num, std::intmax_t Denom>
+    inline std::ostream& operator<<(std::ostream& os, const std::ratio<Num, Denom>) {
+      os << Num;
+      if (Denom != 1)
+	os << "/" << Denom ;
+      return os;
+    }
+
     namespace detail {
       /*!\brief Type trait to determine if a certain type is a
 	symbolic representation of a constant.
@@ -47,9 +55,6 @@ namespace magnet {
       };
     }
     
-    template<class stdratio>
-    using ratio_wrap = ratio<stdratio::num, stdratio::den>;
-
     template<class T,
 	     typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
     T toArithmetic(T val) { return val; }

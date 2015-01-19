@@ -55,7 +55,6 @@ namespace magnet {
     auto subtract(const NullSymbol&, const RHS& r, detail::choice<0>) -> typename std::enable_if<!is_ratio<RHS>::value, decltype(-r)>::type { return -r; }
     
     template<class LHS> LHS divide(const LHS& l, const UnitySymbol&, detail::choice<0>) { return l; }
-
     template<char Letter> UnitySymbol divide(const Variable<Letter>& l, const Variable<Letter>&, detail::choice<0>) { return UnitySymbol(); }
 
     template<char Letter>
@@ -70,6 +69,9 @@ namespace magnet {
     PowerOp<Variable<Letter>, Order+1> multiply(const Variable<Letter>&, const PowerOp<Variable<Letter>, Order>&, detail::choice<0>)
     { return PowerOp<Variable<Letter>, Order+1>(Variable<Letter>()); }
 
+
+    template<class stdratio>
+    using ratio_wrap = ratio<stdratio::num, stdratio::den>;
 
     //Ratio operators (these are lower priority than above
     template<std::intmax_t Num1, std::intmax_t Denom1, std::intmax_t Num2, std::intmax_t Denom2>
@@ -96,14 +98,10 @@ namespace magnet {
     constexpr bool operator==(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&)
     { return std::ratio_equal<ratio<Num1, Denom1>, ratio<Num2, Denom2> >::value; }
 
-    template<std::intmax_t Num, std::intmax_t Denom>
-    inline std::ostream& operator<<(std::ostream& os, const std::ratio<Num, Denom>) {
-      os << Num;
-      if (Denom != 1)
-	os << "/" << Denom ;
-      return os;
-    }
-
+    constexpr NullSymbol sin(const NullSymbol&) { return NullSymbol(); }
+    constexpr UnitySymbol cos(const NullSymbol&) { return UnitySymbol(); }
+    constexpr NullSymbol abs(const NullSymbol&) { return NullSymbol(); }
+    constexpr UnitySymbol abs(const UnitySymbol&) { return UnitySymbol(); }
 
 //    /*! \brief Simplify multiplication and addition operations. */
 //    template<class LHS1, class RHS1, class RHS>
@@ -492,6 +490,17 @@ namespace magnet {
     auto simplify(const arbsignF<arbsignF<Arg> >& f)
       -> decltype(arbsign(try_simplify(f._arg._arg)))
     { return arbsign(try_simplify(f._arg._arg)); }
-    
+
+    //For even powers, remove the sign term
+    template<class Arg, size_t Power>
+    auto simplify(const PowerOp<arbsignF<Arg>,Power>& f)
+      -> typename std::enable_if<!(Power % 2), decltype(pow<Power>(f._arg._arg))>::type
+    { return pow<Power>(f._arg._arg); }
+
+    //For odd powers, move the sign term outside
+    template<class Arg, size_t Power>
+    auto simplify(const PowerOp<arbsignF<Arg>,Power>& f)
+      -> typename std::enable_if<Power % 2, decltype(arbsign(pow<Power>(f._arg._arg)))>::type
+    { return arbsign(pow<Power>(f._arg._arg)); }    
   }
 }
