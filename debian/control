@@ -23,7 +23,7 @@ Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 Package: dynamomd
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, python-numpy,
-  python-matplotlib
+  python-matplotlib, libjudydebian1
 Recommends: libavcodec-extra-53
 Provides: dynamo-core, dynamo-tools, dynamo-visualisation
 Replaces: dynamo-core, dynamo-tools, dynamo-visualisation
