@@ -349,4 +349,6 @@ BOOST_AUTO_TEST_CASE( symbolic_abs_arbsign )
   BOOST_CHECK(compare_expression(simplify(arbsign(x) / x), arbsign(UnitySymbol())));
   BOOST_CHECK(compare_expression(simplify(arbsign(x) / arbsign(x)), arbsign(UnitySymbol())));
   BOOST_CHECK(compare_expression(simplify(arbsign(arbsign(x))), arbsign(x)));
+  BOOST_CHECK(compare_expression(simplify(pow<5>(arbsign(x))), arbsign(pow<5>(x))));
+  BOOST_CHECK(compare_expression(simplify(pow<6>(arbsign(x))), pow<6>(x)));
 }
