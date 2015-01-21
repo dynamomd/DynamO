@@ -179,17 +179,17 @@ namespace magnet {
 		  
 		  Knot knot = *iPtr;
 		  
-		  select.get_color_selection()->set_current_color(ConvertKnotToGdk(knot));
-		  select.get_color_selection()->set_current_alpha(knot._a * G_MAXUSHORT);
-		  select.get_color_selection()->set_has_opacity_control(true);
+		  select.get_colorsel()->set_current_color(ConvertKnotToGdk(knot));
+		  select.get_colorsel()->set_current_alpha(knot._a * G_MAXUSHORT);
+		  select.get_colorsel()->set_has_opacity_control(true);
 		    
 		  switch(select.run())
 		    {
 		    case ::Gtk::RESPONSE_OK:
 		      {
 			_transferFunction
-			  .setKnot(iPtr, ConvertGdkToKnot(select.get_color_selection()->get_current_color(), 
-							  select.get_color_selection()->get_current_alpha(), 
+			  .setKnot(iPtr, ConvertGdkToKnot(select.get_colorsel()->get_current_color(), 
+							  select.get_colorsel()->get_current_alpha(), 
 							  knot._x));
 			_updatedCallback();
 			forceRedraw();

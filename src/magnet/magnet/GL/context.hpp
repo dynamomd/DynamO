@@ -575,6 +575,7 @@ namespace magnet {
       }
 #endif
 
+#ifdef MAGNET_DEBUG
       static void DebugCallback(unsigned int source, unsigned int type,
 				unsigned int id, unsigned int severity,
 				int length, const char* message, void* userParam)
@@ -640,6 +641,7 @@ namespace magnet {
 	  
 	std::cerr << "\"\n";
       }
+#endif
 
       /*! \brief Initializes the OpenGL context and state tracking.
        */

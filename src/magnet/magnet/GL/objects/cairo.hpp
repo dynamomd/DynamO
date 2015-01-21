@@ -18,7 +18,11 @@
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/detail/shader.hpp>
 #include <magnet/image/signed_distance.hpp>
-#include <cairommconfig.h>
+#ifdef OLD_CAIRO_CONFIG
+# include <cairomm/cairommconfig.h>
+#else
+# include <cairommconfig.h>
+#endif
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
 #include <ctime>

@@ -106,9 +106,9 @@ namespace coil {
       box->pack_start(*_comboPointSet, false, false, 5);
 
       //Check the combo box is correct
-      _comboPointSet->remove_all();
+      _comboPointSet->get_model().clear();
       for (const auto& pointset: _pointSets)
-	_comboPointSet->append(pointset.first);
+	_comboPointSet->insert_text(-1, pointset.first);
       _comboPointSet->set_active(0);
 
       Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyphs"));
@@ -119,9 +119,9 @@ namespace coil {
       _comboLinkSet.reset(new Gtk::ComboBoxText); _comboLinkSet->show();
       box->pack_start(*_comboLinkSet, false, false, 5);
       //Check the combo box is correct
-      _comboLinkSet->remove_all();
+      _comboLinkSet->get_model().clear();
       for (const auto& linkset: _linkSets)
-	_comboLinkSet->append(linkset.first);
+	_comboLinkSet->insert_text(-1, linkset.first);
       _comboLinkSet->set_active(0);
 
       btn = Gtk::manage(new Gtk::Button("Add Links"));
@@ -255,9 +255,9 @@ namespace coil {
   {
     _pointSets[name].init(data, 1);
     _pointSets[name].glyphType = datatype;
-    _comboPointSet->remove_all();
+    _comboPointSet->get_model().clear();
     for (const auto& pointset: _pointSets)
-      _comboPointSet->append(pointset.first);
+      _comboPointSet->insert_text(-1, pointset.first);
     _comboPointSet->set_active(0);
 
     std::shared_ptr<Glyphs> glyph(new Glyphs(name, *this));
