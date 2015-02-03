@@ -98,10 +98,31 @@ namespace magnet {
     constexpr bool operator==(const ratio<Num1, Denom1>&, const ratio<Num2, Denom2>&)
     { return std::ratio_equal<ratio<Num1, Denom1>, ratio<Num2, Denom2> >::value; }
 
-    constexpr NullSymbol sin(const NullSymbol&) { return NullSymbol(); }
-    constexpr UnitySymbol cos(const NullSymbol&) { return UnitySymbol(); }
-    constexpr NullSymbol abs(const NullSymbol&) { return NullSymbol(); }
-    constexpr UnitySymbol abs(const UnitySymbol&) { return UnitySymbol(); }
+    template<class ratio_arg, class factor, class offset = std::ratio<0> >
+    struct is_whole_factor {
+      static const bool value = (std::ratio_divide<std::ratio_subtract<ratio_arg, offset>, factor>::den == 1);
+    };
+
+    //Specialisations of sine cosine for whole multiples of pi/2
+    template<std::intmax_t num, std::intmax_t den,
+	     typename = typename std::enable_if<is_whole_factor<std::ratio<num, den>, pi>::value>::type>
+    constexpr NullSymbol sin(const ratio<num, den>&) { return NullSymbol(); }
+
+    template<std::intmax_t num, std::intmax_t den,
+	     typename = typename std::enable_if<is_whole_factor<std::ratio<num, den>, pi, decltype(pi()/ratio<2>())>::value>::type>
+    constexpr UnitySymbol sin(const ratio<num, den>&) { return UnitySymbol(); }
+
+    template<std::intmax_t num, std::intmax_t den,
+	     typename = typename std::enable_if<is_whole_factor<std::ratio<num, den>, pi, decltype(pi()/ratio<2>())>::value>::type>
+    constexpr NullSymbol cos(const ratio<num, den>&) { return NullSymbol(); }
+
+    template<std::intmax_t num, std::intmax_t den,
+	     typename = typename std::enable_if<is_whole_factor<std::ratio<num, den>, pi >::value>::type>
+    constexpr UnitySymbol cos(const ratio<num, den>&) { return UnitySymbol(); }
+
+    //Removal of sign via abs on compile-time constants!
+    template<std::intmax_t num, std::intmax_t den>
+    constexpr ratio<(num >= 0) ? num : -num, den> abs(const ratio<num, den>&) { return ratio<(num >= 0) ? num : -num, den>(); }
 
 //    /*! \brief Simplify multiplication and addition operations. */
 //    template<class LHS1, class RHS1, class RHS>

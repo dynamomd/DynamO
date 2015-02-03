@@ -40,7 +40,18 @@ BOOST_AUTO_TEST_CASE( symbolic_ratio )
   BOOST_CHECK_EQUAL(substitution(ratio<1,2>(), x == 2), (ratio<1,2>()));
   BOOST_CHECK_EQUAL((ratio<5>() - ratio<3>() - ratio<2>()) * x, NullSymbol());
 
-  std::cout << multiply(ratio<2>(), Polynomial<0>{1}, detail::select_overload{}) << std::endl;
+  BOOST_CHECK(compare_expression(pi()*pi()/pi(), "π"));
+  BOOST_CHECK(compare_expression(e(), "e"));
+
+  BOOST_CHECK(compare_expression(sin(NullSymbol()), NullSymbol()));
+  BOOST_CHECK(compare_expression(sin(pi()), NullSymbol()));
+  BOOST_CHECK(compare_expression(sin(ratio<12>()*pi()), NullSymbol()));
+  BOOST_CHECK(compare_expression(sin(ratio<5,2>()*pi()), UnitySymbol()));
+
+  BOOST_CHECK(compare_expression(cos(NullSymbol()), UnitySymbol()));
+  BOOST_CHECK(compare_expression(cos(pi()), UnitySymbol()));
+  BOOST_CHECK(compare_expression(cos(ratio<8>()*pi()), UnitySymbol()));
+  BOOST_CHECK(compare_expression(cos(ratio<5,2>()*pi()), NullSymbol()));
 }
 
 

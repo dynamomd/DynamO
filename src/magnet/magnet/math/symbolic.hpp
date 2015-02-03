@@ -22,12 +22,25 @@
 
 namespace magnet {
   namespace math {
-
-    //This has to be a type in the magnet::math namespace for operator
-    //lookups to succeed.
+    /////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////    Compile time constants         /////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    //These are implemented using std::ratio. We use a trick to create
+    //this as a new ratio type in the magnet::math namespace to ensure
+    //operator lookups succeed.
     template<std::intmax_t Num, std::intmax_t Denom = 1>
     struct ratio : std::ratio<Num, Denom> {};
 
+    //Compile time constants with special meaning
+    typedef ratio<0> NullSymbol;
+    typedef ratio<1> UnitySymbol;
+    //C++11 requires implementations support long long (64bits), so
+    //ratio's may have up to 2^32 in numerator or denominator. We
+    //choose rational approximations close to the limits of double.
+    typedef ratio<47627751, 15160384> pi; //approximation of pi with an error < 1.60e-14
+    typedef ratio<28245729, 10391023> e; //approximation of e with an error < 8.89e-16
+
+    /*! \brief Output operator for ratio types */
     template<std::intmax_t Num, std::intmax_t Denom>
     inline std::ostream& operator<<(std::ostream& os, const std::ratio<Num, Denom>) {
       os << Num;
@@ -35,6 +48,9 @@ namespace magnet {
 	os << "/" << Denom ;
       return os;
     }
+
+    inline std::ostream& operator<<(std::ostream& os, const pi) { os << "π"; return os; }
+    inline std::ostream& operator<<(std::ostream& os, const e) { os << "e"; return os; }
 
     namespace detail {
       /*!\brief Type trait to determine if a certain type is a
@@ -66,9 +82,6 @@ namespace magnet {
     template<std::intmax_t n1, std::intmax_t d1, 
     	     typename = typename std::enable_if<n1 % d1>::type>
     double toArithmetic(ratio<n1,d1> val) { return double(n1) / double(d1); }
-
-    typedef ratio<0> NullSymbol;
-    typedef ratio<1> UnitySymbol;
 
     /*!\brief Compile-time symbolic representation of a variable
       substitution.
