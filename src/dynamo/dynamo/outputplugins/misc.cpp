@@ -175,36 +175,13 @@ namespace dynamo {
   OPMisc::eventUpdate(const Event& eevent, const NEventData& NDat)
   {
     stream(eevent._dt);
-    eventUpdate(NDat);
     CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent._type)];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
-    for (const ParticleEventData& pData : NDat.L1partChanges)
-      counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
-  }
-  void
-  OPMisc::stream(double dt)
-  {
-    _reverseEvents += (dt < 0);
-    _KE.stream(dt);
-    _internalE.stream(dt);
-    _kineticP.stream(dt);
-    _sysMomentum.stream(dt);
-    _thermalConductivity.freeStream(dt);
-    _viscosity.freeStream(dt);
-    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
-      {
-	_thermalDiffusion[spid1].freeStream(dt);
-	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
-	  _mutualDiffusion[spid1 * Sim->species.size() + spid2].freeStream(dt);
-      }
-  }
 
-  void OPMisc::eventUpdate(const NEventData& NDat)
-  {
     Vector thermalDel({0,0,0});
-
     for (const ParticleEventData& PDat : NDat.L1partChanges)
       {
+
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	const Species& species = *Sim->species(part);
 	const double mass = species.getMass(part.getID());
@@ -216,6 +193,10 @@ namespace dynamo {
 	const double p1E = Sim->dynamics->getParticleKineticEnergy(part) + _internalEnergy[PDat.getParticleID()];
 	const double p1deltaE = deltaKE + PDat.getDeltaU();
 	Vector delP1 = mass * (part.getVelocity() - PDat.getOldVel());
+
+	counterdata.netimpulse += mass * (part.getVelocity() -  PDat.getOldVel());
+	counterdata.netKEchange += deltaKE;
+	counterdata.netUchange += PDat.getDeltaU();
 
         _singleEvents += (PDat.getType() != VIRTUAL);
 	_virtualEvents += (PDat.getType() == VIRTUAL);
@@ -242,8 +223,13 @@ namespace dynamo {
 	const double p1deltaE = deltaKE1 + PDat.particle1_.getDeltaU();
 	const double p2deltaE = deltaKE2 + PDat.particle2_.getDeltaU();
 
-	_KE += deltaKE1 + deltaKE2;
-	_internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+	const double deltaKE = deltaKE1 + deltaKE2;
+	_KE += deltaKE;
+	counterdata.netKEchange += deltaKE;
+	const double deltaU = PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+	_internalE += deltaU;
+	counterdata.netUchange += deltaU;
+
 	_internalEnergy[PDat.particle1_.getParticleID()] += PDat.particle1_.getDeltaU();
 	_internalEnergy[PDat.particle2_.getParticleID()] += PDat.particle2_.getDeltaU();
 	_dualEvents += (PDat.getType() != VIRTUAL);
@@ -288,6 +274,24 @@ namespace dynamo {
 	  _mutualDiffusion[spid1 * Sim->species.size() + spid2].setFreeStreamValue
 	    (_speciesMomenta[spid1] - (_speciesMasses[spid1] / _systemMass) * _sysMomentum.current(),
 	     _speciesMomenta[spid2] - (_speciesMasses[spid2] / _systemMass) * _sysMomentum.current());
+      }
+  }
+
+  void
+  OPMisc::stream(double dt)
+  {
+    _reverseEvents += (dt < 0);
+    _KE.stream(dt);
+    _internalE.stream(dt);
+    _kineticP.stream(dt);
+    _sysMomentum.stream(dt);
+    _thermalConductivity.freeStream(dt);
+    _viscosity.freeStream(dt);
+    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
+      {
+	_thermalDiffusion[spid1].freeStream(dt);
+	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
+	  _mutualDiffusion[spid1 * Sim->species.size() + spid2].freeStream(dt);
       }
   }
 
@@ -436,9 +440,15 @@ namespace dynamo {
 	  << attr("Count") << mp1.second.count
 	  << tag("NetImpulse") 
 	  << mp1.second.netimpulse / Sim->units.unitMomentum()
-	  << endtag("NetImpulse") 
+	  << endtag("NetImpulse")
+	  << tag("NetKEChange")
+	  << attr("Value") << mp1.second.netKEchange / Sim->units.unitEnergy()
+	  << endtag("NetKEChange")
+	  << tag("NetUChange")
+	  << attr("Value") << mp1.second.netUchange / Sim->units.unitEnergy()
+	  << endtag("NetUChange")
 	  << endtag("Entry");
-  
+    
     XML << endtag("EventCounters")
 
 	<< tag("PrimaryImageSimulationSize")

@@ -70,14 +70,15 @@ namespace dynamo {
     typedef std::pair<classKey, EEventType> CounterKey;
     struct CounterData
     {
-      CounterData(): count(0), netimpulse({0,0,0}) {}
+      CounterData(): count(0), netimpulse({0,0,0}), netKEchange(0), netUchange(0) {}
       size_t count;
       Vector netimpulse;
+      double netKEchange;
+      double netUchange;
     };
     std::map<CounterKey, CounterData> _counters;
 
     void stream(double dt);
-    void eventUpdate(const NEventData&);
 
     std::chrono::system_clock::time_point _starttime;
 
