@@ -158,7 +158,7 @@ namespace magnet {
 
     inline TrackWiimote():
       m_wiimote(NULL),
-      eye_pos(0, 0, 50),
+      eye_pos{0, 0, 50},
       v_angle(0),
       _batteryLevel(0)
     {
