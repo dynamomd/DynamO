@@ -140,13 +140,15 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
   normal_out = vec4(0.0);
+) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
   position_out = vec4(frag_pos, 1.0);
   vec4 screen_pos = ProjectionMatrix * vec4(frag_pos, 1.0);
+  gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
 ) "\n#else\n" STRINGIFY(
   vec3 rij = -frag_center;
   vec3 vij = frag_pos;
+  gl_FragDepth = gl_FragCoord.z;
   
   float A = dot(vij, vij);
   float B = dot(rij, vij);
@@ -156,16 +158,13 @@ void main()
   float t = - C / (B - sqrt(argument));
   vec3 hit = t * vij;
   position_out = vec4(hit, 1.0);
-  vec3 relative_hit = hit - frag_center;
   
-  if (unshaded)
-    normal_out = vec4(0.0);
-  else
-    normal_out = vec4(normalize(relative_hit),1.0);
+  if (!unshaded)
+    normal_out = vec4(normalize(hit - frag_center),1.0);
 
   vec4 screen_pos = ProjectionMatrix * vec4(hit, 1.0);
-) "\n#endif\n" STRINGIFY(
   gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
+) "\n#endif\n" STRINGIFY(
   color_out = vert_color;
 });
 	}
