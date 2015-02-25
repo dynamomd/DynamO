@@ -234,10 +234,19 @@ namespace dynamo {
 		{
 		  //Close backbone-backbone hard-sphere interaction
 		  const double inner_diameter = 0.0;
-		  const double outer_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type] * TPRIME::_PRIME_near_diameter_scale_factor;
+		  const double outer_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type] * TPRIME::_PRIME_3_bonds_scale_factor;
 		  const double bond_energy = std::numeric_limits<double>::infinity();
 		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
 		}
+	    }
+            break;
+          case 4:
+	    {
+	      //Close backbone-backbone hard-sphere interaction
+	      const double inner_diameter = 0.0;
+	      const double outer_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type] * TPRIME::_PRIME_4_bonds_scale_factor;
+	      const double bond_energy = std::numeric_limits<double>::infinity();
+	      return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
 	    }
             break;
           default:
@@ -354,13 +363,13 @@ namespace dynamo {
             //Check for cases where it could be a "close" interaction
             if ((p2Data.residue - 1 ==  p1Data.residue) && (p1Data.bead_type == TPRIME::CO))
               { //p1 is on the residue before p2
-		inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-		outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+		inner_diameter *= TPRIME::_PRIME_3_bonds_scale_factor;
+		outer_diameter *= TPRIME::_PRIME_3_bonds_scale_factor;
 	      }
             else if ((p2Data.residue + 1 == p1Data.residue) && (p1Data.bead_type == TPRIME::NH))
               { //p2 is on the residue after p1
-		inner_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
-		outer_diameter *= TPRIME::_PRIME_near_diameter_scale_factor;
+		inner_diameter *= TPRIME::_PRIME_3_bonds_scale_factor;
+		outer_diameter *= TPRIME::_PRIME_3_bonds_scale_factor;
               }
 
 	    return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
@@ -575,18 +584,44 @@ namespace dynamo {
 
   void 
   IPRIME::formHBond(const size_t NH_res, const size_t CO_res) {
-    dout << "FORMING A BOND!" << std::endl;
+    dout << "(" << std::setw(9) << Sim->systemTime/Sim->units.unitTime() << ") FORMING A BOND! NH, CO residues: " << NH_res << ", " << CO_res << std::endl;
     auto retval = _HBonds.insert(HbondMapType::value_type(NH_res, CO_res));
     if (retval.second == false)
       M_throw() << "Failed to form a HBond";
+
+    size_t alpha_Hbonds=0;
+    size_t antialpha_Hbonds=0;
+    for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
+    {
+      if ( iter->first + 4 == iter->second ){
+          antialpha_Hbonds++;
+      }
+      if ( iter->first - 4 == iter->second ){
+          alpha_Hbonds++;
+      }
+    }
+    dout << "HBs: " << _HBonds.size() << ", alpha HBs: " << alpha_Hbonds <<  ", antialpha HBs: " << antialpha_Hbonds << std::endl;
   }
 
   void 
   IPRIME::breakHBond(const size_t NH_res, const size_t CO_res) {
-    dout << "BREAKING A BOND!" << std::endl;
+    dout << "(" << std::setw(9) << Sim->systemTime/Sim->units.unitTime() << ") BREAKING A BOND! NH, CO residues: " << NH_res << ", " << CO_res << std::endl;
     size_t deleted_count = _HBonds.erase(HbondMapType::value_type(NH_res, CO_res));
     if (deleted_count == 0)
       M_throw() << "Failed to break a HBond";
+
+    size_t alpha_Hbonds=0;
+    size_t antialpha_Hbonds=0;
+    for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
+    {
+      if ( iter->first + 4 == iter->second ){
+          antialpha_Hbonds++;
+      }
+      if ( iter->first - 4 == iter->second ){
+          alpha_Hbonds++;
+      }
+    }
+    dout << "HBs: " << _HBonds.size() << ", alpha HBs: " << alpha_Hbonds <<  ", antialpha HBs: " << antialpha_Hbonds << std::endl;
   }
 
   bool 
