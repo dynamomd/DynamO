@@ -529,12 +529,12 @@ namespace dynamo {
 		Simulations[i].endEventCount = vm["events"].as<size_t>();
 	      }
 
-	    double duration = std::chrono::duration<double>(std::chrono::system_clock::now() - _startTime).count();
+	    double duration = std::chrono::duration<double>(std::chrono::system_clock::now() - _start_time).count();
 	    
 	    double fractionComplete = (Simulations[0].systemTime / Simulations[0].units.unitTime()) / replicaEndTime;
-	    double seconds_remaining_double = duration * (1/ fractionComplete - 1);
+	    double seconds_remaining_double = duration * (1 / fractionComplete - 1);
 	    size_t seconds_remaining = seconds_remaining_double;
-	    
+
 	    if (seconds_remaining_double < std::numeric_limits<size_t>::max())
 	      {
 		size_t ETA_hours = seconds_remaining / 3600;
