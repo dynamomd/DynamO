@@ -53,7 +53,9 @@ namespace dynamo {
     inline bool operator>(const OutputPlugin& OP) const
     { return updateOrder > OP.updateOrder; }
   
-    virtual void replicaExchange(OutputPlugin&) = 0;
+    virtual void replicaExchange(OutputPlugin&) {
+      M_throw() << "This output plugin ("<< typeid(*this).name() <<") is not is not configured for replica exchange";
+    }
   
     virtual void temperatureRescale(const double&) {}
   

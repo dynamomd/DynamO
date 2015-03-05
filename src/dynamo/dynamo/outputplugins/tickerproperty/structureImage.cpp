@@ -71,11 +71,11 @@ namespace dynamo {
     ticker();
   }
 
-  void 
-  OPStructureImaging::replicaExchange(OutputPlugin& nplug) 
-  {
-    std::swap(Sim, static_cast<OPStructureImaging&>(nplug).Sim);
-  }
+//  void 
+//  OPStructureImaging::replicaExchange(OutputPlugin& nplug) 
+//  {
+//    std::swap(Sim, static_cast<OPStructureImaging&>(nplug).Sim);
+//  }
 
   void 
   OPStructureImaging::ticker()

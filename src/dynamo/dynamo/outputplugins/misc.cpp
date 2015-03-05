@@ -36,11 +36,38 @@ namespace dynamo {
   void
   OPMisc::replicaExchange(OutputPlugin& misc2)
   {
+    //We must swap anything that is associated with the sampling
+    //(averages, sums) but keep anything that is related to the
+    //configuration at this instant of time.
+
     OPMisc& op = static_cast<OPMisc&>(misc2);
-    _KE.swapCurrentValues(op._KE);
-    _internalE.swapCurrentValues(op._internalE);
-    _kineticP.swapCurrentValues(op._kineticP);
-    std::swap(Sim, op.Sim);
+    
+    std::swap(_counters, op._counters);
+    std::swap(_starttime, op._starttime);
+    std::swap(_dualEvents, op._dualEvents);
+    std::swap(_singleEvents, op._singleEvents);
+    std::swap(_virtualEvents, op._virtualEvents);
+    std::swap(_reverseEvents, op._reverseEvents);
+    
+    _KE.swapAverages(op._KE);
+    _internalE.swapAverages(op._internalE);
+    _sysMomentum.swapAverages(op._sysMomentum);
+    _kineticP.swapAverages(op._kineticP);
+
+    std::swap(collisionalP, op.collisionalP);
+
+    _thermalConductivity.clear();
+    _viscosity.clear();
+    for (auto& correlator : _thermalDiffusion)
+      correlator.clear();
+    for (auto& correlator : _mutualDiffusion)
+      correlator.clear();
+
+    //These remain unchanged
+    //_internalEnergy;
+    //_speciesMasses;
+    //_speciesMomenta;
+    //_systemMass;
   }
 
   void
@@ -326,8 +353,9 @@ namespace dynamo {
   {
     using namespace magnet::xml;
 
-    dout << "\nTotal Collisions Executed " << Sim->eventCount
-	 << "\nAvg Events/s " << getEventsPerSecond()
+    dout << "\nTotal events executed " << Sim->eventCount
+	 << "\nSimulation end time  " << Sim->systemTime / Sim->units.unitTime()
+	 << "\nAvg. events/s " << getEventsPerSecond()
 	 << "\nSim time per second " << getSimTimePerSecond()
 	 << std::endl;
 

@@ -67,7 +67,10 @@ namespace dynamo {
     Matrix getPressureTensor() const;
 
   protected:
+    void stream(double dt);
+
     typedef std::pair<classKey, EEventType> CounterKey;
+
     struct CounterData
     {
       CounterData(): count(0), netimpulse({0,0,0}), netKEchange(0), netUchange(0) {}
@@ -76,29 +79,22 @@ namespace dynamo {
       double netKEchange;
       double netUchange;
     };
+
     std::map<CounterKey, CounterData> _counters;
-
-    void stream(double dt);
-
     std::chrono::system_clock::time_point _starttime;
-
     unsigned long _dualEvents;
     unsigned long _singleEvents;
     unsigned long _virtualEvents;
     size_t _reverseEvents;
-
     magnet::math::TimeAveragedProperty<double> _KE;
     magnet::math::TimeAveragedProperty<double> _internalE;
     magnet::math::TimeAveragedProperty<Vector> _sysMomentum;
     magnet::math::TimeAveragedProperty<Matrix> _kineticP;
-
     magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
     magnet::math::LogarithmicTimeCorrelator<Matrix> _viscosity;
     std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _thermalDiffusion;
     std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _mutualDiffusion;
-
     std::vector<double> _internalEnergy;
-
     std::vector<double> _speciesMasses;
     std::vector<Vector> _speciesMomenta;
     double _systemMass;

@@ -72,11 +72,10 @@ namespace dynamo {
 	    nematicOrder.push_back(magnet::math::Histogram<>(binWidthNematic));
 	  }
       }
-
     };
 
     std::list<CTCdata> chains;
 
-    double _binWidthGyration, _binWidthNematic;  
+    double _binWidthGyration, _binWidthNematic;
   };
 }

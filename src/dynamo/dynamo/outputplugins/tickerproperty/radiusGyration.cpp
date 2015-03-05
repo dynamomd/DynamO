@@ -60,8 +60,6 @@ namespace dynamo {
   void 
   OPRGyration::replicaExchange(OutputPlugin& plug)
   {
-    std::swap(Sim, static_cast<OPRGyration&>(plug).Sim);
-
     std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<OPRGyration&>(plug).chains.begin();
 
 #ifdef DYNAMO_DEBUG
@@ -75,11 +73,14 @@ namespace dynamo {
 	if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
 	  M_throw() << "Name mismatch while replexing!";
 #endif
-	std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
-
+	std::swap(iPtr1->gyrationRadii, iPtr2->gyrationRadii);
+	std::swap(iPtr1->nematicOrder, iPtr2->nematicOrder);
 	++iPtr1;
 	++iPtr2;
       }
+
+    std::swap(_binWidthGyration, _binWidthGyration);
+    std::swap(_binWidthNematic, _binWidthNematic);
   }
 
   OPRGyration::molGyrationDat

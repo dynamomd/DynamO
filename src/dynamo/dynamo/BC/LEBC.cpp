@@ -27,7 +27,6 @@ namespace dynamo {
     _dxd(0) ,
     _shearRate(1)
   {
-    Sim = tmp;
     dout << " Lee's Edwards BC loaded" << std::endl; 
   }
 
@@ -36,7 +35,6 @@ namespace dynamo {
     BCPeriodic(tmp, "LEBC"),
     _dxd(0) 
   {
-    Sim = tmp;
     operator<<(XML);
     dout << "Lee's Edwards BC loaded\n"
 	 << "DXD = " << _dxd

@@ -118,8 +118,6 @@ namespace dynamo {
       return testGeneratePlugin<OPMSD>(Sim, XML);
     else if (!Name.compare("PeriodicMSD"))
       return testGeneratePlugin<OPPeriodicMSD>(Sim, XML);
-    else if (!Name.compare("ReplexTrace"))
-      return testGeneratePlugin<OPReplexTrace>(Sim, XML);
     else if (!Name.compare("IntEnergyHist"))
       return testGeneratePlugin<OPIntEnergyHist>(Sim, XML);
     else if (!Name.compare("RadiusGyration"))

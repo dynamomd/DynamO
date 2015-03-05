@@ -532,10 +532,12 @@ namespace dynamo
     
     dynamics->replicaExchange(*other.dynamics);
     
-    //Rescale the velocities 
+    //Rescale the velocities
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2] / ensemble->getEnsembleVals()[2]));
     for (Particle& part : particles)
       part.getVelocity() *= scale1;
+    //This assumes that scaling the velocities just changes the time
+    //unit of the simulation. This is not true for systems with external forces!
     other.ptrScheduler->rescaleTimes(scale1);
     
     double scale2(1.0 / scale1);
@@ -566,14 +568,43 @@ namespace dynamo
     //This is swapped last as things need it for calcs
     ensemble->swap(*other.ensemble);
 
-#ifdef DYNAMO_DEBUG
-    //Here we check that all plugins etc have the correct simulation pointer.
-    for (auto Sim : {this, &other}) {
-      for (const auto& plugin: Sim->outputPlugins)
-	if (plugin->getSimPointer() != Sim)
-	  M_throw() << "Programming error: Mismatch of Sim pointer after replica exchange. Please file a bug report.";
-    }
-#endif
+//#ifdef DYNAMO_DEBUG
+//    //Here we check that all plugins etc have the correct simulation pointer.
+//    for (auto Sim : {this, &other}) {
+//      for (const auto& plugin: Sim->outputPlugins)
+//	if (plugin->getSimPointer() != Sim)
+//	  M_throw() << "Programming error: Mismatch of Sim pointer in output plugins after replica exchange. Please file a bug report.";
+//
+//      for (const auto& plugin: Sim->interactions)
+//	if (plugin->getSimPointer() != Sim)
+//	  M_throw() << "Programming error: Mismatch of Sim pointer in Interactions after replica exchange. Please file a bug report.";
+//
+//      for (const auto& plugin: Sim->locals)
+//	if (plugin->getSimPointer() != Sim)
+//	  M_throw() << "Programming error: Mismatch of Sim pointer in Local after replica exchange. Please file a bug report.";
+//
+//      for (const auto& plugin: Sim->globals)
+//	if (plugin->getSimPointer() != Sim)
+//	  M_throw() << "Programming error: Mismatch of Sim pointer in Global after replica exchange. Please file a bug report.";
+//
+//      for (const auto& plugin: Sim->systems)
+//	if (plugin->getSimPointer() != Sim)
+//	  M_throw() << "Programming error: Mismatch of Sim pointer in System after replica exchange. Please file a bug report.";
+//
+//      for (const auto& plugin: Sim->topology)
+//	if (plugin->getSimPointer() != Sim)
+//	  M_throw() << "Programming error: Mismatch of Sim pointer in Topology after replica exchange. Please file a bug report.";
+//      
+//      if (Sim->ptrScheduler->getSimPointer() != Sim)
+//	M_throw() << "Programming error: Mismatch of Sim pointer in Scheduler after replica exchange. Please file a bug report.";
+//
+//      if (Sim->dynamics->getSimPointer() != Sim)
+//	M_throw() << "Programming error: Mismatch of Sim pointer in Dynamics after replica exchange. Please file a bug report.";
+//
+//      if (Sim->BCs->getSimPointer() != Sim)
+//	M_throw() << "Programming error: Mismatch of Sim pointer in BCs after replica exchange. Please file a bug report.";
+//    }
+//#endif
   }
 
   double

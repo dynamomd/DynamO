@@ -52,7 +52,7 @@ namespace dynamo {
       unsigned long chainlength;
     };
 
-    std::list<Cdata> chains;
+    std::vector<Cdata> chains;
 
   };
 }

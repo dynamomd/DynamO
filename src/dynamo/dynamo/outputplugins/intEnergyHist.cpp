@@ -57,7 +57,8 @@ namespace dynamo {
   void 
   OPIntEnergyHist::replicaExchange(OutputPlugin& EHist2)
   {
-    std::swap(Sim, static_cast<OPIntEnergyHist&>(EHist2).Sim);
+    std::swap(intEnergyHist, static_cast<OPIntEnergyHist&>(EHist2).intEnergyHist);
+    std::swap(binwidth, static_cast<OPIntEnergyHist&>(EHist2).binwidth);
   }
 
   std::unordered_map<int, double>

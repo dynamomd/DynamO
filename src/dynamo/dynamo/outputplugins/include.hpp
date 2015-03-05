@@ -25,4 +25,3 @@
 #include <dynamo/outputplugins/eventEffects.hpp>
 #include <dynamo/outputplugins/intEnergyHist.hpp>
 #include <dynamo/outputplugins/msd.hpp>
-#include <dynamo/outputplugins/replexTrace.hpp>

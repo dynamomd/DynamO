@@ -43,33 +43,33 @@ namespace dynamo {
 		<< "\nPositions must be unwrapped";
   }
 
-  void 
-  OPCTorsion::replicaExchange(OutputPlugin& plug)
-  {
-    std::swap(Sim, static_cast<OPCTorsion&>(plug).Sim);
-  
-#ifdef DYNAMO_DEBUG
-    if (chains.size() != static_cast<OPCTorsion&>(plug).chains.size())
-      M_throw() << "CTorsion chain data size mismatch in replex exchange";
-#endif
-
-    std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
-      iPtr2 = static_cast<OPCTorsion&>(plug).chains.begin();
-
-    while(iPtr1 != chains.end())
-      {
-
-#ifdef DYNAMO_DEBUG
-	if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
-	  M_throw() << "Chain name mismatch when swapping chain plugins";
-#endif
-
-	std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
-
-	++iPtr1;
-	++iPtr2;     
-      }
-  }
+//  void 
+//  OPCTorsion::replicaExchange(OutputPlugin& plug)
+//  {
+//    std::swap(Sim, static_cast<OPCTorsion&>(plug).Sim);
+//  
+//#ifdef DYNAMO_DEBUG
+//    if (chains.size() != static_cast<OPCTorsion&>(plug).chains.size())
+//      M_throw() << "CTorsion chain data size mismatch in replex exchange";
+//#endif
+//
+//    std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
+//      iPtr2 = static_cast<OPCTorsion&>(plug).chains.begin();
+//
+//    while(iPtr1 != chains.end())
+//      {
+//
+//#ifdef DYNAMO_DEBUG
+//	if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
+//	  M_throw() << "Chain name mismatch when swapping chain plugins";
+//#endif
+//
+//	std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
+//
+//	++iPtr1;
+//	++iPtr2;     
+//      }
+//  }
 
   void 
   OPCTorsion::ticker()

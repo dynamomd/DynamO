@@ -40,9 +40,6 @@ namespace dynamo {
     virtual void eventUpdate(const Event&, const NEventData&);
 
     void output(magnet::xml::XmlStream &);
-
-    //This is fine to replica exchange as the interaction, global and system lookups are done using names
-    virtual void replicaExchange(OutputPlugin& plug) { std::swap(Sim, static_cast<OPCollMatrix&>(plug).Sim); }
   
   protected:
     void newEvent(const size_t&, const EEventType&, const classKey&);

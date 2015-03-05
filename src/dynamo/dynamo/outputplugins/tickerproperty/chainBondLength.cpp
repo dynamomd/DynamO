@@ -45,12 +45,6 @@ namespace dynamo {
   }
 
   void 
-  OPChainBondLength::replicaExchange(OutputPlugin& OPPlug)
-  {
-    std::swap(Sim, static_cast<OPChainBondLength&>(OPPlug).Sim);
-  }
-
-  void 
   OPChainBondLength::ticker()
   {
     for (Cdata& dat : chains)

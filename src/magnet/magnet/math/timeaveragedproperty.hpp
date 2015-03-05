@@ -46,8 +46,14 @@ namespace magnet {
 	_max(T())
       {}
 
-      void swapCurrentValues(TimeAveragedProperty& op)
-      { std::swap(_current_value, op._current_value); }
+      void swapAverages(TimeAveragedProperty& op)
+      { 
+	std::swap(_zero_moment, op._zero_moment);
+	std::swap(_first_moment, op._first_moment);
+	std::swap(_second_moment, op._second_moment);
+	std::swap(_min, op._min);
+	std::swap(_max, op._max);
+      }
 
       void init(const T& value)
       { _current_value = _min = _max = value; }

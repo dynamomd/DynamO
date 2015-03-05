@@ -34,8 +34,6 @@ namespace dynamo {
 
     virtual void ticker();
 
-    virtual void replicaExchange(OutputPlugin&);
-
     virtual void output(magnet::xml::XmlStream&);
   
   protected:

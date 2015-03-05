@@ -43,27 +43,23 @@ namespace dynamo {
   {
     for (const shared_ptr<Topology>& plugPtr : Sim->topology)
       if (std::dynamic_pointer_cast<TChain>(plugPtr))
-	chains.push_back(Cdata(static_cast<const TChain*>(plugPtr.get()), 
-			       plugPtr->getMolecules().front()->size()));
+	chains.push_back(Cdata(static_cast<const TChain*>(plugPtr.get()), plugPtr->getMolecules().front()->size()));
   }
 
   void 
   OPCContactMap::replicaExchange(OutputPlugin& OPPlug)
   {
-    std::swap(Sim, static_cast<OPCContactMap&>(OPPlug).Sim);
+    auto& op = static_cast<OPCContactMap&>(OPPlug);
+    
+#ifdef DYNAMO_DEBUG    
+    if (chains.size() != op.chains.size())
+      M_throw() << "Chain mismatch in replica exchange";
+#endif
 
-    for (Cdata& dat : chains)
+    for (size_t i(0); i < chains.size(); ++i)
       {
-	try {
-	  dat.chainPtr = &dynamic_cast<const TChain&>(*Sim->topology[dat.chainPtr->getName()]);
-	} catch (...)
-	  {
-	    M_throw() << "On changing the system OPCContactMap could not find the topology \"" 
-		      << dat.chainPtr->getName() << "\"\n in the new system";
-	  }
-      
-	if (dat.chainPtr == NULL)
-	  M_throw() << "On changing the system OPCContactMap found the topology but failed to upcast!";
+	std::swap(chains[i].array, op.chains[i].array);
+	std::swap(chains[i].counter, op.chains[i].counter);
       }
   }
 

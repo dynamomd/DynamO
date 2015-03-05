@@ -126,17 +126,18 @@ namespace dynamo
       Sim(SD)
     {};
     
-    Simulation* getSimPointer() { return Sim; }
+    Simulation* const getSimPointer() { return Sim; }
 
   protected:
     /*! \brief This constructor is only available for virtual
       inheritance. The concrete derived class must call the other
       constructor.
     */
-    SimBase() { M_throw() << "Calling the default constructor!"; }
+    SimBase();
 
-    /*! \brief A writable pointer to a simulations data.*/
-    Simulation* Sim;
+    /*! \brief A pointer to a Simulation, which allows the simulation
+        to be altered.*/
+    Simulation* const Sim;
   };
   
   /*! \brief Similar to the SimBase class except it contains a const
@@ -158,17 +159,19 @@ namespace dynamo
       Sim(SD)
     {};
 
-    const Simulation* getSimPointer() { return Sim; }
+    /*! \brief A pointer to a Simulation, which does not allow the
+      simulation to be altered.*/
+    const Simulation * const  getSimPointer() { return Sim; }
 
   protected:
     /*! \brief This constructor is only available for virtual
      inheritance. The concrete derived class must call the other
      constructor.
     */
-    SimBase_const() { M_throw() << "Calling the default constructor!"; }
+    SimBase_const();
 
     /*! \brief A const pointer to a Simulation class.*/
-    const Simulation* Sim;
+    const Simulation * const Sim;
   };
 
 }

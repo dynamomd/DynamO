@@ -22,9 +22,7 @@
 namespace dynamo {
   BCPeriodic::BCPeriodic(const dynamo::Simulation* tmp):
     BoundaryCondition(tmp, "RPBC")
-  {
-    Sim = tmp;
-  }
+  {}
 
   void 
   BCPeriodic::applyBC(Vector & pos) const
@@ -53,7 +51,7 @@ namespace dynamo {
 
   BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::Simulation* tmp):
     BCPeriodic(tmp, "NoXPBC")
-  { Sim = tmp; }
+  {}
 
   void 
   BCPeriodicExceptX::outputXML(magnet::xml::XmlStream &XML) const
@@ -82,7 +80,7 @@ namespace dynamo {
 
   BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::Simulation* tmp):
     BCPeriodic(tmp, "NoXPBC")
-  { Sim = tmp; }
+  {}
 
   void 
   BCPeriodicXOnly::outputXML(magnet::xml::XmlStream &XML) const

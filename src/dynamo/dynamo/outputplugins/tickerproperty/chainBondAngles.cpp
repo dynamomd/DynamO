@@ -59,12 +59,6 @@ namespace dynamo {
 			       binwidth));
   }
 
-  void
-  OPChainBondAngles::replicaExchange(OutputPlugin& OPPlug)
-  {
-    std::swap(Sim, static_cast<OPChainBondAngles&>(OPPlug).Sim);
-  }
-
   void 
   OPChainBondAngles::ticker()
   {

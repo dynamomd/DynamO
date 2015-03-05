@@ -32,7 +32,7 @@ namespace dynamo {
 
     virtual void ticker();
 
-    virtual void replicaExchange(OutputPlugin&);
+    //virtual void replicaExchange(OutputPlugin&);
 
     virtual void operator<<(const magnet::xml::Node&);
 

@@ -39,8 +39,11 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &);
 
-    //This is fine to replica exchange as the interaction, global and system lookups are done using id's
-    virtual void replicaExchange(OutputPlugin& plug) { std::swap(Sim, static_cast<OPEventEffects&>(plug).Sim); }
+    //This is fine to replica exchange as the interaction, global and
+    //system lookups are done using id's
+    virtual void replicaExchange(OutputPlugin& plug) { 
+      std::swap(counters, static_cast<OPEventEffects&>(plug).counters); 
+    }
   
   protected:
     typedef std::pair<classKey, EEventType> eventKey;
