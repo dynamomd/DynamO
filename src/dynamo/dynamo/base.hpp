@@ -121,12 +121,13 @@ namespace dynamo
       \param SD Pointer to the Simulation class.
       \param aName The name of the class deriving from this class.
      */
-    SimBase(Simulation* const SD,
-	    const std::string aName):
+    SimBase(Simulation* const SD, const std::string aName):
       Base(aName),
       Sim(SD)
     {};
     
+    Simulation* getSimPointer() { return Sim; }
+
   protected:
     /*! \brief This constructor is only available for virtual
       inheritance. The concrete derived class must call the other
@@ -156,6 +157,8 @@ namespace dynamo
       Base(aName),
       Sim(SD)
     {};
+
+    const Simulation* getSimPointer() { return Sim; }
 
   protected:
     /*! \brief This constructor is only available for virtual

@@ -565,6 +565,15 @@ namespace dynamo
     
     //This is swapped last as things need it for calcs
     ensemble->swap(*other.ensemble);
+
+#ifdef DYNAMO_DEBUG
+    //Here we check that all plugins etc have the correct simulation pointer.
+    for (auto Sim : {this, &other}) {
+      for (const auto& plugin: Sim->outputPlugins)
+	if (plugin->getSimPointer() != Sim)
+	  M_throw() << "Programming error: Mismatch of Sim pointer after replica exchange. Please file a bug report.";
+    }
+#endif
   }
 
   double
