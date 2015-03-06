@@ -156,29 +156,13 @@ namespace dynamo {
 	/*Y-X*/ 4.15 ,4.35 ,4.5  ,2.7  ,2.9  ,2.8  ,3.3  ,3.2  ,3.1  ,3.0  ,3.5  ,3.2  ,3.2  ,3.3  ,3.3  ,3.4  ,3.1  ,2.9  ,3.2  ,3.0  ,3.2  ,3.0
       };
 
-    //[Pseudo]Bond distances from backbone sites to the respective SC site.
-    //
-    //Each set starts with 3 dummy values so that the enum-based lookup can be used.
-    //Set to match A in PRIME2001.
+    //[Pseudo]Bond distances from backbone sites to SC sites.
+    //While the original PRIME authors use differing values for each SC site, the
+    //values are not publicly available and we find this to be a suitable simplification
     static constexpr double _PRIME_SC_BB_bond_lengths[] =
       {
-	//NH-SC
-	//NONE  NONE  NONE  A     C     D     E     F     H     I     K
-    0.00, 0.00, 0.00, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44,
-	//L     M     N     P     Q     R     S     T     V     W     Y
-	2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44, 2.44,
-
-	//CH-SC
-	//NONE  NONE  NONE  A     C     D     E     F     H     I     K
-    0.00, 0.00, 0.00, 1.531,1.531,1.531,1.531,1.531,1.531,1.531,1.531,
-	//L     M     N     P     Q     R     S     T     V     W     Y
-	1.531,1.531,1.531,1.531,1.531,1.531,1.531,1.531,1.531,1.531,1.531,
-
-	//CO-SC
-	//NONE  NONE  NONE  A     C     D     E     F     H     I     K
-	0.00, 0.00, 0.00, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49,
-	//L     M     N     P     Q     R     S     T     V     W     Y
-	2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49, 2.49
+	//NH    CH     CO
+	  2.44, 1.531, 2.49
       };
 
     //This is the fluctuation of the bond distance allowed.

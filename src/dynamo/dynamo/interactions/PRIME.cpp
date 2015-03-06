@@ -341,9 +341,9 @@ namespace dynamo {
       {
         if (p1Data.residue == p2Data.residue) //They are [pseudo]bonded on the same residue
           {
-	    const double inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ] * (1.0 - TPRIME::_PRIME_bond_tolerance);
-	    const double outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ 22 * p1Data.bead_type + p2Data.bead_type ] * (1.0 + TPRIME::_PRIME_bond_tolerance);
-            const double bond_energy = -std::numeric_limits<double>::infinity();
+	    const double inner_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ p1Data.bead_type ] * (1.0 - TPRIME::_PRIME_bond_tolerance);
+	    const double outer_diameter = TPRIME::_PRIME_SC_BB_bond_lengths[ p1Data.bead_type ] * (1.0 + TPRIME::_PRIME_bond_tolerance);
+	    const double bond_energy = -std::numeric_limits<double>::infinity();
 	    return std::make_tuple(outer_diameter, inner_diameter, bond_energy, no_HB_res, no_HB_res);
           }
         else
@@ -584,44 +584,44 @@ namespace dynamo {
 
   void 
   IPRIME::formHBond(const size_t NH_res, const size_t CO_res) {
-    dout << "(" << std::setw(9) << Sim->systemTime/Sim->units.unitTime() << ") FORMING A BOND! NH, CO residues: " << NH_res << ", " << CO_res << std::endl;
+    //dout << "(" << std::setw(9) << Sim->systemTime/Sim->units.unitTime() << ") FORMING A BOND! NH, CO residues: " << NH_res << ", " << CO_res << std::endl;
     auto retval = _HBonds.insert(HbondMapType::value_type(NH_res, CO_res));
     if (retval.second == false)
       M_throw() << "Failed to form a HBond";
 
-    size_t alpha_Hbonds=0;
-    size_t antialpha_Hbonds=0;
-    for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
-    {
-      if ( iter->first + 4 == iter->second ){
-          antialpha_Hbonds++;
-      }
-      if ( iter->first - 4 == iter->second ){
-          alpha_Hbonds++;
-      }
-    }
-    dout << "HBs: " << _HBonds.size() << ", alpha HBs: " << alpha_Hbonds <<  ", antialpha HBs: " << antialpha_Hbonds << std::endl;
+    //size_t alpha_Hbonds=0;
+    //size_t antialpha_Hbonds=0;
+    //for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
+    //{
+      //if ( iter->first + 4 == iter->second ){
+          //antialpha_Hbonds++;
+      //}
+      //if ( iter->first - 4 == iter->second ){
+          //alpha_Hbonds++;
+      //}
+    //}
+    //dout << "HBs: " << _HBonds.size() << ", alpha HBs: " << alpha_Hbonds <<  ", antialpha HBs: " << antialpha_Hbonds << std::endl;
   }
 
   void 
   IPRIME::breakHBond(const size_t NH_res, const size_t CO_res) {
-    dout << "(" << std::setw(9) << Sim->systemTime/Sim->units.unitTime() << ") BREAKING A BOND! NH, CO residues: " << NH_res << ", " << CO_res << std::endl;
+    //dout << "(" << std::setw(9) << Sim->systemTime/Sim->units.unitTime() << ") BREAKING A BOND! NH, CO residues: " << NH_res << ", " << CO_res << std::endl;
     size_t deleted_count = _HBonds.erase(HbondMapType::value_type(NH_res, CO_res));
     if (deleted_count == 0)
       M_throw() << "Failed to break a HBond";
 
-    size_t alpha_Hbonds=0;
-    size_t antialpha_Hbonds=0;
-    for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
-    {
-      if ( iter->first + 4 == iter->second ){
-          antialpha_Hbonds++;
-      }
-      if ( iter->first - 4 == iter->second ){
-          alpha_Hbonds++;
-      }
-    }
-    dout << "HBs: " << _HBonds.size() << ", alpha HBs: " << alpha_Hbonds <<  ", antialpha HBs: " << antialpha_Hbonds << std::endl;
+    //size_t alpha_Hbonds=0;
+    //size_t antialpha_Hbonds=0;
+    //for (auto iter = _HBonds.left.begin(); iter != _HBonds.left.end(); ++iter)
+    //{
+      //if ( iter->first + 4 == iter->second ){
+          //antialpha_Hbonds++;
+      //}
+      //if ( iter->first - 4 == iter->second ){
+          //alpha_Hbonds++;
+      //}
+    //}
+    //dout << "HBs: " << _HBonds.size() << ", alpha HBs: " << alpha_Hbonds <<  ", antialpha HBs: " << antialpha_Hbonds << std::endl;
   }
 
   bool 
