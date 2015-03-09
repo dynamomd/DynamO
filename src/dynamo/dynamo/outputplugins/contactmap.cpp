@@ -35,7 +35,7 @@ namespace dynamo {
     ::std::size_t
     OPContactMapPairHash::operator()(const std::pair<std::size_t, std::size_t>& entry) const
     {
-      return hash_combine(entry.first, entry.second);
+      return ::hash_combine(entry.first, entry.second);
     };
   }
 

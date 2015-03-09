@@ -47,7 +47,6 @@ namespace dynamo {
     Interaction::operator<<(XML);
     _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
-    intName = XML.getAttribute("Name");
   }
 
   double 

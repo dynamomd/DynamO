@@ -53,7 +53,6 @@ namespace dynamo {
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
 
-    intName = XML.getAttribute("Name");
     ICapture::loadCaptureMap(XML);   
   }
 

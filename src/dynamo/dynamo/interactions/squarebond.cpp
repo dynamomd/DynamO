@@ -49,8 +49,6 @@ namespace dynamo {
       _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
-
-    intName = XML.getAttribute("Name");
   }
 
   double 

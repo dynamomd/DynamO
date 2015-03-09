@@ -17,30 +17,44 @@
 
 #include <dynamo/topology/chain.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   TChain::TChain(const magnet::xml::Node& XML, dynamo::Simulation* Sim, unsigned int ID):
-    Topology(Sim, ID)
+    Topology(Sim, ID) 
+  {
+    TChain::operator<<(XML);
+  }
+
+  void 
+  TChain::operator<<(const magnet::xml::Node& XML) 
   {
     Topology::operator<<(XML);
+
+    for (magnet::xml::Node node = XML.findNode("Molecule"); node.valid(); ++node)
+      ranges.push_back(shared_ptr<IDRange>(IDRange::getClass(node.getNode("IDRange"), Sim)));
   
     size_t Clength = (*ranges.begin())->size();
     for (const shared_ptr<IDRange>& nRange : ranges)
       if (nRange->size() != Clength)
 	M_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
-		  << spName << "\"";
+		  << _name << "\"";
   }
 
   TChain::TChain(dynamo::Simulation* Sim, unsigned int ID, std::string nName):
     Topology(Sim,ID)
   {
-    spName = nName;
+    _name = nName;
   }
 
   void 
   TChain::outputXML(magnet::xml::XmlStream& XML) const 
   {
+    XML << magnet::xml::attr("Name") << _name;
     XML << magnet::xml::attr("Type") << "Chain";
-    Topology::outputXML(XML);
+  
+    for (const shared_ptr<IDRange>& plugPtr : ranges)
+      XML << magnet::xml::tag("Molecule") << plugPtr
+	  << magnet::xml::endtag("Molecule");
   }
 }

@@ -43,7 +43,7 @@ namespace dynamo {
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Topology&);
   
     const std::string& getName() const
-    { return spName; }
+    { return _name; }
   
     static shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::Simulation*, size_t);
 
@@ -58,11 +58,11 @@ namespace dynamo {
   protected:
     Topology(dynamo::Simulation*, size_t ID);
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
     std::list<shared_ptr<IDRange> > ranges;
   
-    std::string spName;
+    std::string _name;
   
     size_t ID;
   };

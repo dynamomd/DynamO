@@ -57,8 +57,6 @@ namespace dynamo {
     
     if (XML.hasAttribute("TangentialElasticity"))
       _et = Sim->_properties.getProperty(XML.getAttribute("TangentialElasticity"), Property::Units::Dimensionless());
-      
-    intName = XML.getAttribute("Name");
   }
   
   void

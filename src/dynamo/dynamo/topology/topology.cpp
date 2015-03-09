@@ -42,23 +42,10 @@ namespace dynamo {
   void 
   Topology::operator<<(const magnet::xml::Node& XML)
   {
-    spName = XML.getAttribute("Name");
+    _name = XML.getAttribute("Name");
     
     if (!XML.hasNode("Molecule"))
       M_throw() << "Cannot load a Topology which has no molecules!";
-
-    for (magnet::xml::Node node = XML.findNode("Molecule"); node.valid(); ++node)
-      ranges.push_back(shared_ptr<IDRange>(IDRange::getClass(node.getNode("IDRange"), Sim)));
-  }
-
-  void
-  Topology::outputXML(magnet::xml::XmlStream& XML) const
-  {
-    XML << magnet::xml::attr("Name") << spName;
-  
-    for (const shared_ptr<IDRange>& plugPtr : ranges)
-      XML << magnet::xml::tag("Molecule") << plugPtr
-	  << magnet::xml::endtag("Molecule");
   }
 
 
@@ -67,6 +54,8 @@ namespace dynamo {
   {
     if (!XML.getAttribute("Type").getValue().compare("Chain"))
       return shared_ptr<Topology>(new TChain(XML, Sim, ID));
+    else if (!XML.getAttribute("Type").getValue().compare("PRIME"))
+      return shared_ptr<Topology>(new TPRIME(XML, Sim, ID));
     else 
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Topology encountered";

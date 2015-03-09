@@ -26,6 +26,7 @@
 # include <unordered_map>
 #endif
 #include <map>
+#include <unordered_set>
 
 namespace dynamo { 
   namespace detail { 

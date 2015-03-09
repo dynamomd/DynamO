@@ -23,6 +23,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <unordered_map>
 
 namespace dynamo {
   /*! \brief A interface class which allows other classes to access a property
@@ -43,7 +44,7 @@ namespace dynamo {
     inline Property(Units units): _units(units) {}
 
     //! Fetch the value of this property for a particle with a certain ID
-    inline virtual const double& getProperty(size_t ID) const 
+    inline virtual const double getProperty(size_t ID) const 
     { M_throw() << "Unimplemented"; }
 
     //! Fetch the value of this property for a particle pairing
@@ -51,11 +52,11 @@ namespace dynamo {
     { return (getProperty(ID1) + getProperty(ID2)) / 2; }
 
     //! Fetch the maximum value of this property
-    inline virtual const double& getMaxValue() const
+    inline virtual const double getMaxValue() const
     { M_throw() << "Unimplemented"; }
 
     //! Fetch the minimum value of this property
-    inline virtual const double& getMinValue() const
+    inline virtual const double getMinValue() const
     { M_throw() << "Unimplemented"; }
 
     /*! This is called whenever a unit is rescaled.
@@ -110,19 +111,19 @@ namespace dynamo {
       Property(units), _val(val) {}
   
     //! Always returns a single value.
-    inline virtual const double& getProperty(size_t ID) const { return _val; }
+    inline virtual const double getProperty(size_t ID) const { return _val; }
     //! Returns the value as a string.
     inline virtual std::string getName() const { return boost::lexical_cast<std::string>(_val); }
 
     /*! As this Property only stores a single value, it is always
       returned as the max.
     */
-    inline virtual const double& getMaxValue() const { return _val; }
+    inline virtual const double getMaxValue() const { return _val; }
 
     /*! As this Property only stores a single value, it is always
       returned as the min.
     */
-    inline virtual const double& getMinValue() const { return _val; }
+    inline virtual const double getMinValue() const { return _val; }
 
     //! \sa Property::rescaleUnit
     inline virtual const void rescaleUnit(const Units::Dimension dim, 
@@ -167,7 +168,7 @@ namespace dynamo {
 	_values.push_back(pNode.getAttribute(_name).as<double>());
     }
   
-    inline virtual const double& getProperty(size_t ID) const 
+    inline virtual const double getProperty(size_t ID) const 
     { 
 #ifdef DYNAMO_DEBUG
       if (ID >= _values.size())
@@ -189,10 +190,10 @@ namespace dynamo {
     inline virtual std::string getName() const 
     { return _name; }
   
-    inline virtual const double& getMaxValue() const 
+    inline virtual const double getMaxValue() const 
     { return *std::max_element(_values.begin(), _values.end()); }
 
-    inline virtual const double& getMinValue() const 
+    inline virtual const double getMinValue() const 
     { return *std::min_element(_values.begin(), _values.end()); }
   
     //! \sa Property::rescaleUnit
@@ -311,6 +312,10 @@ namespace dynamo {
 	  }
     
       return *this;
+    }
+
+    inline void addNamedProperty(Value property) {
+      _namedProperties.push_back(property);
     }
 
     inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const PropertyStore& propStore)

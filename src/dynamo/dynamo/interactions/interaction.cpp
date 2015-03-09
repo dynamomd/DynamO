@@ -30,7 +30,10 @@ namespace dynamo {
 
   void 
   Interaction::operator<<(const magnet::xml::Node& XML)
-  { range = shared_ptr<IDPairRange>(IDPairRange::getClass(XML.getNode("IDPairRange"), Sim)); }
+  { 
+    range = shared_ptr<IDPairRange>(IDPairRange::getClass(XML.getNode("IDPairRange"), Sim)); 
+    intName = XML.getAttribute("Name");
+  }
 
   bool 
   Interaction::isInteraction(const Event& coll) const
@@ -60,8 +63,8 @@ namespace dynamo {
       return shared_ptr<Interaction>(new IHardSphere(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("SquareWell"))
       return shared_ptr<Interaction>(new ISquareWell(XML, Sim));
-    else if (!XML.getAttribute("Type").getValue().compare("PRIME_BB"))
-      return shared_ptr<Interaction>(new IPRIME_BB(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("PRIME"))
+      return shared_ptr<Interaction>(new IPRIME(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("ThinThread"))
       return shared_ptr<Interaction>(new IThinThread(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("SquareWellSeq"))
