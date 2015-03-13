@@ -44,77 +44,53 @@ namespace dynamo {
     logfile.setf(std::ios::fixed);
   }
 
-  void
-  OPTrajectory::printData(const size_t& p1,
-			  const size_t& p2) const
-  {
-    size_t id1 = ((p1 < p2) 
-		  ? p1 : p2);
-  
-    size_t id2 = ((p1 > p2) 
-		  ? p1 : p2);
-
-    Vector  rij = Sim->particles[id1].getPosition()
-      - Sim->particles[id2].getPosition(),
-      vij = Sim->particles[id1].getVelocity()
-      - Sim->particles[id2].getVelocity();
-  
-
-    Sim->BCs->applyBC(rij, vij);
-  
-    rij /= Sim->units.unitLength();
-    vij /= Sim->units.unitVelocity();
-
-    logfile << " p1 " << std::setw(5) << id1
-	    << " p2 " << std::setw(5) << id2
-	    << " |r12| " << std::setw(5) << rij.nrm()
-	    << " post-r12 < ";
-  
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      logfile << std::setw(7) << rij[iDim] << " ";
-
-    logfile << ">";
-
-    logfile << " post-v12 < ";
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      logfile << std::setw(7) << vij[iDim] << " ";
-
-    logfile << "> post-rvdot " << (vij | rij) ;
-  }
-
   void 
   OPTrajectory::eventUpdate(const Event& eevent, const NEventData& SDat)
   {
-    logfile << std::setw(8) << Sim->eventCount 
-	    << " " <<  eevent._source 
-	    << " " << eevent._sourceID
-	    << " TYPE " << eevent._type
-	    << " t " << Sim->systemTime / Sim->units.unitTime() 
-	    << " dt " << eevent._dt / Sim->units.unitTime()
+    logfile << std::setw(8) << std::setfill('0') << Sim->eventCount 
+	    << ", Source=" <<  eevent._source 
+	    << ", SourceID=" << eevent._sourceID
+	    << ", Event Type=" << eevent._type
+	    << ", t=" << Sim->systemTime / Sim->units.unitTime() 
+	    << ", dt=" << eevent._dt / Sim->units.unitTime()
       ;
 
     for (const ParticleEventData& pData : SDat.L1partChanges)
       {
-	logfile << "|";
+	logfile << "\n";
 	const Particle& part = Sim->particles[pData.getParticleID()];
-	logfile << "    1PEvent p1 " << part.getID();
+	logfile << "   1PEvent: p1=" << part.getID() << ", Type=" << pData.getType();
 	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
 	delP /= Sim->units.unitMomentum();
 	Vector pos = part.getPosition() / Sim->units.unitLength();
 	Vector oldv = pData.getOldVel() / Sim->units.unitVelocity();
 	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
-	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
+	logfile << ", delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
-	logfile << "|";
-	printData(pData.particle1_.getParticleID(),
-		  pData.particle2_.getParticleID());
+	const size_t id1 = std::min(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
+	const size_t id2 = std::max(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
+	Vector  rij = Sim->particles[id1].getPosition() - Sim->particles[id2].getPosition(),
+	  vij = Sim->particles[id1].getVelocity() - Sim->particles[id2].getVelocity();
+	
+	Sim->BCs->applyBC(rij, vij);
+	rij /= Sim->units.unitLength();
+	vij /= Sim->units.unitVelocity();
+	
+	logfile << "\n   2PEvent:";
+	logfile << " p1=" << std::setw(5) << id1
+		<< ", p2=" << std::setw(5) << id2
+		<< ", delP1=" << pData.impulse.toString()
+		<< ", |r12|=" << std::setw(5) << rij.nrm()
+		<< ", post-r12=" << rij.toString()
+		<< ", post-v12=" << vij.toString()
+		<< ", post-rvdot=" << (vij | rij);
       }
     logfile << "\n";
   }
-
+  
   void 
   OPTrajectory::output(magnet::xml::XmlStream& XML)
   {}

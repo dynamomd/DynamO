@@ -40,9 +40,6 @@ namespace dynamo {
 
   private:
 
-    void printData(const size_t&,
-		   const size_t&) const;
-
     mutable std::ofstream logfile;
   };
 }
