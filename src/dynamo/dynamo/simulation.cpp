@@ -50,6 +50,7 @@ namespace dynamo
     ranGenerator(std::random_device()()),
     lastRunMFT(0.0),
     simID(0),
+    stateID(0),
     replexExchangeNumber(0),
     status(START)
   {}
@@ -526,6 +527,7 @@ namespace dynamo
       
     std::swap(systemTime, other.systemTime);
     std::swap(eventCount, other.eventCount);
+    std::swap(stateID, other.stateID);
     
     for (size_t i(0); i < systems.size(); ++i)
       systems[i]->replicaExchange(*other.systems[i]);

@@ -372,12 +372,19 @@ namespace dynamo
      */
     double lastRunMFT;
 
-    /*! \brief This is just the ID number of the Simulation when
-       multiple are being run at once.
+    /*! \brief This ID number denotes the Simulation when multiple are
+       being run at once.
      
       This is used in the EReplicaExchangeSimulation engine.
      */
     size_t simID;
+
+    /*! \brief This ID number indicates the state at which this
+     simulation is being run.
+     
+      This is used in the EReplicaExchangeSimulation engine.
+     */
+    size_t stateID;
     
     /*! \brief This is the number of replica exchange attempts
        performed in the current simulation.

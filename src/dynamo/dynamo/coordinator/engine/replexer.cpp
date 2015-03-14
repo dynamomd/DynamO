@@ -139,6 +139,9 @@ namespace dynamo {
     SimDirection[temperatureList.front().second.simID] = 1; //Going up
     SimDirection[temperatureList.back().second.simID] = -1; //Going down
   
+    for (size_t id(0); id < nSims; ++id)
+      Simulations[id].stateID = id;
+
     //If a system ticker is set we scale the ticker time such that the
     //number of ticks in all systems is equal.
     if (vm.count("ticker-period"))

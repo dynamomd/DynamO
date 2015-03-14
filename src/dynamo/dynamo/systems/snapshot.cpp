@@ -80,13 +80,13 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
   
     std::string filename = magnet::string::search_replace("Snapshot."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter));
-    filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->simID));
+    filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->stateID));
     Sim->writeXMLfile(filename, _applyBC);
     
     dout << "Printing SNAPSHOT" << std::endl;
     
     filename = magnet::string::search_replace("Snapshot.output."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter++));
-    filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->simID));
+    filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->stateID));
     Sim->outputData(filename);
     return NEventData();
   }
