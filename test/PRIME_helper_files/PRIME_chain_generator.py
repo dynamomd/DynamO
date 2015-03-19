@@ -78,6 +78,8 @@ try:
         sequence = list('PPPWLPYMPPWS')
     elif ( sys.argv[1] == 'N16N' ):
         sequence = list('AYHKKCGRYSYCWIPYDIERDRYDNGDKKC')
+    elif ( sys.argv[1] == 'N16NN' ):
+        sequence = list('AYHKKCGRYSYCWIPYNIQRNRYNNGNKKC')
     elif ( sys.argv[1][:5] == 'ALPHA' ):
         sequence = list('ACDEFGHIKLMNPQRSTVWY')
     else:
@@ -286,7 +288,7 @@ input_file.write('<!-- Created on ' +date + '. -->\n')
 input_file.close()
 
 #Add thermostat and rescale via dynamod:
-thermostat_command = [ 'dynamod_20',  '-T', temperature, '-r', temperature, '-o', xml_fn, '-Z', xml_fn ]
+thermostat_command = [ 'dynamod',  '-T', temperature, '-r', temperature, '-o', xml_fn, '-Z', xml_fn ]
 print "Running this command:", " ".join(thermostat_command)
 if debug:
     print subprocess.Popen(thermostat_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
@@ -294,7 +296,7 @@ else:
     silent_stdout = subprocess.Popen(thermostat_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()
 
 #Check config is valid with dynamod:
-check_command = ['dynamod_20', xml_fn, "--check", '-o', xml_fn]
+check_command = ['dynamod', xml_fn, "--check", '-o', xml_fn]
 print "Running this command:", " ".join(check_command)
 if debug:
     print subprocess.Popen(check_command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
