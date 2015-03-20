@@ -28,8 +28,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBU
 
 link_libraries(debug dl)
 
-########## COMPILER SUPPORT TESTS
-#C++11/C++0x support
+######################################################################
+########## COMPILER C++11/C++0x SUPPORT TESTS
+######################################################################
+### First check if the compiler supports C++11 or C++0x at all
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORT_CXX11)
 if(COMPILER_SUPPORT_CXX11)
@@ -47,16 +49,27 @@ else()
   endif()
 endif()
 
+### Now check if the C++11/0x support is sufficient for the compile time math library
+
 check_cxx_source_compiles("template <typename T> struct wrapped{ typedef T type;};
 template <typename T> typename T::type unwrap1(T a) { return typename T::type();}
 int unwrap(int a) { return 1; }
 template <typename T> auto unwrap(T t) -> decltype(unwrap(unwrap1(t))) { return unwrap(unwrap1(t)); }
 int main() { unwrap(wrapped<wrapped<int>>()); }" CXX11_TYPE_MANGLING)
 if(NOT CXX11_TYPE_MANGLING)
-  message(WARNING "Although the compiler advertises support for C++0x/C++11, this support is limited (gcc-4.7 or lower). Many advanced potentials will be disabled.")
+  message(WARNING "Although the compiler advertises support for C++0x/C++11, this support is limited (e.g., gcc-4.7 or lower). You can only compile a limited version of DynamO (simple potentials only).")
+  else()
+    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_SOURCE_DIR}/src/magnet ${CMAKE_SOURCE_DIR}/src/ext_include)
+    check_cxx_source_compiles("#include <magnet/math/symbolic.hpp>
+    int main() { using namespace magnet::math; Variable<'x'> x; simplify(x+(x-1)); }" CXX11_decltype_works)
+    if(NOT CXX11_decltype_works)
+      message(WARNING "Although the compiler advertises support for C++0x/11, this support is broken (e.g., gcc-4.8.2). You can only compile a limited version of DynamO (simple potentials only).")
+    endif()  
 endif()
 
-# Boost support
+######################################################################
+##########  Boost support
+######################################################################
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.46 COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
 if(NOT Boost_FOUND)
@@ -75,11 +88,15 @@ find_package(BZip2 REQUIRED)
 include_directories(${BZIP2_INCLUDE_DIR})
 link_libraries(${BZIP2_LIBRARIES})
 
+######################################################################
 # Determine the supported system thread library and link to it
+######################################################################
 find_package(Threads)
 link_libraries(${CMAKE_THREAD_LIBS_INIT})
 
+######################################################################
 # Test for libjudy requirements
+######################################################################
 include(CheckIncludeFiles)
 check_include_files(Judy.h JUDY_H_AVAILABLE)
 include(CheckLibraryExists)
@@ -98,7 +115,9 @@ else()
   message(STATUS "libJudy header/library missing.")
 endif()
 
+######################################################################
 # Visualiser support
+######################################################################
 INCLUDE (CheckIncludeFiles)
 find_package(PkgConfig)
 find_package(OpenGL)
@@ -152,13 +171,17 @@ if(VISUALIZER_SUPPORT)
   endif()
 endif()
 
+######################################################################
 ########## HEADER DIRECTORIES
+######################################################################
 include_directories(${PROJECT_SOURCE_DIR}/src/dynamo/)
 include_directories(${PROJECT_SOURCE_DIR}/src/coil/)
 include_directories(${PROJECT_SOURCE_DIR}/src/magnet)
 include_directories(${PROJECT_SOURCE_DIR}/src/ext_include)
 
+######################################################################
 ######### TARGETS
+######################################################################
 ### Magnet library
 function(magnet_test name) #Registers a magnet unit-test
   add_executable(magnet_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/magnet/tests/${name}.cpp)
@@ -189,7 +212,7 @@ magnet_test(offcenterspheres)
 magnet_test(stack_vector_test)
 
 #### CAS library tests ####
-if(CXX11_TYPE_MANGLING)
+if(CXX11_TYPE_MANGLING AND CXX11_decltype_works)
   magnet_test(polynomial_test)
   magnet_test(symbolic_test)
   magnet_test(stable_alg_test)
