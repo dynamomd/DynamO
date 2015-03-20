@@ -50,7 +50,7 @@ else()
 endif()
 
 ### Now check if the C++11/0x support is sufficient for the compile time math library
-
+set(CMAKE_REQUIRED_FLAGS -Wfatal-errors)
 check_cxx_source_compiles("template <typename T> struct wrapped{ typedef T type;};
 template <typename T> typename T::type unwrap1(T a) { return typename T::type();}
 int unwrap(int a) { return 1; }
@@ -59,6 +59,7 @@ int main() { unwrap(wrapped<wrapped<int>>()); }" CXX11_TYPE_MANGLING)
 if(NOT CXX11_TYPE_MANGLING)
   message(WARNING "Although the compiler advertises support for C++0x/C++11, this support is limited (e.g., gcc-4.7 or lower). You can only compile a limited version of DynamO (simple potentials only).")
   else()
+    set(CMAKE_REQUIRED_FLAGS -Wfatal-errors)
     set(CMAKE_REQUIRED_INCLUDES ${CMAKE_SOURCE_DIR}/src/magnet ${CMAKE_SOURCE_DIR}/src/ext_include)
     check_cxx_source_compiles("#include <magnet/math/symbolic.hpp>
     int main() { using namespace magnet::math; Variable<'x'> x; simplify(x+(x-1)); }" CXX11_decltype_works)
@@ -66,6 +67,8 @@ if(NOT CXX11_TYPE_MANGLING)
       message(WARNING "Although the compiler advertises support for C++0x/11, this support is broken (e.g., gcc-4.8.2). You can only compile a limited version of DynamO (simple potentials only).")
     endif()  
 endif()
+unset(CMAKE_REQUIRED_FLAGS)
+unset(CMAKE_REQUIRED_INCLUDES)
 
 ######################################################################
 ##########  Boost support
