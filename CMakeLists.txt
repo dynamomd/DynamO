@@ -11,8 +11,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 enable_testing() #Enable build of test executables and 'make test' command
 include(CTest)
 
-set(CPACK_GENERATOR DEB RPM)
-set(CPACK_PACKAGE_NAME "dynamo")
+######################################################################
+########## Packaging
+######################################################################
+include(SystemInformation)
+set(CPACK_GENERATOR ${SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR})
+set(CPACK_PACKAGE_NAME "dynamomd")
 set(CPACK_PACKAGE_VERSION_MAJOR 1)
 set(CPACK_PACKAGE_VERSION_MINOR 6)
 set(CPACK_PACKAGE_VERSION_PATCH 0)
