@@ -15,17 +15,11 @@ include(CTest)
 ########## Packaging
 ######################################################################
 include(SystemInformation)
+include(GetGitRevisionDescription)
 
-find_package(Git)
-set(BUILD_NUMBER "0000")
-if(GIT_FOUND)
-    execute_process(
-            COMMAND ${GIT_EXECUTABLE} describe --match initial-commit
-            OUTPUT_VARIABLE DESCRIBE_BUILD
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${DESCRIBE_BUILD})
-endif()
-
+git_describe(GIT_RESULT)
+string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${GIT_RESULT})
+message(WARNING ${BUILD_NUMBER})
 set(CPACK_GENERATOR ${SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR})
 set(CPACK_PACKAGE_NAME "dynamomd")
 set(CPACK_PACKAGE_VERSION_MAJOR 1)
