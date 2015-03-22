@@ -15,6 +15,17 @@ include(CTest)
 ########## Packaging
 ######################################################################
 include(SystemInformation)
+
+find_package(Git)
+set(BUILD_NUMBER "0000")
+if(GIT_FOUND)
+    execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --match initial-commit
+            OUTPUT_VARIABLE DESCRIBE_BUILD
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${DESCRIBE_BUILD})
+endif()
+
 set(CPACK_GENERATOR ${SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR})
 set(CPACK_PACKAGE_NAME "dynamomd")
 set(CPACK_PACKAGE_VERSION_MAJOR 1)
@@ -22,6 +33,7 @@ set(CPACK_PACKAGE_VERSION_MINOR 6)
 set(CPACK_PACKAGE_VERSION_PATCH 0)
 set(CPACK_PACKAGE_CONTACT "support@dynamomd.org")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An event-driven particle simulation tool.")
+set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${BUILD_NUMBER}-${DISTRO_ID}${DISTRO_RELEASE})
 include(CPack) #Enable build of packages
 
 ##########   RELEASE MODE

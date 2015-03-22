@@ -4,6 +4,8 @@
 set(SPECIFIC_COMPILER_NAME "")
 set(SPECIFIC_SYSTEM_VERSION_NAME "")
 set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "")
+set(DISTRO_ID "")
+set(DISTRO_RELEASE "")
 
 # In the WIN32 case try to guess a "readable system name"
 if(WIN32)
@@ -125,6 +127,14 @@ if(UNIX)
     elseif (EXISTS "/etc/issue")
       set(LINUX_NAME "")
       file(READ "/etc/issue" LINUX_ISSUE)
+      #CentOS case
+      if(LINUX_ISSUE MATCHES "CentOS")
+        string(REGEX MATCH "release ([0-9\.]+)" CENTOS "${LINUX_ISSUE}")
+        set(DISTRO_ID "CentOS")
+        set(DISTRO_RELEASE "${CMAKE_MATCH_1}")
+        # FIXME can we find that in /etc/issue
+        set(DISTRO_CODENAME "")
+      endif(LINUX_ISSUE MATCHES "CentOS")
       # Fedora case
       if(LINUX_ISSUE MATCHES "Fedora")
         string(REGEX MATCH "release ([0-9]+)" FEDORA "${LINUX_ISSUE}")
@@ -161,9 +171,9 @@ if(UNIX)
     endif(LSB_RELEASE_EXECUTABLE)
     # Now mangle some names
     set(LINUX_NAME "${DISTRO_ID}_${DISTRO_RELEASE}")
-    if(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE")
+    if(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE|CentOS")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")
-    endif(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE")
+    endif(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE|CentOS")
     if(DISTRO_ID MATCHES "Debian|Ubuntu")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "DEB")
     endif(DISTRO_ID MATCHES "Debian|Ubuntu")
