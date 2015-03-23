@@ -7,6 +7,14 @@ set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "")
 set(DISTRO_ID "")
 set(DISTRO_RELEASE "")
 
+function (read_release valuename FROM filename INTO varname)
+  file (STRINGS ${filename} _distrib REGEX "^${valuename}=")
+  string (REGEX REPLACE "^${valuename}=\"?\(.*\)" "\\1" ${varname} "${_distrib}")
+  # remove trailing quote that got globbed by the wildcard (greedy match)
+  string (REGEX REPLACE "\"$" "" ${varname} "${${varname}}")
+  set (${varname} "${${varname}}" PARENT_SCOPE)
+endfunction (read_release valuename FROM filename INTO varname)
+
 # In the WIN32 case try to guess a "readable system name"
 if(WIN32)
   set(SPECIFIC_SYSTEM_PREFERED_PACKAGE "NSIS")
@@ -102,29 +110,16 @@ if(UNIX)
   if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(SPECIFIC_SYSTEM_VERSION_NAME "${CMAKE_SYSTEM_NAME}")
     set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "TGZ")
-    find_program(LSB_RELEASE_EXECUTABLE lsb_release)
-    if(LSB_RELEASE_EXECUTABLE)
-      execute_process(COMMAND ${LSB_RELEASE_EXECUTABLE} -i
-                      OUTPUT_VARIABLE _TMP_LSB_RELEASE_OUTPUT
-                      ERROR_QUIET
-                      OUTPUT_STRIP_TRAILING_WHITESPACE)
-      string(REGEX MATCH "Distributor ID:(.*)" DISTRO_ID ${_TMP_LSB_RELEASE_OUTPUT})
-      string(STRIP "${CMAKE_MATCH_1}" DISTRO_ID)
-      # replace potential space with underscore
-      string(REPLACE " " "_" DISTRO_ID "${DISTRO_ID}")
-      execute_process(COMMAND ${LSB_RELEASE_EXECUTABLE} -r
-                      OUTPUT_VARIABLE _TMP_LSB_RELEASE_OUTPUT
-                      ERROR_QUIET
-                      OUTPUT_STRIP_TRAILING_WHITESPACE)
-      string(REGEX MATCH "Release:(.*)" DISTRO_RELEASE ${_TMP_LSB_RELEASE_OUTPUT})
-      string(STRIP "${CMAKE_MATCH_1}" DISTRO_RELEASE)
-      execute_process(COMMAND ${LSB_RELEASE_EXECUTABLE} -c
-                      OUTPUT_VARIABLE _TMP_LSB_RELEASE_OUTPUT
-                      ERROR_QUIET
-                      OUTPUT_STRIP_TRAILING_WHITESPACE)
-      string(REGEX MATCH "Codename:(.*)" DISTRO_CODENAME ${_TMP_LSB_RELEASE_OUTPUT})
-      string(STRIP "${CMAKE_MATCH_1}" DISTRO_CODENAME)
+    find_program(LSB_RELEASE_EXECUTABLE lsb_release)    
+    if (EXISTS "/etc/os-release")
+      #We prefer os-release as it is well formatted and
+      #standardised. Also, /etc/issue contains no version info on
+      #modern distros (e.g. CentOS7)
+      read_release(NAME FROM /etc/os-release INTO DISTRO_ID)
+      read_release(VERSION_ID FROM /etc/os-release INTO DISTRO_RELEASE)
     elseif (EXISTS "/etc/issue")
+      #If /etc/os-release does not exist, we fall back to parsing
+      #/etc/issue, which is pretty popular.
       set(LINUX_NAME "")
       file(READ "/etc/issue" LINUX_ISSUE)
       #CentOS case
