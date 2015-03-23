@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( NVT_Simulation )
 
   //Check the temperature is constant at 1
   double Temperature = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentkT() / Sim.units.unitEnergy();
-  BOOST_CHECK_CLOSE(Temperature, 1.0, 5);
+  BOOST_CHECK_CLOSE(Temperature, 1.0, 8);
 
   BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than two invalid states in the final configuration");
 }
