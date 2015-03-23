@@ -239,9 +239,13 @@ if(JUDY_SUPPORT)
 endif(JUDY_SUPPORT)
 
 if(AVCodec_FOUND)
-  link_libraries(${AVCodec_LIBRARIES})
-  include_directories(${AVCodec_INCLUDE_DIRS})
-  add_definitions(-DMAGNET_FFMPEG_SUPPORT)
+  check_cxx_source_compiles("#include <libavcodec/avcodec.h>
+int main() { return AV_CODEC_ID_H264; }" AVCodec_New_Codec_Style)
+  if(${AVCodec_New_Codec_Style})
+    link_libraries(${AVCodec_LIBRARIES})
+    include_directories(${AVCodec_INCLUDE_DIRS})
+    add_definitions(-DMAGNET_FFMPEG_SUPPORT)
+  endif()
 endif()
 
 ### Coil
