@@ -17,7 +17,7 @@ include(CTest)
 include(SystemInformation)
 include(GetGitRevisionDescription)
 
-git_describe(GIT_RESULT)
+git_describe(GIT_RESULT --match initial-commit)
 message(STATUS "Git description is ${GIT_RESULT}")
 string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${GIT_RESULT})
 message(STATUS "Build number is ${BUILD_NUMBER}")
