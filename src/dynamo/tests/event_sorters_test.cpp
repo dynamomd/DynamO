@@ -96,7 +96,7 @@ typedef boost::mpl::list<
   if (std::isinf(e1._dt) || std::isinf(e2._dt)) {			\
     BOOST_REQUIRE_EQUAL(e1._dt, e2._dt);				\
   } else {								\
-    BOOST_REQUIRE_CLOSE(e1._dt, e2._dt, 5e-7);				\
+    BOOST_REQUIRE_CLOSE(e1._dt, e2._dt, 2e-6);				\
   }									\
   BOOST_REQUIRE_EQUAL(e1._particle1ID, e2._particle1ID);		\
   BOOST_REQUIRE_EQUAL(e1._sourceID, e2._sourceID);			\
