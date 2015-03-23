@@ -115,7 +115,7 @@ if(UNIX)
       #We prefer os-release as it is well formatted and
       #standardised. Also, /etc/issue contains no version info on
       #modern distros (e.g. CentOS7)
-      read_release(NAME FROM /etc/os-release INTO DISTRO_ID)
+      read_release(ID FROM /etc/os-release INTO DISTRO_ID)
       read_release(VERSION_ID FROM /etc/os-release INTO DISTRO_RELEASE)
     elseif (EXISTS "/etc/issue")
       #If /etc/os-release does not exist, we fall back to parsing
@@ -164,14 +164,15 @@ if(UNIX)
       # Mandriva case
       # TODO
     endif(EXISTS "/etc/os-release")
+    string(TOLOWER ${DISTRO_ID} DISTRO_ID)
     # Now mangle some names
     set(LINUX_NAME "${DISTRO_ID}_${DISTRO_RELEASE}")
-    if(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE|CentOS")
+    if(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")
-    endif(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE|CentOS")
-    if(DISTRO_ID MATCHES "Debian|Ubuntu")
+    endif(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos")
+    if(DISTRO_ID MATCHES "debian|ubuntu")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "DEB")
-    endif(DISTRO_ID MATCHES "Debian|Ubuntu")
+    endif(DISTRO_ID MATCHES "debian|ubuntu")
     if(LINUX_NAME)
       set(SPECIFIC_SYSTEM_VERSION_NAME "${CMAKE_SYSTEM_NAME}-${LINUX_NAME}")
     endif(LINUX_NAME)
