@@ -129,7 +129,7 @@ if(UNIX)
       file(READ "/etc/issue" LINUX_ISSUE)
       #CentOS case
       if(LINUX_ISSUE MATCHES "CentOS")
-        string(REGEX MATCH "release ([0-9\.]+)" CENTOS "${LINUX_ISSUE}")
+        string(REGEX MATCH "release ([0-9\\.]+)" CENTOS "${LINUX_ISSUE}")
         set(DISTRO_ID "CentOS")
         set(DISTRO_RELEASE "${CMAKE_MATCH_1}")
         # FIXME can we find that in /etc/issue
