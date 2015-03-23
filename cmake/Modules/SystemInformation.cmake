@@ -110,7 +110,7 @@ if(UNIX)
   if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(SPECIFIC_SYSTEM_VERSION_NAME "${CMAKE_SYSTEM_NAME}")
     set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "TGZ")
-    find_program(LSB_RELEASE_EXECUTABLE lsb_release)    
+
     if (EXISTS "/etc/os-release")
       #We prefer os-release as it is well formatted and
       #standardised. Also, /etc/issue contains no version info on
@@ -163,7 +163,7 @@ if(UNIX)
       endif(LINUX_ISSUE MATCHES "SUSE")
       # Mandriva case
       # TODO
-    endif(LSB_RELEASE_EXECUTABLE)
+    endif(EXISTS "/etc/os-release")
     # Now mangle some names
     set(LINUX_NAME "${DISTRO_ID}_${DISTRO_RELEASE}")
     if(DISTRO_ID MATCHES "Fedora|Mandriva|SUSE|OpenSUSE|CentOS")
