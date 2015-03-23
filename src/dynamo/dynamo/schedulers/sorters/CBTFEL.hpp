@@ -81,22 +81,25 @@ namespace dynamo {
 
     inline bool empty() {
       flushChanges();
-      return _CBT.empty() || _Min[_CBT[1]].empty();
+      if (_CBT.empty() || _Min[_CBT[1]].empty()) return true;
+
+      //Check for lazy deletion of the next event
+      Event next_event = _Min[_CBT[1]].top();
+      while ((next_event._source == INTERACTION) && (next_event._particle2eventcounter != _eventCount[next_event._particle2ID])) {
+	pop();
+	flushChanges();
+	if (_CBT.empty() || _Min[_CBT[1]].empty()) return true;
+	next_event = _Min[_CBT[1]].top();
+      }
+
+      return false;
     }
 
 
     virtual Event top() {
-      //empty() causes a flush
+      //empty() causes a flush and lazy deletion
       if (empty()) M_throw() << "Event queue is empty!";
       Event next_event = _Min[_CBT[1]].top();
-      while ((next_event._source == INTERACTION) 
-	     && (next_event._particle2eventcounter != _eventCount[next_event._particle2ID])) {
-	pop();
-	//empty() causes a flush
-	if (empty()) M_throw() << "Event queue is empty!";
-	next_event = _Min[_CBT[1]].top();
-      }
-
       next_event._dt -= _pecTime;
       return next_event;
     }

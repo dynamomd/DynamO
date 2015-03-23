@@ -56,8 +56,13 @@ namespace dynamo
   protected:
     void setOutputPrefix(const std::string& prefix)
     {
+#ifdef DYNAMO_COLORIZE
       dout.setPrefix(colorCode(prefix) + prefix + ": " + magnet::console::reset());
       derr.setPrefix(magnet::console::bold() + magnet::console::red_fg() + prefix + ": " + magnet::console::reset());
+#else
+      dout.setPrefix(prefix + ": ");
+      derr.setPrefix(prefix + ": ");
+#endif
     }
 
     /*! \brief A std::cout style output stream. 
