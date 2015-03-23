@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( Simulation )
 
   //Check the mean free time is roughly what is expected
   double MFT = opMisc.getMFT();
-  BOOST_CHECK_CLOSE(MFT, expectedMFT, 6);
+  BOOST_CHECK_CLOSE(MFT, expectedMFT, 10);
 
   BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 1, "There are more than two invalid states in the final configuration");
 }
