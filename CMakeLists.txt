@@ -29,6 +29,8 @@ set(CPACK_PACKAGE_VERSION_PATCH ${BUILD_NUMBER})
 set(CPACK_PACKAGE_CONTACT "support@dynamomd.org")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An event-driven particle simulation tool.")
 set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}~${DISTRO_ID}${DISTRO_RELEASE})
+#Get Debian packages to automatically figure out the dependencies
+set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 include(CPack) #Enable build of packages
 
 ##########   RELEASE MODE
