@@ -239,12 +239,16 @@ if(JUDY_SUPPORT)
 endif(JUDY_SUPPORT)
 
 if(AVCodec_FOUND)
+  set(CMAKE_REQUIRED_INCLUDES ${AVCodec_INCLUDE_DIRS})
   check_cxx_source_compiles("#include <libavcodec/avcodec.h>
 int main() { return AV_CODEC_ID_H264; }" AVCodec_New_Codec_Style)
   if(${AVCodec_New_Codec_Style})
+    message(STATUS "Found suitable libAVCodec version")
     link_libraries(${AVCodec_LIBRARIES})
     include_directories(${AVCodec_INCLUDE_DIRS})
     add_definitions(-DMAGNET_FFMPEG_SUPPORT)
+  else()
+    message(STATUS "libAVCodec version is out of date or incompatible - recording will be disabled")
   endif()
 endif()
 
