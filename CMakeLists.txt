@@ -320,3 +320,9 @@ dynamo_test(swingspheres_test)
 dynamo_test(squarewellwall_test)
 dynamo_test(thermalisedwalls_test)
 dynamo_test(event_sorters_test)
+
+add_test(NAME dynamo_replica_exchange
+         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/replex_test.py 
+	 --dynarun=$<TARGET_FILE:dynarun>
+	 --dynamod=$<TARGET_FILE:dynamod>
+	 --dynahist_rw=$<TARGET_FILE:dynahist_rw>)

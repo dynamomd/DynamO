@@ -197,8 +197,7 @@ namespace dynamo {
   EReplicaExchangeSimulation::setupSim(Simulation& Sim, const std::string filename)
   {
     Engine::setupSim(Sim, filename);
-
-    //Add the halt time, set to zero so a replica exchange occurrs immediately
+    //Add a SystHalt event to allow us to periodically halt simulations for replica exchange
     Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, 0, "ReplexHalt")));
   }
 
@@ -372,8 +371,8 @@ namespace dynamo {
   void EReplicaExchangeSimulation::runSimulation()
   {
     _start_time = std::chrono::system_clock::now();
-
-    while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) < replicaEndTime)
+    
+    while (((Simulations[temperatureList.front().second.simID].systemTime / Simulations[temperatureList.front().second.simID].units.unitTime()) < replicaEndTime)
 	   && (Simulations[0].eventCount < vm["events"].as<size_t>()))
       {
 	if (_SIGTERM)
@@ -491,28 +490,11 @@ namespace dynamo {
 	    }
 	  }
 	  {
-	    //Run the simulations. We also generate all tasks at once
-	    //and submit them all at once to minimise lock contention.
-	    std::vector<std::function<void()> > tasks;
-	    tasks.reserve(nSims);
-
-	    for (size_t i(0); i < nSims; ++i)
-	      tasks.push_back(std::bind(&Simulation::runSimulation, &static_cast<Simulation&>(Simulations[i]), true));
-
-	    threads.queueTasks(tasks);
-	    threads.wait();//This syncs the systems for the replica exchange
-		  
-	    //Swap calculation
-	    ReplexSwap(ReplexMode);
-		  
-	    ReplexSwapTicker();
-		  
 	    //Reset the stop events
 	    for (size_t i = nSims; i != 0;)
 	      {
 		//Reset the stop event
-		shared_ptr<SystHalt> tmpRef = std::dynamic_pointer_cast<SystHalt>
-		  (Simulations[--i].systems["ReplexHalt"]);
+		shared_ptr<SystHalt> tmpRef = std::dynamic_pointer_cast<SystHalt>(Simulations[--i].systems["ReplexHalt"]);
 		
 #ifdef DYNAMO_DEBUG
 		if (!tmpRef)
@@ -531,9 +513,25 @@ namespace dynamo {
 		Simulations[i].endEventCount = vm["events"].as<size_t>();
 	      }
 
+	    //Run the simulations. We also generate all tasks at once
+	    //and submit them all at once to minimise lock contention.
+	    std::vector<std::function<void()> > tasks;
+	    tasks.reserve(nSims);
+
+	    for (size_t i(0); i < nSims; ++i)
+	      tasks.push_back(std::bind(&Simulation::runSimulation, &static_cast<Simulation&>(Simulations[i]), true));
+
+	    threads.queueTasks(tasks);
+	    threads.wait();//This syncs the systems for the replica exchange
+		  
+	    //Swap calculation
+	    ReplexSwap(ReplexMode);
+		  
+	    ReplexSwapTicker();
+		  
 	    double duration = std::chrono::duration<double>(std::chrono::system_clock::now() - _start_time).count();
 	    
-	    double fractionComplete = (Simulations[0].systemTime / Simulations[0].units.unitTime()) / replicaEndTime;
+	    double fractionComplete = (Simulations[temperatureList.front().second.simID].systemTime / Simulations[temperatureList.front().second.simID].units.unitTime()) / replicaEndTime;
 	    double seconds_remaining_double = duration * (1 / fractionComplete - 1);
 	    size_t seconds_remaining = seconds_remaining_double;
 
@@ -568,8 +566,7 @@ namespace dynamo {
       {
 	TtoID << p1.second.realTemperature << " " << i << "\n";
 	Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
-	Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), 
-						  !vm.count("unwrapped"));
+	Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), !vm.count("unwrapped"));
       }
   }
 }

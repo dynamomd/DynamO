@@ -34,7 +34,7 @@ namespace dynamo {
 
     void increasedt(double);
 
-    virtual void replicaExchange(System& os) { 
+    virtual void replicaExchange(System& os) {
       auto s = static_cast<SystHalt&>(os);
       std::swap(dt, s.dt);
     }
