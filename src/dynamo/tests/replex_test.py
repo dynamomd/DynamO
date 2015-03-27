@@ -18,7 +18,7 @@
 import os
 import math
 import sys
-import argparse
+import getopt
 import xml.etree.ElementTree as ET
 
 swaps=1000
@@ -31,33 +31,49 @@ finish_time=float(swaps)*swap_time
 def isclose(a,b,tol):
     return (abs(a-b) <= abs(tol*a)) or (abs(a-b) <= abs(tol*b))
 
-parser = argparse.ArgumentParser(description="Test harness for running DynamO tests")
-parser.add_argument('--dynarun', dest="dynarun_cmd", help='The location of the built dynarun command to be tested', required=True)
-parser.add_argument('--dynamod', dest="dynamod_cmd", help='The location of the built dynamod command to be tested', required=True)
-parser.add_argument('--dynahist_rw', dest="dynahist_rw_cmd", help='The location of the built dynahist_rw command to be tested', required=True)
-args = parser.parse_args()
+shortargs=""
+longargs=["dynarun=", "dynamod=", "dynahist_rw="]
+try:
+    options, args = getopt.gnu_getopt(sys.argv[1:], shortargs, longargs)
+except getopt.GetoptError as err:
+    # print help information and exit:
+    print str(err) # will print something like "option -a not recognized"
+    sys.exit(2)
 
-for exe in [args.dynahist_rw_cmd, args.dynamod_cmd, args.dynarun_cmd]:
+dynarun_cmd="NOT SET"
+dynamod_cmd="NOT SET"
+dynahist_rw_cmd="NOT SET"
+
+for o,a in options:
+    if o == "--dynarun":
+        dynarun_cmd = a
+    if o == "--dynamod":
+        dynamod_cmd = a
+    if o == "--dynahist_rw":
+        dynahist_rw_cmd = a
+
+
+for name,exe in [("dynahist_rw", dynahist_rw_cmd), ("dynamod", dynamod_cmd), ("dynarun", dynarun_cmd)]:
     if not(os.path.isfile(exe) and os.access(exe, os.X_OK)):
-        raise RuntimeError("Failed to find "+exe)
+        raise RuntimeError("Failed to find "+name+" executabe at "+exe)
         
 import subprocess
 
 ###### INITIALISATION
 Temperatures=[1.0, 2.0, 5.0, 10.0]
 for i,T in enumerate(Temperatures):
-    cmd=[args.dynamod_cmd, "-m2", "-T"+str(T), "-oc"+str(i)+".xml"]
+    cmd=[dynamod_cmd, "-m2", "-T"+str(T), "-oc"+str(i)+".xml"]
     print " ".join(cmd)
     subprocess.call(cmd)
 
 ###### EQUILIBRATION
-cmd=[args.dynarun_cmd, "--engine=2", "-oc%ID.xml", "--out-data-file=o%ID.xml", "-N4", "-i"+str(swap_time), "-f"+str(finish_time)]+["c"+str(i)+".xml" for i in range(len(Temperatures))]
+cmd=[dynarun_cmd, "--engine=2", "-oc%ID.xml", "--out-data-file=o%ID.xml", "-N4", "-i"+str(swap_time), "-f"+str(finish_time)]+["c"+str(i)+".xml" for i in range(len(Temperatures))]
 print " ".join(cmd)
 subprocess.call(cmd)
 
 
 ###### PRODUCTION
-cmd=[args.dynarun_cmd, "--engine=2", "-oc%ID.xml", "--out-data-file=o%ID.xml", "-N4", "-i"+str(swap_time), "-LIntEnergyHist", "-f"+str(finish_time)]+["c"+str(i)+".xml" for i in range(len(Temperatures))]
+cmd=[dynarun_cmd, "--engine=2", "-oc%ID.xml", "--out-data-file=o%ID.xml", "-N4", "-i"+str(swap_time), "-LIntEnergyHist", "-f"+str(finish_time)]+["c"+str(i)+".xml" for i in range(len(Temperatures))]
 print " ".join(cmd)
 subprocess.call(cmd)
 
