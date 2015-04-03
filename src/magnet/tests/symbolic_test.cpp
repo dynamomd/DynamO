@@ -346,6 +346,8 @@ BOOST_AUTO_TEST_CASE( symbolic_abs_arbsign )
 
   BOOST_CHECK(compare_expression(abs(x), "|x|"));
   BOOST_CHECK_EQUAL(substitution(abs(x*x - 5*x), x==2), 6);
+  BOOST_CHECK_EQUAL(ratio<6/-2>::num, -3);
+  BOOST_CHECK_EQUAL(ratio<-8/-4>::num, 2);
   BOOST_CHECK(compare_expression(abs(UnitySymbol()), UnitySymbol()));
   BOOST_CHECK(compare_expression(abs(NullSymbol()), NullSymbol()));
   BOOST_CHECK(compare_expression(abs(NullSymbol()), NullSymbol()));
