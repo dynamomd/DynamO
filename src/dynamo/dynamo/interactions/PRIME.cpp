@@ -395,40 +395,40 @@ namespace dynamo {
     bool all_captures_satisfied = true;
 
     //Search for reasons NOT to allow the bond
-    if (!isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-		 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID))))
+    if (!isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res)),
+		 _topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res))))
     {
       if (distance_i != 0)
           return false;
       all_captures_satisfied = false;
     }
 
-    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-		_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res, TPRIME::MID))))
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res)),
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, CO_res))))
     {
       if (distance_i != 1)
           return false;
       all_captures_satisfied = false;
     }
 
-    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res, TPRIME::MID)),
-		_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1, TPRIME::MID))))
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, NH_res)),
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::NH, CO_res+1))))
     {
       if (distance_i != 2)
           return false;
       all_captures_satisfied = false;
     }
 
-    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
-		_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1, TPRIME::MID))))
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res)),
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, NH_res-1))))
     {
       if (distance_i != 3)
           return false;
       all_captures_satisfied = false;
     }
 
-    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res, TPRIME::MID)),
-		_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res, TPRIME::MID))))
+    if (isCaptured(_topology->getBeadID(TPRIME::BeadData(TPRIME::CO, CO_res)),
+		_topology->getBeadID(TPRIME::BeadData(TPRIME::CH, NH_res))))
     {
       if (distance_i != 4)
           return false;

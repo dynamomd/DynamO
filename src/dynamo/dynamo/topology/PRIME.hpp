@@ -63,12 +63,12 @@ namespace dynamo {
   public:
     
     /*! \brief  An enumeration of the bead/site types in the PRIME potential. */
-    enum PRIME_site_type {
-      NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y,
+    enum PRIME_residue_type {
+      NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y, G,
       GROUP_COUNT
     };
     
-    /*! \brief A mapping of \ref PRIME_site_type enumerations to
+    /*! \brief A mapping of \ref PRIME_residue_type enumerations to
         string representations for output. 
     */
     static const std::vector<std::string> PRIME_site_names;
@@ -182,15 +182,16 @@ namespace dynamo {
     enum BeadLocation { NH_END, MID, CO_END };
 
     struct BeadData {
-      BeadData(PRIME_site_type t, size_t r, BeadLocation e = MID): 
-	bead_type(t), residue(r), location(e) {}
+      BeadData(PRIME_residue_type b, size_t r, PRIME_residue_type t = A, BeadLocation e = MID): 
+	bead_type(b), residue(r), residue_type(t), location(e) {}
 
       //Define sorting for storing in maps (note location does not affect the sorting order!)
       bool operator<(const BeadData& op) const { return bead_type<op.bead_type || (!(op.bead_type<bead_type) && (residue<op.residue)); }
       bool operator==(const BeadData& op) const { return (residue == op.residue) && (bead_type == op.bead_type); }
 
-      PRIME_site_type bead_type;
+      PRIME_residue_type bead_type;
       size_t residue;
+      PRIME_residue_type residue_type;
       BeadLocation location;
     };
     
