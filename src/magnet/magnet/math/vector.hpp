@@ -224,7 +224,7 @@ namespace magnet {
     template<class T, size_t N, class R>
     typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type
     operator/(const NVector<T,N>& vec1, const R& val) {
-      return vec1 * (R(1)/val);
+      return vec1 * (decltype(T() / R())(1)/val);
     }
 
     /*! \brief Unary negative operator. */

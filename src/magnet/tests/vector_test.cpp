@@ -118,6 +118,21 @@ BOOST_AUTO_TEST_CASE( vector_float_mult )
   BOOST_CHECK_EQUAL(C[2], 6);
 }
 
+BOOST_AUTO_TEST_CASE( vector_division )
+{
+  Vector A{1.0,2.0,3.0};
+  //Check that integers are promoted where necessary
+  Vector B = A / int(2);
+  BOOST_CHECK_EQUAL(B[0], 0.5);
+  BOOST_CHECK_EQUAL(B[1], 1.0);
+  BOOST_CHECK_EQUAL(B[2], 1.5);
+
+  Vector C= A / double(2);
+  BOOST_CHECK_EQUAL(C[0], 0.5);
+  BOOST_CHECK_EQUAL(C[1], 1.0);
+  BOOST_CHECK_EQUAL(C[2], 1.5);
+}
+
 BOOST_AUTO_TEST_CASE( vector_norm )
 {
   Vector B{1,1,1};
