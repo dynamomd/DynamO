@@ -252,7 +252,7 @@ namespace dynamo {
 	    {
 	      //Determine if HB interactions are present or not
 	      //If the time-independent criteria are met, it's not a hard-sphere and we track distances.
-	      if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+	      if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3) && (p1Data.residue_type != TPRIME::P))
 		{
 		  const size_t NH_res = p1Data.residue;
 		  const size_t CO_res = p2Data.residue;
@@ -261,7 +261,7 @@ namespace dynamo {
 		  const double bond_energy = checkTimeDependentCriteria(NH_res, CO_res, 0) ? -_PRIME_HB_strength : 0;
 		  return std::make_tuple(outer_diameter, inner_diameter, bond_energy, NH_res, CO_res);
 		}
-	      else if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+	      else if ((p1Data.bead_type == TPRIME::CH) && (p2Data.bead_type == TPRIME::CO) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3) && (p1Data.residue_type != TPRIME::P))
 		{
 		  const size_t NH_res = p1Data.residue;
 		  const size_t CO_res = p2Data.residue;
@@ -309,15 +309,15 @@ namespace dynamo {
 		    {
 		      const double inner_diameter = TPRIME::_PRIME_diameters[22 * p1Data.bead_type + p2Data.bead_type];
 		      const double outer_diameter = TPRIME::_PRIME_HB_aux_min_distances[3 * p1Data.bead_type + p2Data.bead_type];
-		      if (valid_distance_1 && checkTimeDependentCriteria(NH_res_1, CO_res_1, 2))
+		      if (valid_distance_1 && (p1Data.residue_type != TPRIME::P) && checkTimeDependentCriteria(NH_res_1, CO_res_1, 2))
  			return std::make_tuple(outer_diameter, inner_diameter, _PRIME_HB_strength, NH_res_1, CO_res_1);
-		      if (valid_distance_2 && checkTimeDependentCriteria(NH_res_2, CO_res_2, 2))
+		      if (valid_distance_2 && (p2Data.residue_type != TPRIME::P) && checkTimeDependentCriteria(NH_res_2, CO_res_2, 2))
  			return std::make_tuple(outer_diameter, inner_diameter, _PRIME_HB_strength, NH_res_2, CO_res_2);
 
  		      return std::make_tuple(outer_diameter, inner_diameter, 0.0, no_HB_res, no_HB_res);
 		    }
 		}
-	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CH) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3))
+	      else if ((p1Data.bead_type == TPRIME::NH) && (p2Data.bead_type == TPRIME::CH) && (p1Data.location != TPRIME::NH_END) && (p2Data.location != TPRIME::CO_END) && (std::abs(int(p1Data.residue) - int(p2Data.residue)) > 3) && (p1Data.residue_type != TPRIME::P))
 		{		
 		  const size_t NH_res = p1Data.residue;
 		  const size_t CO_res = p2Data.residue;
