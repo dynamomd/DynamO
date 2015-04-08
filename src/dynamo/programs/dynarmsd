@@ -1,23 +1,43 @@
 #!/usr/bin/env python2
 
+import xml.etree.ElementTree as ET
 import math
 import numpy
 import sys
 import os
 import pickle
 
-xmlstarlet='xml'
+#Function to load a (possibly compressed) xml file.
+def loadXMLFile(filename):
+    #Check if the file is compressed or not, and 
+    if (os.path.splitext(filename)[1][1:].strip() == "bz2"):
+        import bz2
+        f = bz2.BZ2File(filename)
+        doc = ET.parse(f)
+        f.close()
+        return doc
+    else:
+        return ET.parse(filename)
+
+import getopt
+shortargs=""
+longargs=[]
+try:
+    options, files = getopt.gnu_getopt(sys.argv[1:], shortargs, longargs)
+except getopt.GetoptError as err:
+    # print help information and exit:
+    print str(err) # will print something like "option -a not recognized"
+    sys.exit(2)
 
 def rmsd(crds1, crds2):
   """Returns RMSD between 2 sets of [nx3] numpy array"""
   v, s, w_tr = numpy.linalg.svd(numpy.dot(numpy.transpose(crds1), crds2))
   return numpy.sqrt(max([(sum(sum(crds1 * crds1)) + sum(sum(crds2 * crds2)) - 2.0*sum(s)) / float(numpy.shape(crds1)[0]), 0.0]))
 
-def get_structlist(outputfile):
-  cmd = 'bzcat '+outputfile+' | '+xmlstarlet+' sel -t -m \'/OutputData/StructureImages\' -m \'Image\' -m \'Atom\' -v \'@x\' -o "," -v \'@y\' -o \',\' -v \'@z\' -o \':\' -b -n | gawk \'{if (NF) print $0}\''
+def get_structlist(configfile):
+  xmldoc = loadXMLFile(configfile)
 
-  structlist = []
-  for line in os.popen(cmd).readlines():
+  for xmlelement in RootElement.findall(".//Pt"):
     line = line.rstrip(':')
     line = line.rstrip(':\n')
     structlist.append(numpy.array([[float(x) for x in atom.split(',')] for atom in line.split(':')]))
