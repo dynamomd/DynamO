@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( vector_unary_negative )
   BOOST_CHECK_EQUAL(B[2], -3);
 }
 
-BOOST_AUTO_TEST_CASE( vector_float_mult )
+BOOST_AUTO_TEST_CASE( vector_mult )
 {
   Vector A{1,2,3};
   Vector C = A*2.0;
@@ -116,6 +116,25 @@ BOOST_AUTO_TEST_CASE( vector_float_mult )
   BOOST_CHECK_EQUAL(C[0], 2);
   BOOST_CHECK_EQUAL(C[1], 4);
   BOOST_CHECK_EQUAL(C[2], 6);
+
+  C = 2 * A;
+  BOOST_CHECK_EQUAL(C[0], 2);
+  BOOST_CHECK_EQUAL(C[1], 4);
+  BOOST_CHECK_EQUAL(C[2], 6);
+
+  C = A * 2;
+  BOOST_CHECK_EQUAL(C[0], 2);
+  BOOST_CHECK_EQUAL(C[1], 4);
+  BOOST_CHECK_EQUAL(C[2], 6);
+
+  //Check for promotion to double
+  NVector<int, 3> D{1,2,3};
+  NVector<double, 3> E{3.1,4.2,5.3};
+  auto F = D * E;
+  BOOST_CHECK_EQUAL(F, 27.4);
+
+  auto G = E * D;
+  BOOST_CHECK_EQUAL(G, 27.4);
 }
 
 BOOST_AUTO_TEST_CASE( vector_division )

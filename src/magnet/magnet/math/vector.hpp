@@ -205,7 +205,7 @@ namespace magnet {
     NVector<decltype(T()*R()),N> operator*(const NVector<T,N>& vec1, const R& val) {
       NVector<decltype(T()*R()),N> retval;
       for (size_t i(0); i < N; ++i)
-	retval[i] = val * vec1[i];
+	retval[i] = vec1[i] * val;
       return retval;
     }
 
