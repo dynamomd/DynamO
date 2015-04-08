@@ -623,7 +623,7 @@ namespace dynamo
   void 
   Simulation::setCOMVelocity(const Vector COMVelocity)
   {  
-    Vector sumMV({0,0,0});
+    magnet::math::NVector<long double, 3> sumMV({0,0,0});
     long double sumMass(0);
 
     //Determine the momentum discrepancy vector

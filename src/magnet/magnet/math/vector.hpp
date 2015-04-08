@@ -67,6 +67,14 @@ namespace magnet {
 	  Base::operator[](i) = 0.0;
       }
 
+      /*! \brief Conversion copy constructor.
+       */
+      template<class OT>
+      NVector(NVector<OT,N> ov) {
+	for (size_t i(0); i < N; ++i)
+	  Base::operator[](i) = T(ov[i]);
+      }
+
       /*! \brief Returns the square norm of the NVector.*/
       inline T nrm2() const 
       { 
@@ -165,20 +173,20 @@ namespace magnet {
       \{
      */
     /*! \brief Addition of two NVector types.  */
-    template<class T, size_t N>
-    NVector<T,N> operator+(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
-      NVector<T,N> retval(vec1);
+    template<class T1, class T2, size_t N>
+    NVector<decltype(T1()+T2()), N> operator+(const NVector<T1,N>& vec1, const NVector<T2,N>& vec2) {
+      NVector<decltype(T1()+T2()), N> retval;
       for (size_t i(0); i < N; ++i)
-	retval[i] += vec2[i];
+	retval[i] = vec1[i] + vec2[i];
       return retval;
     }
 
     /*! \brief Subtraction of two NVector types.  */
-    template<class T, size_t N>
-    NVector<T,N> operator-(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
-      NVector<T,N> retval(vec1);
+    template<class T1, class T2, size_t N>
+    NVector<decltype(T1()-T2()),N> operator-(const NVector<T1,N>& vec1, const NVector<T2,N>& vec2) {
+      NVector<decltype(T1()-T2()),N> retval;
       for (size_t i(0); i < N; ++i)
-	retval[i] -= vec2[i];
+	retval[i] = vec1[i] - vec2[i];
       return retval;
     }
 
@@ -192,39 +200,48 @@ namespace magnet {
     }
 
     /*! \brief Multiplication of a scalar and an NVector.  */
-    template<class T, size_t N, class R>
-    typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type operator*(const NVector<T,N>& vec1, const R& val) {
-      NVector<T,N> retval;
+    template<class T, size_t N, class R,
+	     typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    NVector<decltype(T()*R()),N> operator*(const NVector<T,N>& vec1, const R& val) {
+      NVector<decltype(T()*R()),N> retval;
       for (size_t i(0); i < N; ++i)
-	retval[i] = vec1[i] * val;
+	retval[i] = val * vec1[i];
       return retval;
     }
+
     /*! \brief Multiplication of an NVector and a scalar.  */
-    template<class T, size_t N, class R>
-    typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type operator*(const R& val, const NVector<T,N>& vec1) {
-      return vec1 * val;
+    template<class T, size_t N, class R,
+	     typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    NVector<decltype(R()*T()),N> operator*(const R& val, const NVector<T,N>& vec1) {
+      NVector<decltype(R()*T()),N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = val * vec1[i];
+      return retval;
     }
 
     /*! \brief Scalar (dot) product */
-    template<class T, size_t N>
-    T operator*(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
-      T sum(0);
+    template<class T1, class T2, size_t N>
+    decltype(T1()*T2()) operator*(const NVector<T1,N>& vec1, const NVector<T2,N>& vec2) {
+      decltype(T1()*T2()) sum(0);
       for (size_t i(0); i < N; ++i)
 	sum += vec1[i] * vec2[i];
       return sum;
     }
 
     /*! \brief Scalar (dot) product */
-    template<class T, size_t N>
-    T operator|(const NVector<T,N>& vec1, const NVector<T,N>& vec2) {
+    template<class T1, class T2, size_t N>
+    decltype(NVector<T1,N>()* NVector<T2,N>()) operator|(const NVector<T1,N>& vec1, const NVector<T2,N>& vec2) {
       return vec1 * vec2;
     }
 
     /*! \brief Division of an NVector by a scalar.  */
-    template<class T, size_t N, class R>
-    typename std::enable_if<std::is_arithmetic<R>::value, NVector<T,N> >::type
-    operator/(const NVector<T,N>& vec1, const R& val) {
-      return vec1 * (decltype(T() / R())(1)/val);
+    template<class T, size_t N, class R,
+	     typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    NVector<decltype(T()/R()),N> operator/(const NVector<T,N>& vec1, const R& val) {
+      NVector<decltype(T()/R()),N> retval;
+      for (size_t i(0); i < N; ++i)
+	retval[i] = vec1[i] / val;
+      return retval;
     }
 
     /*! \brief Unary negative operator. */
@@ -284,14 +301,14 @@ namespace magnet {
       \{
      */
 
-    template<class T>
-    inline T elementwiseMultiply(const T& A, const T& B)
+    template<class T1, class T2>
+    inline decltype(T1()*T2()) elementwiseMultiply(const T1& A, const T2& B)
     { return A * B; }
     
-    template<class T, size_t N>
-    inline NVector<T,N> elementwiseMultiply(const NVector<T,N>& A, const NVector<T,N>& B)
+    template<class T1, class T2, size_t N>
+    inline NVector<decltype(T1()*T2()),N> elementwiseMultiply(const NVector<T1,N>& A, const NVector<T2,N>& B)
     { 
-      NVector<T,N> retval;
+      NVector<decltype(T1()*T2()),N> retval;
       for (size_t i(0); i < N; ++i)
 	retval[i] = A[i] * B[i];
       return retval;

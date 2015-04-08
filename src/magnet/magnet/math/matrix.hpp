@@ -250,9 +250,9 @@ namespace magnet {
     /*! \relates NMatrix
       \brief Addition of two NMatrix types.
      */
-    template<class T, size_t N>
-    NMatrix<T,N> operator+(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
-      NMatrix<T,N> retval;
+    template<class T1, class T2, size_t N>
+    NMatrix<decltype(T1()+T2()),N> operator+(const NMatrix<T1,N>& A, const NMatrix<T2,N>& B) {
+      NMatrix<decltype(T1()+T2()),N> retval;
       for (size_t i(0); i < N*N; ++i)
 	retval(i) = A(i) + B(i);
       return retval;
@@ -261,9 +261,9 @@ namespace magnet {
     /*! \relates NMatrix
       \brief Subtraction of two NMatrix types.
      */
-    template<class T, size_t N>
-    NMatrix<T,N> operator-(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
-      NMatrix<T,N> retval;
+    template<class T1, class T2, size_t N>
+    NMatrix<decltype(T1()-T2()),N> operator-(const NMatrix<T1,N>& A, const NMatrix<T2,N>& B) {
+      NMatrix<decltype(T1()-T2()),N> retval;
       for (size_t i(0); i < N*N; ++i)
 	retval(i) = A(i) - B(i);
       return retval;
@@ -273,8 +273,8 @@ namespace magnet {
       \brief Multiplication of a NMatrix type and a Scalar.
      */
     template<class T, class U, size_t N>
-    NMatrix<T,N> operator*(const NMatrix<T,N>& A, const U& B) {
-      NMatrix<T,N> retval;
+    NMatrix<decltype(T()*U()),N> operator*(const NMatrix<T,N>& A, const U& B) {
+      NMatrix<decltype(T()*U()),N> retval;
       for (size_t i(0); i < N*N; ++i)
 	retval(i) = A(i) * B;
       return retval;
@@ -284,19 +284,22 @@ namespace magnet {
       \brief Multiplication of a Scalar and an NMatrix type.
      */
     template<class T, class U, size_t N>
-    NMatrix<T,N> operator*(const U& B, const NMatrix<T,N>& A) {
-      return A * B;
+    NMatrix<decltype(U()*T()),N> operator*(const U& B, const NMatrix<T,N>& A) {
+      NMatrix<decltype(U()*T()),N> retval;
+      for (size_t i(0); i < N*N; ++i)
+	retval(i) = B * A(i);
+      return retval;
     }
 
     /*! \relates NMatrix
       \brief Dot product between two NMatrix types.
      */
-    template<class T, size_t N>
-    NMatrix<T,N> operator*(const NMatrix<T,N>& A, const NMatrix<T,N>& B) {
-      NMatrix<T,N> retval;
+    template<class T1, class T2, size_t N>
+    NMatrix<decltype(T1()*T2()),N> operator*(const NMatrix<T1,N>& A, const NMatrix<T2,N>& B) {
+      NMatrix<decltype(T1()*T2()),N> retval;
       for (size_t i(0); i < N; ++i)
 	for (size_t j(0); j < N; ++j) {
-	  T sum(0);
+	  decltype(T1()*T2()) sum(0);
 	  for (size_t k(0); k < N; ++k)
 	    sum += A(i, k) * B(k, j);
 	  retval(i,j) = sum;
@@ -307,11 +310,11 @@ namespace magnet {
     /*! \relates NMatrix
       \brief Dot product between a NMatrix and a NVector.
      */
-    template<class T, size_t N>
-    NVector<T,N> operator*(const NMatrix<T,N>& A, const NVector<T,N>& B) {
-      NVector<T,N> retval;
+    template<class T1, class T2, size_t N>
+    NVector<decltype(T1()*T2()),N> operator*(const NMatrix<T1,N>& A, const NVector<T2,N>& B) {
+      NVector<decltype(T1()*T2()),N> retval;
       for (size_t i(0); i < N; ++i) {
-	T sum(0);
+	decltype(T1()*T2()) sum(0);
 	for (size_t j(0); j < N; ++j)
 	  sum += A(i, j) * B[j];
 	retval[i] = sum;
@@ -322,13 +325,13 @@ namespace magnet {
     /*! \relates NMatrix
       \brief Dot product between a NVector and a NMatrix.
      */
-    template<class T, size_t N>
-    NVector<T,N> operator*(const NVector<T,N>& A, const NMatrix<T,N>& B) {
-      NVector<T,N> retval;
+    template<class T1, class T2, size_t N>
+    NVector<decltype(T1() * T2()),N> operator*(const NVector<T1,N>& A, const NMatrix<T2,N>& B) {
+      NVector<decltype(T1() * T2()),N> retval;
       for (size_t i(0); i < N; ++i) {
-	T sum(0);
+	decltype(T1() * T2()) sum(0);
 	for (size_t j(0); j < N; ++j)
-	  sum += B[j] * A(j, i);
+	  sum += A(j, i) * B[j];
 	retval[i] = sum;
       }
       return retval;
@@ -478,10 +481,10 @@ namespace magnet {
       \{
      */
 
-    template<class T, size_t N>
-    inline NMatrix<T,N> elementwiseMultiply(const NMatrix<T, N>& A, const NMatrix<T,N>& B)
+    template<class T1, class T2, size_t N>
+    inline NMatrix<decltype(T1()*T2()),N> elementwiseMultiply(const NMatrix<T1, N>& A, const NMatrix<T2,N>& B)
     { 
-      NMatrix<T,N> retval;
+      NMatrix<decltype(T1()*T2()),N> retval;
       for (size_t i(0); i < 3; ++i)
 	for (size_t j(0); j < 3; ++j)
 	  retval(i,j) = A(i,j) * B(i, j);
@@ -508,7 +511,7 @@ namespace magnet {
       return retval;
     }
 
-    /*! \} */    
+    /*! \} */
 
     typedef NMatrix<> Matrix;
   }
