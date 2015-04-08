@@ -291,13 +291,22 @@ endif()
 # scripts
 find_package(PythonInterp 2.7)
 if(PYTHONINTERP_FOUND)
-  install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport DESTINATION bin)
+  find_package(NumPy)
+  if(NUMPY_FOUND)
+    install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport DESTINATION bin)
+    install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarmsd      DESTINATION bin)
+  else()
+    message(WARNING "Python NumPy library not found, disabling install of dynatransport, dynamaprmsd, and dynarmsd")
+  endif()
+
   install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynamo2xyz    DESTINATION bin)
-  install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarmsd      DESTINATION bin)
   install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynamaprmsd   DESTINATION bin)
 else()
   message(WARNING "Python 2.7 not found, cannot install all DynamO tools.")
 endif()
+
+
+
 
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
@@ -327,9 +336,11 @@ add_test(NAME dynamo_replica_exchange
 	 --dynamod=$<TARGET_FILE:dynamod>
 	 --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
 
-add_test(NAME dynamo_dynatransport
-         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py 
-	 --dynarun=$<TARGET_FILE:dynarun>
-	 --dynamod=$<TARGET_FILE:dynamod>
-	 --dynahist_rw=$<TARGET_FILE:dynahist_rw>
-	 --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport)
+if(NUMPY_FOUND)
+  add_test(NAME dynamo_dynatransport
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py 
+    --dynarun=$<TARGET_FILE:dynarun>
+    --dynamod=$<TARGET_FILE:dynamod>
+    --dynahist_rw=$<TARGET_FILE:dynahist_rw>
+    --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport)
+endif()

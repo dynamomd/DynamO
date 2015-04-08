@@ -1,9 +1,6 @@
 #!/usr/bin/env python2
-import glob
-import math
 import os
 import xml.etree.ElementTree as ET
-import subprocess
  
 #A helpful function to load compressed or uncompressed XML files
 def loadXMLFile(filename):
