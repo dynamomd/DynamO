@@ -326,3 +326,10 @@ add_test(NAME dynamo_replica_exchange
 	 --dynarun=$<TARGET_FILE:dynarun>
 	 --dynamod=$<TARGET_FILE:dynamod>
 	 --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
+
+add_test(NAME dynamo_dynatransport
+         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py 
+	 --dynarun=$<TARGET_FILE:dynarun>
+	 --dynamod=$<TARGET_FILE:dynamod>
+	 --dynahist_rw=$<TARGET_FILE:dynahist_rw>
+	 --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport)
