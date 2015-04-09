@@ -200,8 +200,7 @@ namespace magnet {
     }
 
     /*! \brief Multiplication of a scalar and an NVector.  */
-    template<class T, size_t N, class R,
-	     typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    template<class T, size_t N, class R>
     NVector<decltype(T()*R()),N> operator*(const NVector<T,N>& vec1, const R& val) {
       NVector<decltype(T()*R()),N> retval;
       for (size_t i(0); i < N; ++i)
@@ -210,8 +209,7 @@ namespace magnet {
     }
 
     /*! \brief Multiplication of an NVector and a scalar.  */
-    template<class T, size_t N, class R,
-	     typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    template<class T, size_t N, class R>
     NVector<decltype(R()*T()),N> operator*(const R& val, const NVector<T,N>& vec1) {
       NVector<decltype(R()*T()),N> retval;
       for (size_t i(0); i < N; ++i)
@@ -235,8 +233,7 @@ namespace magnet {
     }
 
     /*! \brief Division of an NVector by a scalar.  */
-    template<class T, size_t N, class R,
-	     typename = typename std::enable_if<std::is_arithmetic<R>::value>::type>
+    template<class T, size_t N, class R>
     NVector<decltype(T()/R()),N> operator/(const NVector<T,N>& vec1, const R& val) {
       NVector<decltype(T()/R()),N> retval;
       for (size_t i(0); i < N; ++i)
