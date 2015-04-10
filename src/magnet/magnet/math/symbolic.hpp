@@ -284,7 +284,7 @@ namespace magnet {
       For constant terms, +inf is returned to indicate no root was
       found.
     */
-    template<class F, 
+    template<class F,
 	     typename = typename std::enable_if<detail::IsConstant<F>::value>::type>
     inline double next_root(const F& f) {
       return HUGE_VAL;

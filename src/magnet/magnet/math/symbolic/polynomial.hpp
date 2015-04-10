@@ -717,9 +717,9 @@ namespace magnet {
 
     /*! \brief Returns a polynomial \f$g(x)=f(x+1)\f$.
 
-      This is an optimised \ref shift_polynomial operation where the
-      shift is unity. See \ref shift_polynomial for more
-      implementation details
+      This is an optimised \ref shift_function operation where the
+      shift is unity. See \ref shift_function for more
+      implementation details.
      */
     template<size_t Order, class Real, char Letter>
     inline Polynomial<Order, Real, Letter> shift_function(const Polynomial<Order, Real, Letter>& f, UnitySymbol) {
@@ -768,7 +768,9 @@ namespace magnet {
 	\f]
 
 	This entire operation is performed using an optimised version
-	of the \ref shift_polynomial function.
+	of the \ref shift_polynomial function. Take a look at the
+	implementation of \ref shift_polynomial and substitute in a
+	shift value of 1 to arrive at this implementation.
      */
     template<size_t Order, class Real, char Letter>
     inline Polynomial<Order, Real, Letter> invert_taylor_shift(const Polynomial<Order, Real, Letter>& f) {
@@ -1086,7 +1088,7 @@ namespace magnet {
 	return deflate_and_solve_polynomial(f, -std::sqrt(-f[1]));
 
       if ((f[0] > maxSqrt) || (f[0] < -maxSqrt))
-	//Another special case where equation is approximated asf(x)= x^3 +f[0]
+	//Another special case where equation is approximated as f(x)= x^3 +f[0]
 	return deflate_and_solve_polynomial(f, -std::cbrt(f[0]));
 
       const double v = f[0] + (2.0 * f[2] * f[2] / 9.0 - f[1]) * (f[2] / 3.0);
@@ -1521,7 +1523,9 @@ namespace magnet {
       Now the upper bound on the real roots of \f$g(x)\f$ are the
       inverse of the lower bound on the real roots of \f$f(x)\f$. The
       transformation is computationally equivalent to reversing the
-      coefficient array of the polynomial \f$f(x)\f$.
+      coefficient array of the polynomial \f$f(x)\f$. This function is
+      adapted from the thesis "Upper bounds on the values of the
+      positive roots of polynomials" by Panagiotis S. Vigklas (2010).
     */
     template<class Real, size_t Order, char Letter>
     Real LMQ_lower_bound(const Polynomial<Order, Real, Letter>& f) {
@@ -1568,14 +1572,15 @@ namespace magnet {
 	//One root! the bound is (0,1)
 	return containers::StackVector<std::pair<Real,Real>, Order>{std::make_pair(Real(0), Real(1))};
       default:
-	//Possibly multiple roots, so divide the range and recursively
-	//explore it.
+	//Possibly multiple roots, so divide the range [0,1] in half
+	//and recursively explore it.
 
-	//Scale the polynomial so that all roots lie in the range
-	//(0,2). We actually scale by 2^Order to make the division by 2 a multiply.
-	//
-	//We actually generate this function
-	//p1(x) = 2^Order f(x/2)
+	//We first scale the polynomial so that the original range
+	//x=[0,1] is scaled to the range x=[0,2]. To do this, we
+	//perform the subsitution x->x/2. Rather than use division
+	//(even though a division by 2 usually cheap), we actually
+	//generate this function \f$p1(x) = 2^{Order}\,f(x/2)\f$. This
+	//transforms this to a multiplication op which is always cheap.
 	Polynomial<Order, Real, Letter> p1(f);
 	for (size_t i(0); i <= Order; ++i)
 	  p1[i] *= (1 << (Order-i)); //This gives (2^Order) / (2^i)
@@ -1587,19 +1592,21 @@ namespace magnet {
 	//in terms of the original function, f(x).
 	const Polynomial<Order, Real, Letter> p2 = shift_function(p1, UnitySymbol());
 
-	//Now that we have two polynomials, each of which is scaled so
-	//the roots of interest lie in (0,1). Search them both and
-	//combine the results.
+	//Now that we have two scaled and shifted polynomials where
+	//the roots in f in the range x=[0,0.5] are in p1 over the
+	//range \f$x=[0,1]\f$, and the roots of f in the range
+	//x=[0.5,1.0] are in p2 over the range \f$x=[0,1]\f$. Search
+	//them both and combine the results.
 
-	//Detect and scale the first range's roots
 	auto retval = VCA_real_root_bounds_worker(p1);
+	//Scale these roots back to the original mapping
 	for (auto& root_bound : retval) {
 	  root_bound.first /= 2;
 	  root_bound.second /= 2;
 	}
 
-	//Detect, scale, and shift the second range's roots
 	auto second_range = VCA_real_root_bounds_worker(p2);
+	//Scale these roots back to the original mapping
 	for (auto& root_bound : second_range)
 	  retval.push_back(std::make_pair(root_bound.first / 2 + 0.5, root_bound.second / 2 + 0.5));
 	
@@ -1757,7 +1764,9 @@ namespace magnet {
 	}
 
 	//Check if the lower bound suggests that this split is a waste
-	//of time, if so, shift the polynomial and try again.
+	//of time (no roots in [0,1]), if so, shift the polynomial and
+	//try again. This also occurs if there was a large jump in the
+	//lower bound as detected above.
 	if (lb >= 1) {
 	  f = shift_function(f, lb);
 	  M.shift(lb);
@@ -1766,9 +1775,13 @@ namespace magnet {
 
 	if (std::abs(eval(f, Variable<Letter>() == 1.0)) <= (100 * precision(f, 1.0))) {
 	  //There is probably a root near x=1.0 as its approached zero
-	  //closely. Rather than trying to divide it out or do
+	  //closely (compared to the precision of the polynomial
+	  //evaluation). Rather than trying to divide it out or do
 	  //anything too smart, just scale the polynomial so that next
-	  //time it falls at x=0.5
+	  //time it falls at x=0.5.
+	  //
+	  //This is needed as we are using finite precision math
+	  //(floating point)
 	  const Real scale = 2.0;
 	  f = scale_poly(f, scale);
 	  M.scale(scale);
@@ -1902,15 +1915,18 @@ namespace magnet {
     }
     
     /*\brief Solve for the distinct real roots of a Polynomial.
-      
-      This is just a convenience function to select the preferred root
-      solver combination. Roots are always returned sorted lowest-first.
 
-      Roots should always be returned sorted lowest-first.
+      This is a general implementation of the polynomial real root
+      solver. It defaults to using the VAS algorithm, and polishing up
+      the roots using the TOMS748 algorithm. It will recurse and call
+      the default root solver if the polynomial has a zero
+      leading-order coefficient!
+
+      Roots are always returned sorted lowest-first.
      */
-    template<PolyRootBounder BoundMode, PolyRootBisector BisectionMode, size_t Order, class Real, char Letter>
+    template<PolyRootBounder BoundMode = PolyRootBounder::VAS, PolyRootBisector BisectionMode = PolyRootBisector::TOMS748, size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
-    solve_real_roots_poly(const Polynomial<Order, Real, Letter>& f) {
+    solve_real_roots(const Polynomial<Order, Real, Letter>& f) {
       //Handle special cases 
       //The constant coefficient is zero: deflate the polynomial
       if (f[0] == Real())
@@ -1932,11 +1948,53 @@ namespace magnet {
       return roots;
     }
 
-    template<size_t Order, class Real, char Letter>
-    containers::StackVector<Real, Order>
-    solve_real_roots(const Polynomial<Order, Real, Letter>& f) {
-      return solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
+    /*! \brief Calculate the next real root of a low order polynomial
+        function.
+      
+	For low-order polynomials, the \ref solve_real_roots function
+	uses solution by radicals. These approach solves all roots and
+	returns them from lowest to highest, so we simply sort through
+	them looking for the first positive root.
+    */
+    template<size_t Order, class Real, char Letter,
+	     typename = typename std::enable_if<(Order<4)>::type>
+    inline Real next_root(const Polynomial<Order, Real, Letter>& f) {
+      auto roots = solve_real_roots(f);
+      
+      for (auto root : roots)
+	if (root >= 0)
+	  return root;
+      
+      return HUGE_VAL;
     }
+
+    /*! \brief Calculate the next real root of a low order polynomial
+        function.
+      
+	For high-order polynomials, the \ref solve_real_roots function
+	uses solution by the VAS algorithm. As this can be expensive,
+	this implementation only searches the positive space, and 
+    */
+      template<size_t Order, class Real, char Letter>
+      inline typename std::enable_if<(Order>=4), Real>::type next_root(const Polynomial<Order, Real, Letter>& f) {
+      auto roots = solve_real_positive_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
+
+      //Check for roots at zero
+      if (f[0] == Real())
+	return Real();
+
+      //Check if the highest order coefficient is zero: drop to a
+      //lower order solver
+      if (f[Order] == Real())
+	return next_root(change_order<Order-1>(f));
+      
+      for (auto root : roots)
+	if (root >= 0)
+	  return root;
+      
+      return HUGE_VAL;
+    }
+
     /*! \endcond \} */
   }
 }

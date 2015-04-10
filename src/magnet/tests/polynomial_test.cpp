@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
     auto poly = x * x - 3 * x + 4;
     auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 0);
-    //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
+    BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
   
   {//Quadratic with one root
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
     if (roots.size() == 1)
       BOOST_CHECK_CLOSE(roots[0], 1.5, 1e-10);
 
-    //BOOST_CHECK_CLOSE(next_root(poly), 1.5, 1e-10);
+    BOOST_CHECK_CLOSE(next_root(poly), 1.5, 1e-10);
   }
   
   {//quadratic but linear function with one root
@@ -253,14 +253,14 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_roots)
     BOOST_CHECK(roots.size() == 1);
     if (roots.size() == 1)
       BOOST_CHECK_CLOSE(roots[0], 0.75, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 0.75, 1e-10);
+    BOOST_CHECK_CLOSE(next_root(poly), 0.75, 1e-10);
   }
 
   {//constant function, with no roots
     auto poly =  0 * x * x + 0 * x - 9;
     auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 0);
-    //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
+    BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
 }
 
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
     BOOST_CHECK(roots.size() == 2);
     BOOST_CHECK_CLOSE(roots[0], -712345.1199985961, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], -1.754767408250742e-6, 1e-10);
-    //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
+    BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
 
   const double maxsqrt = std::sqrt(std::numeric_limits<double>::max());
@@ -287,14 +287,14 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
     //Mathematica value
     BOOST_CHECK_CLOSE(roots[0], -1.3407807929942599e156, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], -9.322925914000258e-157, 1e-10);
-    //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
+    BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
 
   {//Large (+ve) constant coefficient
     auto poly = x * x + x + largeterm;
     auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 0);
-    //BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
+    BOOST_CHECK_EQUAL(next_root(poly), HUGE_VAL);
   }
   {//Large (-ve) constant coefficient
     auto poly = x * x + x - largeterm;
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE( poly_quadratic_special_cases)
     //Mathematica value
     BOOST_CHECK_CLOSE(roots[0], -1.157920892373162e78, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], 1.157920892373162e78, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 1.157920892373162e78, 1e-10);
+    BOOST_CHECK_CLOSE(next_root(poly), 1.157920892373162e78, 1e-10);
   }
 }
 
@@ -339,15 +339,15 @@ BOOST_AUTO_TEST_CASE( poly_cubic_triple_roots )
 		  }
 		
 		//Test the next_root implementation
-		//std::vector<double> pos_roots;
-		//for (double root : actual_roots)
-		//  if (root >= 0)
-		//    pos_roots.push_back(root);
-		//std::sort(pos_roots.begin(), pos_roots.end());
-		//if (pos_roots.size() != 0)
-		//  BOOST_CHECK_CLOSE(pos_roots[0], next_root(f), 1e-11);
-		//else
-		//  BOOST_CHECK_EQUAL(next_root(f), HUGE_VAL);
+		std::vector<double> pos_roots;
+		for (double root : actual_roots)
+		  if (root >= 0)
+		    pos_roots.push_back(root);
+		std::sort(pos_roots.begin(), pos_roots.end());
+		if (pos_roots.size() != 0)
+		  BOOST_CHECK_CLOSE(pos_roots[0], next_root(f), 1e-11);
+		else
+		  BOOST_CHECK_EQUAL(next_root(f), HUGE_VAL);
 	      }
 	    }
 }
@@ -380,8 +380,8 @@ BOOST_AUTO_TEST_CASE( poly_cubic_single_roots )
 	    {
 	      double root_error = std::abs((roots[0] - root1) / (root1 + (root1 == 0)));
 	      BOOST_CHECK_MESSAGE(root_error < 0.001, "root error is " << root_error);
-	//      if (roots[0] >= 0)
-	//	BOOST_CHECK_CLOSE(roots[0], next_root(f), 1e-11);
+	      if (roots[0] >= 0)
+		BOOST_CHECK_CLOSE(roots[0], next_root(f), 1e-11);
 	    }
 	}
 }
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     BOOST_CHECK_CLOSE(roots[0], -712345.1199985961, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], -1.754767408250742e-6, 1e-10);
     BOOST_CHECK_CLOSE(roots[2], 0, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 0, 1e-11);
+    BOOST_CHECK_CLOSE(next_root(poly), 0, 1e-11);
   }
 
   {//Zero constant term with one root
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     auto roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], 0, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 0, 1e-11);
+    BOOST_CHECK_CLOSE(next_root(poly), 0, 1e-11);
   }
 
   {//Special case where f(x) = a * x^3 + d
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     roots = solve_real_roots(poly);
     BOOST_CHECK(roots.size() == 1);
     BOOST_CHECK_CLOSE(roots[0], 10, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 10, 1e-11);
+    BOOST_CHECK_CLOSE(next_root(poly), 10, 1e-11);
   }
 
   const double maxsqrt = std::sqrt(std::numeric_limits<double>::max());
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     BOOST_CHECK_CLOSE(roots[0], -9.655529977168658e-79, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], +9.655529977168658e-79, 1e-10);
     BOOST_CHECK_CLOSE(roots[2], 1.3407807929942599e156, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), +9.655529977168658e-79, 1e-11);
+    BOOST_CHECK_CLOSE(next_root(poly), +9.655529977168658e-79, 1e-11);
   }
 
   {//Large x term
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     BOOST_CHECK_CLOSE(roots[0], -1.1579208923731622e78, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], 9.322925914000258e-157, 1e-10);
     BOOST_CHECK_CLOSE(roots[2], 1.1579208923731622e78, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 9.322925914000258e-157, 1e-11);
+    BOOST_CHECK_CLOSE(next_root(poly), 9.322925914000258e-157, 1e-11);
   }
 
   const double smallerterm = maxsqrt * 1e-1;
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE( poly_cubic_special_cases )
     BOOST_CHECK_CLOSE(roots[0], -1.0, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], 1.491668146240041472864517142264024641421371730393e-153, 1e-10);
     BOOST_CHECK_CLOSE(roots[2], 1.340780792994259598314974448015366224371799690462e153, 1e-10);
-    //BOOST_CHECK_CLOSE(next_root(poly), 1.491668146240041472864517142264024641421371730393e-153, 1e-11);
+    BOOST_CHECK_CLOSE(next_root(poly), 1.491668146240041472864517142264024641421371730393e-153, 1e-11);
   }
 }
 
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE( poly_root_tests)
   {//Check quartic
     auto f1 = 10 * (x*x*x*x) + x*x*x - 30 * x * x -23;
 
-    auto roots = solve_real_roots(f1);
+    auto roots = solve_real_roots<>(f1);
     BOOST_CHECK_EQUAL(roots.size(), 2);
     BOOST_CHECK_CLOSE(roots[0], -1.949403904489790210996459054473124835057, 1e-10);
     BOOST_CHECK_CLOSE(roots[1], +1.864235880634589025006445510389799368569, 1e-10);
@@ -825,12 +825,12 @@ BOOST_AUTO_TEST_CASE( generic_solve_real_roots )
 			check_roots(solve_real_roots(f2), test_roots);
 			
 			//Test VCA + TOMS748
-			check_roots(solve_real_roots_poly<PolyRootBounder::VCA, PolyRootBisector::TOMS748>(f1), test_roots);
-			check_roots(solve_real_roots_poly<PolyRootBounder::VCA, PolyRootBisector::TOMS748>(f2), test_roots);
+			check_roots(solve_real_roots<PolyRootBounder::VCA, PolyRootBisector::TOMS748>(f1), test_roots);
+			check_roots(solve_real_roots<PolyRootBounder::VCA, PolyRootBisector::TOMS748>(f2), test_roots);
 			
 			//Test VAS + BISECTION
-			check_roots(solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::BISECTION>(f1), test_roots);
-			check_roots(solve_real_roots_poly<PolyRootBounder::VAS, PolyRootBisector::BISECTION>(f2), test_roots);
+			check_roots(solve_real_roots<PolyRootBounder::VAS, PolyRootBisector::BISECTION>(f1), test_roots);
+			check_roots(solve_real_roots<PolyRootBounder::VAS, PolyRootBisector::BISECTION>(f2), test_roots);
 
 			//Test the next_root implementation
 			std::vector<double> pos_roots;
@@ -839,7 +839,7 @@ BOOST_AUTO_TEST_CASE( generic_solve_real_roots )
 			    pos_roots.push_back(root);
 			
 			std::sort(pos_roots.begin(), pos_roots.end());
-			//BOOST_CHECK_CLOSE(pos_roots[0], next_root(f1), 1e-11);
-			//BOOST_CHECK_CLOSE(pos_roots[0], next_root(f2), 1e-11);
+			BOOST_CHECK_CLOSE(pos_roots[0], next_root(f1), 1e-11);
+			BOOST_CHECK_CLOSE(pos_roots[0], next_root(f2), 1e-11);
 		      }
 }
