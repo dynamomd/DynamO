@@ -52,6 +52,16 @@ namespace magnet {
     inline std::ostream& operator<<(std::ostream& os, const pi) { os << "π"; return os; }
     inline std::ostream& operator<<(std::ostream& os, const e) { os << "e"; return os; }
 
+    template<class T>
+    inline std::ostream& operator<<(std::ostream& os, const std::complex<T>& c) {
+      if (c.imag() == 0)
+	return (os << c.real());
+      if (c.imag() < 0)
+	return (os << "(" <<c.real() << " - " << std::abs(c.imag()) << "i)");
+
+      return (os << "(" <<c.real() << " + " << c.imag() << "i)");
+    }
+
     namespace detail {
       /*!\brief Type trait to determine if a certain type is a
 	symbolic representation of a constant.

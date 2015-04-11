@@ -10,8 +10,7 @@
 using namespace magnet::math;
 const Polynomial<1, double, 't'> t{0, 1};
 std::mt19937 RNG;
-
-const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
+const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7}};
 const size_t tests = 1000;
 
 template<class F, class R>
@@ -66,11 +65,13 @@ void test_solution(const F& f, double tol, R actual_roots) {
 	  next_droot = droot;
 
       //Find the first positive root
-      while (it->first < 0) ++it;
+      while ((it != root_counters.end()) && (it->first < 0)) ++it;
 
       if (!std::isinf(solution) && !std::isinf(next_droot) 
-	  && !::boost::test_tools::check_is_close(it->first, next_droot, ::boost::test_tools::percent_tolerance(tol))
-	  && (next_droot < it->first)) {
+	  //Check that the next_droot is not close to the next actual root
+	  && ((it==root_counters.end()) || !::boost::test_tools::check_is_close(it->first, next_droot, ::boost::test_tools::percent_tolerance(tol)))	 
+	  //Check that the droot is before the next root
+	  && ((it==root_counters.end()) || (next_droot < it->first))) {
 	//It should be a turning point root
 	nextroot = next_droot;
 	if (!::boost::test_tools::check_is_close(solution, next_droot, ::boost::test_tools::percent_tolerance(tol)))
@@ -179,7 +180,7 @@ BOOST_AUTO_TEST_CASE( Linear_function )
     }
 }
 
-BOOST_AUTO_TEST_CASE( Quadratic_function )
+BOOST_AUTO_TEST_CASE( Quadratic_function_real )
 {
   RNG.seed(1);
   feenableexcept(FE_INVALID | FE_OVERFLOW);
@@ -197,7 +198,30 @@ BOOST_AUTO_TEST_CASE( Quadratic_function )
       }
 }
 
-BOOST_AUTO_TEST_CASE( Cubic_function )
+BOOST_AUTO_TEST_CASE( Quadratic_function_imag )
+{
+  RNG.seed(1);
+  feenableexcept(FE_INVALID | FE_OVERFLOW);
+
+  for (double sign : {-1.0, +1.0})
+    for (auto it1 = rootvals.begin(); it1 != rootvals.end(); ++it1)
+      for (auto it2 = it1; it2 != rootvals.end(); ++it2) {
+	if (*it2 == 0) continue;
+
+	std::complex<double> r1(*it1, *it2), r2(*it1, -*it2);
+	auto poly_c = (t - r1) * (t - r2) * sign;
+
+	Polynomial<2, double, 't'> poly{poly_c[0].real(), poly_c[1].real(), poly_c[2].real()};
+	std::uniform_real_distribution<double> shift_dist(-10, 10);
+	for (size_t i(0); i < tests; ++i) {
+	  double shift = shift_dist(RNG);
+	  auto s_poly = shift_function(poly, shift);
+	  test_solution(s_poly, 1e-2, magnet::containers::StackVector<double,2>{});
+	}
+      }
+}
+
+BOOST_AUTO_TEST_CASE( Cubic_function_3real )
 {
   RNG.seed(1);
 
@@ -218,8 +242,34 @@ BOOST_AUTO_TEST_CASE( Cubic_function )
 	  }
 }
 
+BOOST_AUTO_TEST_CASE( Cubic_function_1real )
+{
+  RNG.seed(1);
 
-BOOST_AUTO_TEST_CASE( Quartic_function )
+  const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
+  
+  for (auto it1 = rootvals.begin(); it1 != rootvals.end(); ++it1)
+    for (auto it2 = it1; it2 != rootvals.end(); ++it2)
+      for (auto it3 = it2; it3 != rootvals.end(); ++it3) {
+	if (*it3 == 0) continue;
+	for (double sign : {-1.0, +1.0})
+	  {
+	    std::complex<double> r1(*it1, 0), r2(*it2, *it3), r3(*it2, -*it3);
+	    auto poly_c = (t - r1) * (t - r2) * (t - r3) * sign;
+	    Polynomial<3, double, 't'> poly{poly_c[0].real(), poly_c[1].real(), poly_c[2].real(), poly_c[3].real()};
+
+	    std::uniform_real_distribution<double> shift_dist(-10, 10);
+	    for (size_t i(0); i < tests; ++i) {
+	      double shift = shift_dist(RNG);
+	      auto s_poly = shift_function(poly, shift);
+	      test_solution(s_poly, 1e-1, magnet::containers::StackVector<double,3>{*it1 - shift});
+	    }
+	  }
+      }
+}
+
+
+BOOST_AUTO_TEST_CASE( Quartic_function_4real )
 {
   RNG.seed(1);
   const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
@@ -239,6 +289,32 @@ BOOST_AUTO_TEST_CASE( Quartic_function )
 	      }
 	    }
 }
+
+//BOOST_AUTO_TEST_CASE( Quartic_function_2real )
+//{
+//  RNG.seed(1);
+//  const std::array<double, 10> rootvals{{-1e7, -1e3, -3.14159265, -1, 0, 1, 3.14159265, +100, 1e3, 1e7 }};
+//  
+//  for (auto it1 = rootvals.begin(); it1 != rootvals.end(); ++it1)
+//    for (auto it2 = it1+1; it2 != rootvals.end(); ++it2)
+//      for (auto it3 = it2+1; it3 != rootvals.end(); ++it3) {
+//	if (*it3 == 0) continue;
+//	for (auto it4 = it1+1; it4 != rootvals.end(); ++it4)
+//	  for (double sign : {-1.0, +1.0})
+//	    {
+//	      std::complex<double> r1(*it1, 0), r2(*it2, *it3), r3(*it2, -*it3), r4(*it4, 0);
+//	      auto poly_c = (t - r1) * (t - r2) * (t - r3) * (t - r4) * sign;
+//	      Polynomial<4, double, 't'> poly{poly_c[0].real(), poly_c[1].real(), poly_c[2].real(), poly_c[3].real(), poly_c[4].real()};
+//	      
+//	      std::uniform_real_distribution<double> shift_dist(-10, 10);
+//	      for (size_t i(0); i < tests; ++i) {
+//		double shift = shift_dist(RNG);
+//		auto s_poly = shift_function(poly, shift);
+//		test_solution(s_poly, 1e-1, magnet::containers::StackVector<double,4>{*it1 - shift, *it2 - shift, *it3 - shift, *it4 - shift});
+//	      }
+//	    }
+//      }
+//}
 
 BOOST_AUTO_TEST_CASE( Quintic_function )
 {

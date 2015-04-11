@@ -820,9 +820,13 @@ BOOST_AUTO_TEST_CASE( generic_solve_real_roots )
 			//Test where 5 roots of a 7th order Polynomial are real
 			auto f2 = f1 * (x * x - 3 * x + 4);
 
+			//Test where 5 roots of a 9th order Polynomial are real
+			auto f3 = f1 * (x * x - 3 * x + 4) * (x * x - 3 * x + 30);
+
 			//Test the default implementation (VAS + TOMS748)
 			check_roots(solve_real_roots(f1), test_roots);
 			check_roots(solve_real_roots(f2), test_roots);
+			check_roots(solve_real_roots(f3), test_roots);
 			
 			//Test VCA + TOMS748
 			check_roots(solve_real_roots<PolyRootBounder::VCA, PolyRootBisector::TOMS748>(f1), test_roots);
