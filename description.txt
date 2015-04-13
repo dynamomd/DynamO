@@ -1,0 +1,5 @@
+This is a collection of software for performing event-driven
+simulations of particle models. These may be molecular, granular, or
+fluid dynamics simulations. This package is aimed at the
+physics/scientific community, although it contains a range of general
+techniques and approaches.

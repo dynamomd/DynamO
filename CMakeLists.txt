@@ -17,6 +17,8 @@ include(CTest)
 include(SystemInformation)
 include(GetGitRevisionDescription)
 
+find_package(PythonInterp 2.7)
+
 git_describe(GIT_RESULT --match initial-commit)
 message(STATUS "Git description is ${GIT_RESULT}")
 string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${GIT_RESULT})
@@ -27,14 +29,20 @@ set(CPACK_PACKAGE_VERSION_MAJOR 1)
 set(CPACK_PACKAGE_VERSION_MINOR 6)
 set(CPACK_PACKAGE_VERSION_PATCH ${BUILD_NUMBER})
 set(CPACK_PACKAGE_CONTACT "Marcus Bannerman <support@dynamomd.org>")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Event-driven particle simulation sofware.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Event-driven particle simulation sofware.\n    Test line.")
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/description.txt)
 set(CPACK_PACKAGE_DESCRIPTION "This package includes the DynamO executables and scripts. DynamO is an event driven simulator capable of performing molecular and granular dynamics simulations")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "python")
+if(PYTHONINTERP_FOUND)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS " python")
+endif()
 set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}~${DISTRO_ID}${DISTRO_RELEASE})
 set(CPACK_DEBIAN_PACKAGE_SECTION "science")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://dynamomd.org")
 #Get Debian packages to automatically figure out the dependencies
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 include(CPack) #Enable build of packages
+
+install(FILES ${CMAKE_SOURCE_DIR}/copyright DESTINATION share/doc/${CPACK_PACKAGE_NAME})
 
 ##########   RELEASE MODE
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
@@ -292,7 +300,6 @@ if(VISUALIZER_SUPPORT)
 endif()
 
 # scripts
-find_package(PythonInterp 2.7)
 if(PYTHONINTERP_FOUND)
   find_package(NumPy)
   if(NUMPY_FOUND)
