@@ -72,6 +72,16 @@ namespace magnet {
 	Base::operator[](_size) = val;
 	++_size;
       }
+
+      T pop_back() {
+	return Base::operator[](--_size);
+      }
+
+      template<size_t Nmax2>
+      void extend(const StackVector<T,Nmax2>& ovec) {
+	for (const T& a: ovec)
+	  push_back(a);
+      }
       
     private:
       size_t _size;

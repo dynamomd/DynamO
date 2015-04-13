@@ -17,6 +17,7 @@
 #pragma once
 #include <magnet/exception.hpp>
 #include <magnet/math/vector.hpp>
+#include <magnet/math/matrix.hpp>
 #include <magnet/math/numeric.hpp>
 #include <boost/math/tools/roots.hpp>
 #include <stdexcept>
@@ -1266,7 +1267,7 @@ namespace magnet {
 	size_t roots(const Real2& a, const Real2& b) const {
 #ifdef MAGNET_DEBUG
 	  if (a > b)
-	    M_throw() << "a<b!";
+	    M_throw() << "In counting sign changes of a Sturm chain sequence, the range passed has a > b. a=" << a << ", b="<<b;
 #endif
 	  return sign_changes(a) - sign_changes(b);
 	}
@@ -1327,7 +1328,7 @@ namespace magnet {
 	  return 0;
 	}
 
-	Polynomial<0, Real> _p_n;
+	Polynomial<0, Real, Letter> _p_n;
 
 	template<class Real2>
 	size_t sign_change_helper(const int last_sign, const Real2& x) const {
@@ -1860,7 +1861,7 @@ namespace magnet {
         have for \ref solve_real_roots_poly. 
     */
     enum class  PolyRootBounder {
-      VCA, VAS
+      VCA, VAS, STURM
     };
 
     /*! \brief Enumeration of the types of bisection routines we have
@@ -1869,11 +1870,134 @@ namespace magnet {
       BISECTION, TOMS748
     };
 
+    /*! \brief Solve for a quadratic factor of a Polynomial using the LinBairstow method.
+
+      This function is part of a generic polynomial root finding
+      technique. It returns a quadratic factor of the passed
+      polynomial. The tolerance is the convergence criterion on the
+      coefficients of the factor.
+     */
+    template<size_t Order, class Real, char Letter>
+    Polynomial<2, Real, Letter>
+    LinBairstowSolve(Polynomial<Order, Real, Letter> f, Real tolerance) {
+      if (f[Order] == Real()) 
+	return LinBairstowSolve(change_order<Order-1>(f), tolerance);
+
+      size_t nIterations = 0;
+      magnet::math::NVector<Real, 2> dFactor{0,0};
+
+      //We're trying to find the quadratic factor that divides the
+      //polynomial and leaves no remainder.:
+      Polynomial<2, Real, Letter> factor{0,0,1};
+
+      //Now loop solving for the quadratic factor
+      do {
+	++nIterations;
+	std::cout << "start = " << factor << std::endl;
+	  
+	Polynomial<2, Real, Letter> rem1, rem2;
+	Polynomial<Order, Real, Letter> p1;
+	//Determine the error (the actual remainder)
+	std::tie(p1, rem1) = euclidean_division(f, factor);
+
+	//Also determine the gradient of the error with respect to the
+	//lowest order coefficients of the factor. These are related
+	//to the remainder of a second division
+	std::tie(std::ignore, rem2) = euclidean_division(p1, factor);
+	  
+	//Perform a Newton-Raphson step in the remainder, while varying the factor
+	magnet::math::NVector<Real, 2> F{rem1[0], rem1[1]}; //{S, R}	
+	magnet::math::NMatrix<Real, 2> J{-rem2[0], factor[0] * rem2[1], -rem2[1], factor[1]*rem2[1] - rem2[0]}; //{dS/dC, dS/dB, dR/dC, dR/dB}
+	  
+	//New factor is calculated
+	dFactor = magnet::math::inverse(J) * (-F);
+	factor[0] = factor[0] + dFactor[0];
+	factor[1] = factor[1] + dFactor[1];
+	std::cout << "end = " << factor << std::endl;
+	std::cout << factor << std::endl;
+      } while (dFactor.nrm2() > tolerance*tolerance);
+      
+      return factor;
+    }
+
+    template<class Real, char Letter>
+    Polynomial<2, Real, Letter>
+    LinBairstowSolve(Polynomial<2, Real, Letter> f, Real tolerance) {
+      return f;
+    }
+
+    template<class Real, char Letter>
+    Polynomial<1, Real, Letter>
+    LinBairstowSolve(Polynomial<1, Real, Letter> f, Real tolerance) {
+      return f;
+    }
+
+    /*! \brief Determine the positive real roots of a polynomial using
+        bisection and Sturm chains.
+	
+     */
+    template<class Real, size_t Order, char Letter>
+    containers::StackVector<Real, Order>
+    solve_real_positive_roots_poly_sturm(const Polynomial<Order, Real, Letter>& f, const size_t tol_bits=56) {
+      //Establish bounds on the positive roots
+      const Real max = LMQ_upper_bound(f);
+      const Real min = LMQ_lower_bound(f);
+      
+      //If there are no roots, then return
+      if (min > max) return containers::StackVector<Real, Order>();
+      
+      //Construct the Sturm chain and bisect it
+      auto chain = sturm_chain(f);
+      
+      containers::StackVector<std::pair<Real,Real>, Order> regions{std::make_pair(min,max)};
+      containers::StackVector<Real, Order> retval;
+      
+      const Real eps = std::max(Real(std::ldexp(1.0, 1-tol_bits)), Real(4*std::numeric_limits<Real>::epsilon()));
+
+      while(!regions.empty()) {
+	std::pair<Real,Real> range = regions.pop_back();
+	const double xmid = (range.first + range.second) / 2;
+
+	const size_t rootsa = chain.roots(range.first, xmid);
+	const size_t rootsb = chain.roots(xmid, range.second);
+
+	//Check if we have reached the tolerance of the calculations
+	if (std::abs(xmid - range.second) <= (eps * std::min(std::abs(xmid), std::abs(range.second)))) {
+	  for (size_t i(0); i < rootsa+rootsb; ++i)
+	    retval.push_back(xmid);
+	  continue;
+	}
+	
+       
+	if (rootsa > 1)
+	  regions.push_back(std::make_pair(range.first,xmid));
+	else if (rootsa == 1) {
+	  try {
+	    boost::uintmax_t iter = 100;
+	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, range.first, xmid, boost::math::tools::eps_tolerance<Real>(100), iter);
+	    retval.push_back((root.first + root.second) / 2);
+	  } catch(...) {
+	    regions.push_back(std::make_pair(range.first,xmid));
+	  }	  
+	}
+	if (rootsb > 1)
+	  regions.push_back(std::make_pair(xmid, range.second));
+	else if (rootsb == 1) {
+	  try {
+	    boost::uintmax_t iter = 100;
+	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, xmid, range.second, boost::math::tools::eps_tolerance<Real>(100), iter);
+	    retval.push_back((root.first + root.second) / 2);
+	  } catch(...) {
+	    regions.push_back(std::make_pair(range.first,xmid));
+	  }
+	}
+      }
+	
+      return retval;
+    }
+
     /*! \brief Iterative solver for the real roots of a square-free
         Polynomial.
-
-	This function uses an algorithm (VAS/VCA) to bound the roots,
-	then a method to calculate them to full precision.
 
 	This function assumes that the polynomial has non-zero high
 	and constant coefficients.
@@ -1884,6 +2008,7 @@ namespace magnet {
       containers::StackVector<std::pair<Real,Real>, Order> bounds;
 
       switch (BoundMode) {
+      case PolyRootBounder::STURM: return solve_real_positive_roots_poly_sturm(f); break;
       case PolyRootBounder::VCA: bounds = VCA_real_root_bounds(f); break;
       case PolyRootBounder::VAS: bounds = VAS_real_root_bounds(f); break;
       }
@@ -1927,7 +2052,7 @@ namespace magnet {
 
       Roots are always returned sorted lowest-first.
      */
-    template<PolyRootBounder BoundMode = PolyRootBounder::VAS, PolyRootBisector BisectionMode = PolyRootBisector::TOMS748, size_t Order, class Real, char Letter>
+    template<PolyRootBounder BoundMode = PolyRootBounder::STURM, PolyRootBisector BisectionMode = PolyRootBisector::TOMS748, size_t Order, class Real, char Letter>
     containers::StackVector<Real, Order>
     solve_real_roots(const Polynomial<Order, Real, Letter>& f) {
       //Handle special cases 
@@ -1996,34 +2121,7 @@ namespace magnet {
 	  return root;
       
       return HUGE_VAL;
-    }
-    
-    //template<size_t Order, class Real, char Letter>
-    //containers::StackVector<Real, Order>
-    //LinBairstowSolve(Polynomial<Order, Real, Letter> f, Real tolerance) {
-    //  containers::StackVector<Real, Order> retval;
-    //  if (f[Order] == Real()) return LinBairstowSolve(change_order<Order-1>(f));
-    //  
-    //  //Normalise the polynomial
-    //  f = f / f[Order];
-    //  
-    //  while ((std::abs(dR) + fabs(dS)) > tolerance) {
-    //	if (!(nIterations % 100)) {
-    //	  R = 0.1; //Should be random
-    //	  if (!(nIterations % 100))
-    //	    tolerance *= 4;
-    //	}
-    //
-    //	//Try dividing by (x^2+0+0)
-    //	Polynomial<2, Real, Letter> factor{1.0, 0.0, 0.0};
-    //
-    //	Polynomial<2, Real, Letter> rem1, rem2;
-    //	std::tie(std::ignore, rem1) = euclidean_division(f, factor);
-    //	std::tie(std::ignore, rem2) = euclidean_division(rem1, factor);
-    //  }
-    //
-    //  return retval;
-    //}
+    }    
 
     /*! \endcond \} */
   }
