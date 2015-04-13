@@ -345,6 +345,9 @@ namespace magnet {
       evaluation are unknown, this must be handled using template
       metaprogramming to unfold the multiplication. This is provided
       by the detail::PolySubWorker classes.
+
+      The method used to evaluate the polynomial is known as Horner's
+      method.
      */
     template<class Real, size_t Order, char Letter, class Real2,
 	     typename = typename std::enable_if<!std::is_arithmetic<Real2>::value>::type>
@@ -1994,6 +1997,33 @@ namespace magnet {
       
       return HUGE_VAL;
     }
+    
+    //template<size_t Order, class Real, char Letter>
+    //containers::StackVector<Real, Order>
+    //LinBairstowSolve(Polynomial<Order, Real, Letter> f, Real tolerance) {
+    //  containers::StackVector<Real, Order> retval;
+    //  if (f[Order] == Real()) return LinBairstowSolve(change_order<Order-1>(f));
+    //  
+    //  //Normalise the polynomial
+    //  f = f / f[Order];
+    //  
+    //  while ((std::abs(dR) + fabs(dS)) > tolerance) {
+    //	if (!(nIterations % 100)) {
+    //	  R = 0.1; //Should be random
+    //	  if (!(nIterations % 100))
+    //	    tolerance *= 4;
+    //	}
+    //
+    //	//Try dividing by (x^2+0+0)
+    //	Polynomial<2, Real, Letter> factor{1.0, 0.0, 0.0};
+    //
+    //	Polynomial<2, Real, Letter> rem1, rem2;
+    //	std::tie(std::ignore, rem1) = euclidean_division(f, factor);
+    //	std::tie(std::ignore, rem2) = euclidean_division(rem1, factor);
+    //  }
+    //
+    //  return retval;
+    //}
 
     /*! \endcond \} */
   }
