@@ -1265,11 +1265,7 @@ namespace magnet {
 
 	template<class Real2>
 	size_t roots(const Real2& a, const Real2& b) const {
-#ifdef MAGNET_DEBUG
-	  if (a > b)
-	    M_throw() << "In counting sign changes of a Sturm chain sequence, the range passed has a > b. a=" << a << ", b="<<b;
-#endif
-	  return sign_changes(a) - sign_changes(b);
+	  return std::abs(int(sign_changes(a)) - int(sign_changes(b)));
 	}
 	
 	
@@ -1949,46 +1945,79 @@ namespace magnet {
       //Construct the Sturm chain and bisect it
       auto chain = sturm_chain(f);
       
-      containers::StackVector<std::pair<Real,Real>, Order> regions{std::make_pair(min,max)};
+      containers::StackVector<std::tuple<Real,Real,size_t>, Order> regions{std::make_tuple(min, max, chain.roots(min, max))};
       containers::StackVector<Real, Order> retval;
       
-      const Real eps = std::max(Real(std::ldexp(1.0, 1-tol_bits)), Real(4*std::numeric_limits<Real>::epsilon()));
+      const Real eps = std::max(Real(std::ldexp(1.0, 1-tol_bits)), Real(2*std::numeric_limits<Real>::epsilon()));
 
+      bool try_toms748 = true;
       while(!regions.empty()) {
-	std::pair<Real,Real> range = regions.pop_back();
-	const double xmid = (range.first + range.second) / 2;
+	auto range = regions.pop_back();
+	const Real xmin = std::get<0>(range); 
+	const Real xmax = std::get<1>(range); 
+	const size_t roots = std::get<2>(range);
 
-	const size_t rootsa = chain.roots(range.first, xmid);
-	const size_t rootsb = chain.roots(xmid, range.second);
+	Real xmid = (xmin + xmax) / 2;
 
-	//Check if we have reached the tolerance of the calculations
-	if (std::abs(xmid - range.second) <= (eps * std::min(std::abs(xmid), std::abs(range.second)))) {
-	  for (size_t i(0); i < rootsa+rootsb; ++i)
+	//Check if we have reached the tolerance of the calculations via Sturm bisection
+	if (std::abs(xmin - xmax) <= (eps * std::min(std::abs(xmin), std::abs(xmax)))) {
+	  for (size_t i(0); i < roots; ++i)
 	    retval.push_back(xmid);
+	  try_toms748 = true;
 	  continue;
 	}
 	
-       
+	size_t rootsa = chain.roots(xmin, xmid);
+	size_t rootsb = chain.roots(xmid, xmax);
+
+	if ((rootsa + rootsb) != roots) {
+	  //A precision error of the calculations has caused us to
+	  //lose track of the roots. This may be caused by us dropping
+	  //xmid exactly on a root.
+
+	  //Try shifting where we bisected the range
+	  xmid = (xmid + xmax) / 2;
+	  rootsa = chain.roots(xmin, xmid);
+	  rootsb = chain.roots(xmid, xmax);
+	  if ((rootsa + rootsb) != roots) {
+	    //That didn't work. Rather than abort, assume this is a
+	    //precision error and there are roots somewhere in
+	    //xmin/xmax. Return this as a best estimate
+	    retval.push_back((xmin + xmax) / 2);
+	    continue;
+	  }
+	}
+
 	if (rootsa > 1)
-	  regions.push_back(std::make_pair(range.first,xmid));
+	  regions.push_back(std::make_tuple(xmin, xmid, rootsa));
 	else if (rootsa == 1) {
-	  try {
-	    boost::uintmax_t iter = 100;
-	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, range.first, xmid, boost::math::tools::eps_tolerance<Real>(100), iter);
-	    retval.push_back((root.first + root.second) / 2);
-	  } catch(...) {
-	    regions.push_back(std::make_pair(range.first,xmid));
-	  }	  
+	  if (try_toms748){
+	    try {
+	      boost::uintmax_t iter = 100;
+	      auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, xmin, xmid, boost::math::tools::eps_tolerance<Real>(100), iter);
+	      retval.push_back((root.first + root.second) / 2);
+	    } catch(...) {
+	      regions.push_back(std::make_tuple(xmin, xmid, rootsa));
+	      try_toms748 = false;
+	    }
+	  } else {
+	    regions.push_back(std::make_tuple(xmin, xmid, rootsa));	    
+	  }
 	}
 	if (rootsb > 1)
-	  regions.push_back(std::make_pair(xmid, range.second));
+	  regions.push_back(std::make_tuple(xmid, xmax, rootsb));
 	else if (rootsb == 1) {
-	  try {
-	    boost::uintmax_t iter = 100;
-	    auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, xmid, range.second, boost::math::tools::eps_tolerance<Real>(100), iter);
-	    retval.push_back((root.first + root.second) / 2);
-	  } catch(...) {
-	    regions.push_back(std::make_pair(range.first,xmid));
+	  if (try_toms748){
+	    try {
+	      boost::uintmax_t iter = 100;
+	      auto root = boost::math::tools::toms748_solve([&](Real x) { return eval(f, Variable<Letter>() == x); }, xmid, xmax, boost::math::tools::eps_tolerance<Real>(100), iter);
+	      retval.push_back((root.first + root.second) / 2);
+	    } catch(...) {
+	      regions.push_back(std::make_tuple(xmid, xmax, rootsb));
+	      try_toms748 = false;
+	    }
+	  } else {
+	    regions.push_back(std::make_tuple(xmid, xmax, rootsb));
 	  }
 	}
       }
@@ -2058,7 +2087,7 @@ namespace magnet {
       //Handle special cases 
       //The constant coefficient is zero: deflate the polynomial
       if (f[0] == Real())
-	return deflate_and_solve_polynomial(f, Real());
+	return solve_real_roots(deflate_polynomial(f, NullSymbol()));
       
       //The highest order coefficient is zero: drop to lower order
       //solvers
@@ -2075,53 +2104,6 @@ namespace magnet {
       std::sort(roots.begin(), roots.end());
       return roots;
     }
-
-    /*! \brief Calculate the next real root of a low order polynomial
-        function.
-      
-	For low-order polynomials, the \ref solve_real_roots function
-	uses solution by radicals. These approach solves all roots and
-	returns them from lowest to highest, so we simply sort through
-	them looking for the first positive root.
-    */
-    template<size_t Order, class Real, char Letter,
-	     typename = typename std::enable_if<(Order<4)>::type>
-    inline Real next_root(const Polynomial<Order, Real, Letter>& f) {
-      auto roots = solve_real_roots(f);
-      
-      for (auto root : roots)
-	if (root >= 0)
-	  return root;
-      
-      return HUGE_VAL;
-    }
-
-    /*! \brief Calculate the next real root of a low order polynomial
-        function.
-      
-	For high-order polynomials, the \ref solve_real_roots function
-	uses solution by the VAS algorithm. As this can be expensive,
-	this implementation only searches the positive space, and 
-    */
-      template<size_t Order, class Real, char Letter>
-      inline typename std::enable_if<(Order>=4), Real>::type next_root(const Polynomial<Order, Real, Letter>& f) {
-      auto roots = solve_real_positive_roots_poly<PolyRootBounder::VAS, PolyRootBisector::TOMS748, Order, Real, Letter>(f);
-
-      //Check for roots at zero
-      if (f[0] == Real())
-	return Real();
-
-      //Check if the highest order coefficient is zero: drop to a
-      //lower order solver
-      if (f[Order] == Real())
-	return next_root(change_order<Order-1>(f));
-      
-      for (auto root : roots)
-	if (root >= 0)
-	  return root;
-      
-      return HUGE_VAL;
-    }    
 
     /*! \endcond \} */
   }

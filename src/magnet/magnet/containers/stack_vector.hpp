@@ -69,11 +69,19 @@ namespace magnet {
       typename Base::const_reference back() const { return _size ? *(Base::end() - 1) : *Base::end(); }
 
       void push_back(const T& val) {
+#ifdef MAGNET_DEBUG
+	if (_size+1 > Nmax)
+	  M_throw() << "Cannot push elements to a filled StackVector " << *this;
+#endif
 	Base::operator[](_size) = val;
 	++_size;
       }
 
       T pop_back() {
+#ifdef MAGNET_DEBUG
+	if (empty())
+	  M_throw() << "Cannot pop elements from an emptry StackVector " << *this;
+#endif
 	return Base::operator[](--_size);
       }
 
@@ -101,6 +109,32 @@ namespace magnet {
       os << "StackVector{ ";
       for (const auto& val : s)
 	os << "[" << val.first << ", " << val.second << "] ";
+      os << "}";
+      return os;
+    }
+
+    template<std::size_t I = 0, typename... Tp>
+    inline typename std::enable_if<I == sizeof...(Tp), void>::type
+    tuple_print(const std::tuple<Tp...>& t, std::ostream& os)
+    { }
+    
+    template<std::size_t I = 0, typename... Tp>
+    inline typename std::enable_if<I < sizeof...(Tp), void>::type
+    tuple_print(const std::tuple<Tp...>& t, std::ostream& os)
+    {
+      os << std::get<I>(t) << " ";
+      tuple_print<I + 1, Tp...>(t, os);
+    }
+      
+    template<size_t Nmax, typename... Tp>
+    std::ostream& operator<<(std::ostream& os, const StackVector<std::tuple<Tp...>,Nmax>&s) 
+    {
+      os << "StackVector{ ";
+      for (const auto& val : s) {
+	os << "[";
+	tuple_print(val, os);
+	os << "] ";
+      }
       os << "}";
       return os;
     }

@@ -390,9 +390,6 @@ namespace dynamo {
 	  //Random walk an isolated attractive homopolymer
 	  size_t chainlength = 20;
 
-	  if (vm.count("i1"))
-	    chainlength = vm["i1"].as<size_t>();
-
 	  double sigmin(0.9), sigmax(1.1), sigma(1.6), lambda(1.5);
 
 	  if (vm.count("f1"))
@@ -407,6 +404,19 @@ namespace dynamo {
 	  if (vm.count("f4"))
 	    sigmax = vm["f4"].as<double>();
 
+	  if (vm.count("i1"))
+	    chainlength = vm["i1"].as<size_t>();
+
+	  std::string stringseq;
+	  if (vm.count("s1")) {
+	    stringseq = vm["s1"].as<std::string>();
+	    if (!vm.count("i1"))
+	      chainlength = stringseq.size();
+	    else
+	      if (chainlength != stringseq.size())
+		M_throw() << "Error, mismatch between chain length and sequence length. You can remove --i1 and let the chain length be determined from the sequence length if needed?";
+	  }
+
 	  //Sit the particles 95% away of max distance from each other
 	  //to help with seriously overlapping wells
 	  double diamScale = 1.0 / (4.0 * std::max(1.0, std::sqrt(chainlength)) * std::max(lambda * sigma, sigmax));
@@ -420,15 +430,12 @@ namespace dynamo {
 	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector{0,0,0}));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
-	
+
 	  if (vm.count("s1"))
 	    {
 	      //A sequence has been supplied
 	      std::vector<size_t> seq;
-
 	      seq.resize(chainlength, 0);
-
-	      std::string stringseq = vm["s1"].as<std::string>();
 
 	      //Transcribe the sequence
 	      bool has0(false), has1(false);
