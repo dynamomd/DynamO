@@ -522,7 +522,21 @@ namespace dynamo {
 	      tasks.push_back(std::bind(&Simulation::runSimulation, &static_cast<Simulation&>(Simulations[i]), true));
 
 	    threads.queueTasks(tasks);
-	    threads.wait();//This syncs the systems for the replica exchange
+            try {
+              threads.wait();//This syncs the systems for the replica exchange
+            } catch (std::exception& e) {
+              int i = 0;
+              std::cerr << e.what() << std::endl;
+              std::cerr << "Attempting to write out configurations at the error." << std::endl;
+              for (replexPair p1 : temperatureList)
+                {
+                  Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
+                  Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace("config.%ID.error.xml.bz2", "%ID", 
+                                                                                           boost::lexical_cast<std::string>(i++)), 
+                                                            !vm.count("unwrapped"));
+                }
+              M_throw() << "Exception caught while performing simulations";
+            }
 		  
 	    //Swap calculation
 	    ReplexSwap(ReplexMode);

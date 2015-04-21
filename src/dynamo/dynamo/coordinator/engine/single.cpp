@@ -78,11 +78,12 @@ namespace dynamo {
     catch (std::exception& cep)
       {
 	try {
-	  std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
+	  std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2, and output to output.error.xml.bz2";
 	  simulation.writeXMLfile("config.error.xml.bz2", !vm.count("unwrapped"));
+          simulation.outputData("output.error.xml.bz2");
 	} catch (...)
 	  {
-	    std::cerr << "\nEngine: Could not output error config";
+	    std::cerr << "\nEngine: Could not write out config/output in error state!";
 	  }
 	throw;
       }
