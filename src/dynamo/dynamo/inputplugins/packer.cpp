@@ -168,11 +168,13 @@ namespace dynamo {
 	  double particleDiam = pow(simVol * vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
+	  bool twoD = false;
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
 	      std::array<long, 3> cells = getCells();
 	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 		{
+		  twoD = true;
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
 		    "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
 		
@@ -204,8 +206,12 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  
+	  for (const Vector & position : latticeSites) {
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	    if (twoD)
+	      Sim->particles.back().getVelocity()[2] = 0;
+	  }
 
 	  const double kT = 1.0 * Sim->units.unitEnergy();
 	  if (vm.count("i2"))
@@ -1412,12 +1418,14 @@ namespace dynamo {
 	    simVol *= Sim->primaryCellSize[iDim];
 
 	  double particleDiam = pow(simVol * vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
-
+	  
+	  bool twoD = false;
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
 	      std::array<long, 3> cells = getCells();
 	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 		{
+		  twoD = true;
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
 		    "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
 		  
@@ -1541,8 +1549,11 @@ namespace dynamo {
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
+	  for (const Vector & position : latticeSites) {
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	    if (twoD)
+	      Sim->particles.back().getVelocity()[2] = 0;
+	  }
 	  break;
 	}
       case 17:
@@ -2712,11 +2723,13 @@ namespace dynamo {
 	  double particleDiam = pow(simVol * vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
+	  bool twoD = false;
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
 	      std::array<long, 3> cells = getCells();
 	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 		{
+		  twoD = true;
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
 		    "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
 		
@@ -2784,9 +2797,11 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	  for (const Vector & position : latticeSites) {
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	    if (twoD)
+	      Sim->particles.back().getVelocity()[2] = 0;
+	  }
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
 	  Sim->setCOMVelocity();
@@ -2882,6 +2897,7 @@ namespace dynamo {
 	    std::normal_distribution<> dist(0, 1);
 	    for (size_t i(0); i < Sim->particles.size(); ++i)
 	      {
+		Sim->particles[i].getVelocity()[2] = 0;
 		auto& data = Sim->dynamics->getRotData(i);
 		Vector orientation{0,0,0};
 		orientation[(unusedDimension + 1) % 3] = dist(Sim->ranGenerator);
