@@ -57,7 +57,7 @@ namespace dynamo {
     if (!_interaction)
       M_throw() << "Could not cast \"" << _interaction_name << "\" to an ICapture type to build the contact map";
     
-    _current_map = _collected_maps.insert(CollectedMapType::value_type(*_interaction, MapData(Sim->calcInternalEnergy(), _next_map_id++))).first;
+    _current_map = _collected_maps.insert(CollectedMapType::value_type(*_interaction, MapData(Sim->systemTime, Sim->calcInternalEnergy(), _next_map_id++))).first;
   }
 
   void OPContactMap::stream(double dt) { _weight += dt; }
@@ -100,7 +100,7 @@ namespace dynamo {
     _current_map = _collected_maps.find(*_interaction);
     if (_current_map == _collected_maps.end())
       //Insert the new map
-      _current_map = _collected_maps.insert(CollectedMapType::value_type(*_interaction, MapData(Sim->getOutputPlugin<OPMisc>()->getConfigurationalU(), _next_map_id++))).first;
+      _current_map = _collected_maps.insert(CollectedMapType::value_type(*_interaction, MapData(Sim->systemTime, Sim->getOutputPlugin<OPMisc>()->getConfigurationalU(), _next_map_id++))).first;
     
     //Add the link	    
     if (addLink)
@@ -126,7 +126,7 @@ namespace dynamo {
 
   void
   OPContactMap::periodicOutput()
-  {
+  { 
     I_Pcout() << ", Maps " << _collected_maps.size() << ", links " << _map_links.size();
   }
 
@@ -136,40 +136,42 @@ namespace dynamo {
     dout << "Writing out " << _collected_maps.size() << " Contact maps with "
 	 << _map_links.size() << " links" << std::endl;
 
-    XML << magnet::xml::tag("ContactMap")
-	<< magnet::xml::tag("Maps")
-      	<< magnet::xml::attr("Count") << _collected_maps.size();
+    namespace xml = magnet::xml;
+    XML << xml::tag("ContactMap")
+	<< xml::tag("Maps")
+      	<< xml::attr("Count") << _collected_maps.size();
     ;
     
     for (const CollectedMapType::value_type& entry : _collected_maps)
       {
-	XML << magnet::xml::tag("Map")
-	    << magnet::xml::attr("ID") << entry.second._id
-	    << magnet::xml::attr("Energy") << entry.second._energy / Sim->units.unitEnergy()
-	    << magnet::xml::attr("Weight") << entry.second._weight / _total_weight;
+	XML << xml::tag("Map")
+	    << xml::attr("ID") << entry.second._id
+            << xml::attr("DiscoveryTime") << entry.second._discovery_time / Sim->units.unitTime()
+	    << xml::attr("Energy") << entry.second._energy / Sim->units.unitEnergy()
+	    << xml::attr("Weight") << entry.second._weight / _total_weight;
 	
 	for (const ICapture::value_type& ids : entry.first)
-	  XML << magnet::xml::tag("Contact")
-	      << magnet::xml::attr("ID1") << ids.first.first
-	      << magnet::xml::attr("ID2") << ids.first.second
-	      << magnet::xml::attr("State") << ids.second
-	      << magnet::xml::endtag("Contact");
+	  XML << xml::tag("Contact")
+	      << xml::attr("ID1") << ids.first.first
+	      << xml::attr("ID2") << ids.first.second
+	      << xml::attr("State") << ids.second
+	      << xml::endtag("Contact");
 	
-	XML << magnet::xml::endtag("Map");
+	XML << xml::endtag("Map");
       }
 
-    XML << magnet::xml::endtag("Maps")
-	<< magnet::xml::tag("Links")
-      	<< magnet::xml::attr("Count") << _map_links.size();
+    XML << xml::endtag("Maps")
+	<< xml::tag("Links")
+      	<< xml::attr("Count") << _map_links.size();
 
     for (const LinksMapType::value_type& entry : _map_links)
-      XML << magnet::xml::tag("Link")
-	  << magnet::xml::attr("Source") << entry.first.first
-	  << magnet::xml::attr("Target") << entry.first.second
-	  << magnet::xml::attr("Occurrences") << entry.second
-	  << magnet::xml::endtag("Link");
+      XML << xml::tag("Link")
+	  << xml::attr("Source") << entry.first.first
+	  << xml::attr("Target") << entry.first.second
+	  << xml::attr("Occurrences") << entry.second
+	  << xml::endtag("Link");
 
-    XML << magnet::xml::endtag("Links")
-	<< magnet::xml::endtag("ContactMap");
+    XML << xml::endtag("Links")
+	<< xml::endtag("ContactMap");
   }
 }

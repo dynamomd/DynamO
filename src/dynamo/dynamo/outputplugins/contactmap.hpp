@@ -63,9 +63,11 @@ namespace dynamo {
 
     struct MapData
     {
-      MapData(double energy=0, size_t id = 0): _weight(0), _energy(energy), _id(id) {}
+      MapData(double discovery_time = 0, double energy=0, size_t id = 0): 
+        _weight(0), _energy(energy), _discovery_time(discovery_time), _id(id) {}
       double _weight;
       double _energy;
+      double _discovery_time;
       size_t _id;
     };
 
