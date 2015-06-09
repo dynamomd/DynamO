@@ -73,6 +73,13 @@ namespace magnet {
     public:
       JudySet(): _array((Pvoid_t) NULL), _count(0) {}
 
+      JudySet(const JudySet& jset):
+	_array((Pvoid_t) NULL), _count(0)
+      {
+	for (const auto& val : jset)
+	  insert(val);
+      }
+
       typedef KeyType key_type;
       typedef key_type value_type;
       static_assert(sizeof(KeyType) == sizeof(Word_t), "Must use a machine word as KeyType");
@@ -162,6 +169,14 @@ namespace magnet {
       typedef std::pair<key_type, mapped_type> value_type;
 
       JudyMap(): _array((Pvoid_t) NULL), _count(0) {}
+      
+      JudyMap(const JudyMap& jmap):
+	_array((Pvoid_t) NULL), _count(0)
+      {
+	for (const auto& val : jmap)
+	  insert(val);
+      }
+      
     private:
       Pvoid_t _array;
       size_t _count;
