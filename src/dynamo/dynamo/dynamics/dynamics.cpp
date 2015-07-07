@@ -180,6 +180,14 @@ namespace dynamo {
     XML << magnet::xml::endtag("ParticleData");
   }
 
+  size_t
+  Dynamics::getParticleDOF() const {
+    size_t DOFsum(0);
+    for (const auto& sp : Sim->species)
+      DOFsum += sp->getDOF() * sp->getRange()->size();
+    return DOFsum;
+  }
+
   double 
   Dynamics::getSystemKineticEnergy() const
   {

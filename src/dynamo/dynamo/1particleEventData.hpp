@@ -31,7 +31,8 @@ namespace dynamo {
       particleID(part.getID()), 
       oldVelVec(part.getVelocity()),
       speciesID(sp.getID()), Type_(eType),
-      deltaU(0.0)
+      deltaU(0.0),
+      oldKE(sp.getParticleKineticEnergy(part))
     {}
 
     inline size_t getParticleID() const
@@ -57,12 +58,17 @@ namespace dynamo {
 
     inline EEventType getType() const
     { return Type_; }
-  
+
+    inline double getOldKE() const {
+      return oldKE;
+    }
+    
   private:
     size_t particleID;
     Vector  oldVelVec;
     size_t speciesID;
     EEventType Type_;
     double deltaU;
+    double oldKE;
   };
 }

@@ -34,6 +34,8 @@ namespace dynamo {
 
     virtual double getParticleKineticEnergy(size_t ID) const;
 
+    virtual double getDOF() const { return NDIM + 2; }
+
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }

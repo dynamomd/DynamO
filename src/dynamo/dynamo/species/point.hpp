@@ -59,7 +59,9 @@ namespace dynamo {
       else
 	return 0.5 * part.getVelocity().nrm2() * mass;
     }
-    
+
+    virtual double getDOF() const { return NDIM; }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const;
   };

@@ -79,21 +79,19 @@ namespace dynamo {
   double 
   OPMisc::getMeankT() const
   {
-    return 2.0 * _KE.mean() / (Sim->N() * Sim->dynamics->getParticleDOF());
+    return 2.0 * _KE.mean() / Sim->dynamics->getParticleDOF();
   }
 
   double 
   OPMisc::getMeanSqrkT() const
   {
-    return 4.0 * _KE.meanSqr()
-      / (Sim->N() * Sim->N() * Sim->dynamics->getParticleDOF()
-	 * Sim->dynamics->getParticleDOF());
+    return 4.0 * _KE.meanSqr() / std::pow(Sim->dynamics->getParticleDOF(), 2);
   }
 
   double 
   OPMisc::getCurrentkT() const
   {
-    return 2.0 * _KE.current() / (Sim->N() * Sim->dynamics->getParticleDOF());
+    return 2.0 * _KE.current() / Sim->dynamics->getParticleDOF();
   }
 
   double 
@@ -212,7 +210,7 @@ namespace dynamo {
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	const Species& species = *Sim->species(part);
 	const double mass = species.getMass(part.getID());
-	const double deltaKE = 0.5 * mass *  (part.getVelocity().nrm2() - PDat.getOldVel().nrm2());
+	const double deltaKE = species.getParticleKineticEnergy(part) - PDat.getOldKE();
 	
 	_KE += deltaKE;
 	_internalE += PDat.getDeltaU();
@@ -241,13 +239,15 @@ namespace dynamo {
 	const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
 	const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
 	const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
-	const double p1E = sp1.getParticleKineticEnergy(part1) + _internalEnergy[PDat.particle1_.getParticleID()];
-	const double p2E = sp2.getParticleKineticEnergy(part2) + _internalEnergy[PDat.particle2_.getParticleID()];
+        const double p1KE = sp1.getParticleKineticEnergy(part1);
+	const double p1E = p1KE + _internalEnergy[PDat.particle1_.getParticleID()];
+        const double p2KE = sp1.getParticleKineticEnergy(part2);
+	const double p2E = p2KE + _internalEnergy[PDat.particle2_.getParticleID()];
 	const double mass1 = sp1.getMass(part1.getID());
 	const double mass2 = sp2.getMass(part2.getID());
 	const Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
-	const double deltaKE1 = 0.5 * mass1 * (part1.getVelocity().nrm2() - PDat.particle1_.getOldVel().nrm2());
-	const double deltaKE2 = 0.5 * mass2 * (part2.getVelocity().nrm2() - PDat.particle2_.getOldVel().nrm2());
+	const double deltaKE1 = p1KE - PDat.particle1_.getOldKE();
+	const double deltaKE2 = p2KE - PDat.particle2_.getOldKE();
 	const double p1deltaE = deltaKE1 + PDat.particle1_.getDeltaU();
 	const double p2deltaE = deltaKE2 + PDat.particle2_.getDeltaU();
 
@@ -407,8 +407,8 @@ namespace dynamo {
 	<< attr("Mean") << getMeankT() / Sim->units.unitEnergy()
 	<< attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
 	<< attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
-	<< attr("Min") << 2.0 * _KE.min() / (Sim->N() * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< attr("Max") << 2.0 * _KE.max() / (Sim->N() * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< attr("Min") << 2.0 * _KE.min() / (Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< attr("Max") << 2.0 * _KE.max() / (Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
 	<< endtag("Temperature")
 
 	<< tag("UConfigurational")

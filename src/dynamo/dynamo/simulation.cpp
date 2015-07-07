@@ -144,6 +144,8 @@ namespace dynamo
     dout << "Initialising the Dynamics" << std::endl;
     dynamics->initialise();
 
+    dout << "DOF = " << dynamics->getParticleDOF() << std::endl;
+    
     status = DYNAMICS_INIT;
 
     dout << "Initialising Scheduler Neighbourlist" << std::endl;

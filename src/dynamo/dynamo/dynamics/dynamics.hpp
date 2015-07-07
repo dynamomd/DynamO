@@ -95,9 +95,9 @@ namespace dynamo {
      */
     void outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const;
 
-    /*! \brief Returns the degrees of freedom per particle.
+    /*! \brief Returns the degrees of freedom of all particles.
      */
-    inline size_t getParticleDOF() const { return NDIM + 2 * hasOrientationData(); }
+    size_t getParticleDOF() const;
   
     /*! \brief Calculates the kinetic energy of the system
      */
@@ -105,7 +105,9 @@ namespace dynamo {
 
     /*! \brief Calculates the thermal temperature of the system.
      */
-    inline double getkT() const { return 2.0 * getSystemKineticEnergy() / (Sim->particles.size() * static_cast<double>(this->getParticleDOF())); }
+    inline double getkT() const {
+      return 2.0 * getSystemKineticEnergy() / this->getParticleDOF();
+    }
 
     /*! \brief Rescales the kinetic energy of the system by a factor.
      */

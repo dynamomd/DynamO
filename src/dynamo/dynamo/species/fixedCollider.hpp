@@ -40,6 +40,8 @@ namespace dynamo {
 
     virtual double getParticleKineticEnergy(size_t ID) const {return 0; }
 
+    virtual double getDOF() const { return 0; }
+
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const;
