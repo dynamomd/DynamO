@@ -32,6 +32,8 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
+    virtual double getParticleKineticEnergy(size_t ID) const;
+
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }

@@ -20,7 +20,6 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>
@@ -182,36 +181,12 @@ namespace dynamo {
   }
 
   double 
-  Dynamics::getParticleKineticEnergy(const Particle& part) const
-  {
-    const double mass = Sim->species(part)->getMass(part.getID());
-
-    double energy(0);
-    if (!std::isinf(mass))
-      {
-	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-	  energy += static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
-	else
-	  energy += part.getVelocity().nrm2() * mass;
-      }
-
-    if (hasOrientationData())
-      {
-	const double I = Sim->species(part)->getScalarMomentOfInertia(part.getID());
-	if (!std::isinf(I))
-	  energy += I * orientationData[part.getID()].angularVelocity.nrm2();
-      }
-
-    return 0.5 * energy;
-  }
-
-  double 
   Dynamics::getSystemKineticEnergy() const
   {
     double sumEnergy(0);
 
     for (const Particle& part : Sim->particles)
-      sumEnergy += getParticleKineticEnergy(part);
+      sumEnergy += Sim->species(part)->getParticleKineticEnergy(part);
 
     return sumEnergy;
   }

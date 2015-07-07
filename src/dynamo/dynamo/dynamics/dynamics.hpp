@@ -99,10 +99,6 @@ namespace dynamo {
      */
     inline size_t getParticleDOF() const { return NDIM + 2 * hasOrientationData(); }
   
-    /*! \brief Calculates the kinetic energy of a single particle
-     */
-    double getParticleKineticEnergy(const Particle&) const;
-
     /*! \brief Calculates the kinetic energy of the system
      */
     double getSystemKineticEnergy() const;

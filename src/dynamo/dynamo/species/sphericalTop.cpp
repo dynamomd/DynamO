@@ -18,6 +18,8 @@
 #include <dynamo/species/sphericalTop.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
+#include <dynamo/BC/LEBC.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -44,6 +46,29 @@ namespace dynamo {
 	<< magnet::xml::attr("Type") << type
 	<< range;
   }
+  
+  double
+  SpSphericalTop::getParticleKineticEnergy(size_t ID) const {
+    const double mass = getMass(ID);
+    const Particle& part = Sim->particles[ID];
+
+    if (std::isinf(mass))
+      return 0;
+    
+    double energy(0);
+    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+      energy += static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
+    else
+      energy += part.getVelocity().nrm2() * mass;
+    
+    const double I = getScalarMomentOfInertia(ID);
+
+    if (!std::isinf(I))
+      energy += I * Sim->dynamics->getRotData(ID).angularVelocity.nrm2();
+
+    return 0.5 * energy;
+  }
+
 
   void 
   SpSphericalTop::operator<<(const magnet::xml::Node& XML)

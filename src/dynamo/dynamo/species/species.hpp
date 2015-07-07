@@ -51,6 +51,8 @@ namespace dynamo {
   
     static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::Simulation*, size_t);
 
+    virtual double getParticleKineticEnergy(size_t ID) const = 0;
+    
   protected:
     template<class T1>
     Species(dynamo::Simulation* tmp, std::string name, IDRange* nr, T1 mass, std::string nName, unsigned int nID):

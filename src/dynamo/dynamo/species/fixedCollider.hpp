@@ -38,6 +38,8 @@ namespace dynamo {
 
     virtual double getScalarMomentOfInertia(size_t ID) const { return HUGE_VAL; }
 
+    virtual double getParticleKineticEnergy(size_t ID) const {return 0; }
+
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const;

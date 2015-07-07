@@ -31,7 +31,7 @@ namespace dynamo {
 		  const Species& sp1,
 		  const Species& sp2,
 		  EEventType eType):
-      particle1_(part1, sp1, eType), 
+      particle1_(part1, sp1, eType),
       particle2_(part2, sp2, eType),
       rij(part1.getPosition() - part2.getPosition()),
       vijold(part1.getVelocity() - part2.getVelocity())

@@ -149,7 +149,7 @@ namespace dynamo {
 	kineticP += mass * Dyadic(part.getVelocity(), part.getVelocity());
 	_speciesMasses[sp.getID()] += mass;
 	_speciesMomenta[sp.getID()] += mass * part.getVelocity();
-	thermalConductivityFS += part.getVelocity() * (Sim->dynamics->getParticleKineticEnergy(part) + _internalEnergy[part.getID()]);
+	thermalConductivityFS += part.getVelocity() * (sp.getParticleKineticEnergy(part) + _internalEnergy[part.getID()]);
       }
 
     Vector sysMomentum({0, 0, 0});
@@ -213,11 +213,12 @@ namespace dynamo {
 	const Species& species = *Sim->species(part);
 	const double mass = species.getMass(part.getID());
 	const double deltaKE = 0.5 * mass *  (part.getVelocity().nrm2() - PDat.getOldVel().nrm2());
+	
 	_KE += deltaKE;
 	_internalE += PDat.getDeltaU();
 	//This must be updated before p1E is calculated
 	_internalEnergy[PDat.getParticleID()] += PDat.getDeltaU();
-	const double p1E = Sim->dynamics->getParticleKineticEnergy(part) + _internalEnergy[PDat.getParticleID()];
+	const double p1E = species.getParticleKineticEnergy(part) + _internalEnergy[PDat.getParticleID()];
 	const double p1deltaE = deltaKE + PDat.getDeltaU();
 	Vector delP1 = mass * (part.getVelocity() - PDat.getOldVel());
 
@@ -240,8 +241,8 @@ namespace dynamo {
 	const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
 	const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
 	const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
-	const double p1E = Sim->dynamics->getParticleKineticEnergy(part1) + _internalEnergy[PDat.particle1_.getParticleID()];
-	const double p2E = Sim->dynamics->getParticleKineticEnergy(part2) + _internalEnergy[PDat.particle2_.getParticleID()];
+	const double p1E = sp1.getParticleKineticEnergy(part1) + _internalEnergy[PDat.particle1_.getParticleID()];
+	const double p2E = sp2.getParticleKineticEnergy(part2) + _internalEnergy[PDat.particle2_.getParticleID()];
 	const double mass1 = sp1.getMass(part1.getID());
 	const double mass2 = sp2.getMass(part2.getID());
 	const Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
