@@ -52,6 +52,11 @@ namespace dynamo {
     const double mass = getMass(ID);
     const Particle& part = Sim->particles[ID];
 
+#ifdef DYNAMO_DEBUG
+    if (!isSpecies(part))
+      M_throw() << "Getting the energy of a particle which does not belong to this Species!";
+#endif
+
     if (std::isinf(mass))
       return 0;
     

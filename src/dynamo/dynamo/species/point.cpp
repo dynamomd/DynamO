@@ -43,4 +43,23 @@ namespace dynamo {
 	<< magnet::xml::attr("Type") << "Point"
 	<< *range;
   }
+  
+  double
+  SpPoint::getParticleKineticEnergy(size_t ID)  const {
+    const double mass = getMass(ID);
+    const Particle& part = Sim->particles[ID];
+
+#ifdef DYNAMO_DEBUG
+    if (!isSpecies(part))
+      M_throw() << "Getting the energy of a particle which does not belong to this Species!";
+#endif
+
+    if (std::isinf(mass))
+      return 0;      
+    
+    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+      return 0.5 * static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
+    else
+      return 0.5 * part.getVelocity().nrm2() * mass;
+  }
 }

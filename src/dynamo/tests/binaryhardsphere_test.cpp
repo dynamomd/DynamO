@@ -124,7 +124,9 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   //BOOST_CHECK_CLOSE(D, expectedD, 6);
 
   //Check the temperature is constant at 1
-  double Temperature = opMisc.getCurrentkT() / Sim.units.unitEnergy();
+  std::cerr << "Temperature is " << opMisc.getCurrentkT() << std::endl;
+  std::cerr << "Unit Temperature is " << Sim.units.unitEnergy() << std::endl;
+  const double Temperature = opMisc.getCurrentkT() / Sim.units.unitEnergy();
   BOOST_CHECK_CLOSE(Temperature, 1.0, 0.000000001);
 
   //Check that the momentum is around 0

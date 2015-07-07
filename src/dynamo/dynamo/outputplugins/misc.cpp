@@ -239,17 +239,22 @@ namespace dynamo {
 	const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
 	const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
 	const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
+
         const double p1KE = sp1.getParticleKineticEnergy(part1);
-	const double p1E = p1KE + _internalEnergy[PDat.particle1_.getParticleID()];
-        const double p2KE = sp1.getParticleKineticEnergy(part2);
-	const double p2E = p2KE + _internalEnergy[PDat.particle2_.getParticleID()];
-	const double mass1 = sp1.getMass(part1.getID());
-	const double mass2 = sp2.getMass(part2.getID());
-	const Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
+	const double p1E = p1KE + _internalEnergy[part1];
+        
+        const double p2KE = sp2.getParticleKineticEnergy(part2);
+	const double p2E = p2KE + _internalEnergy[part2];
+
 	const double deltaKE1 = p1KE - PDat.particle1_.getOldKE();
 	const double deltaKE2 = p2KE - PDat.particle2_.getOldKE();
 	const double p1deltaE = deltaKE1 + PDat.particle1_.getDeltaU();
-	const double p2deltaE = deltaKE2 + PDat.particle2_.getDeltaU();
+        const double p2deltaE = deltaKE2 + PDat.particle2_.getDeltaU();
+        
+	const double mass1 = sp1.getMass(part1.getID());
+	const double mass2 = sp2.getMass(part2.getID());
+	const Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
+
 
 	const double deltaKE = deltaKE1 + deltaKE2;
 	_KE += deltaKE;

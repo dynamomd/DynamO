@@ -47,18 +47,7 @@ namespace dynamo {
     virtual double getScalarMomentOfInertia(size_t ID) const 
     { M_throw() << "Species has no intertia"; }
 
-    virtual double getParticleKineticEnergy(size_t ID)  const {
-      const double mass = getMass(ID);
-      const Particle& part = Sim->particles[ID];
-
-      if (std::isinf(mass))
-	return 0;      
-      
-      if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-	return 0.5 * static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
-      else
-	return 0.5 * part.getVelocity().nrm2() * mass;
-    }
+    virtual double getParticleKineticEnergy(size_t ID) const;
 
     virtual double getDOF() const { return NDIM; }
 
