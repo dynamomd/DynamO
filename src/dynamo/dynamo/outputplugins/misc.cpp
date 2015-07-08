@@ -19,6 +19,7 @@
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/BC/LEBC.hpp>
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <dynamo/systems/tHalt.hpp>
@@ -115,8 +116,14 @@ namespace dynamo {
 	 << "\nSim Unit Time " << Sim->units.unitTime()
 	 << "\nDensity " << Sim->getNumberDensity() * Sim->units.unitVolume()
 	 << "\nPacking Fraction " << Sim->getPackingFraction()
-	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy()
-	 << "\nNo. of Species " << Sim->species.size()
+	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy();
+    
+    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs)) {
+      dout << " (Assuming linear shear profile)" <<std::endl;
+      derr << "\nTemperature output disabled, as shearing/LEBC can give non-linear velocity profiles." << std::endl;
+    }
+    
+    dout << "\nNo. of Species " << Sim->species.size()
 	 << "\nSimulation box length "
 	 << (Sim->primaryCellSize / Sim->units.unitLength()).toString()
 	 << std::endl;
@@ -406,30 +413,33 @@ namespace dynamo {
 	<< attr("y") << _sysMomentum.mean()[1] / Sim->units.unitMomentum()
 	<< attr("z") << _sysMomentum.mean()[2] / Sim->units.unitMomentum()
 	<< endtag("Average")
-	<< endtag("SystemMomentum")
+	<< endtag("SystemMomentum");
 
-	<< tag("Temperature")
-	<< attr("Mean") << getMeankT() / Sim->units.unitEnergy()
-	<< attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
-	<< attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
-	<< attr("Min") << 2.0 * _KE.min() / (Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< attr("Max") << 2.0 * _KE.max() / (Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< endtag("Temperature")
-
-	<< tag("UConfigurational")
+    if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+      XML << tag("Temperature")
+	  << attr("Mean") << getMeankT() / Sim->units.unitEnergy()
+	  << attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
+	  << attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
+	  << attr("Min") << 2.0 * _KE.min() / (Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	  << attr("Max") << 2.0 * _KE.max() / (Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	  << endtag("Temperature");
+    
+    XML << tag("UConfigurational")
 	<< attr("Mean") << getMeanUConfigurational() / Sim->units.unitEnergy()
 	<< attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
 	<< attr("Current") << _internalE.current() / Sim->units.unitEnergy()
 	<< attr("Min") << _internalE.min() / Sim->units.unitEnergy()
 	<< attr("Max") << _internalE.max() / Sim->units.unitEnergy()
-	<< endtag("UConfigurational")
-
-	<< tag("ResidualHeatCapacity")
-	<< attr("Value") 
-	<< (getMeanSqrUConfigurational() - getMeanUConfigurational() * getMeanUConfigurational())
-      / (getMeankT() * getMeankT())
-	<< endtag("ResidualHeatCapacity")
-	<< tag("Pressure")
+	<< endtag("UConfigurational");
+    
+    if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+      XML << tag("ResidualHeatCapacity")
+	  << attr("Value") 
+	  << (getMeanSqrUConfigurational() - getMeanUConfigurational() * getMeanUConfigurational())
+	/ (getMeankT() * getMeankT())
+	  << endtag("ResidualHeatCapacity");
+    
+    XML << tag("Pressure")
 	<< attr("Avg") << P.tr() / (3.0 * Sim->units.unitPressure())
 	<< tag("Tensor") << chardata()
       ;
@@ -500,124 +510,123 @@ namespace dynamo {
 
 	<< tag("Memusage")
 	<< attr("MaxKiloBytes") << magnet::process_mem_usage()
-	<< endtag("Memusage")
+	<< endtag("Memusage");
 
-	<< tag("ThermalConductivity")
-	<< tag("Correlator")
-	<< chardata();
+    if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs)) {
+      XML	<< tag("ThermalConductivity")
+		<< tag("Correlator")
+		<< chardata();
 
-    {
-      std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
-	data = _thermalConductivity.getAveragedCorrelator();
+      {
+	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+	  data = _thermalConductivity.getAveragedCorrelator();
     
-      const double inv_units = Sim->units.unitk()
-	/ ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 * getMeankT() * V);
+	const double inv_units = Sim->units.unitk()
+	  / ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 * getMeankT() * V);
 
-      XML << "0 0 0 0 0\n";
-      for (size_t i(0); i < data.size(); ++i)
-	XML << data[i].time / Sim->units.unitTime() << " "
-	    << data[i].sample_count << " "
-	    << data[i].value[0] * inv_units << " "
-	    << data[i].value[1] * inv_units << " "
-	    << data[i].value[2] * inv_units << "\n";
-    }
-
-    XML << endtag("Correlator")
-	<< endtag("ThermalConductivity")
-	<< tag("Viscosity")
-	<< tag("Correlator")
-	<< chardata();
-
-    {
-      std::vector<magnet::math::LogarithmicTimeCorrelator<Matrix>::Data>
-	data = _viscosity.getAveragedCorrelator();
-      
-      double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
-
-      XML << "0 0 0 0 0 0 0 0 0 0 0\n";
-      for (size_t i(0); i < data.size(); ++i)
-	{
+	XML << "0 0 0 0 0\n";
+	for (size_t i(0); i < data.size(); ++i)
 	  XML << data[i].time / Sim->units.unitTime() << " "
-	      << data[i].sample_count << " ";
+	      << data[i].sample_count << " "
+	      << data[i].value[0] * inv_units << " "
+	      << data[i].value[1] * inv_units << " "
+	      << data[i].value[2] * inv_units << "\n";
+      }
+
+      XML << endtag("Correlator")
+	  << endtag("ThermalConductivity")
+	  << tag("Viscosity")
+	  << tag("Correlator")
+	  << chardata();
+
+      {
+	std::vector<magnet::math::LogarithmicTimeCorrelator<Matrix>::Data>
+	  data = _viscosity.getAveragedCorrelator();
+      
+	double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
+
+	XML << "0 0 0 0 0 0 0 0 0 0 0\n";
+	for (size_t i(0); i < data.size(); ++i)
+	  {
+	    XML << data[i].time / Sim->units.unitTime() << " "
+		<< data[i].sample_count << " ";
 	  
-	  for (size_t j(0); j < 3; ++j)
-	    for (size_t k(0); k < 3; ++k)
-	      XML << (data[i].value(j, k) - std::pow(data[i].time * P(j,k) * V, 2.0)) * inv_units << " ";
-	  XML << "\n";
+	    for (size_t j(0); j < 3; ++j)
+	      for (size_t k(0); k < 3; ++k)
+		XML << (data[i].value(j, k) - std::pow(data[i].time * P(j,k) * V, 2.0)) * inv_units << " ";
+	    XML << "\n";
+	  }
+      }
+
+      XML << endtag("Correlator")
+	  << endtag("Viscosity")
+	  << tag("ThermalDiffusion");
+
+      for (size_t i(0); i < Sim->species.size(); ++i)
+	{
+	  XML << tag("Correlator")
+	      << attr("Species") << Sim->species[i]->getName()
+	      << chardata();
+	
+	  std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+	    data = _thermalDiffusion[i].getAveragedCorrelator();
+	
+	  double inv_units = 1.0
+	    / (Sim->units.unitTime() * Sim->units.unitThermalDiffusion() * 2.0 * getMeankT() * V);
+	
+	  XML << "0 0 0 0 0\n";
+	  for (size_t i(0); i < data.size(); ++i)
+	    {
+	      XML << data[i].time / Sim->units.unitTime() << " "
+		  << data[i].sample_count << " ";
+	    
+	      for (size_t j(0); j < 3; ++j)
+		XML << data[i].value[j] * inv_units << " ";
+	      XML << "\n";
+	    }
+	
+	  XML << endtag("Correlator");
 	}
+
+      XML << endtag("ThermalDiffusion")
+	  << tag("MutualDiffusion");
+
+      for (size_t i(0); i < Sim->species.size(); ++i)
+	for (size_t j(i); j < Sim->species.size(); ++j)
+	  {
+	    XML << tag("Correlator")
+		<< attr("Species1") << Sim->species[i]->getName()
+		<< attr("Species2") << Sim->species[j]->getName()
+		<< chardata();
+	
+	    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+	      data = _mutualDiffusion[i * Sim->species.size() + j].getAveragedCorrelator();
+	
+	    double inv_units = 1.0
+	      / (Sim->units.unitTime() * Sim->units.unitMutualDiffusion() * 2.0 * getMeankT() * V);
+	
+	    XML << "0 0 0 0 0\n";
+	    for (size_t i(0); i < data.size(); ++i)
+	      {
+		XML << data[i].time / Sim->units.unitTime() << " "
+		    << data[i].sample_count << " ";
+	    
+		for (size_t j(0); j < 3; ++j)
+		  XML << data[i].value[j] * inv_units << " ";
+		XML << "\n";
+	      }
+	
+	    XML << endtag("Correlator");
+	  }
+
+      XML << endtag("MutualDiffusion");
     }
-
-    XML << endtag("Correlator")
-	<< endtag("Viscosity")
-	<< tag("ThermalDiffusion");
-
-    for (size_t i(0); i < Sim->species.size(); ++i)
-      {
-	XML << tag("Correlator")
-	    << attr("Species") << Sim->species[i]->getName()
-	    << chardata();
-	
-	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
-	  data = _thermalDiffusion[i].getAveragedCorrelator();
-	
-	double inv_units = 1.0
-	  / (Sim->units.unitTime() * Sim->units.unitThermalDiffusion() * 2.0 * getMeankT() * V);
-	
-	XML << "0 0 0 0 0\n";
-	for (size_t i(0); i < data.size(); ++i)
-	  {
-	    XML << data[i].time / Sim->units.unitTime() << " "
-		<< data[i].sample_count << " ";
-	    
-	    for (size_t j(0); j < 3; ++j)
-	      XML << data[i].value[j] * inv_units << " ";
-	    XML << "\n";
-	  }
-	
-	XML << endtag("Correlator");
-      }
-
-    XML << endtag("ThermalDiffusion")
-	<< tag("MutualDiffusion");
-
-    for (size_t i(0); i < Sim->species.size(); ++i)
-      for (size_t j(i); j < Sim->species.size(); ++j)
-      {
-	XML << tag("Correlator")
-	    << attr("Species1") << Sim->species[i]->getName()
-	    << attr("Species2") << Sim->species[j]->getName()
-	    << chardata();
-	
-	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
-	  data = _mutualDiffusion[i * Sim->species.size() + j].getAveragedCorrelator();
-	
-	double inv_units = 1.0
-	  / (Sim->units.unitTime() * Sim->units.unitMutualDiffusion() * 2.0 * getMeankT() * V);
-	
-	XML << "0 0 0 0 0\n";
-	for (size_t i(0); i < data.size(); ++i)
-	  {
-	    XML << data[i].time / Sim->units.unitTime() << " "
-		<< data[i].sample_count << " ";
-	    
-	    for (size_t j(0); j < 3; ++j)
-	      XML << data[i].value[j] * inv_units << " ";
-	    XML << "\n";
-	  }
-	
-	XML << endtag("Correlator");
-      }
-
-    XML << endtag("MutualDiffusion")
-	<< endtag("Misc");
+    XML << endtag("Misc");
   }
 
   void
   OPMisc::periodicOutput()
   {
-    //std::time_t nowtime_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    //I_Pcout() << std::put_time(std::localtime(&nowtime_t), "%a %H:%M");
-
     //Calculate the ETA of the simulation, and take care with overflows and the like
     double _earliest_end_time = HUGE_VAL;
     for (const auto& sysPtr : Sim->systems)
@@ -646,25 +655,33 @@ namespace dynamo {
 	size_t ETA_mins = (seconds_remaining / 60) % 60;
 	size_t ETA_secs = seconds_remaining % 60;
 
+	//Here we try to give the friendliest ETA, as people can get
+	//really tense about simulation timings. We only show two
+	//places (hrs/min) (min/s) as the error in the estimate can be
+	//substantial, particularly at the start.
 	I_Pcout() << "ETA ";
 	if (ETA_days)
-	  I_Pcout() << ETA_days << "d ";
-
-	if (ETA_hours)
-	  I_Pcout() << ETA_hours << "hr ";
-	  
-	if (ETA_mins && !ETA_days)
-	  I_Pcout() << ETA_mins << "min ";
-
-	if (!ETA_hours)
+	  //Show days, and round to nearest hour
+	  I_Pcout() << ETA_days << "d " << std::lround(ETA_hours + float(ETA_mins) / 60) << "hr";
+	else if (ETA_hours)
+	  //Show hours, and round to nearest minute
+	  I_Pcout() << ETA_hours << "hr " << std::lround(ETA_mins + float(ETA_secs) / 60) << "hr";
+	else if (ETA_mins > 5)
+	  I_Pcout() << std::lround(ETA_mins + float(ETA_secs) / 60) << "min ";
+	else if (ETA_mins)
+	  I_Pcout() << ETA_mins << "min " << ETA_secs << "s";
+	else
 	  I_Pcout() << ETA_secs << "s";
-	I_Pcout() << ", ";
-      }
-
+      
+    }
+    
     I_Pcout() << "Events " << (Sim->eventCount+1)/1000 << "k, t "
 	      << Sim->systemTime/Sim->units.unitTime() 
-	      << ", <MFT> " <<  getMFT()
-	      << ", T " << getCurrentkT() / Sim->units.unitEnergy()
-	      << ", U " << _internalE.current() / (Sim->units.unitEnergy() * Sim->N());
+	      << ", <MFT> " <<  getMFT();
+    
+    if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+      I_Pcout() << ", T " << getCurrentkT() / Sim->units.unitEnergy();
+    
+    I_Pcout() << ", U " << _internalE.current() / (Sim->units.unitEnergy() * Sim->N());
   }
 }

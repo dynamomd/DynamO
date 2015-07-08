@@ -46,7 +46,6 @@ namespace dynamo {
   
   double
   SpPoint::getParticleKineticEnergy(size_t ID)  const {
-    const double mass = getMass(ID);
     const Particle& part = Sim->particles[ID];
 
 #ifdef DYNAMO_DEBUG
@@ -54,8 +53,9 @@ namespace dynamo {
       M_throw() << "Getting the energy of a particle which does not belong to this Species!";
 #endif
 
+    const double mass = getMass(ID);
     if (std::isinf(mass))
-      return 0;      
+      return 0;
     
     if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       return 0.5 * static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;

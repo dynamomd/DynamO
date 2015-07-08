@@ -70,11 +70,15 @@ namespace dynamo {
      */
     Vector getStreamVelocity(const Particle& part) const;
 
-    /*! \brief Returns the peculiar velocity of the particle.
+    /*! \brief Returns the (approximate) peculiar velocity of the
+     particle.
      
       By definition, the peculiar velocity is the velocity of a
-      particle, minus the velocity of the fluid at that point.  \sa
-      getStreamVelocity(const Particle&)
+      particle, minus the velocity of the fluid at that point. In
+      this, we assume that a linear shear profile is achieved during
+      the simulation (LEBC does not guarantee a linear profile).
+
+      \sa getStreamVelocity(const Particle&)
      */
     Vector getPeculiarVelocity(const Particle& part) const;
     

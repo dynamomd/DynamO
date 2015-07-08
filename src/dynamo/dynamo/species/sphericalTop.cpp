@@ -49,31 +49,13 @@ namespace dynamo {
   
   double
   SpSphericalTop::getParticleKineticEnergy(size_t ID) const {
-    const double mass = getMass(ID);
-    const Particle& part = Sim->particles[ID];
+    double KE = SpPoint::getParticleKineticEnergy(ID);
 
-#ifdef DYNAMO_DEBUG
-    if (!isSpecies(part))
-      M_throw() << "Getting the energy of a particle which does not belong to this Species!";
-#endif
-
-    if (std::isinf(mass))
-      return 0;
-    
-    double energy(0);
-    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-      energy += static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
-    else
-      energy += part.getVelocity().nrm2() * mass;
-    
     const double I = getScalarMomentOfInertia(ID);
-
     if (!std::isinf(I))
-      energy += I * Sim->dynamics->getRotData(ID).angularVelocity.nrm2();
-
-    return 0.5 * energy;
+      KE += 0.5 * I * Sim->dynamics->getRotData(ID).angularVelocity.nrm2();
+    return KE;
   }
-
 
   void 
   SpSphericalTop::operator<<(const magnet::xml::Node& XML)
