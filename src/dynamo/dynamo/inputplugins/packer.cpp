@@ -145,8 +145,9 @@ namespace dynamo {
 	      std::cout<<
 		"\nMode 0: Monocomponent hard spheres\n"
 		       << defaultOptionText << 
-		"  --i2 arg (disabled)         Adds a temperature rescale event every x events\n"
-		"  --f1 arg (=1.0)             Sets the elasticity of the hard spheres\n";
+		"  --i2 arg (disabled)    Adds a temperature rescale event every x events\n"
+		"  --f1 arg (=1)             Sets the elasticity of the hard spheres\n"
+		"  --f2 arg (=1)             Sets the tangential elasticity of the hard spheres (=1 disables rotation)\n";
 	      exit(1);
 	    }
 	  //Pack of hard spheres
@@ -169,6 +170,7 @@ namespace dynamo {
 				    / latticeSites.size(), double(1.0 / 3.0));
 
 	  bool twoD = false;
+
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
 	      std::array<long, 3> cells = getCells();
@@ -200,17 +202,34 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
-	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
-	  Sim->units.setUnitLength(particleDiam);
+	  if (vm.count("f2") && (vm["f2"].as<double>() != 1.0)) {
+	    //Simulation with rotation
+	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity,  vm["f2"].as<double>(), new IDPairRangeAll(), "Bulk")));
+	    Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, 2.0 * particleDiam * particleDiam / (5.0 * 4.0))));
+	    Sim->units.setUnitLength(particleDiam);
+	    
+	    size_t nParticles = 0;
+	    Sim->particles.reserve(latticeSites.size());
+	    for (const Vector & position : latticeSites) {
+	      Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	      if (twoD)
+		Sim->particles.back().getVelocity()[2] = 0;
+	    }
 
-	  unsigned long nParticles = 0;
-	  Sim->particles.reserve(latticeSites.size());
-	  
-	  for (const Vector & position : latticeSites) {
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
-	    if (twoD)
-	      Sim->particles.back().getVelocity()[2] = 0;
+	    Sim->dynamics->initOrientations();
+	  } else {
+	    //Simulation without rotation
+	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	    Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
+	    Sim->units.setUnitLength(particleDiam);
+       
+	    size_t nParticles = 0;
+	    Sim->particles.reserve(latticeSites.size());
+	    for (const Vector & position : latticeSites) {
+	      Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	      if (twoD)
+		Sim->particles.back().getVelocity()[2] = 0;
+	    }
 	  }
 
 	  const double kT = 1.0 * Sim->units.unitEnergy();

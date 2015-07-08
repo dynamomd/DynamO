@@ -662,16 +662,16 @@ namespace dynamo {
 	I_Pcout() << "ETA ";
 	if (ETA_days)
 	  //Show days, and round to nearest hour
-	  I_Pcout() << ETA_days << "d " << std::lround(ETA_hours + float(ETA_mins) / 60) << "hr";
+	  I_Pcout() << ETA_days << "d " << std::lround(ETA_hours + float(ETA_mins) / 60) << "hr, ";
 	else if (ETA_hours)
 	  //Show hours, and round to nearest minute
-	  I_Pcout() << ETA_hours << "hr " << std::lround(ETA_mins + float(ETA_secs) / 60) << "hr";
+	  I_Pcout() << ETA_hours << "hr " << std::lround(ETA_mins + float(ETA_secs) / 60) << "min, ";
 	else if (ETA_mins > 5)
-	  I_Pcout() << std::lround(ETA_mins + float(ETA_secs) / 60) << "min ";
+	  I_Pcout() << std::lround(ETA_mins + float(ETA_secs) / 60) << "min, ";
 	else if (ETA_mins)
-	  I_Pcout() << ETA_mins << "min " << ETA_secs << "s";
+	  I_Pcout() << ETA_mins << "min " << ETA_secs << "s, ";
 	else
-	  I_Pcout() << ETA_secs << "s";
+	  I_Pcout() << ETA_secs << "s, ";
       
     }
     
