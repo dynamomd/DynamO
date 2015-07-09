@@ -290,10 +290,10 @@ namespace coil {
     _renderShader.build();
     _renderVSMShader.build();
     _simpleRenderShader.build();
-    _dumbbellShader.build();
 
     if (_raytraceable) 
       {
+	_dumbbellShader.build();
 	_sphereShader.build();
 	_sphereVSMShader.build();
 	_cylinderShader.build();
