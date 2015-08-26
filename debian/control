@@ -15,7 +15,9 @@ Build-Depends: debhelper,
  libavcodec-dev,
  libjudy-dev,
  libxmu-dev,
- cmake
+ cmake,
+ python-numpy,
+ python-matplotlib
 Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
 Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
@@ -23,7 +25,7 @@ Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 Package: dynamomd
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, python-numpy,
-  python-matplotlib, libjudydebian1
+  python-matplotlib
 Recommends: libavcodec-extra-53
 Provides: dynamo-core, dynamo-tools, dynamo-visualisation
 Replaces: dynamo-core, dynamo-tools, dynamo-visualisation
