@@ -93,7 +93,7 @@ namespace magnet {
 	_zFarDist(zFarDist),
 	_rotation(math::Quaternion::identity()),
 	_simLength(simLength),
-	_pixelPitch(0.0198), //mm per pixel (horizontal)
+	_pixelPitch(0.04653), //cm per pixel (horizontal)
 	_camMode(ROTATE_POINT)
       {
 	if (_zNearDist > _zFarDist) 

@@ -156,7 +156,8 @@ namespace dynamo {
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 4);
     _particleData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
-    _particleData->addAttribute("ID", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_COLOUR, 1);
+    //We allow glyphs to be default color white
+    _particleData->addAttribute("ID", coil::Attribute::INTENSIVE /*| coil::Attribute::DEFAULT_GLYPH_COLOUR*/, 1);
 
     _particleData->setPeriodicVectors(Vector{Sim->primaryCellSize[0], 0, 0},
 				      Vector{0, Sim->primaryCellSize[1], 0},

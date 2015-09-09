@@ -589,7 +589,7 @@ namespace coil {
     Vector up = Vector{0,1,0};
     
     {
-      std::shared_ptr<RLight> light(new RLight("Light", Vector{0, 1, 0} * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light", Vector{1, 1, 1} * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
