@@ -43,9 +43,17 @@ namespace dynamo {
 	    for (magnet::xml::Node entry_node = map_node.findNode("Contact"); entry_node.valid(); ++entry_node)
 	      map[detail::CaptureMap::key_type(entry_node.getAttribute("ID1").as<size_t>(), entry_node.getAttribute("ID2").as<size_t>())]
 		= entry_node.getAttribute("State").as<size_t>();
-	    _W.push_back(std::make_pair(map, WData(distance, Wval)));
+
+	    if (distance)
+	      _W.push_back(std::make_pair(map, WData(distance, Wval)));
+	    else {
+	      _single_W[map] = WData(0, Wval);
+	    }
 	  }
       }
+
+    dout << "Loaded " << _W.size() << " distance maps." << std::endl;
+    dout << "Loaded " << _single_W.size() << " single maps." << std::endl;
   }
 
   void 
@@ -55,6 +63,22 @@ namespace dynamo {
 	<< "NewtonianMCCMap"
 	<< magnet::xml::attr("Interaction") << _interaction_name
 	<< magnet::xml::tag("Potential");
+
+    for (const auto& entry : _single_W)
+      {
+	XML << magnet::xml::tag("Map")
+	    << magnet::xml::attr("W") << entry.second._wval
+	    << magnet::xml::attr("Distance") << entry.second._distance
+	  ;
+
+	for (const auto& val : entry.first)
+	  XML << magnet::xml::tag("Contact")
+	      << magnet::xml::attr("ID1") << val.first.first
+	      << magnet::xml::attr("ID2") << val.first.second
+	      << magnet::xml::attr("State") << val.second
+	      << magnet::xml::endtag("Contact");
+	XML << magnet::xml::endtag("Map");
+      }
     
     for (const auto entry : _W)
       {
@@ -179,6 +203,13 @@ namespace dynamo {
     size_t applicable_tethers = 0;
     double accumilated_W = 0;
 
+    auto it = _single_W.find(detail::CaptureMapKey(map));
+
+    if (it != _single_W.end()) {
+      ++applicable_tethers;
+      accumilated_W += it->second._wval;
+    }
+      
     for (auto tethermap : _W)
       {
 	auto il = tethermap.first.begin();

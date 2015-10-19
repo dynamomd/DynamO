@@ -34,9 +34,9 @@ namespace dynamo {
       double _wval;
     };
 
-    typedef std::vector<std::pair<detail::CaptureMapKey, WData> > WContainer;
-    
-    WContainer _W;
+    std::vector<std::pair<detail::CaptureMapKey, WData> > _W;
+
+    std::unordered_map<detail::CaptureMapKey, WData, detail::CaptureMapKeyHash> _single_W;
 
     std::string _interaction_name;
     std::shared_ptr<ICapture> _interaction;
