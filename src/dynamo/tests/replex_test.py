@@ -15,6 +15,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+import dynamo
 import os
 import math
 import sys
@@ -33,9 +34,6 @@ p_finish_time=float(p_swaps)*swap_time
 
 
 error_count = 0
-
-def isclose(a,b,tol):
-    return (abs(a-b) <= abs(tol*a)) or (abs(a-b) <= abs(tol*b))
 
 shortargs=""
 longargs=["dynarun=", "dynamod=", "dynahist_rw="]
@@ -110,20 +108,20 @@ for i,T in enumerate(Temperatures):
     xmldoc=ET.parse(outputfile)
 
     measured_T=float(xmldoc.getroot().find(".//Temperature").attrib["Mean"])
-    if not isclose(measured_T, T, 4e-2):
+    if not dynamo.isclose(measured_T, T, 4e-2):
         error_count = error_count + 1
         print "Simulation Temperature is different to what is expected:"+str(measured_T)+"!="+str(T)
     
     simtime=float(xmldoc.getroot().find(".//Duration").attrib["Time"])
     expected_simtime = swap_time * replex_calls * math.sqrt(min(Temperatures)/T)
-    if not isclose(simtime, expected_simtime, 1e-4):
+    if not dynamo.isclose(simtime, expected_simtime, 1e-4):
         error_count = error_count + 1
         print "Simulation duration is different to what is expected:"+str(simtime)+"!="+str(expected_simtime)
 
     measured_Cv=float(xmldoc.getroot().find(".//ResidualHeatCapacity").attrib["Value"])
     expected_Cv=expectedCvs[T]
 
-    if not isclose(measured_Cv, expected_Cv, 5e-2):
+    if not dynamo.isclose(measured_Cv, expected_Cv, 5e-2):
         error_count = error_count + 1
         print "Simulation heat capacity is different to what is expected:"+str(measured_Cv)+"!="+str(expected_Cv)
 
@@ -139,7 +137,7 @@ for line,ref in zip(open('logZ.out', 'r'), [0, -37.1325363028306097, -50.8797611
         if logZval != 0:
             raise RuntimeError("First logZ value is not zero")
     else:
-        if not isclose(logZval, ref, 1e-2):
+        if not dynamo.isclose(logZval, ref, 1e-2):
             error_count = error_count + 1
             print "Calculated logZ value is incorrect:"+str(logZval)+"!="+str(ref)
 
@@ -167,7 +165,7 @@ Cvdata=[map(float, line.split()) for line in open("Cv.out")]
 for T in expectedCvs:
     measuredCv = interpolate([data[1] for data in Cvdata],  [data[0] for data in Cvdata], T)
     expectedCv = expectedCvs[T]
-    if not isclose(measuredCv, expectedCv, 1e-1):
+    if not dynamo.isclose(measuredCv, expectedCv, 1e-1):
         error_count = error_count + 1
         print "Histogram reweighted Cv value is incorrect:"+str(measuredCv)+"!="+str(expectedCv)
 

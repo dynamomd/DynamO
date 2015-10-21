@@ -56,3 +56,6 @@ def prettyprint(doc):
     import xml.dom.minidom
     xml = xml.dom.minidom.parseString(ET.tostring(doc))
     return xml.toprettyxml(indent=' ')
+
+def isclose(a,b,tol):
+    return (abs(a-b) <= abs(tol*a)) or (abs(a-b) <= abs(tol*b))
