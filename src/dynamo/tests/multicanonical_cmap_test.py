@@ -76,3 +76,15 @@ maptag = ET.SubElement(potential, 'Map', {'W':'-1000000', 'Distance':'0'})
 ET.SubElement(maptag, 'Contact', {'ID1':'0', 'ID2':'1', 'State':'2'})
 
 open('test.xml', 'w').write(dynamo.prettyprint(doc))
+
+import subprocess
+
+cmd=[dynarun_cmd, "test.xml", '-c1000000' ,'--out-data-file=output.xml']
+print " ".join(cmd)
+subprocess.call(cmd)
+
+output = ET.parse('output.xml')
+datatag=output.find('./Misc/UConfigurational')
+datatag.attrib['Mean']
+datatag.attrib['Min']
+datatag.attrib['Max']
