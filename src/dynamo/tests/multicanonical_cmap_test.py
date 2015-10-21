@@ -15,6 +15,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+import dynamo
 import os
 import math
 import sys
@@ -48,3 +49,30 @@ for name,exe in [("dynahist_rw", dynahist_rw_cmd), ("dynamod", dynamod_cmd), ("d
     if not(os.path.isfile(exe) and os.access(exe, os.X_OK)):
         raise RuntimeError("Failed to find "+name+" executabe at "+exe+"\,"+str(sys.argv))
         
+doc = dynamo.basicDoc
+
+dynamo.addParticle(doc, pos=[0,0,0], vel=[1,0,0])
+dynamo.addParticle(doc, pos=[0.99,0,0], vel=[-1,0,0])
+
+
+interactions = doc.find('./Simulation/Interactions')
+interaction = ET.SubElement(interactions, 'Interaction', {'Type':'Stepped', 'LengthScale':'1', 'EnergyScale':'1', 'Name':'Bulk'})
+ET.SubElement(interaction, 'IDPairRange', {'Type':'All'})
+potential = ET.SubElement(interaction, 'Potential', {'Type':'Stepped', 'Direction':'Left'})
+ET.SubElement(potential, 'Step', {'R':'1.0', 'E':'-0.5'})
+ET.SubElement(potential, 'Step', {'R':'0.5', 'E':'-0.75'})
+
+systemevents = doc.find('./Simulation/SystemEvents')
+system = ET.SubElement(systemevents, 'System', {'Type':'Andersen', 'MFT':'0.6', 'Temperature':'1', 'Name':'Thermostat', 'SetPoint':'0.05', 'SetFrequency':'100'})
+ET.SubElement(system, 'IDRange', {'Type':'All'})
+
+dynamics = doc.find('./Simulation/Dynamics')
+dynamics.attrib['Type'] = 'NewtonianMCCMap'
+dynamics.attrib['Interaction'] = 'Bulk'
+potential = ET.SubElement(dynamics, 'Potential')
+maptag = ET.SubElement(potential, 'Map', {'W':'-1000000', 'Distance':'0'})
+ET.SubElement(maptag, 'Contact', {'ID1':'0', 'ID2':'1', 'State':'1'})
+maptag = ET.SubElement(potential, 'Map', {'W':'-1000000', 'Distance':'0'})
+ET.SubElement(maptag, 'Contact', {'ID1':'0', 'ID2':'1', 'State':'2'})
+
+open('test.xml', 'w').write(dynamo.prettyprint(doc))
