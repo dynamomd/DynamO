@@ -22,7 +22,11 @@ import sys
 import getopt
 import xml.etree.ElementTree as ET
 
+kT=1.0
+W=-20
+
 run=True
+error_count=0
 
 shortargs=""
 longargs=["dynarun=", "dynamod=", "dynahist_rw="]
@@ -70,9 +74,9 @@ dynamics = doc.find('./Simulation/Dynamics')
 dynamics.attrib['Type'] = 'NewtonianMCCMap'
 dynamics.attrib['Interaction'] = 'Bulk'
 potential = ET.SubElement(dynamics, 'Potential')
-maptag = ET.SubElement(potential, 'Map', {'W':'-1000000', 'Distance':'0'})
+maptag = ET.SubElement(potential, 'Map', {'W':str(W), 'Distance':'0'})
 ET.SubElement(maptag, 'Contact', {'ID1':'0', 'ID2':'1', 'State':'1'})
-maptag = ET.SubElement(potential, 'Map', {'W':'-1000000', 'Distance':'0'})
+maptag = ET.SubElement(potential, 'Map', {'W':str(W), 'Distance':'0'})
 ET.SubElement(maptag, 'Contact', {'ID1':'0', 'ID2':'1', 'State':'2'})
 
 open('test.xml', 'w').write(dynamo.prettyprint(doc))
@@ -85,6 +89,29 @@ subprocess.call(cmd)
 
 output = ET.parse('output.xml')
 datatag=output.find('./Misc/UConfigurational')
-datatag.attrib['Mean']
-datatag.attrib['Min']
+
+
 datatag.attrib['Max']
+
+def sphereVol(r):
+    return 4 * r*r*r * 3.14159265 / 3.0
+
+Z = sphereVol(0.5) * math.exp(0.75 / kT - W)
+Z += (sphereVol(1.0) - sphereVol(0.5)) * math.exp(0.5 / kT - W)
+
+print Z
+
+E = -0.75 * sphereVol(0.5) * math.exp(0.75 / kT - W) - 0.5 * (sphereVol(1.0) - sphereVol(0.5)) * math.exp(0.5 / kT - W)
+E /= Z
+
+if not dynamo.isclose(E, float(datatag.attrib['Mean']), 0.01):
+    error_count +=1
+
+if float(datatag.attrib['Min']) != -0.75:
+    error_count +=1
+
+if float(datatag.attrib['Max']) != -0.5:
+    error_count +=1
+    
+print "Total errors:", error_count
+sys.exit(error_count > 0)
