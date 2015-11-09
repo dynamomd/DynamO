@@ -131,7 +131,7 @@ namespace dynamo {
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
-
+	
       if (dt != HUGE_VAL)
 	retval = Event(p1, dt, INTERACTION, STEP_IN, ID, p2);
       }

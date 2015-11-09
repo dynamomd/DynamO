@@ -83,7 +83,6 @@ namespace magnet {
 	  else
 	    return std::max(0.0, 2 * f[0] / (-f[1] + std::sqrt(arg)));
 	} else /*(f[2] > 0)*/ {
-	  const double arg = f[1] * f[1] - 2 * f[2] * f[0];
 	  if ((f[1] >= 0) || arg <= 0) return HUGE_VAL;
 	  return std::max(0.0, 2 * f[0] / (-f[1] + std::sqrt(arg)));
 	}
