@@ -176,7 +176,6 @@ void main()
     std::unique_ptr<Gtk::Label> _scaleLabel;
     std::unique_ptr<Gtk::Entry> _scaleFactor;
     
-    bool _raytraceable;
     size_t _N;
     float _scale;
     int _initGlyphType;

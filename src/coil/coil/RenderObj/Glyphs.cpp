@@ -69,7 +69,7 @@ namespace coil {
     magnet::GL::Buffer<GLubyte> colorbuf;
 
     size_t instancing = 1;
-    if ((_raytraceable && _glyphRaytrace->get_active()) && ((_glyphType->get_active_row_number() == CYLINDER_GLYPH) || (_glyphType->get_active_row_number() == ROD_GLYPH) || (_glyphType->get_active_row_number() == SPHERE_GLYPH) || (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)))
+    if ((_glyphRaytrace->get_active()) && ((_glyphType->get_active_row_number() == CYLINDER_GLYPH) || (_glyphType->get_active_row_number() == ROD_GLYPH) || (_glyphType->get_active_row_number() == SPHERE_GLYPH) || (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)))
       instancing = 0;
 
     if (mode == RenderObj::PICKING)
@@ -89,7 +89,7 @@ namespace coil {
 
     using namespace magnet::GL::shader::detail;
 
-    if (_raytraceable && _glyphRaytrace->get_active())
+    if (_glyphRaytrace->get_active())
       {
 	Shader* shader_ptr = nullptr;
 	switch (_glyphType->get_active_row_number())
@@ -285,20 +285,16 @@ namespace coil {
     _glyphBox.reset(new Gtk::HBox); _glyphBox->show();
     
     _context = magnet::GL::Context::getContext();
-    _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
 
     _renderShader.build();
     _renderVSMShader.build();
     _simpleRenderShader.build();
 
-    if (_raytraceable) 
-      {
-	_dumbbellShader.build();
-	_sphereShader.build();
-	_sphereVSMShader.build();
-	_cylinderShader.build();
-	_cylinderVSMShader.build();
-      }
+    _dumbbellShader.build();
+    _sphereShader.build();
+    _sphereVSMShader.build();
+    _cylinderShader.build();
+    _cylinderVSMShader.build();
 
     {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
@@ -321,10 +317,9 @@ namespace coil {
     
     {
       _glyphRaytrace.reset(new Gtk::CheckButton("RayTrace")); ;
-      if (_raytraceable) 
-	_glyphRaytrace->show();
-      _glyphRaytrace->set_active(_raytraceable);
-      _glyphRaytrace->set_sensitive(_raytraceable);
+      _glyphRaytrace->show();
+      _glyphRaytrace->set_active(false);
+      _glyphRaytrace->set_sensitive(true);
       _glyphBox->pack_start(*_glyphRaytrace, false, false, 5);
     }
 
@@ -460,22 +455,16 @@ namespace coil {
       case SPHERE_GLYPH:
       case DUMBBELL_GLYPH:
 	{
-	  if (_raytraceable)
-	    {
-	      _glyphRaytrace->set_sensitive(true);
-	      _glyphRaytrace->set_active(true);
-	    }
+	  _glyphRaytrace->set_sensitive(true);
+	  _glyphRaytrace->set_active(true);
 	    
 	  _glyphLOD->get_adjustment()->configure(1, 0.0, 4.0, 1.0, 1.0, 0.0);
 	}
 	break;
       case CYLINDER_GLYPH:
       case ROD_GLYPH:
-	if (_raytraceable)
-	  {
-	    _glyphRaytrace->set_sensitive(true);
-	    _glyphRaytrace->set_active(true);
-	  }
+	_glyphRaytrace->set_sensitive(true);
+	_glyphRaytrace->set_active(true);
       case ARROW_GLYPH:
 	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
 	break;
@@ -506,9 +495,8 @@ namespace coil {
       case SPHERE_GLYPH:
       case DUMBBELL_GLYPH:
 	_glyphLOD->set_sensitive(true);
-	if (_raytraceable)
-	  if (_glyphRaytrace->get_active())
-	    _glyphLOD->set_sensitive(false);
+	if (_glyphRaytrace->get_active())
+	  _glyphLOD->set_sensitive(false);
 	break;
       case ARROW_GLYPH:
       case LINE_GLYPH:
