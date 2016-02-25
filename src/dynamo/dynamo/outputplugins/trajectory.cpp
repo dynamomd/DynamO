@@ -82,7 +82,7 @@ namespace dynamo {
 	logfile << "\n   2PEvent:";
 	logfile << " p1=" << std::setw(5) << id1
 		<< ", p2=" << std::setw(5) << id2
-		<< ", delP1=" << pData.impulse.toString()
+		<< ", delP1=" << ((id1 == pData.particle1_.getParticleID()) ? pData.impulse.toString() : (-pData.impulse).toString())
 		<< ", |r12|=" << std::setw(5) << rij.nrm()
 		<< ", post-r12=" << rij.toString()
 		<< ", post-v12=" << vij.toString()
