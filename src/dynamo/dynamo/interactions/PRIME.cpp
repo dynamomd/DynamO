@@ -516,7 +516,6 @@ namespace dynamo {
     const size_t no_HB_res = std::numeric_limits<size_t>::max();
 
     /*Handle the different types of interactions that can occur.*/
-    PairEventData EDat;
     switch (iEvent._type)
       {
       case CORE:
@@ -526,18 +525,14 @@ namespace dynamo {
 	  if (bond_energy == std::numeric_limits<double>::infinity())
 	    coreD = outer_diameter;
 	  
-	  EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent._type);
+	  return Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent._type);
         }
-        break;
       case BOUNCE:
-        {
-	  //BOUNCE events only occur for outer_diameter of a bond.
-          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, outer_diameter * outer_diameter, iEvent._type);
-          break;
-        }
+	//BOUNCE events only occur for outer_diameter of a bond.
+	return Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, outer_diameter * outer_diameter, iEvent._type);
       case STEP_IN:
 	{
-	  EDat = Sim->dynamics->SphereWellEvent(iEvent, -bond_energy, outer_diameter * outer_diameter, 1);
+	  PairEventData EDat = Sim->dynamics->SphereWellEvent(iEvent, -bond_energy, outer_diameter * outer_diameter, 1);
 	  if (EDat.getType() != BOUNCE) {
 	    //The particles have entered the well
 	    if ((NH_res != no_HB_res) && (CO_res != no_HB_res) && (bond_energy != 0))
@@ -552,12 +547,11 @@ namespace dynamo {
 	      }
 	    ICapture::add(p1, p2);
 	  }
-	  
-	  break;
+	  return EDat;
 	}
       case STEP_OUT:
 	{
-	  EDat = Sim->dynamics->SphereWellEvent(iEvent, bond_energy, outer_diameter * outer_diameter, 0);
+	  PairEventData EDat = Sim->dynamics->SphereWellEvent(iEvent, bond_energy, outer_diameter * outer_diameter, 0);
 	  if (EDat.getType() != BOUNCE) {
 	    //The particles are leaving the well
 	    if ((NH_res != no_HB_res) && (CO_res != no_HB_res) && (bond_energy != 0))
@@ -572,13 +566,11 @@ namespace dynamo {
 	      }
 	    ICapture::remove(p1, p2);
 	  }
-	  break;
+	  return EDat;
 	}
       default:
         M_throw() << "Unknown collision type";
       }
-
-    return EDat;
   }
 
   void 

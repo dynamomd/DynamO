@@ -91,33 +91,20 @@ namespace dynamo {
   {
     PairEventData retval;
 
+    ++Sim->eventCount;
     switch (iEvent._type)
       {
       case NBHOOD_IN:
-	{
-	  ICapture::add(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	ICapture::add(p1, p2);
+	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       case NBHOOD_OUT:
-	{
-	  ICapture::remove(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	ICapture::remove(p1, p2);
+	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       case VIRTUAL:
-	{
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       default:
 	M_throw() << "Unknown collision type";
       }
-    ++Sim->eventCount;
-    return retval;
   }
    
   void 

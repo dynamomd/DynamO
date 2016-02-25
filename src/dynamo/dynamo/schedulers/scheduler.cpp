@@ -314,9 +314,11 @@ namespace dynamo {
 	  //Move the simulation forward to the time of the event
 	  Sim->systemTime += Event._dt;
 	  stream(Event._dt);
-	  //dynamics must be updated first
+	  //Allow everything to stream up to the current time before executing the event
 	  Sim->stream(Event._dt);
+	  
 	  PairEventData eventdata = Sim->interactions[Event._sourceID]->runEvent(p1, p2, Event);
+	  
 	  Sim->_sigParticleUpdate(eventdata);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)

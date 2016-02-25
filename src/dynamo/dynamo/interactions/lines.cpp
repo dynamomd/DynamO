@@ -107,44 +107,22 @@ namespace dynamo {
   PairEventData
   ILines::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
-    PairEventData retval;
-
     switch (iEvent._type)
       {
       case CORE:
-	{
-	  ++Sim->eventCount;
-	  //We have a line interaction! Run it
-	  const double e = _e->getProperty(p1, p2);
-	  const double l = _length->getProperty(p1, p2);
-	  retval = Sim->dynamics->runLineLineCollision(iEvent, e, l);
-	  break;
-	}
+	++Sim->eventCount;
+	return Sim->dynamics->runLineLineCollision(iEvent, _e->getProperty(p1, p2), _length->getProperty(p1, p2));
       case NBHOOD_IN:
-	{
-	  ICapture::add(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	ICapture::add(p1, p2);
+	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       case NBHOOD_OUT:
-	{
-	  ICapture::remove(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	ICapture::remove(p1, p2);
+	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       case VIRTUAL:
-	{
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       default:
 	M_throw() << "Unknown collision type";
       }
-
-    return retval;
   }
    
   void 

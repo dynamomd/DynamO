@@ -253,30 +253,27 @@ namespace dynamo {
     const double ld2 = d * l * d * l;
     const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
     
-    PairEventData retVal;
     switch (iEvent._type)
       {
       case CORE:
-	{
-	  retVal = Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE);
-	  break;
-	}
+	return Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE);
       case STEP_IN:
 	{
-	  retVal = Sim->dynamics->SphereWellEvent(iEvent, pairenergy, ld2, 1);
-	  if (retVal.getType() != BOUNCE) ICapture::add(p1, p2);
-	  break;
+	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, pairenergy, ld2, 1);
+	  if (retVal.getType() != BOUNCE)
+	    ICapture::add(p1, p2);
+	  return retVal;
 	}
       case STEP_OUT:
 	{
-	  retVal = Sim->dynamics->SphereWellEvent(iEvent, -pairenergy, ld2, 0);
-	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
-	  break;
+	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -pairenergy, ld2, 0);
+	  if (retVal.getType() != BOUNCE)
+	    ICapture::remove(p1, p2);
+	  return retVal;
 	}
       default:
 	M_throw() << "Unknown collision type";
       }
-    return retVal;
   }
 
   bool

@@ -100,38 +100,32 @@ namespace dynamo {
 
     const double d = _diameter->getProperty(p1, p2);
     const double d2 = d * d;
-
     const double e = _e->getProperty(p1, p2);
-
     const double l = _lambda->getProperty(p1, p2);
     const double ld2 = d * l * d * l;
-
     const double wd = _wellDepth->getProperty(p1, p2);
 
-    PairEventData retVal;
     switch (iEvent._type)
       {
       case CORE:
 	{
-	  retVal = Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE);
+	  PairEventData retVal = Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE);
 	  if (!isCaptured(p1, p2))
 	    {
 	      retVal.setType(STEP_IN);
 	      ICapture::add(p1, p2);
 	    }
-	  break;
+	  return retVal;
 	}
       case STEP_OUT:
 	{
-	  retVal = Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0);
+	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0);
 	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
-	  break;
+	  return retVal;
 	}
       default:
 	M_throw() << "Unknown collision type";
-      } 
-
-    return retVal;
+      }
   }
 
   bool

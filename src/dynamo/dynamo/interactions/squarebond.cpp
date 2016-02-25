@@ -171,9 +171,7 @@ namespace dynamo {
 #endif
 
     const double d = _diameter->getProperty(p1, p2);
-    const double d2 = d * d;
-    const double e = _e->getProperty(p1, p2);
-    return Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, iEvent._type);
+    return Sim->dynamics->SmoothSpheresColl(iEvent, _e->getProperty(p1, p2), d * d, iEvent._type);
   }
     
   void 

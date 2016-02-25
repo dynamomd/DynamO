@@ -115,14 +115,9 @@ namespace dynamo {
    
     PairEventData EDat;
     if (_et)
-      {
-	const double et = _et->getProperty(p1, p2);
-	EDat = Sim->dynamics->RoughSpheresColl(iEvent, e, et, d1, d2);
-      }
+      return Sim->dynamics->RoughSpheresColl(iEvent, e, _et->getProperty(p1, p2), d1, d2);
     else
-      EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
-    
-    return EDat;
+      return Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d);
   }
    
   void 

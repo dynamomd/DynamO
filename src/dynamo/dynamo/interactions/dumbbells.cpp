@@ -206,13 +206,10 @@ namespace dynamo {
   PairEventData
   IDumbbells::runEvent(Particle& p1, Particle& p2, Event iEvent)
   {
-    PairEventData retval;
-
     switch (iEvent._type)
       {
       case CORE:
 	{
-	  Sim->dynamics->updateParticlePair(p1, p2);
 	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species(p1));
 	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species(p2));
 
@@ -230,7 +227,7 @@ namespace dynamo {
 	  
 	  const double max_dist = maxIntDist(p1, p2);
 
-	  retval = PairEventData(p1, p2, *sp1, *sp2, CORE);
+	  PairEventData retval = PairEventData(p1, p2, *sp1, *sp2, CORE);
 	  Sim->BCs->applyBC(retval.rij, retval.vijold);
 
 	  double growthrate = 0;
@@ -266,11 +263,7 @@ namespace dynamo {
 	  //If no particles satisfy the collision condition, its a
 	  //numerical error so just return a virtual event
 	  if (fcurrent == HUGE_VAL)
-	    {
-	      retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	      iEvent._type = VIRTUAL;
-	      break;
-	    }
+	    return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 
 	  ++Sim->eventCount;
 
@@ -301,33 +294,24 @@ namespace dynamo {
 	      Sim->dynamics->getRotData(p2).angularVelocity[(_unusedDimension + 1) % 3] = 0;
 	      Sim->dynamics->getRotData(p2).angularVelocity[(_unusedDimension + 2) % 3] = 0;
 	    }
-	  break;
+
+	  return retval;
 	}
       case NBHOOD_IN:
 	{
 	  ICapture::add(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
+	  return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
+	  return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	}
       case VIRTUAL:
-	{
-	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
-	  iEvent._type = VIRTUAL;
-	  break;
-	}
+	  return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
       default:
 	M_throw() << "Unknown collision type";
       }
-
-    return retval;
   }
    
   void 

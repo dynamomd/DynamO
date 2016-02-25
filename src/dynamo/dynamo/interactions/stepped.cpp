@@ -189,7 +189,8 @@ namespace dynamo {
     ++data.counter;
     data.rdotv_sum += retVal.rvdot;
     //Check if the particles changed their step ID
-    if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
+    if (retVal.getType() != BOUNCE)
+      ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
     return retVal;
   }
 
