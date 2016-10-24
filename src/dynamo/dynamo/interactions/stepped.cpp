@@ -132,11 +132,11 @@ namespace dynamo {
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
     const double length_scale = _lengthScale->getProperty(p1, p2);
 
-    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    Event retval(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
     if (step_bounds.first != 0)
       {//Test for the inner step capture
 	const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, step_bounds.first * length_scale);
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  retval = Event(p1, dt, INTERACTION, STEP_IN, ID, p2);
       }
 

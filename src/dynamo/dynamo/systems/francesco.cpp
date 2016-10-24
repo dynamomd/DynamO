@@ -39,7 +39,7 @@ namespace dynamo {
     eventCount(0),
     lastlNColl(0)
   {
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     operator<<(XML);
     type = GAUSSIAN;
   }

@@ -272,7 +272,7 @@ namespace dynamo {
   double 
   GCells::getMaxSupportedInteractionLength() const
   {
-    double retval(HUGE_VAL);
+    double retval(std::numeric_limits<float>::infinity());
     for (size_t i = 0; i < NDIM; ++i)
       {
 	double supported_length = (1 + overlink) * _cellLatticeWidth[i] - _cellDimension[i];

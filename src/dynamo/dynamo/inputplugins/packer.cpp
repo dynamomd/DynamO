@@ -1535,7 +1535,7 @@ namespace dynamo {
 		  }
 
 		dout << "Building stepped potential" << std::endl;
-		double oldr = HUGE_VAL;
+		double oldr = std::numeric_limits<float>::infinity();
 		for (locpair& p : diamvec)
 		  {
 		    dout << "Step r=" << p.first << ", E=" << p.second << std::endl;
@@ -2519,7 +2519,7 @@ namespace dynamo {
 	  if (vm.count("f4"))
 	    tc = vm["f4"].as<double>();
 
-	  if (!tc) tc = -HUGE_VAL;
+	  if (!tc) tc = -std::numeric_limits<float>::infinity();
 
 	  double wakeTime = 0;
 	  if (vm.count("f5"))

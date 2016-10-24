@@ -39,7 +39,7 @@ namespace dynamo {
     DynNewtonian(tmp),
     elasticV(0),
     g({0, -1, 0}),
-    _tc(-HUGE_VAL)
+    _tc(-std::numeric_limits<float>::infinity())
   {
     if (XML.hasAttribute("ElasticV"))
       elasticV = XML.getAttribute("ElasticV").as<double>()
@@ -243,7 +243,7 @@ namespace dynamo {
 		  << "\nPlease think of the neighbour lists.";
 #endif 
 
-    double retVal = HUGE_VAL;
+    double retVal = std::numeric_limits<float>::infinity();
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       if ((g[iDim] != 0) && part.testState(Particle::DYNAMIC))
@@ -251,7 +251,7 @@ namespace dynamo {
 	  //First check the "upper" boundary that may have no roots
 	  double r = (g[iDim] < 0) ? rpos[iDim] - width[iDim] : rpos[iDim];
 	  double arg = vel[iDim] * vel[iDim] - 2 * r * g[iDim];
-	  double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
+	  double upperRoot1(std::numeric_limits<float>::infinity()), upperRoot2(std::numeric_limits<float>::infinity());
 	
 	  if (arg >= 0)
 	    {
@@ -265,7 +265,7 @@ namespace dynamo {
 	  //Now the lower boundary which always has roots
 	  r = (g[iDim] < 0) ? rpos[iDim] : rpos[iDim] - width[iDim];
 	  arg = vel[iDim] * vel[iDim] - 2 * r * g[iDim];
-	  double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
+	  double lowerRoot1(std::numeric_limits<float>::infinity()), lowerRoot2(std::numeric_limits<float>::infinity());
 	  if (arg >= 0)
 	    {
 	      double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
@@ -274,15 +274,15 @@ namespace dynamo {
 	      if (lowerRoot2 < lowerRoot1) std::swap(lowerRoot2, lowerRoot1);
 	    }
 
-	  double root = HUGE_VAL;
+	  double root = std::numeric_limits<float>::infinity();
 	  //Now, if the velocity is "up", and the upper roots exist,
 	  //then pick the shortest one
 	  if (!((g[iDim] < 0) - (vel[iDim] > 0))
-	      && (upperRoot1 != HUGE_VAL))
+	      && (upperRoot1 != std::numeric_limits<float>::infinity()))
 	    root = upperRoot1;
 
 	  //Otherwise its usually the latest lowerRoot
-	  if (root == HUGE_VAL)
+	  if (root == std::numeric_limits<float>::infinity())
 	    root = lowerRoot2;
 
 	  if (root < retVal)
@@ -312,7 +312,7 @@ namespace dynamo {
     Sim->BCs->applyBC(rpos, vel);
 
     int retVal(0);
-    double time(HUGE_VAL);
+    double time(std::numeric_limits<float>::infinity());
   
 #ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -327,7 +327,7 @@ namespace dynamo {
 	  //First check the "upper" boundary that may have no roots
 	  double rdot = (g[iDim] < 0) ? rpos[iDim] - width[iDim]: rpos[iDim];
 	  double arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
-	  double upperRoot1(HUGE_VAL), upperRoot2(HUGE_VAL);
+	  double upperRoot1(std::numeric_limits<float>::infinity()), upperRoot2(std::numeric_limits<float>::infinity());
 	
 	  if (arg >= 0)
 	    {
@@ -341,7 +341,7 @@ namespace dynamo {
 	  //Now the lower boundary which always has roots
 	  rdot = (g[iDim] < 0) ? rpos[iDim] : rpos[iDim]-width[iDim];
 	  arg = vel[iDim] * vel[iDim] - 2 * rdot * g[iDim];
-	  double lowerRoot1(HUGE_VAL), lowerRoot2(HUGE_VAL);
+	  double lowerRoot1(std::numeric_limits<float>::infinity()), lowerRoot2(std::numeric_limits<float>::infinity());
 	  if (arg >= 0)
 	    {
 	      double t = -(vel[iDim] + ((vel[iDim]<0) ? -1: 1) * std::sqrt(arg));
@@ -411,7 +411,7 @@ namespace dynamo {
 
     Sim->BCs->applyBC(pos, vel);
 
-    double retval = HUGE_VAL;
+    double retval = std::numeric_limits<float>::infinity();
 
     for (size_t i(0); i < NDIM; ++i)
       if (g[i] == 0)
@@ -452,7 +452,7 @@ namespace dynamo {
   void
   DynGravity::initialise()
   {
-    if (_tc > 0) _tcList.resize(Sim->N(), -HUGE_VAL);
+    if (_tc > 0) _tcList.resize(Sim->N(), -std::numeric_limits<float>::infinity());
     DynNewtonian::initialise();
     //This global is needed for neighbourlists to function correctly
     Sim->globals.push_back(shared_ptr<Global>(new GParabolaSentinel(Sim, "NBListParabolaSentinel")));
@@ -572,13 +572,13 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
   
-    if (!part.testState(Particle::DYNAMIC)) return HUGE_VAL; //Particle is not dynamic (does not feel gravity)
+    if (!part.testState(Particle::DYNAMIC)) return std::numeric_limits<float>::infinity(); //Particle is not dynamic (does not feel gravity)
 
     Vector pos(part.getPosition()), vel(part.getVelocity());  
     Sim->BCs->applyBC(pos, vel);
   
     //We return the time of the next turning point, per dimension
-    double time = HUGE_VAL;
+    double time = std::numeric_limits<float>::infinity();
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       if (g[iDim] != 0)
 	{
@@ -602,7 +602,7 @@ namespace dynamo {
 
     //Find the dimension that is closest to 
     size_t dim = NDIM;
-    double time = HUGE_VAL;
+    double time = std::numeric_limits<float>::infinity();
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       if (g[iDim] != 0)
 	{
@@ -659,7 +659,7 @@ namespace dynamo {
       "code takes a distance arg.";
     if (t1 < 0)
       {
-	t1 = HUGE_VAL;
+	t1 = std::numeric_limits<float>::infinity();
 	if ((D | N) > 0)
 	  if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
       }

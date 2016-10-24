@@ -34,7 +34,7 @@ namespace dynamo {
   SSleep::SSleep(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp)
   {
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     operator<<(XML);
     type = SLEEP;
   }
@@ -61,7 +61,7 @@ namespace dynamo {
     for (const Particle& part : Sim->particles)
       {
 	_lastData[part.getID()].first = part.getPosition();
-	_lastData[part.getID()].second = - HUGE_VAL;
+	_lastData[part.getID()].second = - std::numeric_limits<float>::infinity();
       }
   }
 
@@ -90,7 +90,7 @@ namespace dynamo {
   void 
   SSleep::recalculateTime()
   {
-    dt = (stateChange.empty()) ? HUGE_VAL : -std::numeric_limits<float>::max();
+    dt = (stateChange.empty()) ? std::numeric_limits<float>::infinity() : -std::numeric_limits<float>::max();
     type = (stateChange.empty()) ? NONE : SLEEP;
   }
 

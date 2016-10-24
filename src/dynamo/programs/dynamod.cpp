@@ -45,9 +45,16 @@ main(int argc, char *argv[])
 	hiddenopts,
 	helpOpts;
 
+#ifdef DYNAMO_bzip2_support
+      std::string extension(".bz2");
+#else
+      std::string extension("");
+#endif
+
+      
       allopts.add_options()
 	("help,h", "Produces this message OR if --pack-mode/-m is set, it lists the specific options available for that packer mode.")
-	("out-config-file,o", po::value<string>()->default_value("config.out.xml.bz2"), "Configuration output file.")
+	("out-config-file,o", po::value<string>()->default_value("config.out.xml"+extension), "Configuration output file.")
 	("random-seed,s", po::value<unsigned int>(), "Seed value for the random number generator.")
 	("rescale-T,r", po::value<double>(), "Rescales the kinetic temperature of the input/generated config to this value.")
 	("thermostat,T", po::value<double>(), "Change or add a thermostatt with the temperature provided. A temperature of zero will remove the thermostatt.")

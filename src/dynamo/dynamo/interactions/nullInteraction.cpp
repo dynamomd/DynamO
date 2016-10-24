@@ -45,7 +45,7 @@ namespace dynamo {
   Event
   INull::getEvent(const Particle &p1, const Particle &p2) const 
   { 
-    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    return Event(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
   }
 
   PairEventData

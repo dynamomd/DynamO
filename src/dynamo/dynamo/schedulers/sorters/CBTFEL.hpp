@@ -112,7 +112,7 @@ namespace dynamo {
 	M_throw() << "NaN value pushed into the sorter.";
 #endif
       //Only push events which will actually happen
-      if (event._dt != HUGE_VAL) {
+      if (event._dt != std::numeric_limits<float>::infinity()) {
 	flushChanges(event._particle1ID);
 	event._dt += _pecTime;
 	if (event._source == INTERACTION)
@@ -134,7 +134,7 @@ namespace dynamo {
     virtual void flushChanges(const size_t ID = std::numeric_limits<size_t>::max()) {
       if ((_activeID != ID) && (_activeID !=std::numeric_limits<size_t>::max()))
 	{
-	  if (_Min[_activeID + 1].empty() || (_Min[_activeID + 1].top()._dt == HUGE_VAL)) {
+	  if (_Min[_activeID + 1].empty() || (_Min[_activeID + 1].top()._dt == std::numeric_limits<float>::infinity())) {
 	    if (_Leaf[_activeID + 1] != std::numeric_limits<size_t>::max()) {
 	      Delete(_activeID + 1);
 	    }

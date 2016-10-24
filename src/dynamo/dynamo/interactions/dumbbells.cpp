@@ -135,7 +135,7 @@ namespace dynamo {
     if (!isCaptured(p1, p2))
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, max_dist);
-	return Event(p1, dt, INTERACTION, (dt != HUGE_VAL) ? NBHOOD_IN : NONE, ID, p2);
+	return Event(p1, dt, INTERACTION, (dt != std::numeric_limits<float>::infinity()) ? NBHOOD_IN : NONE, ID, p2);
       }
     
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -153,12 +153,12 @@ namespace dynamo {
     //Run this to determine when the spheres no longer intersect
     const double t_max = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
     
-    std::pair<bool, double> current(false, HUGE_VAL);
+    std::pair<bool, double> current(false, std::numeric_limits<float>::infinity());
     //If the bounding spheres never stop intersecting, we need to
     //establish an upper time to search for events as the intersection
     //routine needs a maximum upper bound for the distance. If we
     //reach this time, we recalculate for events from then.
-    if (t_max == HUGE_VAL)
+    if (t_max == std::numeric_limits<float>::infinity())
       current.second = 1.0;
     
     for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
@@ -195,7 +195,7 @@ namespace dynamo {
 	}
 
     //Check if they miss each other
-    if (current.second == HUGE_VAL)
+    if (current.second == std::numeric_limits<float>::infinity())
       return Event(p1, t_max, INTERACTION, NBHOOD_OUT, ID, p2);
     
     //Something happens in the time interval
@@ -236,7 +236,7 @@ namespace dynamo {
 	  
 	  const double growthfactor = 1 + growthrate * Sim->systemTime;
 	  
-	  double fcurrent = HUGE_VAL;
+	  double fcurrent = std::numeric_limits<float>::infinity();
 	  double d1, d2, l1, l2;
 	  d1 = d2 = l1 = l2 = 0;
 	  for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
@@ -262,7 +262,7 @@ namespace dynamo {
 	  
 	  //If no particles satisfy the collision condition, its a
 	  //numerical error so just return a virtual event
-	  if (fcurrent == HUGE_VAL)
+	  if (fcurrent == std::numeric_limits<float>::infinity())
 	    return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 
 	  ++Sim->eventCount;

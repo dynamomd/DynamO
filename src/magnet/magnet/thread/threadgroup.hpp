@@ -16,10 +16,7 @@
 */
 
 #pragma once
-#include <pthread.h>
-#include <errno.h>
 #include <vector>
-
 #include <magnet/exception.hpp>
 #include <thread>
 

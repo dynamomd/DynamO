@@ -22,7 +22,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
+#ifdef DYNAMO_bzip2_support
+# include <boost/iostreams/filter/bzip2.hpp>
+#endif
 #include <boost/iostreams/chain.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/copy.hpp>
@@ -51,7 +53,7 @@ namespace magnet {
 		  index = -1;
 	      }
 	    
-	    pathTree.push_back(std::pair<std::string, size_t>(std::string(_node->name(),_node->name()+_node->name_size()), index));
+	    pathTree.push_back(std::make_pair(std::string(_node->name(),_node->name()+_node->name_size()), index));
 	    _node = _node->parent();
 	  }
 	
@@ -320,8 +322,14 @@ namespace magnet {
 	_data.clear();
 	namespace io = boost::iostreams;
 	io::filtering_istream inputFile;
-	if (std::string(filename.end()-4, filename.end()) == ".bz2")
+
+	if (std::string(filename.end()-4, filename.end()) == ".bz2") {
+#ifdef DYNAMO_bzip2_support
 	  inputFile.push(io::bzip2_decompressor());
+#else
+	  M_throw() << "bz2 compressed file support was not built in! (only available on linux)";
+#endif
+	}
 	inputFile.push(io::file_source(filename));
 	io::copy(inputFile, io::back_inserter(_data));
 	parseData();

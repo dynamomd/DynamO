@@ -49,7 +49,7 @@ namespace dynamo {
 
     iEvent._type = VIRTUAL;
 
-    if (iEvent._dt == HUGE_VAL)
+    if (iEvent._dt == std::numeric_limits<float>::infinity())
       {
 	//We've numerically drifted slightly passed the parabola, so
 	//just reschedule the particles events, no need to enforce anything

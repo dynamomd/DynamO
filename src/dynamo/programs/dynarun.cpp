@@ -27,7 +27,6 @@
 #include <magnet/arg_share.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
-#include <signal.h>
 
 /*! \brief Starting point for the dynarun program.
  

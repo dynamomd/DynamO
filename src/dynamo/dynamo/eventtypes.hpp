@@ -129,7 +129,7 @@ namespace dynamo {
     EEventType _type;
       
     inline Event():
-      _dt(HUGE_VAL),
+      _dt(std::numeric_limits<float>::infinity()),
       _particle1ID(std::numeric_limits<size_t>::max()),
       _sourceID(std::numeric_limits<size_t>::max()),
       _additionalData1(std::numeric_limits<size_t>::max()),

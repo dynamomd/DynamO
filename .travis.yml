@@ -1,0 +1,41 @@
+language: C++
+compiler:
+# - clang
+  - gcc
+os:
+  - osx
+  - linux
+env:
+  - CONFIG=Release
+  #- CONFIG=Debug
+install:
+script:
+  - "git submodule update --init --recursive;"
+  - "mkdir build;"
+  - "cd build;"
+  # CMake
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG}; fi"
+  # Compile
+  - "make all -j2"
+  # Unit testing
+  - "ctest -V"
+sudo: false
+addons:
+  apt:
+    sources:
+    - boost-latest
+    - george-edison55-precise-backports
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.7
+    packages:
+    - libboost-all-dev
+    - libbz2-dev
+    - cmake
+    - cmake-data
+    #- libgtkmm-2.4-dev
+    #- freeglut3-dev
+    #- libavcodec-dev
+    #- libglew1.6-dev
+    #- libxmu-dev
+    

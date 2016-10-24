@@ -131,7 +131,7 @@ namespace dynamo {
 
 		double helixradius = 1.0/(curvature * (1.0+instGamma*instGamma));
 
-		double minradius = HUGE_VAL;
+		double minradius = std::numeric_limits<float>::infinity();
 
 		for (IDRange::iterator it1 = range->begin(); 
 		     it1 != range->end(); it1++)

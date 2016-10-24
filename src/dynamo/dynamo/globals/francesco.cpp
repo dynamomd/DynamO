@@ -35,7 +35,7 @@ namespace dynamo {
   {
     Global::initialise(nID);
     _eventTimes.clear();
-    _eventTimes.resize(Sim->particles.size(), HUGE_VAL);
+    _eventTimes.resize(Sim->particles.size(), std::numeric_limits<float>::infinity());
     Sim->_sigParticleUpdate.connect<GFrancesco, &GFrancesco::particlesUpdated>(this);
   }
 
@@ -90,7 +90,7 @@ namespace dynamo {
   GFrancesco::runEvent(Particle& part, const double)
   {
     const double dt = _eventTimes[part] - Sim->systemTime;
-    _eventTimes[part] = HUGE_VAL;
+    _eventTimes[part] = std::numeric_limits<float>::infinity();
     Event iEvent(part, dt, GLOBAL, GAUSSIAN, ID);
     
     Sim->systemTime += dt;

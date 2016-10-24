@@ -58,8 +58,13 @@ namespace magnet {
       inline XmlStream(std::string filename):
 	state(stateNone), prologWritten(false), FormatXML(false)
       {
-	if (std::string(filename.end() - 4, filename.end()) == ".bz2")
+	if (std::string(filename.end() - 4, filename.end()) == ".bz2") {
+#ifdef DYNAMO_bzip2_support
 	  s.push(io::bzip2_compressor());
+#else
+	  M_throw() << "bz2 compressed file support was not built in! (only available on linux)";
+#endif
+	}
 	s.push(io::file_sink(filename));
       }
         

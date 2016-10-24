@@ -40,7 +40,7 @@ namespace dynamo {
     size_t triangleid = 0; //The id of the triangle for which the event is for
     double diam = 0.5 * _diameter->getProperty(part);
 
-    std::pair<double, size_t> tmin(HUGE_VAL, 0); //Default to no collision
+    std::pair<double, size_t> tmin(std::numeric_limits<float>::infinity(), 0); //Default to no collision
 
     for (size_t id(0); id < _elements.size(); ++id)
       {

@@ -27,7 +27,7 @@ namespace dynamo {
   {
   public:
     DynGravity(dynamo::Simulation*, const magnet::xml::Node&);
-    DynGravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
+    DynGravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -std::numeric_limits<float>::infinity());
     void initialise();
     const Vector& getGravityVector() const { return g; }
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;

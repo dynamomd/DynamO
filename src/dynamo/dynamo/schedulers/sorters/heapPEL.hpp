@@ -19,6 +19,7 @@
 #include <dynamo/eventtypes.hpp>
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 namespace dynamo {
   class HeapPEL {

@@ -19,6 +19,7 @@
 #include <vector>
 #include <cmath>
 #include <dynamo/base.hpp>
+#include <algorithm>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
@@ -121,12 +122,12 @@ namespace dynamo {
       if (direction())
 	{
 	  minR = (ID == 0) ? 0 : operator[](ID - 1).first;
-	  maxR = (ID == steps()) ? HUGE_VAL : operator[](ID).first;
+	  maxR = (ID == steps()) ? std::numeric_limits<float>::infinity() : operator[](ID).first;
 	}
       else
 	{
 	  minR = (ID == steps()) ? 0 : operator[](ID).first;
-	  maxR = (ID == 0) ? HUGE_VAL : operator[](ID - 1).first;
+	  maxR = (ID == 0) ? std::numeric_limits<float>::infinity() : operator[](ID - 1).first;
 	}
 
       return std::pair<double, double>(minR, maxR);

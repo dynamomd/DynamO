@@ -70,12 +70,12 @@ namespace dynamo {
     const double d = _diameter->getProperty(p1, p2);
     const double l = _lambda->getProperty(p1, p2);
 
-    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    Event retval(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
 
     if (isCaptured(p1, p2))
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
@@ -86,7 +86,7 @@ namespace dynamo {
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
       }
 

@@ -58,7 +58,7 @@ namespace dynamo {
   void 
   OPSHCrystal::initialise() 
   { 
-    double smallestlength = HUGE_VAL;
+    double smallestlength = std::numeric_limits<float>::infinity();
     for (const shared_ptr<Global>& pGlob : Sim->globals)
       if (std::dynamic_pointer_cast<GNeighbourList>(pGlob))
 	{

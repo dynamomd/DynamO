@@ -26,7 +26,6 @@
 #include <magnet/string/searchreplace.hpp>
 #include <fstream>
 #include <limits>
-#include <signal.h>
 
 namespace dynamo {
   void
@@ -57,7 +56,7 @@ namespace dynamo {
 
   EReplicaExchangeSimulation::EReplicaExchangeSimulation(const boost::program_options::variables_map& nVm,
 							 magnet::thread::ThreadPool& tp):
-    Engine(nVm, "config.%ID.end.xml.bz2", "output.%ID.xml.bz2", tp),
+    Engine(nVm, "config.%ID.end.xml", "output.%ID.xml", tp),
     replicaEndTime(0),
     ReplexMode(RandomSelection),
     replexSwapCalls(0),
@@ -418,8 +417,12 @@ namespace dynamo {
 		  for (replexPair p1 : temperatureList)
 		    {
 		      Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
-		      Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
-											      "%ID", boost::lexical_cast<std::string>(i++))));
+#ifdef DYNAMO_bzip2_support
+		      Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), "%ID", boost::lexical_cast<std::string>(i++))));
+#else
+		      Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml"), "%ID", boost::lexical_cast<std::string>(i++))));
+#endif
+
 		    }
 		  
 		  {
@@ -481,13 +484,7 @@ namespace dynamo {
 		  break;
 		}
 	      }
-	    {
-	      struct sigaction new_action;
-	      new_action.sa_handler = Coordinator::signal_handler;
-	      sigemptyset(&new_action.sa_mask);
-	      new_action.sa_flags = 0;
-	      sigaction(SIGINT, &new_action, NULL);
-	    }
+	    Coordinator::setup_signal_handler();
 	  }
 	  {
 	    //Reset the stop events
@@ -531,7 +528,7 @@ namespace dynamo {
               for (replexPair p1 : temperatureList)
                 {
                   Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
-                  Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace("config.%ID.error.xml.bz2", "%ID", 
+                  Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace("config.%ID.error.xml", "%ID", 
                                                                                            boost::lexical_cast<std::string>(i++)), 
                                                             !vm.count("unwrapped"));
                 }

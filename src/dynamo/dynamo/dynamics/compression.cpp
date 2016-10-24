@@ -89,7 +89,7 @@ namespace dynamo {
     const double r2 = retVal.rij.nrm2();
     retVal.rvdot = (retVal.rij | retVal.vijold);
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
-    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
     if (infinite_masses)
       {
 	p1Mass = p2Mass = 1;
@@ -118,7 +118,7 @@ namespace dynamo {
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
-    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
     if (infinite_masses)
       {
 	p1Mass = p2Mass = 1;

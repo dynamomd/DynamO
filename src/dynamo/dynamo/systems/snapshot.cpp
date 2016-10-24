@@ -51,7 +51,7 @@ namespace dynamo {
     _saveCounter(0)
   {
     _period = 0;
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     _eventPeriod = nPeriod;
     sysName = nName;
 
@@ -64,7 +64,7 @@ namespace dynamo {
     if ((Sim->eventCount -_lastEventCount) >= _eventPeriod)
       {
 	_lastEventCount = Sim->eventCount;
-	dt = -HUGE_VAL;
+	dt = -std::numeric_limits<float>::infinity();
 	Sim->ptrScheduler->rebuildSystemEvents();
       }
   }
@@ -73,19 +73,28 @@ namespace dynamo {
   SysSnapshot::runEvent()
   {
     if (_eventPeriod) 
-      dt = HUGE_VAL;
+      dt = std::numeric_limits<float>::infinity();
     else
       dt += _period;
 
     Sim->dynamics->updateAllParticles();
-  
-    std::string filename = magnet::string::search_replace("Snapshot."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter));
+
+    std::string filename = magnet::string::search_replace("Snapshot."+_format+".xml", "%COUNT", boost::lexical_cast<std::string>(_saveCounter));
+    
+#ifdef DYNAMO_bzip2_support
+    filename = filename + ".bz2";
+#endif
+
     filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->stateID));
     Sim->writeXMLfile(filename, _applyBC);
     
     dout << "Printing SNAPSHOT" << std::endl;
     
-    filename = magnet::string::search_replace("Snapshot.output."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter++));
+    filename = magnet::string::search_replace("Snapshot.output."+_format+".xml", "%COUNT", boost::lexical_cast<std::string>(_saveCounter++));
+#ifdef DYNAMO_bzip2_support
+    filename = filename + ".bz2";
+#endif
+
     filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->stateID));
     Sim->outputData(filename);
     return NEventData();

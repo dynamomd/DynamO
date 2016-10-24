@@ -44,7 +44,7 @@ namespace dynamo {
 
     //We want to ensure we get at least one update before anything
     //occurs in the system.
-    dt = -HUGE_VAL;  
+    dt = -std::numeric_limits<float>::infinity();  
     sysName = "Visualizer";
 
     //Build a window, ready to display it
@@ -144,7 +144,7 @@ namespace dynamo {
     if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) 
 	> boost::posix_time::milliseconds(100))
       {
-	dt = -HUGE_VAL;
+	dt = -std::numeric_limits<float>::infinity();
 	Sim->ptrScheduler->rebuildSystemEvents();
       }
   }

@@ -132,14 +132,14 @@ namespace dynamo
 
     dout << "Validating self-Interaction definitions" << std::endl;
     //Check that each particle has a representative interaction
-    for (const Particle& particle : particles)
+    for (const Particle& particle : particles) {
       try {
 	getInteraction(particle, particle);
-      } catch (...)
-	{
-	  M_throw() << "The particle (ID=" << particle.getID()
-		    << ") does not have a self Interaction defined. Self Interactions are not used for the dynamics of the system, but are used to draw/visualise the particles, as well as calculate the excluded volume and other properties. Please add a self-Interaction";
-	}
+      } catch (...) {
+	M_throw() << "The particle (ID=" << particle.getID()
+		  << ") does not have a self Interaction defined. Self Interactions are not used for the dynamics of the system, but are used to draw/visualise the particles, as well as calculate the excluded volume and other properties. Please add a self-Interaction";
+      }
+    }
 
     dout << "Initialising the Dynamics" << std::endl;
     dynamics->initialise();

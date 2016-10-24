@@ -180,7 +180,7 @@ namespace dynamo {
     
     if (t1 < 0)
       {
-	t1 = HUGE_VAL;
+	t1 = std::numeric_limits<float>::infinity();
 	if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
       }
 
@@ -188,7 +188,7 @@ namespace dynamo {
 
     if (t2 < 0)
       {
-	t2 = HUGE_VAL;
+	t2 = std::numeric_limits<float>::infinity();
 	if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
       }
   
@@ -297,7 +297,7 @@ namespace dynamo {
     Sim->BCs->applyBC(rpos, vel);
 
     int retVal(0);
-    double time(HUGE_VAL);
+    double time(std::numeric_limits<float>::infinity());
   
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
@@ -394,7 +394,7 @@ namespace dynamo {
 
     //If both particles have infinite mass, we need to modify the
     //masses (and mu) to allow collisions.
-    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
     if (infinite_masses)
       {
 	p1Mass = p2Mass = 1;
@@ -436,7 +436,7 @@ namespace dynamo {
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
-    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
     if (infinite_masses)
       {
 	p1Mass = p2Mass = 1;
@@ -652,7 +652,7 @@ namespace dynamo {
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
-    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
     if (infinite_masses)
       {
 	p1Mass = p2Mass = 1;
@@ -712,7 +712,7 @@ namespace dynamo {
 
     Sim->BCs->applyBC(pos, vel);
 
-    double retval = HUGE_VAL;
+    double retval = std::numeric_limits<float>::infinity();
 
     for (size_t i(0); i < NDIM; ++i)
       if (vel[i] != 0)
@@ -814,7 +814,7 @@ namespace dynamo {
     //Check if the particle is penetrating a wall
     //Or if no roots are found at all
     if ((fabs(surfaceOffset - (nhat | fL.wallPosition())) > Sigma)
-	|| ((root1.second == HUGE_VAL) && (root2.second == HUGE_VAL))
+	|| ((root1.second == std::numeric_limits<float>::infinity()) && (root2.second == std::numeric_limits<float>::infinity()))
 	|| ((t_low1 > t_high) && (t_low2 > t_high)))
       {
 	//This can be a problem
@@ -895,7 +895,7 @@ namespace dynamo {
 	    //The particle and plate are approaching but might not be
 	    //before the overlap is fixed, schedule another test later
 	    //on
-	    double currRoot = HUGE_VAL;
+	    double currRoot = std::numeric_limits<float>::infinity();
 
 	    if (root1.first)
 	      currRoot = root1.second;
@@ -1141,7 +1141,7 @@ namespace dynamo {
 
     double I = 2.0/5.0;
     
-    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
     if (infinite_masses)
       {
 	p1Mass = p2Mass = 1;

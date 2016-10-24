@@ -69,7 +69,7 @@ namespace dynamo {
     PlanarWall::getEvent(const Particle& part, const double diameter) const 
     {
       const double dt = Sim->dynamics->getPlaneEvent(part, _position + _oscillationData._origin, _normal, diameter / 2);
-      return Event(part.getID(), dt, LOCAL, (dt == HUGE_VAL) ? NONE : WALL, 0);
+      return Event(part.getID(), dt, LOCAL, (dt == std::numeric_limits<float>::infinity()) ? NONE : WALL, 0);
     }
       
     Vector 
@@ -100,8 +100,8 @@ namespace dynamo {
       //We use the max distance to determine the vertex which is the
       //furthest in front of the plane. We use the min_distance to
       //check that the cube and plane intersect.
-      double max_distance = -HUGE_VAL;
-      double min_distance = +HUGE_VAL;
+      double max_distance = -std::numeric_limits<float>::infinity();
+      double min_distance = +std::numeric_limits<float>::infinity();
       for (size_t i(0); i < 8; ++i) {
 	std::array<bool, 3> vertex = {{bool((i >> 0) & 1), bool((i >> 1) & 1), bool((i >> 2) & 1)}};
 	

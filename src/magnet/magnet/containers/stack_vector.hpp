@@ -54,9 +54,9 @@ namespace magnet {
       constexpr typename Base::size_type size() const { return _size; }
       constexpr bool empty() const { return size() == 0; }
 
-      typename Base::iterator end() { return typename Base::iterator(Base::data() + _size); }
-      typename Base::const_iterator end() const { return typename Base::iterator(Base::data() + _size); }
-      typename Base::const_iterator cend() const { return typename Base::iterator(Base::data() + _size); }
+      typename Base::iterator end() { return Base::end(); }
+      typename Base::const_iterator end() const { return Base::end(); }
+      typename Base::const_iterator cend() const { return Base::end(); }
 
       typename Base::reverse_iterator rbegin() { return typename Base::reverse_iterator(Base::end()); }
       typename Base::const_reverse_iterator rbegin() const { return typename Base::const_reverse_iterator(Base::end()); }

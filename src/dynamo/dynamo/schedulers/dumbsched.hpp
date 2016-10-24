@@ -28,7 +28,7 @@ namespace dynamo {
 
     virtual void initialiseNBlist() {}
 
-    virtual double getNeighbourhoodDistance() const { return HUGE_VAL; }
+    virtual double getNeighbourhoodDistance() const { return std::numeric_limits<float>::infinity(); }
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Particle&) const;
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const;
     virtual std::unique_ptr<IDRange> getParticleLocals(const Particle&) const;

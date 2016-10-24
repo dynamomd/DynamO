@@ -32,14 +32,14 @@ namespace dynamo {
     strongPlate(nstrongPlate),
     rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
     e(ne), delta(ndelta), mass(nmass), timeshift(0), 
-    lastID(std::numeric_limits<size_t>::max()), lastsystemTime(HUGE_VAL)
+    lastID(std::numeric_limits<size_t>::max()), lastsystemTime(std::numeric_limits<float>::infinity())
   {
     localName = nname;
   }
 
   LOscillatingPlate::LOscillatingPlate(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "OscillatingPlate"),
-    lastID(std::numeric_limits<size_t>::max()), lastsystemTime(HUGE_VAL)
+    lastID(std::numeric_limits<size_t>::max()), lastsystemTime(std::numeric_limits<float>::infinity())
   {
     operator<<(XML);
   }
@@ -63,7 +63,7 @@ namespace dynamo {
 
     EEventType type = (eventData.first) ? WALL : RECALCULATE ;
 
-    if (eventData.second == HUGE_VAL)
+    if (eventData.second == std::numeric_limits<float>::infinity())
       type = NONE;
   
     return Event(part, eventData.second, LOCAL, type, ID);

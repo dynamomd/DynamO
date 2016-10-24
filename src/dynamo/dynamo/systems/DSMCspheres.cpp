@@ -34,7 +34,7 @@ namespace dynamo {
     System(tmp),
     maxprob(0.0)
   {
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     operator<<(XML);
     type = DSMC;
   }

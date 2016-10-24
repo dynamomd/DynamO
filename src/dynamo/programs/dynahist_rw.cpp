@@ -19,12 +19,6 @@
 #include <magnet/exception.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/copy.hpp>
 #include <boost/filesystem.hpp>
 #include <unordered_map>
 
@@ -541,7 +535,7 @@ main(int argc, char *argv[])
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n";
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(_WIN32)
   //This is so the program crashes out when floating point errors occur
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif

@@ -82,7 +82,7 @@ namespace dynamo {
       
 	std::pair<bool, double> colltime = Sim->dynamics->getLineLineCollision(l, p1, p2, dt);
 
-	if (colltime.second == HUGE_VAL)
+	if (colltime.second == std::numeric_limits<float>::infinity())
 	  return Event(p1, dt, INTERACTION, NBHOOD_OUT, ID, p2);
 
 	//Something happens in the time interval
@@ -97,11 +97,11 @@ namespace dynamo {
     else 
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l);
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  return Event(p1, dt, INTERACTION, NBHOOD_IN, ID, p2);
       }
 
-    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    return Event(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
   }
 
   PairEventData

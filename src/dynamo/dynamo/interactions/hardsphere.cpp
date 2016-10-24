@@ -95,10 +95,10 @@ namespace dynamo {
     const double d = _diameter->getProperty(p1, p2);
     const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
-    if (dt != HUGE_VAL)
+    if (dt != std::numeric_limits<float>::infinity())
       return Event(p1, dt, INTERACTION, CORE, ID, p2);
   
-    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    return Event(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
   }
 
   PairEventData

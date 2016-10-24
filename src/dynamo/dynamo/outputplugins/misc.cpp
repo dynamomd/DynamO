@@ -628,7 +628,7 @@ namespace dynamo {
   OPMisc::periodicOutput()
   {
     //Calculate the ETA of the simulation, and take care with overflows and the like
-    double _earliest_end_time = HUGE_VAL;
+    double _earliest_end_time = std::numeric_limits<float>::infinity();
     for (const auto& sysPtr : Sim->systems)
       if (std::dynamic_pointer_cast<SystHalt>(sysPtr))
 	_earliest_end_time = std::min(_earliest_end_time, sysPtr->getdt());

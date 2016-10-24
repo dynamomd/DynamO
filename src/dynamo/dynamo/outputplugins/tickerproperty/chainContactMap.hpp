@@ -19,7 +19,7 @@
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 #include <memory>
-#include <list>
+#include <vector>
 
 namespace dynamo {
   class TChain;

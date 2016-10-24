@@ -110,7 +110,7 @@ namespace dynamo {
 
     void optimiseSettings() {
       //Collect statistics on the event list.
-      double minVal(HUGE_VAL), maxVal(-HUGE_VAL);
+      double minVal(std::numeric_limits<float>::infinity()), maxVal(-std::numeric_limits<float>::infinity());
       size_t counter(0);
       
       for (const auto& dat : Base::_Min)
@@ -162,14 +162,14 @@ namespace dynamo {
 	deleteFromEventQ(p);
 
       //Check that the Q is not empty or filled with events which will never happen
-      if (Base::_Min[p].empty() || (Base::_Min[p].top()._dt == HUGE_VAL))
+      if (Base::_Min[p].empty() || (Base::_Min[p].top()._dt == std::numeric_limits<float>::infinity()))
 	//Don't bother adding it to the queue.
 	return;
 
       const double dt = Base::_Min[p].top()._dt;
       const double box = scale * dt;
       size_t i;
-      if ((dt == -HUGE_VAL) || (box < currentIndex))
+      if ((dt == -std::numeric_limits<float>::infinity()) || (box < currentIndex))
         i = currentIndex; //Negative time events are placed in the current tree
       else if (scale * dt > std::numeric_limits<size_t>::max())
 	i = std::numeric_limits<size_t>::max(); //Put this in the overflow list
@@ -260,7 +260,7 @@ namespace dynamo {
 	      bool no_events = true;
 	      const double listWidth = nlists / scale;
 	      for (auto& dat : Base::_Min) {
-		no_events = no_events && ((dat.empty()) || (dat.top()._dt == HUGE_VAL));
+		no_events = no_events && ((dat.empty()) || (dat.top()._dt == std::numeric_limits<float>::infinity()));
 		dat.stream(listWidth);
 	      }
 	      //update the peculiar time

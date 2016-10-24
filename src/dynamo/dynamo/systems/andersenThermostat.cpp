@@ -43,7 +43,7 @@ namespace dynamo {
     lastlNColl(0),
     setFrequency(100)
   {
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     operator<<(XML);
     type = GAUSSIAN;
   }

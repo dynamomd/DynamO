@@ -251,25 +251,25 @@ namespace dynamo
     
       \param filename The path to the XML file to write (this file
       will either be created or overwritten). The filename must end in
-      either ".xml" for uncompressed xml files or ".bz2" for bzip2
-      compressed configuration files.
+      either ".xml" (or ".xml.bz2" where bzip2 compressed
+      configuration files are supported).
     */
-    void outputData(std::string filename = "output.xml.bz2");
+    void outputData(std::string filename);
 
     /*! \brief Loads a Simulation from the passed XML file.
 
       \param filename The path to the XML file to load. The filename
-     must end in either ".xml" for uncompressed xml files or ".bz2"
-     for bzip2 compressed configuration files.
+      must end in either ".xml" (or ".xml.bz2" where bzip2 compressed
+      configuration files are supported).
     */
     void loadXMLfile(std::string filename);
     
     /*! \brief Writes the Simulation configuration to a file at the passed path.
 
       \param filename The path to the XML file to write (this file
-      will either be created or overwritten). The filename must end in
-      either ".xml" for uncompressed xml files or ".bz2" for bzip2
-      compressed configuration files.
+      will either be created or overwritten). The filename
+      must end in either ".xml" (or ".xml.bz2" where bzip2 compressed
+      configuration files are supported).
 
       \param round If true, the data in the XML file will be written
       out at 2 s.f. lower precision to round all the values. This is

@@ -106,8 +106,22 @@ namespace dynamo {
       gracefully exit. We catch these signals and shutdown as quickly
       as possible.
      */
-    static void signal_handler(int);
+    static void setup_signal_handler();
 
+    /*! \brief The signal handler for the dynarun.
+     
+      The purpose of this function is to respond to singals
+      gracefully. If the user presses Ctrl-c they will be presented with a menu
+      describing the options available.
+     
+      When the program is run in a batch control system like PBS or SGE
+      and the job approaches its time limits the queuing system sends
+      SIGUSR1 and SIGUSR2 shortly before to allow the program to
+      gracefully exit. We catch these signals and shutdown as quickly
+      as possible.
+     */
+    static void signal_handler(int);
+    
   private:
     /*! \brief Contains the parsed command line options, engines carry references
       to these values.

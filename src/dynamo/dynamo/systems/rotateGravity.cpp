@@ -98,7 +98,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("AngularVel") << _angularvel * Sim->units.unitTime();
   
-    if (_timestep != HUGE_VAL)
+    if (_timestep != std::numeric_limits<float>::infinity())
       XML << magnet::xml::attr("TimeStep") << _timestep / Sim->units.unitTime();
 
     XML << magnet::xml::tag("Axis") 

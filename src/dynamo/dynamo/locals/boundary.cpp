@@ -39,7 +39,7 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    Event event(part, HUGE_VAL, LOCAL, NONE, ID);
+    Event event(part, std::numeric_limits<float>::infinity(), LOCAL, NONE, ID);
 
     const double diameter = _diameter->getProperty(part);
     for (size_t objid(0); objid < _objects.size(); ++objid) {

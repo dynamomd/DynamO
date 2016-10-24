@@ -22,9 +22,44 @@
 #include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/include.hpp>
 #include <cstdio>
-#include <signal.h>
+
+//Need special treatment for the ways signals are handled on different platforms
+#ifdef _WIN32
+//# include <windows.h>
+#else
+# include <signal.h>
+#endif
 
 namespace dynamo {
+#ifdef _WIN32
+  void
+  Coordinator::setup_signal_handler() {}
+
+  void 
+  Coordinator::signal_handler(int sigtype) {}
+
+#else
+  void
+  Coordinator::setup_signal_handler() {
+    //Register the signal handlers so we can respond to
+    //attempts/warnings that the program will be killed
+      //Build the new handler response
+      struct sigaction new_action;
+      new_action.sa_handler = Coordinator::signal_handler;
+      sigemptyset(&new_action.sa_mask);
+      new_action.sa_flags = 0;
+    
+      //This is for Ctrl-c events
+      struct sigaction old_action;
+      sigaction (SIGINT, NULL, &old_action);
+      if (old_action.sa_handler != SIG_IGN)
+	sigaction (SIGINT, &new_action, NULL);
+
+      sigaction (SIGTERM, NULL, &old_action);
+      if (old_action.sa_handler != SIG_IGN)
+	sigaction (SIGTERM, &new_action, NULL);
+    }
+    
   void 
   Coordinator::signal_handler(int sigtype)
   {
@@ -38,7 +73,7 @@ namespace dynamo {
 	  default_action.sa_handler = SIG_DFL;
 	  sigemptyset(&default_action.sa_mask);
 	  default_action.sa_flags = SA_RESETHAND;
-	    sigaction(SIGINT, &default_action, NULL);
+	  sigaction(SIGINT, &default_action, NULL);
 	}
 	Coordinator::get()._engine->sigint();
 	std::cerr << "\nCaught SIGINT, notifying running simulation...\n";
@@ -49,6 +84,7 @@ namespace dynamo {
 	break;
       }
   }
+#endif
 
   boost::program_options::variables_map& 
   Coordinator::parseOptions(int argc, char *argv[])
@@ -60,14 +96,20 @@ namespace dynamo {
       engineopts("Engine Options")
       ;
   
-    systemopts.add_options()
+#ifdef DYNAMO_bzip2_support
+      std::string extension(".bz2");
+#else
+      std::string extension("");
+#endif
+
+      systemopts.add_options()
       ("help", "Produces this message")
       ("n-threads,N", po::value<unsigned int>(),
        "Number of threads to spawn for concurrent processing. (Only utilised by certain engine/sim configurations)")
       ("out-config-file,o", po::value<std::string>(),
-       "Default config output file,(config.%ID.end.xml.bz2)")
+       ("Default config output file,(config.%ID.end.xml"+extension+")").c_str())
       ("out-data-file", po::value<std::string>(),
-       "Default result output file (output.%ID.xml.bz2)")
+       ("Default result output file (output.%ID.xml"+extension+")").c_str())
       ("config-file", po::value<std::vector<std::string> >(),
        "Specify a config file to load, or just list them on the command line")
       ;
@@ -116,26 +158,8 @@ namespace dynamo {
   void 
   Coordinator::initialise()
   {
-    //Register the signal handlers so we can respond to
-    //attempts/warnings that the program will be killed
-    {
-      //Build the new handler response
-      struct sigaction new_action;
-      new_action.sa_handler = Coordinator::signal_handler;
-      sigemptyset(&new_action.sa_mask);
-      new_action.sa_flags = 0;
+    setup_signal_handler();
     
-      //This is for Ctrl-c events
-      struct sigaction old_action;
-      sigaction (SIGINT, NULL, &old_action);
-      if (old_action.sa_handler != SIG_IGN)
-	sigaction (SIGINT, &new_action, NULL);
-
-      sigaction (SIGTERM, NULL, &old_action);
-      if (old_action.sa_handler != SIG_IGN)
-	sigaction (SIGTERM, &new_action, NULL);
-    }
-
     if (vm.count("n-threads"))
       _threads.setThreadCount(vm["n-threads"].as<unsigned int>());
 

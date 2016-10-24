@@ -35,7 +35,7 @@ namespace dynamo {
     System(tmp),
     _stepID(std::numeric_limits<size_t>::max())
   {
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     operator<<(XML);
     type = UMBRELLA;
   }
@@ -101,7 +101,7 @@ namespace dynamo {
     for (const size_t& id : *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
   
-    dt = HUGE_VAL;
+    dt = std::numeric_limits<float>::infinity();
     type = NONE;
 
     const std::pair<double, double> step_bounds = _potential->getStepBounds(_stepID);

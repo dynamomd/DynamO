@@ -3,6 +3,7 @@
 #include <magnet/math/vector.hpp>
 #include <magnet/math/matrix.hpp>
 #include <cmath>
+#include <random>
 
 std::mt19937 RNG;
 std::normal_distribution<double> normal_dist(0, 1);

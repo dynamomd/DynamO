@@ -1,0 +1,91 @@
+environment:
+  P: "c:/projects/libs"
+  BOOST_ROOT: c:\Libraries\boost_1_59_0
+  BOOST_LIBRARYDIR_WIN32: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
+  BOOST_LIBRARYDIR_WIN64: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
+  PREFIX: c:\Libraries
+
+#  ACCOUNT:
+#      secure: F8Xu4syZJRRLmTnPDOUjr5bG7Lk6UburldIUuxZ/OJQ=
+# Operating system (build VM template)
+
+os: Visual Studio 2015
+
+version: dynamomd-{build}-{branch}
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  # Disable popups as they hang the build as there is nobody to click on the OK button...
+  # Hanging the build is a lot less user friendly than reporting a build failure.
+  #
+  # Disable of system hard error popup
+  # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
+  - reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /f /v ErrorMode /d 2
+  # Disable the following popup on program failure:
+  #     |       ** <program name> has stopped working **        |
+  #     | Windows can check online for a solution to the problem|
+  #     |  - Check online for a solution and close the program  |
+  #     |  - Close the program                                  |
+  # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
+  - reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /f /v DontShowUI /d 1
+
+platform:
+  - Win32
+  - x64
+
+configuration: Release
+
+install:
+  #- cinst cmake.portable wget 7zip.commandline
+  - cinst wixtoolset
+
+clone_folder: c:\projects\dynamo
+
+before_build:
+  #Xamarin (a unused SDK) fills the build log with warnings, so delete it
+  - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
+  - echo "#  Configuring..."
+  - cd c:\projects\dynamo
+  - cmd: md build
+  - cmd: cd build
+  - echo Running cmake...
+  - cmd: if "%platform%"=="Win32" cmake .. -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN32%
+  - cmd: if "%platform%"=="x64" cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN64%
+  - cmd: cd ..
+
+build_script:
+  - echo "#  Building..."
+  - cd build
+  - cmake --build . --config %configuration%
+  - cmake --build . --config %configuration% --target install
+  - cpack --verbose -G WIX
+  - cpack --verbose -G ZIP
+  - cd ..
+
+#test_script:
+#  - cd build
+#  - ctest --build-config %configuration% --output-on-failure
+#  - cd ..
+  
+after_build:
+  - echo "#  Building packages..."
+  - cd build
+  - cpack --verbose -G WIX
+  - cpack --verbose -G ZIP
+  - cd ..
+
+artifacts:
+  - path: build/*.zip
+    name: DynamoMD.zip
+    type: zip
+  - path: build/*.msi
+    name: DynamoMD.msi
+
+deploy:
+  description: 'Live build of windows DynamO MD package (%platform%)'
+  provider: GitHub
+  auth_token:
+    secure: 3vwYILVeleXA4wA0hDPjRi6sR8a9EVSdjaD89FVWdcEemtEjhos29NjvOF+ha++i
+  artifact: DynamoMD.zip
+  draft: true
+  prerelease: true

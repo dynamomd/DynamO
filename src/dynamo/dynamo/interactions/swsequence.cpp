@@ -213,17 +213,17 @@ namespace dynamo {
     if (pairenergy == 0)
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  return Event(p1, dt, INTERACTION, CORE, ID, p2);
 	else
-	  return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+	  return Event(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
       }
 	
     if (isCaptured(p1, p2))
       {
-	Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+	Event retval(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
       
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
@@ -234,11 +234,11 @@ namespace dynamo {
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
-	if (dt != HUGE_VAL)
+	if (dt != std::numeric_limits<float>::infinity())
 	  return Event(p1, dt, INTERACTION, STEP_IN, ID, p2);
       }
     
-    return Event(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    return Event(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
   }
 
   PairEventData

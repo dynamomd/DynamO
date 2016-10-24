@@ -233,7 +233,7 @@ namespace dynamo {
 	"\nThe simulation has run out of events! Aborting!";
 
     //-inf values are special values for instant event.
-    if (next_event._dt == -HUGE_VAL)
+    if (next_event._dt == -std::numeric_limits<float>::infinity())
       next_event._dt = 0;
 
     switch (next_event._source)
@@ -277,7 +277,7 @@ namespace dynamo {
 	    M_throw() << "The next PEL is empty, cannot perform the comparison to see if this event is out of sequence";
 #endif
 	  next_event = sorter->top();
-	  if (next_event._dt == -HUGE_VAL)
+	  if (next_event._dt == -std::numeric_limits<float>::infinity())
 	    next_event._dt = 0;
 	  
 	  //Here we see if the next FEL event is earlier than the one
@@ -396,10 +396,10 @@ namespace dynamo {
       case SYSTEM:
 	{
 	  sorter->pop();
-	  //System events can use the value -HUGE_VAL to request
-	  //immediate processing, therefore, only NaN and +HUGE_VAL
+	  //System events can use the value -std::numeric_limits<float>::infinity() to request
+	  //immediate processing, therefore, only NaN and +std::numeric_limits<float>::infinity()
 	  //values are invalid
-	  if (std::isnan(next_event._dt) || (next_event._dt == HUGE_VAL))
+	  if (std::isnan(next_event._dt) || (next_event._dt == std::numeric_limits<float>::infinity()))
 	    M_throw() << "Next event time is not finite!"
 		      << "\ndt = " << next_event._dt
 		      << "\nEvent Type = " << next_event._type

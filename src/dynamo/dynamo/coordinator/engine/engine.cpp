@@ -59,13 +59,20 @@ namespace dynamo {
 		 std::string configFile, std::string outputFile,
 		 magnet::thread::ThreadPool& tp):
     vm(nvm),
-    configFormat(configFile),
-    outputFormat(outputFile),
     _SIGINT(false),
     _SIGTERM(false),
     _loadVisualiser(false),
     threads(tp)
-  {}
+  {
+
+#ifdef DYNAMO_bzip2_support
+    configFormat = configFile + ".bz2";
+    outputFormat = outputFile + ".bz2";
+#else
+    configFormat = configFile;
+    outputFormat = outputFile;
+#endif
+  }
 
   void 
   Engine::preSimInit()

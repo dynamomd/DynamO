@@ -1,4 +1,12 @@
-cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
+
+if(NOT DEFINED CMAKE_BUILD_TYPE)
+ message(STATUS "No build type selected, defaulting to Release")
+ set(CMAKE_BUILD_TYPE "Release")
+endif()
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
@@ -23,7 +31,9 @@ git_describe(GIT_RESULT --match initial-commit)
 message(STATUS "Git description is ${GIT_RESULT}")
 string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${GIT_RESULT})
 message(STATUS "Build number is ${BUILD_NUMBER}")
-set(CPACK_GENERATOR ${SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR})
+if(NOT DEFINED CPACK_GENERATOR)
+  set(CPACK_GENERATOR ${SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR})
+endif()
 set(CPACK_PACKAGE_NAME "dynamomd")
 set(CPACK_PACKAGE_VERSION_MAJOR 1)
 set(CPACK_PACKAGE_VERSION_MINOR 6)
@@ -39,18 +49,37 @@ set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}
 set(CPACK_DEBIAN_PACKAGE_SECTION "science")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://dynamomd.org")
 #Get Debian packages to automatically figure out the dependencies
-set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+set(CPACK_WIX_UPGRADE_GUID "c70e546c-a36a-429f-a2df-f5e6cf787bb4")
+set(CPACK_WIX_PRODUCT_GUID "36fe5a30-bd03-423b-822a-f505d0fa6564")
+
+
 include(CPack) #Enable build of packages
 
 install(FILES ${CMAKE_SOURCE_DIR}/copyright DESTINATION share/doc/${CPACK_PACKAGE_NAME})
 
 ##########   RELEASE MODE
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+if(MSVC)
+  #MSVC has crazy warnings for -Wall, we'll build up support to the higher warning levels
+  add_compile_options(-W1)
+  #Enable the math defines (like M_PI!)
+  add_definitions(-D_USE_MATH_DEFINES)
+  #MSVC Crazily has "min" and "max" (yes, lowercase!) Macros defined
+  #which conflict with the C++ standard algorithms! This define
+  #instructs the compiler to not be an idiot and define those macros
+  add_definitions(-DNOMINMAX)
+else()
+  add_compile_options(-Wall)
+endif()
+
 
 ##########   DEBUG MODE
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -Wall -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG")
 
-link_libraries(debug dl)
+if(NOT WIN32)
+  link_libraries(debug dl)
+endif()
 
 ######################################################################
 ########## COMPILER C++11/C++0x SUPPORT TESTS
@@ -59,11 +88,11 @@ link_libraries(debug dl)
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORT_CXX11)
 if(COMPILER_SUPPORT_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  add_compile_options(-std=c++11)
 else()
   check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORT_CXX0X)
   if(COMPILER_SUPPORT_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    add_compile_options(-std=c++0x)
     check_cxx_source_compiles("int main(int, const char**) {int array[5] = {1,2,3,4,5}; for(int& x: array) x *= 2;}" CXX0X_RANGE_BASED_FOR)
     if(NOT CXX0X_RANGE_BASED_FOR)
       message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has limited C++11 support. You must install a more modern C++ compiler.")
@@ -95,25 +124,32 @@ unset(CMAKE_REQUIRED_FLAGS)
 unset(CMAKE_REQUIRED_INCLUDES)
 
 ######################################################################
-##########  Boost support
+# Test for libbz2 (for compressed files)
 ######################################################################
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.46 COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
-if(NOT Boost_FOUND)
-  message(STATUS "Cannot find a static installation of boost, trying a dynamic version")
-  set(Boost_USE_STATIC_LIBS OFF)
-  find_package(Boost 1.46 REQUIRED COMPONENTS "program_options" "filesystem" "iostreams" "system" "unit_test_framework")
-  if(NOT Boost_FOUND)
-    message(SEND_ERROR "Cannot find a static installation of boost, trying a dynamic version")
+if(NOT WIN32)
+  #Check if bzip2 support for iostreams is around (allowing compressed
+  #output). Unfortunately this is only built into boost for linux
+  #systems.
+  find_package(BZip2)
+  if(BZIP2_FOUND)
+    include_directories(${BZIP2_INCLUDE_DIR})
+    link_libraries(${BZIP2_LIBRARIES})
+    add_definitions(-DDYNAMO_bzip2_support)
   endif()
 endif()
+
+######################################################################
+##########  Boost support
+######################################################################
+if(WIN32)
+  set (Boost_USE_STATIC_LIBS ON)
+  # disable Boost auto-linking
+  add_definitions (-DBOOST_ALL_NO_LIB)
+endif()
+find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem iostreams system unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
-
-#BZip2 support required for boost iostreams
-find_package(BZip2 REQUIRED)
-include_directories(${BZIP2_INCLUDE_DIR})
-link_libraries(${BZIP2_LIBRARIES})
+link_directories(${Boost_LIBRARY_DIRS})
 
 ######################################################################
 # Determine the supported system thread library and link to it
@@ -226,7 +262,7 @@ endfunction(magnet_test)
 #magnet_test(sorter_test : tests/sorter_test.cpp magnet /opencl//OpenCL ;
 
 magnet_test(threadpool_test)
-SET_TARGET_PROPERTIES(magnet_threadpool_test_exe PROPERTIES LINK_FLAGS -Wl,--no-as-needed) #Fix for a bug in gcc
+#SET_TARGET_PROPERTIES(magnet_threadpool_test_exe PROPERTIES LINK_FLAGS -Wl,--no-as-needed) #Fix for a bug in gcc
 
 target_link_libraries(magnet_threadpool_test_exe ${CMAKE_THREAD_LIBS_INIT})
 magnet_test(cubic_quartic_test)
@@ -288,7 +324,7 @@ link_libraries(dynamo)
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
   add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)
-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION bin)
+  install(PROGRAMS $<TARGET_FILE:${name}> DESTINATION bin)
 endfunction(dynamo_exe)
 dynamo_exe(dynarun)
 dynamo_exe(dynamod)
@@ -296,9 +332,8 @@ dynamo_exe(dynahist_rw)
 dynamo_exe(dynapotential)
 #dynamo_exe(dynacollide)
 if(VISUALIZER_SUPPORT)
-  add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
+  dynamo_exe(dynavis)
   set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
 endif()
 
 # scripts
@@ -323,7 +358,6 @@ endif()
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
   add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp)
-  set_target_properties(dynamo_${name}_exe PROPERTIES COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK")
   add_test(dynamo_${name} dynamo_${name}_exe)
 endfunction(dynamo_test)
 
@@ -342,23 +376,25 @@ dynamo_test(squarewellwall_test)
 dynamo_test(thermalisedwalls_test)
 dynamo_test(event_sorters_test)
 
-add_test(NAME dynamo_replica_exchange
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/replex_test.py 
-  --dynarun=$<TARGET_FILE:dynarun>
-  --dynamod=$<TARGET_FILE:dynamod>
-  --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
 
-add_test(NAME dynamo_multicanonical_cmap
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/multicanonical_cmap_test.py
-  --dynarun=$<TARGET_FILE:dynarun>
-  --dynamod=$<TARGET_FILE:dynamod>
-  --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
-
-if(NUMPY_FOUND)
-  add_test(NAME dynamo_dynatransport
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py 
+if(PYTHONINTERP_FOUND)
+  add_test(NAME dynamo_replica_exchange
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/replex_test.py 
     --dynarun=$<TARGET_FILE:dynarun>
     --dynamod=$<TARGET_FILE:dynamod>
-    --dynahist_rw=$<TARGET_FILE:dynahist_rw>
-    --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport)
+    --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
+
+  add_test(NAME dynamo_multicanonical_cmap
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/multicanonical_cmap_test.py
+    --dynarun=$<TARGET_FILE:dynarun>
+    --dynamod=$<TARGET_FILE:dynamod>
+    --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
+  if(NUMPY_FOUND)
+    add_test(NAME dynamo_dynatransport
+      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py 
+      --dynarun=$<TARGET_FILE:dynarun>
+      --dynamod=$<TARGET_FILE:dynamod>
+      --dynahist_rw=$<TARGET_FILE:dynahist_rw>
+      --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport)
+  endif()
 endif()

@@ -24,7 +24,7 @@ namespace dynamo {
   /*! A MinMax heap used for Particle Event Lists
 
     There is a trick used here to speed up comparisons between
-    MinMaxHeaps.  The top element is set to HUGE_VAL, whenever the
+    MinMaxHeaps.  The top element is set to std::numeric_limits<float>::infinity(), whenever the
     queue is cleared, or pop'd empty. This means no conditional logic
     is required to deal with the comparison of empty queues.
   */

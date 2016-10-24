@@ -25,18 +25,18 @@ namespace dynamo {
   {
   public:  
     SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, unsigned int ID):
-      SpInertia(sim, r, HUGE_VAL, nName, ID)
+      SpInertia(sim, r, std::numeric_limits<float>::infinity(), nName, ID)
     { setOutputPrefix("SpFixedCollider"); }
   
     SpFixedCollider(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
-      SpInertia(nSim, NULL, HUGE_VAL, "", nID)
+      SpInertia(nSim, NULL, std::numeric_limits<float>::infinity(), "", nID)
     { setOutputPrefix("SpFixedCollider"); operator<<(XML); }
   
     virtual void initialise();
 
     virtual void operator<<(const magnet::xml::Node& XML);
 
-    virtual double getScalarMomentOfInertia(size_t ID) const { return HUGE_VAL; }
+    virtual double getScalarMomentOfInertia(size_t ID) const { return std::numeric_limits<float>::infinity(); }
 
     virtual double getParticleKineticEnergy(size_t ID) const {return 0; }
 

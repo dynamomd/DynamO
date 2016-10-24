@@ -138,7 +138,7 @@ namespace dynamo {
      
       \param d The interaction diameter/distance.
      
-      \return Time of the next event, or HUGE_VAL if no event.
+      \return Time of the next event, or std::numeric_limits<float>::infinity() if no event.
      */
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const = 0;
 
@@ -151,7 +151,7 @@ namespace dynamo {
      
       \param d The interaction diameter/distance.
      
-      \return Time of the next event, or HUGE_VAL if no event.
+      \return Time of the next event, or std::numeric_limits<float>::infinity() if no event.
      */
     virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const = 0;
 
@@ -162,7 +162,7 @@ namespace dynamo {
      
       \param d The interaction diameter/distance.
      
-      \return Time of the next event, or HUGE_VAL if no event.
+      \return Time of the next event, or std::numeric_limits<float>::infinity() if no event.
      */
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const = 0;  
 
@@ -175,7 +175,7 @@ namespace dynamo {
      
       \param d The interaction diameter/distance.
      
-      \return Time of the next event, or HUGE_VAL if no event.
+      \return Time of the next event, or std::numeric_limits<float>::infinity() if no event.
      */
     virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const = 0;  
 
@@ -285,7 +285,7 @@ namespace dynamo {
       \param Delta The current magnitude of the plates oscillation.
       \param Omega The frequency of the plates oscillation.
       \param Sigma The distance between the centre point and each wall.
-      \return Whether the returned value is a real event or a requested virtual event (virtual events at a time of HUGE_VAL mean no events will occur).
+      \return Whether the returned value is a real event or a requested virtual event (virtual events at a time of std::numeric_limits<float>::infinity() mean no events will occur).
      */    
     virtual std::pair<bool,double> 
     getPointPlateCollision(const Particle& np1, const Vector& nrw0,

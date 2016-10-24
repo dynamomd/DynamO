@@ -33,7 +33,7 @@
 namespace dynamo {
   System::System(dynamo::Simulation* tmp):
     SimBase(tmp, "SystemInteraction"),
-    dt(HUGE_VAL)
+    dt(std::numeric_limits<float>::infinity())
   {
     type = VIRTUAL;
   }

@@ -109,7 +109,7 @@ namespace dynamo {
     if (std::isnan(iEvent._dt))
       M_throw() << "A NAN Interaction collision time has been found";
   
-    if (iEvent._dt == HUGE_VAL)
+    if (iEvent._dt == std::numeric_limits<float>::infinity())
       M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n";
 #endif
 

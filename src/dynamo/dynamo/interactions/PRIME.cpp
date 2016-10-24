@@ -463,12 +463,12 @@ namespace dynamo {
       inner_diameter = std::get<1>(interaction_data),
       bond_energy = std::get<2>(interaction_data);
 
-    Event retval(p1, HUGE_VAL, INTERACTION, NONE, ID, p2);
+    Event retval(p1, std::numeric_limits<float>::infinity(), INTERACTION, NONE, ID, p2);
 
     if (bond_energy == -std::numeric_limits<double>::infinity())
       { //The pair are bonded, check for events with the well edges
         double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, inner_diameter);
-        if (dt != HUGE_VAL) retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
+        if (dt != std::numeric_limits<float>::infinity()) retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
 
         dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, outer_diameter);
         if (retval._dt > dt) retval = Event(p1, dt, INTERACTION, BOUNCE, ID, p2);
@@ -476,14 +476,14 @@ namespace dynamo {
     else if (bond_energy == std::numeric_limits<double>::infinity())
       { //The pair have a hard-sphere interaction, test for this event
         double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, outer_diameter);
-        if (dt != HUGE_VAL) retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
+        if (dt != std::numeric_limits<float>::infinity()) retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
       }
     else
       { //The pair have a square-well/shoulder interaction, test for this
 	if (isCaptured(p1, p2))
 	  {
 	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, inner_diameter);
-	    if (dt != HUGE_VAL)
+	    if (dt != std::numeric_limits<float>::infinity())
 	      retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
 	    
 	    dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, outer_diameter);
@@ -493,7 +493,7 @@ namespace dynamo {
 	else
 	  {
 	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, outer_diameter);
-	    if (dt != HUGE_VAL)
+	    if (dt != std::numeric_limits<float>::infinity())
 	      retval = Event(p1, dt, INTERACTION, STEP_IN, ID, p2);
 	  }
       }

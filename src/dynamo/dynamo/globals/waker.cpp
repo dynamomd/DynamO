@@ -92,7 +92,7 @@ namespace dynamo {
   GWaker::getEvent(const Particle& part) const
   {
     if (part.testState(Particle::DYNAMIC))
-      return Event(part, HUGE_VAL, GLOBAL, NONE, ID);
+      return Event(part, std::numeric_limits<float>::infinity(), GLOBAL, NONE, ID);
     else
       return Event(part, _wakeTime, GLOBAL, WAKEUP, ID);
   }
@@ -109,7 +109,7 @@ namespace dynamo {
       M_throw() << "A NAN Interaction collision time has been found"
 		<< iEvent;
   
-    if (iEvent._dt == HUGE_VAL)
+    if (iEvent._dt == std::numeric_limits<float>::infinity())
       M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
 		<< iEvent;
 #endif

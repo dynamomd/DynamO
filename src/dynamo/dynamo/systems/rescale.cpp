@@ -35,7 +35,7 @@ namespace dynamo {
     System(tmp),
     _frequency(std::numeric_limits<size_t>::max()),
     _kT(1),
-    _timestep(HUGE_VAL),
+    _timestep(std::numeric_limits<float>::infinity()),
     scaleFactor(1),
     LastTime(0),
     RealTime(0)
@@ -50,7 +50,7 @@ namespace dynamo {
     System(tmp),
     _frequency(frequency),
     _kT(kT),
-    _timestep(HUGE_VAL),
+    _timestep(std::numeric_limits<float>::infinity()),
     scaleFactor(0),
     LastTime(0),
     RealTime(0)
@@ -138,7 +138,7 @@ namespace dynamo {
     if (_frequency != std::numeric_limits<size_t>::max())
       XML << magnet::xml::attr("Freq") << _frequency;
 
-    if (_timestep != HUGE_VAL)
+    if (_timestep != std::numeric_limits<float>::infinity())
       XML << magnet::xml::attr("TimeStep") << _timestep / Sim->units.unitTime();
 
     XML<< magnet::xml::endtag("System");

@@ -131,14 +131,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   //Also test infinite time events
   {
     dynamo::Event e = genInteractionEvent(N, 1.0, 1);
-    e._dt = HUGE_VAL;
+    e._dt = std::numeric_limits<float>::infinity();
     reference.push_back(e);
     FEL.push(e);
   }
 
   {
     dynamo::Event e = genInteractionEvent(N, 1.0, 1);
-    e._dt = -HUGE_VAL;
+    e._dt = -std::numeric_limits<float>::infinity();
     reference.push_back(e);
     FEL.push(e);
   }
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   while (!reference.empty()) {
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
-    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+    if ((nextEvent._dt == std::numeric_limits<float>::infinity()) && FEL.empty())
       break;
     BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   while (!reference.empty()) {
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
-    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+    if ((nextEvent._dt == std::numeric_limits<float>::infinity()) && FEL.empty())
       break;
     BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   while (!reference.empty()) {
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
-    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+    if ((nextEvent._dt == std::numeric_limits<float>::infinity()) && FEL.empty())
       break;
     BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FEL_standard, T, FEL_types){
   while (!reference.empty()) {
     const auto next_it = std::min_element(reference.begin(), reference.end());
     const dynamo::Event nextEvent = *next_it;
-    if ((nextEvent._dt == HUGE_VAL) && FEL.empty())
+    if ((nextEvent._dt == std::numeric_limits<float>::infinity()) && FEL.empty())
       break;
     BOOST_REQUIRE(!FEL.empty());
     const dynamo::Event testEvent = FEL.top();

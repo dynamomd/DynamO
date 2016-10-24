@@ -16,19 +16,27 @@
 */
 
 #pragma once
-#include <unistd.h>
-#include <fstream>
-#include <string>
-#include <sys/time.h>
-#include <sys/resource.h>
+
+#ifdef _WIN32
+#else
+# include <fstream>
+# include <string>
+# include <unistd.h>
+# include <sys/time.h>
+# include <sys/resource.h>
+#endif
 
 namespace magnet {
   /*! \brief Attempts to read the system-dependent data for a process'
    * resident set size (actual used memory), and return the results in
    * KB.
    */
+#ifdef _WIN32
+  inline double process_mem_usage() { return 0; }
+#else  
   inline double process_mem_usage()
   {
+    
     double resident_set(0);
     {//Try the getrusage method
       ::rusage ru;
@@ -65,4 +73,5 @@ namespace magnet {
   
     return resident_set;
   }
+#endif
 }

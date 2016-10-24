@@ -19,13 +19,12 @@
 #include <dynamo/coordinator/engine/single.hpp>
 #include <dynamo/systems/snapshot.hpp>
 #include <dynamo/systems/visualizer.hpp>
-#include <signal.h>
 #include <stdio.h>
 
 namespace dynamo {
   ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, 
 				       magnet::thread::ThreadPool& tp):
-    Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp)
+    Engine(nVM, "config.out.xml", "output.xml", tp)
   {}
 
   void
@@ -60,13 +59,7 @@ namespace dynamo {
 		}	      
 
 	      _SIGINT = false;
-	      {
-		struct sigaction new_action;
-		new_action.sa_handler = dynamo::Coordinator::signal_handler;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
-		sigaction(SIGINT, &new_action, NULL);
-	      }
+	      Coordinator::setup_signal_handler();
 	    }
 	  if (_SIGTERM)
 	    {
