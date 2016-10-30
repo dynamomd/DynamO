@@ -57,7 +57,7 @@ build_script:
   - echo "#  Building..."
   - cd build
   - cmake --build . --config %configuration%
-  - cmake --build . --config %configuration% --target install
+  #- cmake --build . --config %configuration% --target install
   - cpack --verbose -G WIX
   - cpack --verbose -G ZIP
   - cd ..
@@ -82,7 +82,7 @@ artifacts:
     name: DynamoMD.msi
 
 deploy:
-  tag: DynamOMD-v$(appveyor_build_version)-$(platform)
+  tag: $(appveyor_build_version)-$(platform)
   release: Latest build of DynamO MD for Windows $(platform)
   description: 'This is the latest version built from the master branch for the %platform% bit platform. You can either use the executables in the zip file, or use the installer DynamOMD.msi file.'
   provider: GitHub

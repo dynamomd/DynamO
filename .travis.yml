@@ -1,57 +1,60 @@
-language: C++
+sudo: required
+language: cpp
+dist: trusty
 
-compiler:
-# - clang
-  - gcc
+addons:
+  apt:
+    packages:
 
-os:
-  - osx
-  - linux
-
-env:
-  - CONFIG=Release
-  #- CONFIG=Debug  
-  secure: "bpX1P0rh/rrIcnhqklXrBx8XjYjD3eDGUw/rordhTcBN99XBfuMN3Py/OIlwxiuLqmQ4DPnQW7LboHqX0Qhr9Y3n1RUO42fqN34yVU82C2R0qjBIbWNj9rPTp5m3hxvXz3Yn7eMBhxKHBfr8sSze64xEzr3WenCijaklkbGlcFONWtkpMLe3rPfHvoe8Swu18E4tEvd0Y5KepILMgUvohzokygEoDWyMFix942v0sjdOEwOHl7YiQuGWxDlrKD5/RyoCQ1YjzMlFW54Hg+y6VeKgbFVTDz2LytNOynLUy/Xzag61FQBPjK3i/pI5bfcKZSddK7etlyasHAs9ndFp+z+MACcrvl2jO1NKiH7/x3ZiNhP9hWb66HJuq/dGgQYCIYk4/x3Y88uL4UOZEjsGLniy+D6gaHehidB4qReKkGDdj/P1qoeis45vEIM9XaOgZ2k0WFhlOmhAXKXYdYmKQvpHqdOuNcfIQZIkz/dVaNgIc5fdy665fy4nIfljm3ZSsYEptQZXwtk+pHb7raCLV2HhiR2rB2fMWOfFZ8yUOVEh68tAPUXO4ngnDNGGtuHD25insa506GJT16W+UzBy3iNoZuEU1wLfiZ+yE0izcZ9sUfEp4bHpIjs1sa+LNPBYHyhhTqwXWHa21d582NeQRWQylxZ1hV0Ak+ursaeNbb8="
-
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env: COMPILER=g++-5
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env: COMPILER=g++-6
+    - compiler: clang
+      env: COMPILER=clang++
+      
 install:
+  sudo apt-get install libboost-all-dev libbz2-dev cmake cmake-data
+
 script:
   - "git submodule update --init --recursive;"
   - "mkdir build;"
   - "cd build;"
-  # CMake
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG}; fi"
-  - cmake --build . --config %configuration%
-  - cmake --build . --config %configuration% --target install
+  - "cmake --build . --config ${CONFIG}"
+  #- "cmake --build . --config ${CONFIG} --target install"
   - cpack --verbose -G ZIP
   - cpack --verbose
-  - dir
-  - cd ..
   # Unit testing
-  #- "ctest -V"
-sudo: false
+  #- "ctest --build-config ${CONFIG} --output-on-failure
+  - cd ..
 
+before_deploy:
+  - export RELEASE_DEB_FILE=$(ls build/*.deb)
+  - echo "deploying $RELEASE_DEB_FILE to GitHub releases"
+  
 deploy:
   provider: releases
-  api_key: $GITHUBKEY
-  file: "dynamomd.zip"
+  api_key:
+    secure: "ZPx5wO8DdMIYuS2TJaNSmxXJiy/36FnwqPZB1lWO1FtogcMek+OAKcLr+OqOmnU3Xk2uiTbRjTXjM81/jjIZgwoEGOv4dJXL+1okgTynAMlfsE7AetjwDzKSWFueSfxBdEEdlZHEVY6IvXtQyQF/racccUp44QPGyZOFK1SrhXWqQdTUslJZRMUwAhlp2UwsA0sQkL53EEbu6LEYsSQRcGDSFh5jbSBnL5gG4CLVgpRDRY6OpX5e6UPH+SAmM6f8bVN81laDRDql1cjac1Ib4PgqteN1ov8AHTlvX45lhyMhOSPTuPfGq+RKsLpkGX/lzFd8zSlBc1XluwWZL7C1XSZK1WzO7XZ/HVUAkvF1LCJTu8k54YAL+Lb5FdEikAhtKpD3j99VyLuY0R6cS+pjSetXFACG0LNIjSKGphv/dtCKGfZhXJgqqsRI/bAsXisKA0crcCwvWHnksGXS5JytMeSobpDJMhNIamfBaRi3+iQoKkuA2Vv4dfTgA1BrMfwUsYRpIDjsUpuw7Jqtjud3sWWbkqnWiEEqO46FIkVfFYnwYkEsbTUH8MEGQ3RPCIu2Y8ogpLPRLMbuutLk9puCqZnOlGYwQVDusCEs+o/+iVSPHNdGsfa3D/3g+niMzvcON/zBvOoqUdB1aoM9+HAARBuVpEZlpSIjPjQRczSUZjQ="
+  file_glob: true
+  file: "build/*.deb"
+  on:
+    branch: master
+    tags: true
   skip_cleanup: true
-
-addons:
-  apt:
-    sources:
-    - boost-latest
-    - george-edison55-precise-backports
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.7
-    packages:
-    - libboost-all-dev
-    - libbz2-dev
-    - cmake
-    - cmake-data
-    #- libgtkmm-2.4-dev
-    #- freeglut3-dev
-    #- libavcodec-dev
-    #- libglew1.6-dev
-    #- libxmu-dev
-    
