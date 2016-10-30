@@ -1,13 +1,18 @@
 language: C++
+
 compiler:
 # - clang
   - gcc
+
 os:
   - osx
   - linux
+
 env:
   - CONFIG=Release
-  #- CONFIG=Debug
+  #- CONFIG=Debug  
+  secure: "bpX1P0rh/rrIcnhqklXrBx8XjYjD3eDGUw/rordhTcBN99XBfuMN3Py/OIlwxiuLqmQ4DPnQW7LboHqX0Qhr9Y3n1RUO42fqN34yVU82C2R0qjBIbWNj9rPTp5m3hxvXz3Yn7eMBhxKHBfr8sSze64xEzr3WenCijaklkbGlcFONWtkpMLe3rPfHvoe8Swu18E4tEvd0Y5KepILMgUvohzokygEoDWyMFix942v0sjdOEwOHl7YiQuGWxDlrKD5/RyoCQ1YjzMlFW54Hg+y6VeKgbFVTDz2LytNOynLUy/Xzag61FQBPjK3i/pI5bfcKZSddK7etlyasHAs9ndFp+z+MACcrvl2jO1NKiH7/x3ZiNhP9hWb66HJuq/dGgQYCIYk4/x3Y88uL4UOZEjsGLniy+D6gaHehidB4qReKkGDdj/P1qoeis45vEIM9XaOgZ2k0WFhlOmhAXKXYdYmKQvpHqdOuNcfIQZIkz/dVaNgIc5fdy665fy4nIfljm3ZSsYEptQZXwtk+pHb7raCLV2HhiR2rB2fMWOfFZ8yUOVEh68tAPUXO4ngnDNGGtuHD25insa506GJT16W+UzBy3iNoZuEU1wLfiZ+yE0izcZ9sUfEp4bHpIjs1sa+LNPBYHyhhTqwXWHa21d582NeQRWQylxZ1hV0Ak+ursaeNbb8="
+
 install:
 script:
   - "git submodule update --init --recursive;"
@@ -16,11 +21,22 @@ script:
   # CMake
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG}; fi"
-  # Compile
-  - "make all -j2"
+  - cmake --build . --config %configuration%
+  - cmake --build . --config %configuration% --target install
+  - cpack --verbose -G ZIP
+  - cpack --verbose
+  - dir
+  - cd ..
   # Unit testing
-  - "ctest -V"
+  #- "ctest -V"
 sudo: false
+
+deploy:
+  provider: releases
+  api_key: $GITHUBKEY
+  file: "dynamomd.zip"
+  skip_cleanup: true
+
 addons:
   apt:
     sources:
