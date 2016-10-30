@@ -64,7 +64,7 @@ build_script:
 
 test_script:
   - cd build
-  - ctest --build-config %configuration% --output-on-failure
+  #- ctest --build-config %configuration% --output-on-failure
   - cd ..
 
 after_build:
