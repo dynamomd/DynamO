@@ -90,6 +90,6 @@ deploy:
     secure: 3vwYILVeleXA4wA0hDPjRi6sR8a9EVSdjaD89FVWdcEemtEjhos29NjvOF+ha++i
   artifact: DynamoMD.zip, DynamoMD.msi
   on:
-    branch:master
+    branch: master
   draft: false
   prerelease: true
