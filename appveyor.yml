@@ -11,7 +11,7 @@ environment:
 
 os: Visual Studio 2015
 
-version: dynamomd-{build}-{branch}
+version: dynamomd-v1.7-{build}
 
 # scripts that are called at very beginning, before repo cloning
 init:
@@ -62,10 +62,10 @@ build_script:
   - cpack --verbose -G ZIP
   - cd ..
 
-#test_script:
-#  - cd build
-#  - ctest --build-config %configuration% --output-on-failure
-#  - cd ..
+test_script:
+  - cd build
+  - ctest --build-config %configuration% --output-on-failure
+  - cd ..
   
 after_build:
   - echo "#  Building packages..."
@@ -82,10 +82,14 @@ artifacts:
     name: DynamoMD.msi
 
 deploy:
-  description: 'Live build of windows DynamO MD package (%platform%)'
+  tag: DynamOMD-v$(appveyor_build_version)-$(platform)
+  release: Latest build of DynamO MD for Windows $(platform)
+  description: 'This is the latest version built from the master branch for the %platform% bit platform. You can either use the executables in the zip file, or use the installer DynamOMD.msi file.'
   provider: GitHub
   auth_token:
     secure: 3vwYILVeleXA4wA0hDPjRi6sR8a9EVSdjaD89FVWdcEemtEjhos29NjvOF+ha++i
-  artifact: DynamoMD.zip
-  draft: true
+  artifact: DynamoMD.zip, DynamoMD.msi
+  on:
+    branch:master
+  draft: false
   prerelease: true
