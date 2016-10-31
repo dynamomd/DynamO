@@ -332,8 +332,10 @@ dynamo_exe(dynahist_rw)
 dynamo_exe(dynapotential)
 #dynamo_exe(dynacollide)
 if(VISUALIZER_SUPPORT)
-  dynamo_exe(dynavis)
+  #Can't use dynamo_exe here, as we just need to compile "dynarun.cpp" differently
+  add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
   set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
+  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
 endif()
 
 # scripts
