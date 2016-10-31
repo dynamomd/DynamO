@@ -120,7 +120,11 @@ namespace dynamo {
       gracefully exit. We catch these signals and shutdown as quickly
       as possible.
      */
+#ifdef _WIN32
+    static BOOL signal_handler(DWORD);
+#else
     static void signal_handler(int);
+#endif
     
   private:
     /*! \brief Contains the parsed command line options, engines carry references

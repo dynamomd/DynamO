@@ -25,7 +25,7 @@
 
 //Need special treatment for the ways signals are handled on different platforms
 #ifdef _WIN32
-//# include <windows.h>
+# include <windows.h>
 #else
 # include <signal.h>
 #endif
@@ -33,10 +33,23 @@
 namespace dynamo {
 #ifdef _WIN32
   void
-  Coordinator::setup_signal_handler() {}
+  Coordinator::setup_signal_handler() {
+    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE) Coordinator::signal_handler, TRUE))
+      M_throw() << "Failed to set signal control";
+  }
 
-  void 
-  Coordinator::signal_handler(int sigtype) {}
+  BOOL Coordinator::signal_handler(DWORD fdwCtrlType) {
+    switch( fdwCtrlType ) 
+      { 
+	// Handle the CTRL-C signal. 
+      case CTRL_C_EVENT:
+	Coordinator::get()._engine->sigint();
+	std::cerr << "\nCaught SIGINT, notifying running simulation...\n";
+	return (TRUE);
+      default:
+	return FALSE;
+      }
+  }
 
 #else
   void
