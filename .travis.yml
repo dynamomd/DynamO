@@ -2,60 +2,65 @@ sudo: required
 language: cpp
 dist: trusty
 
-addons:
-  apt:
-    packages:
-
 matrix:
   include:
     - compiler: gcc
       os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env: COMPILER=gcc-5
+      env:
+        - COMPILER=g++-5
+        - CXXpackage=g++-5
     - compiler: gcc
       os: linux
       addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-      env: COMPILER=gcc-6
+      env:
+        - COMPILER=g++-6
+        - CXXpackage=g++-6
     - compiler: clang
       os: linux
-      env: COMPILER=clang
+      compiler: clang
+      env:
+        - COMPILER=clang++
     - os: osx
-      env: COMPILER=clang
+      compiler: clang
+      env:
+        - COMPILER=clang++
+    - os: osx
+      compiler: gcc
+      env:
+        - COMPILER=g++
 
 install:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install libboost-all-dev libbz2-dev cmake cmake-data; fi
-  # Boost is installed on osx, as well as cmake, these are here for later
-  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
-  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install boost --with-python; fi
+  - "export CXX=$COMPILER"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get update -q; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install -y --force-yes libboost-all-dev libbz2-dev cmake cmake-data python-numpy $CXXpackage; fi"
 
 script:
-  - "mkdir build;"
-  - "cd build;"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-64bit; fi"
+  - "mkdir build"
+  - "cd build"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-64bit-${COMPILER}; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG} -DPACKAGE_SUFFIX=-ubuntu14.04-amd64-${COMPILER}; fi"
   - "cmake --build . --config ${CONFIG}"
-  - cpack --verbose -G ZIP
-  - cpack --verbose
+  - "cpack --verbose -G ZIP"
+  - "cpack --verbose"
   # Unit testing
-  #- "ctest --build-config ${CONFIG} --output-on-failure
-  - cd ..
+  - "CTEST_OUTPUT_ON_FAILURE=1 ctest --build-config ${CONFIG}"
+  - "cd .."
+
+before_deploy:
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then export RELEASE_PKG_FILE=$(ls build/*.deb); fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then export RELEASE_PKG_FILE=$(ls build/dynamomd-*.tar.gz); fi"
+  - export RELEASE_ZIP_FILE=$(ls build/*.zip);
+  - echo "Exporting $RELEASE_PKG_FILE to github"
+  - echo "Exporting $RELEASE_ZIP_FILE to github"
   
 deploy:
   provider: releases
   api_key:
     secure: "ZPx5wO8DdMIYuS2TJaNSmxXJiy/36FnwqPZB1lWO1FtogcMek+OAKcLr+OqOmnU3Xk2uiTbRjTXjM81/jjIZgwoEGOv4dJXL+1okgTynAMlfsE7AetjwDzKSWFueSfxBdEEdlZHEVY6IvXtQyQF/racccUp44QPGyZOFK1SrhXWqQdTUslJZRMUwAhlp2UwsA0sQkL53EEbu6LEYsSQRcGDSFh5jbSBnL5gG4CLVgpRDRY6OpX5e6UPH+SAmM6f8bVN81laDRDql1cjac1Ib4PgqteN1ov8AHTlvX45lhyMhOSPTuPfGq+RKsLpkGX/lzFd8zSlBc1XluwWZL7C1XSZK1WzO7XZ/HVUAkvF1LCJTu8k54YAL+Lb5FdEikAhtKpD3j99VyLuY0R6cS+pjSetXFACG0LNIjSKGphv/dtCKGfZhXJgqqsRI/bAsXisKA0crcCwvWHnksGXS5JytMeSobpDJMhNIamfBaRi3+iQoKkuA2Vv4dfTgA1BrMfwUsYRpIDjsUpuw7Jqtjud3sWWbkqnWiEEqO46FIkVfFYnwYkEsbTUH8MEGQ3RPCIu2Y8ogpLPRLMbuutLk9puCqZnOlGYwQVDusCEs+o/+iVSPHNdGsfa3D/3g+niMzvcON/zBvOoqUdB1aoM9+HAARBuVpEZlpSIjPjQRczSUZjQ="
-  file_glob: true
-  file: "build/*.deb"
+  file:
+    - "${RELEASE_PKG_FILE}"
+    - "${RELEASE_ZIP_FILE}"
   on:
     tags: true
   skip_cleanup: true

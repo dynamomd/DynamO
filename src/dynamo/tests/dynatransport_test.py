@@ -24,7 +24,7 @@ import xml.etree.ElementTree as ET
 run=True
 
 shortargs=""
-longargs=["dynarun=", "dynamod=", "dynahist_rw=", "dynatransport="]
+longargs=["dynarun=", "dynamod=", "dynahist_rw=", "dynatransport=", "python="]
 try:
     options, args = getopt.gnu_getopt(sys.argv[1:], shortargs, longargs)
 except getopt.GetoptError as err:
@@ -36,6 +36,7 @@ dynarun_cmd="NOT SET"
 dynamod_cmd="NOT SET"
 dynahist_rw_cmd="NOT SET"
 dynatransport_cmd="NOT SET"
+python_cmd="NOT SET"
 
 for o,a in options:
     if o == "--dynarun":
@@ -46,8 +47,10 @@ for o,a in options:
         dynahist_rw_cmd = a
     if o == "--dynatransport":
         dynatransport_cmd = a
+    if o == "--python":
+        python_cmd = a
 
-for name,exe in [("dynahist_rw", dynahist_rw_cmd), ("dynamod", dynamod_cmd), ("dynarun", dynarun_cmd), ("dynatransport", dynatransport_cmd)]:
+for name,exe in [("dynahist_rw", dynahist_rw_cmd), ("dynamod", dynamod_cmd), ("dynarun", dynarun_cmd), ("dynatransport", dynatransport_cmd), ("python", python_cmd)]:
     if not(os.path.isfile(exe) and os.access(exe, os.X_OK)):
         raise RuntimeError("Failed to find "+name+" executabe at "+exe)
         
@@ -67,7 +70,7 @@ cmd=[dynarun_cmd, "c.xml", "-oc.xml", "--out-data-file=o.xml", "-c2000000"]
 if run:
     subprocess.call(cmd)
 
-cmd=[dynatransport_cmd, "o.xml", "-c1.0", "-s0.3"]
+cmd=[python_cmd, dynatransport_cmd, "o.xml", "-c1.0", "-s0.3"]
 out = subprocess.check_output(cmd)
 visc=float(out.split("\n")[0].split()[1])
 thermal=float(out.split("\n")[2].split()[1])
@@ -78,6 +81,6 @@ def isclose(a,b,tol):
 if not isclose(visc, 0.58, 2*0.06/0.58):
     raise RuntimeError("Simulation viscosity is different to what is expected:"+str(visc)+"!="+str(0.58))
 
-if not isclose(thermal, 2.3, 2 * 0.1/2.3):
+if not isclose(thermal, 2.3, 2 * 0.2/2.3):
     raise RuntimeError("Simulation thermal conductivity is different to what is expected:"+str(thermal)+"!="+str(2.3))
 

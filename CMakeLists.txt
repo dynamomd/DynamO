@@ -103,27 +103,6 @@ else()
   endif()
 endif()
 
-### Now check if the C++11/0x support is sufficient for the compile time math library
-set(CMAKE_REQUIRED_FLAGS -Wfatal-errors)
-check_cxx_source_compiles("template <typename T> struct wrapped{ typedef T type;};
-template <typename T> typename T::type unwrap1(T a) { return typename T::type();}
-int unwrap(int a) { return 1; }
-template <typename T> auto unwrap(T t) -> decltype(unwrap(unwrap1(t))) { return unwrap(unwrap1(t)); }
-int main() { unwrap(wrapped<wrapped<int>>()); }" CXX11_TYPE_MANGLING)
-if(NOT CXX11_TYPE_MANGLING)
-  message(WARNING "Although the compiler advertises support for C++0x/C++11, this support is limited (e.g., gcc-4.7 or lower). You can only compile a limited version of DynamO (simple potentials only).")
-  else()
-    set(CMAKE_REQUIRED_FLAGS -Wfatal-errors)
-    set(CMAKE_REQUIRED_INCLUDES ${CMAKE_SOURCE_DIR}/src/magnet ${CMAKE_SOURCE_DIR}/src/ext_include)
-    check_cxx_source_compiles("#include <magnet/math/symbolic.hpp>
-    int main() { using namespace magnet::math; Variable<'x'> x; simplify(x+(x-1)); }" CXX11_decltype_works)
-    if(NOT CXX11_decltype_works)
-      message(WARNING "Although the compiler advertises support for C++0x/11, this support is broken (e.g., gcc-4.8.2). You can only compile a limited version of DynamO (simple potentials only).")
-    endif()  
-endif()
-unset(CMAKE_REQUIRED_FLAGS)
-unset(CMAKE_REQUIRED_INCLUDES)
-
 ######################################################################
 # Test for libbz2 (for compressed files)
 ######################################################################
@@ -155,8 +134,16 @@ link_directories(${Boost_LIBRARY_DIRS})
 ######################################################################
 # Determine the supported system thread library and link to it
 ######################################################################
-find_package(Threads)
-link_libraries(${CMAKE_THREAD_LIBS_INIT})
+find_package(Threads REQUIRED)
+if(CMAKE_USE_PTHREADS_INIT)
+   message(STATUS "Adding -pthread as a compile argument")
+  add_compile_options(-pthread)
+endif()
+if(CMAKE_THREAD_LIBS_INIT)
+   message(STATUS "Adding ${CMAKE_THREAD_LIBS_INIT} as a linker argument")
+  link_libraries(${CMAKE_THREAD_LIBS_INIT})
+endif()
+
 
 ######################################################################
 # Test for libjudy requirements
@@ -277,15 +264,6 @@ magnet_test(intersection_genalg)
 magnet_test(offcenterspheres)
 magnet_test(stack_vector_test)
 
-#### CAS library tests ####
-if(CXX11_TYPE_MANGLING AND CXX11_decltype_works)
-  magnet_test(polynomial_test)
-  magnet_test(symbolic_test)
-  magnet_test(stable_alg_test)
-  magnet_test(numeric_test)
-  magnet_test(symbolic_performance)  
-endif()
-
 if(JUDY_SUPPORT)
   magnet_test(judy_test)
 endif(JUDY_SUPPORT)
@@ -382,22 +360,27 @@ dynamo_test(event_sorters_test)
 
 if(PYTHONINTERP_FOUND)
   add_test(NAME dynamo_replica_exchange
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/replex_test.py 
+    COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/replex_test.py
     --dynarun=$<TARGET_FILE:dynarun>
     --dynamod=$<TARGET_FILE:dynamod>
     --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
 
   add_test(NAME dynamo_multicanonical_cmap
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/multicanonical_cmap_test.py
+    COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/multicanonical_cmap_test.py
     --dynarun=$<TARGET_FILE:dynarun>
     --dynamod=$<TARGET_FILE:dynamod>
     --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
   if(NUMPY_FOUND)
     add_test(NAME dynamo_dynatransport
-      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py 
+      COMMAND ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py
       --dynarun=$<TARGET_FILE:dynarun>
       --dynamod=$<TARGET_FILE:dynamod>
       --dynahist_rw=$<TARGET_FILE:dynahist_rw>
-      --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport)
+      --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport
+      --python=${PYTHON_EXECUTABLE}
+      )
   endif()
 endif()

@@ -1,10 +1,13 @@
 environment:
-  P: "c:/projects/libs"
-  BOOST_ROOT: c:\Libraries\boost_1_59_0
-  BOOST_LIBRARYDIR_WIN32: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
-  BOOST_LIBRARYDIR_WIN64: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
-  PREFIX: c:\Libraries
-
+  global:
+    P: "c:/projects/libs"
+    BOOST_ROOT: c:\Libraries\boost_1_59_0
+    BOOST_LIBRARYDIR_WIN32: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
+    BOOST_LIBRARYDIR_WIN64: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
+    PYTHON: "C:/Python27"
+    PYTHON_VERSION: 2.7
+    MINICONDA: C:\Miniconda
+    
 #  ACCOUNT:
 #      secure: F8Xu4syZJRRLmTnPDOUjr5bG7Lk6UburldIUuxZ/OJQ=
 # Operating system (build VM template)
@@ -38,7 +41,15 @@ configuration: Release
 install:
   #- cinst cmake.portable wget 7zip.commandline
   - cinst wixtoolset
-
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy"
+  - activate test-environment
+  # - pip install XXX
+  
 clone_folder: c:\projects\dynamo
 
 before_build:
@@ -57,13 +68,14 @@ build_script:
   - echo "#  Building..."
   - cd build
   - cmake --build . --config %configuration%
-  - cpack --verbose -G WIX
-  - cpack --verbose -G ZIP
+  - cpack -G WIX
+  - cpack -G ZIP
   - cd ..
 
 test_script:
   - cd build
-  #- ctest --build-config %configuration% --output-on-failure
+  - set CTEST_OUTPUT_ON_FAILURE=1
+  - ctest --build-config %configuration%
   - cd ..
 
 after_build:
