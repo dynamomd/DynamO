@@ -49,15 +49,14 @@ before_build:
   - cmd: md build
   - cmd: cd build
   - echo Running cmake...
-  - cmd: if "%platform%"=="Win32" cmake .. -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN32%
-  - cmd: if "%platform%"=="x64" cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN64%
+  - cmd: if "%platform%"=="Win32" cmake .. -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN32%" -DPACKAGE_SUFFIX="-windows-32bit"
+  - cmd: if "%platform%"=="x64" cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN64%" -DPACKAGE_SUFFIX="-windows-64bit"
   - cmd: cd ..
 
 build_script:
   - echo "#  Building..."
   - cd build
   - cmake --build . --config %configuration%
-  #- cmake --build . --config %configuration% --target install
   - cpack --verbose -G WIX
   - cpack --verbose -G ZIP
   - cd ..

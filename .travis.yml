@@ -15,7 +15,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-5
-      env: COMPILER=g++-5
+      env: COMPILER=gcc-5
     - compiler: gcc
       addons:
         apt:
@@ -23,9 +23,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-      env: COMPILER=g++-6
+      env: COMPILER=gcc-6
     - compiler: clang
-      env: COMPILER=clang++
+      env: COMPILER=clang
       
 install:
   sudo apt-get install libboost-all-dev libbz2-dev cmake cmake-data
@@ -34,10 +34,9 @@ script:
   - "git submodule update --init --recursive;"
   - "mkdir build;"
   - "cd build;"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG}; fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-64bit; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG} -DPACKAGE_SUFFIX=-ubuntu14.04-amd64-${COMPILER}; fi"
   - "cmake --build . --config ${CONFIG}"
-  #- "cmake --build . --config ${CONFIG} --target install"
   - cpack --verbose -G ZIP
   - cpack --verbose
   # Unit testing
