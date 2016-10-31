@@ -24,9 +24,7 @@
 #include <cstdio>
 
 //Need special treatment for the ways signals are handled on different platforms
-#ifdef _WIN32
-# include <windows.h>
-#else
+#ifndef _WIN32
 # include <signal.h>
 #endif
 

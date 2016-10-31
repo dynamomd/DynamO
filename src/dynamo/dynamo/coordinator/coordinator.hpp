@@ -26,6 +26,9 @@
 #include <magnet/thread/threadpool.hpp>
 #include <boost/program_options.hpp>
 #include <vector>
+#ifdef _WIN32
+# include <windows.h>
+#endif
 
 namespace dynamo {
 
