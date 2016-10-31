@@ -9,6 +9,7 @@ addons:
 matrix:
   include:
     - compiler: gcc
+      os: linux
       addons:
         apt:
           sources:
@@ -17,6 +18,7 @@ matrix:
             - g++-5
       env: COMPILER=gcc-5
     - compiler: gcc
+      os: linux
       addons:
         apt:
           sources:
@@ -25,13 +27,18 @@ matrix:
             - g++-6
       env: COMPILER=gcc-6
     - compiler: clang
+      os: linux
       env: COMPILER=clang
-      
+    - os: osx
+      env: COMPILER=clang
+
 install:
-  sudo apt-get install libboost-all-dev libbz2-dev cmake cmake-data
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install libboost-all-dev libbz2-dev cmake cmake-data; fi
+  # Boost is installed on osx, as well as cmake, these are here for later
+  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
+  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install boost --with-python; fi
 
 script:
-  - "git submodule update --init --recursive;"
   - "mkdir build;"
   - "cd build;"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-64bit; fi"
@@ -42,10 +49,6 @@ script:
   # Unit testing
   #- "ctest --build-config ${CONFIG} --output-on-failure
   - cd ..
-
-before_deploy:
-  - export RELEASE_DEB_FILE=$(ls build/*.deb)
-  - echo "deploying $RELEASE_DEB_FILE to GitHub releases"
   
 deploy:
   provider: releases
