@@ -8,38 +8,46 @@ matrix:
       os: linux
       env:
         - COMPILER=g++-5
-        - CXXpackage=g++-5
+        - COMPILER_PACKAGE=g++-5
+        - COMPILER_NAME=gcc-5
     - compiler: gcc
       os: linux
       addons:
       env:
         - COMPILER=g++-6
-        - CXXpackage=g++-6
+        - COMPILER_PACKAGE=g++-6
+        - COMPILER_NAME=gcc-6
     - compiler: clang
       os: linux
       compiler: clang
       env:
         - COMPILER=clang++
+        - COMPILER_PACKAGE=clang
+        - COMPILER_NAME=clang
     - os: osx
       compiler: clang
       env:
         - COMPILER=clang++
+        - COMPILER_PACKAGE=clang
+        - COMPILER_NAME=clang
     - os: osx
       compiler: gcc
       env:
         - COMPILER=g++
+        - COMPILER_PACKAGE=g++
+        - COMPILER_NAME=gcc
 
 install:
   - "export CXX=$COMPILER"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get update -q; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install -y --force-yes libboost-all-dev libbz2-dev cmake cmake-data python-numpy $CXXpackage; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install -y --force-yes libboost-all-dev libbz2-dev cmake cmake-data python-numpy $COMPILER_PACKAGE; fi"
 
 script:
   - "mkdir build"
   - "cd build"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-64bit-${COMPILER}; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG} -DPACKAGE_SUFFIX=-ubuntu14.04-amd64-${COMPILER}; fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=${CONFIG} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-amd64-${COMPILER_NAME}; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=${CONFIG} -DPACKAGE_SUFFIX=-ubuntu14.04-amd64-${COMPILER_NAME}; fi"
   - "cmake --build . --config ${CONFIG}"
   - "cpack --verbose -G ZIP"
   - "cpack --verbose"
