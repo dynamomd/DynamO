@@ -121,7 +121,7 @@ for i,T in enumerate(Temperatures):
     measured_Cv=float(xmldoc.getroot().find(".//ResidualHeatCapacity").attrib["Value"])
     expected_Cv=expectedCvs[T]
 
-    if not dynamo.isclose(measured_Cv, expected_Cv, 5e-2):
+    if not dynamo.isclose(measured_Cv, expected_Cv, 0.1):
         error_count = error_count + 1
         print "Simulation heat capacity is different to what is expected:"+str(measured_Cv)+"!="+str(expected_Cv)
 
