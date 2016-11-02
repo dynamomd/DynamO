@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   dynamo::OPMisc& opMisc = *Sim.getOutputPlugin<dynamo::OPMisc>();
   //Check the mean free time is roughly what is expected
   double MFT = opMisc.getMFT();
-  BOOST_CHECK_CLOSE(MFT, expectedMFT, 1);
+  BOOST_CHECK_CLOSE(MFT, expectedMFT, 2);
 
   BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than three invalid states in the final configuration");
 }
