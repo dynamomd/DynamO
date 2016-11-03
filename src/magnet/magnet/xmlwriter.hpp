@@ -48,25 +48,25 @@ namespace magnet {
 	  _ofs(new std::ofstream(filename)),
 	  _filename(filename)
 	{
-	  if (not (*_ofs))
+	  if (!(*_ofs))
 	    M_throw() << "Failed to open " << _filename << " for writing.";
 	}
 
 	~safe_ofstream_sink() {
-	  if (_ofs and _ofs->is_open()) {
+	  if (_ofs && _ofs->is_open()) {
 	    _ofs->flush();
-	    if (not (*_ofs))
+	    if (!(*_ofs))
 	      M_throw() << "Failed to flush " << _filename << ".";
 	  }
 	}
 
 	std::streamsize write(const char* s, std::streamsize n)
 	{
-	  if (not _ofs)
+	  if (!_ofs)
 	    M_throw() << "File handle lost during copying!";
 	  
 	  _ofs->write(s, n);
-	  if (not (*_ofs))
+	  if (!(*_ofs))
             M_throw() << "Failed while writing to" << _filename;
 
 	  return n;
