@@ -330,7 +330,10 @@ namespace magnet {
 	  M_throw() << "bz2 compressed file support was not built in! (only available on linux)";
 #endif
 	}
-	inputFile.push(io::file_source(filename));
+	auto fs = io::file_source(filename);
+	if (!fs.is_open())
+	  M_throw() << "Failed to open " << filename << " for writing." ;
+	inputFile.push(fs);
 	io::copy(inputFile, io::back_inserter(_data));
 	parseData();
       }

@@ -31,6 +31,54 @@
 
 namespace magnet {
   namespace xml {
+    namespace detail {
+      /*! \brief  A custom file sink for the boost iostreams library.
+	
+	Boost Iostreams library does not correctly check if files are
+	in a good state for writing, during the write itself. Thus, if
+	the disk becomes full, or the program does not have write
+	permission, the writing will hang in an infinite loop! This
+	file sink fixes that.
+      */
+      struct safe_ofstream_sink {
+	typedef char char_type;
+	typedef boost::iostreams::sink_tag category;
+	
+	safe_ofstream_sink(std::string filename):
+	  _ofs(new std::ofstream(filename)),
+	  _filename(filename)
+	{
+	  if (not (*_ofs))
+	    M_throw() << "Failed to open " << _filename << " for writing.";
+	}
+
+	~safe_ofstream_sink() {
+	  if (_ofs and _ofs->is_open()) {
+	    _ofs->flush();
+	    if (not (*_ofs))
+	      M_throw() << "Failed to flush " << _filename << ".";
+	  }
+	}
+
+	std::streamsize write(const char* s, std::streamsize n)
+	{
+	  if (not _ofs)
+	    M_throw() << "File handle lost during copying!";
+	  
+	  _ofs->write(s, n);
+	  if (not (*_ofs))
+            M_throw() << "Failed while writing to" << _filename;
+
+	  return n;
+	}
+	
+	std::shared_ptr<std::ofstream> _ofs;
+	std::string _filename;
+      };
+
+    }
+		    
+    
     namespace io = boost::iostreams;
 
     /*! \brief A class which behaves like an output stream for XML output.
@@ -65,7 +113,7 @@ namespace magnet {
 	  M_throw() << "bz2 compressed file support was not built in! (only available on linux)";
 #endif
 	}
-	s.push(io::file_sink(filename));
+	s.push(detail::safe_ofstream_sink(filename));
       }
         
       inline ~XmlStream() { while (tags.size()) endTag(tags.top()); }
