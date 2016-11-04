@@ -107,9 +107,6 @@ endif()
 # Test for libbz2 (for compressed files)
 ######################################################################
 if(NOT WIN32)
-  #Check if bzip2 support for iostreams is around (allowing compressed
-  #output). Unfortunately this is only built into boost for linux
-  #systems.
   find_package(BZip2)
   if(BZIP2_FOUND)
     include_directories(${BZIP2_INCLUDE_DIR})
@@ -126,7 +123,7 @@ if(WIN32)
   # disable Boost auto-linking
   add_definitions (-DBOOST_ALL_NO_LIB)
 endif()
-find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem iostreams system unit_test_framework)
+find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem system unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 link_directories(${Boost_LIBRARY_DIRS})

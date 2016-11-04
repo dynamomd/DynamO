@@ -18,67 +18,22 @@
 
 #pragma once
 #include <memory>
+#include <magnet/exception.hpp>
 #include <stack>
 #include <string>
 #include <sstream>
-#include <magnet/exception.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/copy.hpp>
+#include <fstream>
+#ifdef DYNAMO_bzip2_support
+# include <bzlib.h>
+# include <vector>
+#endif
 
 namespace magnet {
   namespace xml {
-    namespace detail {
-      /*! \brief  A custom file sink for the boost iostreams library.
-	
-	Boost Iostreams library does not correctly check if files are
-	in a good state for writing, during the write itself. Thus, if
-	the disk becomes full, or the program does not have write
-	permission, the writing will hang in an infinite loop! This
-	file sink fixes that.
-      */
-      struct safe_ofstream_sink {
-	typedef char char_type;
-	typedef boost::iostreams::sink_tag category;
-	
-	safe_ofstream_sink(std::string filename):
-	  _ofs(new std::ofstream(filename)),
-	  _filename(filename)
-	{
-	  if (!(*_ofs))
-	    M_throw() << "Failed to open " << _filename << " for writing.";
-	}
-
-	std::streamsize write(const char* s, std::streamsize n)
-	{
-	  if (!_ofs)
-	    M_throw() << "File handle lost during copying!";
-	  
-	  _ofs->write(s, n);
-	  
-	  if (!(*_ofs))
-            M_throw() << "Failed while writing to" << _filename;
-
-	  return n;
-	}
-	
-	std::shared_ptr<std::ofstream> _ofs;
-	std::string _filename;
-      };
-
-    }
-		    
-    
-    namespace io = boost::iostreams;
-
     /*! \brief A class which behaves like an output stream for XML output.
      */
     class XmlStream {
     public:
-
       //! \brief Internal type used to modify the state of the XML stream.
       struct Controller {
 	typedef enum {
@@ -96,21 +51,40 @@ namespace magnet {
 	  _type(type), _str(str) {}
       };
     
-      inline XmlStream(std::string filename):
+      inline XmlStream():
 	state(stateNone), prologWritten(false), FormatXML(false)
-      {
+      {}
+        
+      inline ~XmlStream() {
+	while (tags.size()) endTag(tags.top());
+      }
+
+      inline void write_file(std::string filename) {
 	if (std::string(filename.end() - 4, filename.end()) == ".bz2") {
 #ifdef DYNAMO_bzip2_support
-	  s.push(io::bzip2_compressor());
+	  BZFILE* f = BZ2_bzopen(filename.c_str(), "w");
+	  if (!f)
+	    M_throw() << "Failed to open compressed file " << filename << " for writing.";
+
+	  std::vector<char> buf((std::istreambuf_iterator<char>(s)), std::istreambuf_iterator<char>());
+	  
+	  int nWritten = BZ2_bzwrite(f, buf.data(), buf.size());
+	  if (nWritten <= 0)
+	    M_throw() << "Failed to while writing contents of compressed file " << filename << ".";
+	  BZ2_bzclose(f);
 #else
 	  M_throw() << "bz2 compressed file support was not built in! (only available on linux)";
 #endif
+	} else {
+	  std::ofstream of(filename);
+	  if (!of)
+	    M_throw() << "Failed to open " << filename << " for writing.";
+	  of << s.rdbuf();
+	  if (!of)
+	    M_throw() << "Failed during writing of contents of " << filename << ".";
 	}
-	s.push(detail::safe_ofstream_sink(filename));
       }
-        
-      inline ~XmlStream() { while (tags.size()) endTag(tags.top()); }
-
+      
       /*! \brief Main insertion operator which changes the state of
         the XmlStream.
        */
@@ -186,7 +160,7 @@ namespace magnet {
     
       tag_stack_type	tags;
       state_type	state;
-      io::filtering_ostream s;
+      std::stringstream s;
       bool	prologWritten;
       std::ostringstream	tagName;
       bool        FormatXML;

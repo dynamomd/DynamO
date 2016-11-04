@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
     dynamo::OPMisc& opMisc = *Sim.getOutputPlugin<dynamo::OPMisc>();
     //Check the mean free time is roughly what is expected
     double MFT = opMisc.getMFT() / Sim.units.unitTime();
-    BOOST_CHECK_CLOSE(MFT, expectedMFT, 2);
+    BOOST_CHECK_CLOSE(MFT, expectedMFT, 4);
 
     //Check that the momentum is still around 0
     dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();

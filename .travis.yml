@@ -30,12 +30,6 @@ matrix:
         - COMPILER=clang++
         - COMPILER_PACKAGE=clang
         - COMPILER_NAME=clang
-    - os: osx
-      compiler: gcc
-      env:
-        - COMPILER=g++-4.8
-        - COMPILER_PACKAGE=g++
-        - COMPILER_NAME=gcc
 
 install:
   - "export CXX=$COMPILER"

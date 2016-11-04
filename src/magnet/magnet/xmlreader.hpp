@@ -20,14 +20,11 @@
 #include <rapidXML/rapidxml.hpp>
 #include <magnet/exception.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
 #ifdef DYNAMO_bzip2_support
-# include <boost/iostreams/filter/bzip2.hpp>
+# include <bzlib.h>
 #endif
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/copy.hpp>
+#include <fstream>
+#include <iostream>
 #include <vector>
 
 namespace magnet {
@@ -320,21 +317,48 @@ namespace magnet {
       /*! \brief Decompress (if needed) and parse an XML file. */
       Document(std::string filename) {
 	_data.clear();
-	namespace io = boost::iostreams;
-	io::filtering_istream inputFile;
-
-	if (std::string(filename.end()-4, filename.end()) == ".bz2") {
+	
+	if (std::string(filename.end() - 4, filename.end()) == ".bz2") {
 #ifdef DYNAMO_bzip2_support
-	  inputFile.push(io::bzip2_decompressor());
+	  FILE* f = fopen (filename.c_str(), "r");
+	  if (!f) {
+	    M_throw() << "Failed to open " << filename << " for reading." ;
+	  }
+	  int bzerror;
+	  BZFILE* b = BZ2_bzReadOpen(&bzerror, f, 0, 0, NULL, 0);
+	  if (bzerror != BZ_OK) {
+	    BZ2_bzReadClose(&bzerror, b);
+	    fclose(f);
+	    M_throw() << "Failed beginning decompression of " << filename << " for reading." ;
+	  }
+	  char buf[1024 * 10];
+	  bzerror = BZ_OK;
+	  while (bzerror == BZ_OK) {
+	    size_t nBuf = BZ2_bzRead(&bzerror, b, buf, sizeof(buf));
+	    if ((bzerror == BZ_OK) || (bzerror == BZ_STREAM_END))
+	      _data.append(buf, nBuf);
+	  }
+	  
+	  if (bzerror != BZ_STREAM_END ) {
+	    BZ2_bzReadClose (&bzerror, b);
+	    fclose(f);
+	    M_throw() << "Failed while decompressing " << filename << " for reading. (bzerror=" << bzerror << ")";
+	  } else {
+	    BZ2_bzReadClose ( &bzerror, b );
+	    fclose(f);
+	  }
 #else
 	  M_throw() << "bz2 compressed file support was not built in! (only available on linux)";
 #endif
+	} else {
+	  std::ifstream t(filename);
+	  if (!t.is_open())
+	    M_throw() << "Failed to open " << filename << " for reading." ;
+	  t.seekg(0, std::ios::end);
+	  _data.reserve(t.tellg());
+	  t.seekg(0, std::ios::beg);
+	  _data.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 	}
-	auto fs = io::file_source(filename);
-	if (!fs.is_open())
-	  M_throw() << "Failed to open " << filename << " for writing." ;
-	inputFile.push(fs);
-	io::copy(inputFile, io::back_inserter(_data));
 	parseData();
       }
       

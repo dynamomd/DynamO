@@ -425,7 +425,7 @@ namespace dynamo
   Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
     namespace xml = magnet::xml;
-    xml::XmlStream XML(fileName);
+    xml::XmlStream XML;
     XML.setFormatXML(true);
 
     dynamics->updateAllParticles();
@@ -518,6 +518,8 @@ namespace dynamo
     _properties.rescaleUnit(Property::Units::L, units.unitLength());
     _properties.rescaleUnit(Property::Units::T, units.unitTime());
     _properties.rescaleUnit(Property::Units::M, units.unitMass());
+
+    XML.write_file(fileName);
   }
   
   void 
@@ -721,7 +723,7 @@ namespace dynamo
       M_throw() << "Cannot output data when not initialised!";
 
     namespace xml = magnet::xml;
-    xml::XmlStream XML(filename);
+    xml::XmlStream XML;
     XML.setFormatXML(true);
     
     XML << std::setprecision(std::numeric_limits<double>::digits10 + 2)
@@ -743,6 +745,8 @@ namespace dynamo
     XML << xml::endtag("OutputData");
 
     dout << "Output written to " << filename << std::endl;
+
+    XML.write_file(filename);
   }
 
   void 
