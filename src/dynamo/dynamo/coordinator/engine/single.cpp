@@ -45,7 +45,7 @@ namespace dynamo {
 	      std::cin.clear();
 	      setvbuf(stdin, NULL, _IONBF, 0);
 	      c=getchar();
-	      setvbuf(stdin, NULL, _IOLBF, 0);
+	      setvbuf(stdin, NULL, _IOLBF, BUFSIZ);
 	      switch (c)
 		{
 		case 's':

@@ -52,20 +52,13 @@ namespace magnet {
 	    M_throw() << "Failed to open " << _filename << " for writing.";
 	}
 
-	~safe_ofstream_sink() {
-	  if (_ofs && _ofs->is_open()) {
-	    _ofs->flush();
-	    if (!(*_ofs))
-	      M_throw() << "Failed to flush " << _filename << ".";
-	  }
-	}
-
 	std::streamsize write(const char* s, std::streamsize n)
 	{
 	  if (!_ofs)
 	    M_throw() << "File handle lost during copying!";
 	  
 	  _ofs->write(s, n);
+	  
 	  if (!(*_ofs))
             M_throw() << "Failed while writing to" << _filename;
 
