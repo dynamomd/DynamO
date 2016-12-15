@@ -1020,7 +1020,10 @@ namespace dynamo {
   {
     Vector rij = part.getPosition() - wallLoc, vel = part.getVelocity();
     Sim->BCs->applyBC(rij, vel);
-    return magnet::intersection::ray_cylinder(rij, vel, wallNorm, radius);
+    if (radius > 0)
+      return magnet::intersection::ray_cylinder(rij, vel, wallNorm, radius);
+    else
+      return magnet::intersection::ray_cylinder<true>(rij, vel, wallNorm, radius);
   }
 
   ParticleEventData 

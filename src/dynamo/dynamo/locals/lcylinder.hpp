@@ -29,6 +29,17 @@ namespace dynamo {
   public:
     LCylinder(const magnet::xml::Node&, dynamo::Simulation*);
 
+    template<class T1, class T2>
+    LCylinder(dynamo::Simulation* nSim, T1 e, T2 d, Vector naxis,
+	      Vector norigin, double cyl_radius, std::string nname, IDRange* nRange):
+      Local(nRange, nSim, "LocalCylinderWall"),
+      vAxis(naxis),
+      vPosition(norigin),
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
+      _cyl_radius(cyl_radius)
+    { localName = nname; }
+    
     virtual ~LCylinder() {}
 
     virtual Event getEvent(const Particle&) const;
@@ -56,6 +67,5 @@ namespace dynamo {
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
     double _cyl_radius;
-    bool render;
   };
 }

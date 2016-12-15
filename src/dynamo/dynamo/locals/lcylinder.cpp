@@ -42,8 +42,9 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    double colldist = 0.5 * _diameter->getProperty(part) + _cyl_radius;
-
+    double colldist = std::abs(0.5 * _diameter->getProperty(part) + _cyl_radius);
+    colldist *= (1 - 2 * (_cyl_radius < 0));
+    
     return Event(part, Sim->dynamics->getCylinderWallCollision(part, vPosition, vAxis, colldist), LOCAL, WALL, ID);
   }
 
@@ -63,7 +64,7 @@ namespace dynamo {
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     localName = XML.getAttribute("Name");
 
-    if (_diameter->getMinValue() + _cyl_radius == 0)
+    if (std::abs(_diameter->getMinValue() + _cyl_radius) == 0)
       M_throw() << "Cannot have a wall with a diameter and CylinderRadius of zero!";
       
     magnet::xml::Node xBrowseNode = XML.getNode("Axis");
@@ -99,11 +100,11 @@ namespace dynamo {
     Vector pos(part.getPosition() - vPosition);
     Sim->BCs->applyBC(pos);
     
-    double diam = 0.5 * _diameter->getProperty(part) + _cyl_radius;
+    double diam = std::abs(0.5 * _diameter->getProperty(part) + _cyl_radius);
     pos -= (pos | vAxis) * vAxis;
     double r = diam - pos.nrm();
     
-    if (r > 0)
+    if ((r > 0) && (_cyl_radius > 0))
       {
 	if (textoutput)
 	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the cylindrical wall."
@@ -115,6 +116,19 @@ namespace dynamo {
 	       << std::endl;
 	return true;
       }
+    else if ((r < 0) && (_cyl_radius < 0))
+      {
+	if (textoutput)
+	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the inverse cylindrical wall."
+	       << "\nWall Position = " << (vPosition / Sim->units.unitLength()).toString()
+	       << "\nWall Axis = " << vAxis.toString() << ", d = " << diam / Sim->units.unitLength()
+	       << "\nParticle Position = " << (part.getPosition() / Sim->units.unitLength()).toString()
+	       << "\nSeparation Vector = " << (pos / Sim->units.unitLength()).toString()
+	       << "\nSeparation Distance = " << pos.nrm() / Sim->units.unitLength()
+	       << std::endl;
+	return true;
+      }
+      
     return false;
   }
 
@@ -130,7 +144,7 @@ namespace dynamo {
 	magnet::math::Quaternion q = Quaternion::fromToVector(vAxis);
 	
 	const double axis_length = Sim->primaryCellSize[0] / Sim->units.unitLength();
-	const double radius = 2 * _cyl_radius / Sim->units.unitLength();
+	const double radius = 2 * std::abs(_cyl_radius) / Sim->units.unitLength();
 	for (size_t i(0); i < verts.size() / 3; ++i)
 	  {
 	    Vector result = q * Vector{radius * verts[3*i+0], radius * verts[3*i+1], axis_length * verts[3*i+2]} + vPosition / Sim->units.unitLength();
