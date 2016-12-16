@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.0 FATAL_ERROR)
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
  message(STATUS "No build type selected, defaulting to Release")
