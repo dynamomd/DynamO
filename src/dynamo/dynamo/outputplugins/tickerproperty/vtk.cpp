@@ -21,6 +21,7 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
+#include <sstream>
 
 namespace dynamo {
   OPVTK::OPVTK(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
@@ -49,14 +50,9 @@ namespace dynamo {
 
   std::string
   OPVTK::getFileName(size_t idx) {
-    char *fileName;
-    if ( asprintf(&fileName, "%05ld", idx) < 0)
-      M_throw() << "asprintf error in tinkerXYZ";
-      
-    std::string retval = std::string("paraview") + fileName + std::string(".vtu");
-    free(fileName);
-
-    return retval;
+    std::ostringstream ss;
+    ss << std::setw(5) << std::setfill('0') << idx;
+    return "paraview" + ss.str() + ".vtu";
   }
 
   void
@@ -64,7 +60,7 @@ namespace dynamo {
   {
     using namespace magnet::xml;
     XmlStream XML;
-      
+    
     XML //<< std::scientific
       //This has a minus one due to the digit in front of the decimal
       //An extra one is added if we're rounding
@@ -82,11 +78,14 @@ namespace dynamo {
       << attr("format") << "ascii"
       << attr("NumberOfComponents") << "3"
       << chardata();
-      
-    for (const Particle& part: Sim->particles)
-      XML << part.getPosition()[0] / Sim->units.unitLength() << " "
-	  << part.getPosition()[1] / Sim->units.unitLength() << " "
-	  << part.getPosition()[2] / Sim->units.unitLength() << "\n";
+
+    
+    for (const Particle& part: Sim->particles) {
+      Vector r = part.getPosition();
+      Sim->BCs->applyBC(r);
+      r = r / Sim->units.unitLength();
+      XML << r[0]  << " " << r[1] << " " << r[2] << "\n";
+    }
       
     XML << endtag("DataArray")
 	<< endtag("Points")
@@ -148,7 +147,7 @@ namespace dynamo {
     XmlStream XML;
 
     double dt = getTickerTime();
-    
+
     XML //<< std::scientific
       //This has a minus one due to the digit in front of the decimal
       //An extra one is added if we're rounding
@@ -161,12 +160,12 @@ namespace dynamo {
       << attr("compressor") << "vtkZLibDataCompressor"
       << tag("Collection");
     for (size_t i(0); i < imageCount; ++i)
-      XML << tag("Dataset")
-	  << attr("timestep") << i
+      XML << tag("DataSet")
+	  << attr("timestep") << i * dt
 	  << attr("group") << ""
 	  << attr("part") << "0"
 	  << attr("file") << getFileName(i)
-	  << endtag("Dataset");
+	  << endtag("DataSet");
     XML << endtag("Collection")
 	<< endtag("VTKFile");
 
