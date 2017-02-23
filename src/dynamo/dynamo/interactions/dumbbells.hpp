@@ -60,16 +60,31 @@ namespace dynamo {
 
     void setUnusedDimension(size_t v) { _unusedDimension = v; }
 
-    template<class T1, class T2>
-    void addSphere(const T1& diameter, const T2& L)
+    template<class T1>
+    void addSphere(const Vector& offset, const T1& diam)
     {
-      _compositeData.push_back(std::pair<shared_ptr<Property>, shared_ptr<Property> >
-			       (Sim->_properties.getProperty(diameter, Property::Units::Length()),
-				Sim->_properties.getProperty(L, Property::Units::Length())));
+      _compositeData.push_back
+	(Sphere(offset,
+		Sim->_properties.getProperty(diam, Property::Units::Length()),
+		Sim->_properties.getProperty(0, Property::Units::Energy()),
+		Sim->_properties.getProperty(0, Property::Units::Dimensionless())
+		)
+	 );
     }
 
   protected:
-    std::vector<std::pair<shared_ptr<Property>, shared_ptr<Property> > > _compositeData;
+
+    struct Sphere {
+      Sphere(Vector offset, shared_ptr<Property> diam, shared_ptr<Property> welldepth, shared_ptr<Property> lambda):
+	_offset(offset), _diam(diam), _welldepth(welldepth), _lambda(lambda)
+      {}
+      Vector _offset;
+      shared_ptr<Property> _diam;
+      shared_ptr<Property> _welldepth;
+      shared_ptr<Property> _lambda;      
+    };
+    
+    std::vector<Sphere> _compositeData;
     shared_ptr<Property> _e;
     size_t _unusedDimension;
   };

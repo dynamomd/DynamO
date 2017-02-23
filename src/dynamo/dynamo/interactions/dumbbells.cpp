@@ -49,10 +49,10 @@ namespace dynamo {
   std::array<double, 4> IDumbbells::getGlyphSize(size_t ID) const
   { 
     
-    return {{_compositeData.front().first->getProperty(ID), //DiamA
-	  _compositeData.back().first->getProperty(ID), //DiamB
-	  +_compositeData.front().second->getProperty(ID), //LA
-	  -_compositeData.back().second->getProperty(ID)//LB
+    return {{_compositeData.front()._diam->getProperty(ID), //DiamA
+	  _compositeData.back()._diam->getProperty(ID), //DiamB
+	  +_compositeData.front()._offset.nrm(), //LA
+	  -_compositeData.back()._offset.nrm()//LB
 	  }};
   }
 
@@ -61,7 +61,7 @@ namespace dynamo {
     double vol = 0;
     for (const auto& p: _compositeData)
       {
-	const double diam = p.first->getProperty(ID);
+	const double diam = p._diam->getProperty(ID);
 	vol += diam * diam * diam * M_PI / 6.0;
       }
     return vol;
@@ -76,10 +76,17 @@ namespace dynamo {
     if (XML.hasAttribute("UnusedDimension"))
       _unusedDimension = XML.getAttribute("UnusedDimension").as<size_t>();
 
-    for (magnet::xml::Node node = XML.findNode("Sphere"); node.valid(); ++node)
-      _compositeData.push_back(std::pair<shared_ptr<Property>, shared_ptr<Property> >
-			       (Sim->_properties.getProperty(node.getAttribute("Diameter"), Property::Units::Length()),
-				Sim->_properties.getProperty(node.getAttribute("L"), Property::Units::Length())));
+    for (magnet::xml::Node node = XML.findNode("Sphere"); node.valid(); ++node) {
+      Vector offset;
+      offset << node.getNode("Offset");
+      _compositeData.push_back
+	(Sphere
+	 (offset * Sim->units.unitLength(),
+	  Sim->_properties.getProperty(node.getAttribute("Diameter"), Property::Units::Length()),
+	  Sim->_properties.getProperty(0, Property::Units::Energy()),
+	  Sim->_properties.getProperty(0, Property::Units::Dimensionless())
+	  ));
+    }
 
     if (_compositeData.empty())
       M_throw() << "Interaction \"" << intName << "\" missing Sphere tags (requires at least 1)\nXML Path:" << XML.getPath();
@@ -93,8 +100,8 @@ namespace dynamo {
     double maxdist = 0;
     for (const auto& p: _compositeData)
       {
-	const double diam = p.first->getMaxValue();
-	const double L = p.second->getMaxValue();
+	const double diam = p._diam->getMaxValue();
+	const double L = p._offset.nrm();
 	maxdist = std::max(diam + 2 * L, maxdist);
       }
     return maxdist;
@@ -106,12 +113,11 @@ namespace dynamo {
     double maxdist1 = 0, maxdist2 = 0;
     for (const auto& p: _compositeData)
       {
-	const double diam1 = p.first->getProperty(p1);
-	const double L1 = p.second->getProperty(p1);
-	const double diam2 = p.first->getProperty(p2);
-	const double L2 = p.second->getProperty(p2);
-	maxdist1 = std::max(0.5 * diam1 + L1, maxdist1);
-	maxdist2 = std::max(0.5 * diam2 + L2, maxdist2);
+	const double diam1 = p._diam->getProperty(p1);
+	const double L = p._offset.nrm();
+	const double diam2 = p._diam->getProperty(p2);
+	maxdist1 = std::max(0.5 * diam1 + L, maxdist1);
+	maxdist2 = std::max(0.5 * diam2 + L, maxdist2);
       }
     return maxdist1 + maxdist2;
   }
@@ -143,8 +149,6 @@ namespace dynamo {
     Sim->BCs->applyBC(r12, v12);
     const auto& angv1 = Sim->dynamics->getRotData(p1).angularVelocity;
     const auto& angv2 = Sim->dynamics->getRotData(p2).angularVelocity;
-    const auto& director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
-    const auto& director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 
     double growthrate = 0;
     if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
@@ -165,10 +169,10 @@ namespace dynamo {
       for (auto it2 = _compositeData.begin(); it2 != _compositeData.end(); ++it2)
 	{
 	  const double t_max_current = std::min(t_max, current.second);
-	  const double Diam1 = it1->first->getProperty(p1);
-	  const double L1 = it1->second->getProperty(p1);
-	  const double Diam2 = it2->first->getProperty(p2);
-	  const double L2 = it2->second->getProperty(p2);
+	  const Vector u1 = Sim->dynamics->getRotData(p1).orientation * it1->_offset;
+	  const Vector u2 = Sim->dynamics->getRotData(p2).orientation * it2->_offset;
+	  const double Diam1 = it1->_diam->getProperty(p1);
+	  const double Diam2 = it2->_diam->getProperty(p2);
 
 //const double max_growth_factor = 1 + std::max(growthrate * Sim->systemTime, growthrate * (Sim->systemTime + t_max_current));
 //dout << "max_dist=" << max_dist << std::endl;
@@ -187,7 +191,7 @@ namespace dynamo {
 //dout << "tmin=" << 0 << std::endl;
 //dout << "tmax=" << t_max_current << std::endl;
 	  magnet::intersection::detail::OffcentreSpheresOverlapFunction
-	    f(r12, v12, angv1, angv2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, t_max_current);
+	    f(r12, v12, angv1, angv2, u1, u2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, t_max_current);
 	  
 	  std::pair<bool, double> test = f.nextEvent();
 	  if (test.second < current.second) 
@@ -216,8 +220,6 @@ namespace dynamo {
 	  if (!sp1 || !sp2)
 	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
 	  
-	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
-	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 	  const Vector angvel1 = Sim->dynamics->getRotData(p1).angularVelocity;
 	  const Vector angvel2 = Sim->dynamics->getRotData(p2).angularVelocity;
 	  const double m1 = sp1->getMass(p1.getID());
@@ -237,26 +239,27 @@ namespace dynamo {
 	  const double growthfactor = 1 + growthrate * Sim->systemTime;
 	  
 	  double fcurrent = std::numeric_limits<float>::infinity();
-	  double d1, d2, l1, l2;
-	  d1 = d2 = l1 = l2 = 0;
+	  double d1, d2;
+	  Vector l1, l2;
+	  d1 = d2 = 0;
 	  for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
 	    for (auto it2 = _compositeData.begin(); it2 != _compositeData.end(); ++it2)
 	      {
-		const double Diam1 = it1->first->getProperty(p1);
-		const double L1 = it1->second->getProperty(p1);
-		const double Diam2 = it2->first->getProperty(p2);
-		const double L2 = it2->second->getProperty(p2);
+		const Vector u1 = Sim->dynamics->getRotData(p1).orientation * it1->_offset;
+		const Vector u2 = Sim->dynamics->getRotData(p2).orientation * it2->_offset;
+		const double Diam1 = it1->_diam->getProperty(p1);
+		const double Diam2 = it2->_diam->getProperty(p2);
 		
 		magnet::intersection::detail::OffcentreSpheresOverlapFunction
-		  f(retval.rij, retval.vijold, angvel1, angvel2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, 0);
+		  f(retval.rij, retval.vijold, angvel1, angvel2, u1, u2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, 0);
 		std::array<double, 2> fval = f.eval<0,2>();
 		if ((fval[1] < 0) && (fval[0] < fcurrent))
 		  {
 		    fcurrent = fval[0];
 		    d1 = Diam1;
 		    d2 = Diam2;
-		    l1 = L1;
-		    l2 = L2;
+		    l1 = u1;
+		    l2 = u2;
 		  }
 	      }
 	  
@@ -267,13 +270,13 @@ namespace dynamo {
 
 	  ++Sim->eventCount;
 
-	  const Vector u1 = director1 * l1 * growthfactor;
-	  const Vector u2 = director2 * l2 * growthfactor;
+	  const Vector u1 = l1 * growthfactor;
+	  const Vector u2 = l2 * growthfactor;
 	  Vector nhat = retval.rij + u1 - u2;
 	  nhat /= nhat.nrm();
 	  const Vector r1 = u1 - nhat * 0.5 * d1 * growthfactor;
 	  const Vector r2 = u2 + nhat * 0.5 * d2 * growthfactor;
-	  const Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2) + growthrate * (director1 * l1 - director2 * l2 - nhat * (d1 + d2) * 0.5);
+	  const Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2) + growthrate * (u1 - u2 - nhat * (d1 + d2) * 0.5);
 	  const double e = _e->getProperty(p1, p2);
 	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
 
@@ -326,8 +329,8 @@ namespace dynamo {
     
     for (const auto& sphere : _compositeData)
       XML << magnet::xml::tag("Sphere") 
-	  << magnet::xml::attr("Diameter") << sphere.first->getName()
-	  << magnet::xml::attr("L") << sphere.second->getName()
+	  << magnet::xml::attr("Diameter") << sphere._diam->getName()
+	  << magnet::xml::tag("Offset") << sphere._offset / Sim->units.unitLength() << magnet::xml::endtag("Offset")
 	  << magnet::xml::endtag("Sphere");
     
     XML << range;
@@ -381,19 +384,17 @@ namespace dynamo {
 	Sim->BCs->applyBC(r12, v12);
 	const auto& angv1 = Sim->dynamics->getRotData(p1).angularVelocity;
 	const auto& angv2 = Sim->dynamics->getRotData(p2).angularVelocity;
-	const auto& director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
-	const auto& director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 	
 	for (auto it1 = _compositeData.begin(); it1 != _compositeData.end(); ++it1)
 	  for (auto it2 = _compositeData.begin(); it2 != _compositeData.end(); ++it2)
 	    {
-	      const double Diam1 = it1->first->getProperty(p1);
-	      const double L1 = it1->second->getProperty(p1);
-	      const double Diam2 = it2->first->getProperty(p2);
-	      const double L2 = it2->second->getProperty(p2);
+	      const Vector u1 = Sim->dynamics->getRotData(p1).orientation * it1->_offset;
+	      const Vector u2 = Sim->dynamics->getRotData(p2).orientation * it2->_offset;
+	      const double Diam1 = it1->_diam->getProperty(p1);
+	      const double Diam2 = it2->_diam->getProperty(p2);
 	      
 	      magnet::intersection::detail::OffcentreSpheresOverlapFunction
-		f(r12, v12, angv1, angv2, director1 * L1, director2 * L2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, 0);
+		f(r12, v12, angv1, angv2, u1, u2, Diam1, Diam2, max_dist, Sim->systemTime, growthrate, 0, 0);
 
 	      const double fval = f.eval().front();
 	      if (fval < 0)
