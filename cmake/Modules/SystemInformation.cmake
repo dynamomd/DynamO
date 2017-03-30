@@ -130,6 +130,14 @@ if(UNIX)
         # FIXME can we find that in /etc/issue
         set(DISTRO_CODENAME "")
       endif(LINUX_ISSUE MATCHES "CentOS")
+      #Scientific Linux
+      if(LINUX_ISSUE MATCHES "Scientific")
+        string(REGEX MATCH "release ([0-9\\.]+)" SCIENTIFIC "${LINUX_ISSUE}")
+        set(DISTRO_ID "ScientificLinux")
+        set(DISTRO_RELEASE "${CMAKE_MATCH_1}")
+        # FIXME can we find that in /etc/issue
+        set(DISTRO_CODENAME "")
+      endif(LINUX_ISSUE MATCHES "Scientific")
       # Fedora case
       if(LINUX_ISSUE MATCHES "Fedora")
         string(REGEX MATCH "release ([0-9]+)" FEDORA "${LINUX_ISSUE}")
@@ -167,7 +175,7 @@ if(UNIX)
     string(TOLOWER ${DISTRO_ID} DISTRO_ID)
     # Now mangle some names
     set(LINUX_NAME "${DISTRO_ID}_${DISTRO_RELEASE}")
-    if(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos")
+    if(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos|scientific")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")
     endif(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos")
     if(DISTRO_ID MATCHES "debian|ubuntu")
