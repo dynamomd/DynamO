@@ -33,7 +33,8 @@ namespace dynamo {
   void 
   OPCraig::operator<<(const magnet::xml::Node& XML)
   {
-    //Here is where you process options for the output plugin
+        //Here is where you process options for the output plugin
+        // test test test
   }
 
   void 
