@@ -170,6 +170,8 @@ namespace dynamo {
       return testGeneratePlugin<OPPolarNematic>(Sim, XML);
     else if (!Name.compare("VTK"))
       return testGeneratePlugin<OPVTK>(Sim, XML);
+    else if (!Name.compare("Craig"))
+      return testGeneratePlugin<OPCraig>(Sim, XML);
     else
       M_throw() << Name << ", Unknown type of OutputPlugin encountered";
   }
