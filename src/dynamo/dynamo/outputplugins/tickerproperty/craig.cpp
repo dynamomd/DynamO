@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -24,37 +24,45 @@
 #include <sstream>
 
 namespace dynamo {
-  OPCraig::OPCraig(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-    OPTicker(tmp,"Craig")
-  {
-    operator<<(XML);
-  }
+      OPCraig::OPCraig(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
+            OPTicker(tmp,"Craig")
+      {
+            operator<<(XML);
+      }
 
-  void 
-  OPCraig::operator<<(const magnet::xml::Node& XML)
-  {
-        //Here is where you process options for the output plugin
-        // test test test
-  }
+      void
+      OPCraig::operator<<(const magnet::xml::Node& XML)
+      {
+            //Here is where you process options for the output plugin
+            // test test test
+      }
 
-  void 
-  OPCraig::initialise()
-  {
-    //This is called once, after the simulation is set up, just before
-    //the first event is run.
-    ticker();
-  }
+      void
+      OPCraig::initialise()
+      {
+            nBins = 100;
+            temp.resize(nBins);
+            for (size_t i = 0; i < nBins; i++) {
+                  temp[i] = 0.0;
+            }
+            //This is called once, after the simulation is set up, just before
+            //the first event is run.
+            ticker();
+      }
 
-  void 
-  OPCraig::ticker()
-  {
-    //This is called periodically, as set by the -t option of dynarun
-  }
+      void
+      OPCraig::ticker()
+      {
+            //This is called periodically, as set by the -t option of dynarun
+      }
 
-  void 
-  OPCraig::output(magnet::xml::XmlStream& xml)
-  {
-    //This is your chance to output into the output.xml.bz2 file (xml arg).
-    //This may be called many times if the snapshot mode is on. 
-  }
+      void
+      OPCraig::output(magnet::xml::XmlStream& XML)
+      {
+            XML << magnet::xml::tag("TempProfile")
+                << magnet::xml::attr("T")
+                << 10.0;
+            //This is your chance to output into the output.xml.bz2 file (xml arg).
+            //This may be called many times if the snapshot mode is on.
+      }
 }
