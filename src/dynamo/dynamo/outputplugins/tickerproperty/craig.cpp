@@ -24,6 +24,10 @@
 #include <fstream>
 #include <sstream>
 
+// Creates a temperature profile of particles along the x-axis of the
+// simulations. This plugin calculates a rolling of the temperature in a
+// specified number of bins averaged at every time step.
+
 namespace dynamo {
       OPCraig::OPCraig(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
             OPTicker(tmp,"Craig"),
@@ -69,13 +73,19 @@ namespace dynamo {
       void
       OPCraig::output(magnet::xml::XmlStream& XML)
       {
-            XML << magnet::xml::tag("TempProfile")
-                << magnet::xml::attr("T")
-                << 10.0
-		<< magnet::xml::endtag("TempProfile")
-	      ;
-	    
-            //This is your chance to output into the output.xml.bz2 file (xml arg).
-            //This may be called many times if the snapshot mode is on.
+            XML << magnet::xml::tag("TemperatureProfile")
+                << magnet::xml::attr("NumberOfBins")
+                << nBins;
+
+            XML << magnet::xml::tag("Temperatures")
+                << magnet::xml::chardata();
+
+            for (size_t i = 0; i < nBins; i++) {
+                  XML << temp[i] << " ";
+            }
+
+            XML << magnet::xml::endtag("Temperatures");
+
+            XML << magnet::xml::endtag("TemperatureProfile");
       }
 }
