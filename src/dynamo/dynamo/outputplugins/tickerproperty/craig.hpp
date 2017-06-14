@@ -32,6 +32,7 @@ namespace dynamo {
 
             virtual void stream(double) {}
 
+	/*! \brief Craig's ticker, it does stuff */
             virtual void ticker();
 
             virtual void operator<<(const magnet::xml::Node&);
