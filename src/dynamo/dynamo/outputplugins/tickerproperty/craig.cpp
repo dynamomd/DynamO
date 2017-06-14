@@ -71,7 +71,10 @@ namespace dynamo {
       {
             XML << magnet::xml::tag("TempProfile")
                 << magnet::xml::attr("T")
-                << 10.0;
+                << 10.0
+		<< magnet::xml::endtag("TempProfile")
+	      ;
+	    
             //This is your chance to output into the output.xml.bz2 file (xml arg).
             //This may be called many times if the snapshot mode is on.
       }
