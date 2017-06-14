@@ -16,6 +16,7 @@
 */
 
 #pragma once
+
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/vector.hpp>
 #include <vector>
@@ -24,7 +25,8 @@ namespace dynamo {
       class OPCraig: public OPTicker
       {
       public:
-            OPCraig(const dynamo::Simulation*, const magnet::xml::Node&);
+            OPCraig(const dynamo::Simulation*,
+                    const magnet::xml::Node&);
 
             virtual void initialise();
 
@@ -39,5 +41,6 @@ namespace dynamo {
       protected:
             std::vector<double> temp;
             size_t nBins;
+            size_t count;
       };
 }

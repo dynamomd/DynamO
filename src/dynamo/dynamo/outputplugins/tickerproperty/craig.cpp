@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/craig.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -25,7 +26,8 @@
 
 namespace dynamo {
       OPCraig::OPCraig(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-            OPTicker(tmp,"Craig")
+            OPTicker(tmp,"Craig"),
+            nBins(100)
       {
             operator<<(XML);
       }
@@ -34,13 +36,20 @@ namespace dynamo {
       OPCraig::operator<<(const magnet::xml::Node& XML)
       {
             //Here is where you process options for the output plugin
-            // test test test
+            try {
+                  if (XML.hasAttribute("numberOfBins")) {
+                        nBins = XML.getAttribute("numberOfBins").as<double>();
+                  }
+            }
+            catch (std::exception& e) {
+                  M_throw() << "Error while parsing output plugin options\n" << e.what();
+            }
       }
 
       void
       OPCraig::initialise()
       {
-            nBins = 100;
+            count = 0;
             temp.resize(nBins);
             for (size_t i = 0; i < nBins; i++) {
                   temp[i] = 0.0;
@@ -53,6 +62,7 @@ namespace dynamo {
       void
       OPCraig::ticker()
       {
+            count++;
             //This is called periodically, as set by the -t option of dynarun
       }
 
