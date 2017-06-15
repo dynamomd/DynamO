@@ -31,7 +31,8 @@
 namespace dynamo {
       OPCraig::OPCraig(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
             OPTicker(tmp,"Craig"),
-            nBins(100)
+            nBins(100),
+            tickCount(0)
       {
             operator<<(XML);
       }
@@ -53,10 +54,11 @@ namespace dynamo {
       void
       OPCraig::initialise()
       {
-            count = 0;
-            temp.resize(nBins);
+            temperatures.resize(nBins);
+            densities.resize(nBins);
             for (size_t i = 0; i < nBins; i++) {
-                  temp[i] = 0.0;
+                  temperatures[i] = 0.0;
+                  densities[i] = 0.0;
             }
             //This is called once, after the simulation is set up, just before
             //the first event is run.
@@ -66,26 +68,67 @@ namespace dynamo {
       void
       OPCraig::ticker()
       {
-            count++;
+            tickCount++;
+            std::vector<double> currentTemperature(nBins, 0.0);
+            std::vector<double> currentDensity(nBins, 0.0);
+            for (const Particle& p : Sim->particles) {
+                  size_t binNumber = floor((0.5 + p.getPosition()[X] / Sim->primaryCellSize[X]) * nBins);
+                  if (binNumber > 100) {
+                        binnumbers.push_back(p.getPosition()[X]);
+                        binnumbers.push_back(Sim->primaryCellSize[X] / 2);
+                  }
+                  //currentTemperature[binNumber] = 1;
+                  // try {
+                  //       currentTemperature[binNumber] = 1;
+                  // }
+                  // catch (std::exception& e) {
+                  //       M_throw() << "Error while adding temperature\n" << e.what();
+                  // }
+            }
+            for (size_t i = 0; i < nBins; i++) {
+                  //temperatures[i] += currentTemperature[i];
+            }
             //This is called periodically, as set by the -t option of dynarun
       }
 
       void
       OPCraig::output(magnet::xml::XmlStream& XML)
       {
-            XML << magnet::xml::tag("TemperatureProfile")
+            XML << magnet::xml::tag("Profiles")
                 << magnet::xml::attr("NumberOfBins")
-                << nBins;
+                << nBins
+                << magnet::xml::attr("BinWidth")
+                << Sim->primaryCellSize[0] / nBins
+                << magnet::xml::attr("floor_test")
+                << floor(2.9);
 
-            XML << magnet::xml::tag("Temperatures")
+            XML << magnet::xml::tag("binNumbers")
                 << magnet::xml::chardata();
-
-            for (size_t i = 0; i < nBins; i++) {
-                  XML << temp[i] << " ";
+            for (size_t i = 0; i < binnumbers.size(); i++) {
+                  XML << binnumbers[i] << " ";
             }
+            XML << magnet::xml::endtag("binNumbers");
 
-            XML << magnet::xml::endtag("Temperatures");
+            XML << magnet::xml::tag("Temperature")
+                << magnet::xml::chardata();
+            for (size_t i = 0; i < nBins; i++) {
+                  XML << temperatures[i] << " ";
+            }
+            XML << magnet::xml::endtag("Temperature");
 
-            XML << magnet::xml::endtag("TemperatureProfile");
+            XML << magnet::xml::tag("Density")
+                << magnet::xml::chardata();
+            for (size_t i = 0; i < nBins; i++) {
+                  XML << densities[i] << " ";
+            }
+            XML << magnet::xml::endtag("Density");
+
+            XML << magnet::xml::endtag("Profiles");
+      }
+
+      double
+      OPCraig::getTemperature(const Vector& velocity)
+      {
+            return 0;
       }
 }

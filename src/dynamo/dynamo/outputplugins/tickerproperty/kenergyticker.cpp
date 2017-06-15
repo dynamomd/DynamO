@@ -45,7 +45,7 @@ namespace dynamo {
             ++count;
 
             matrix localE;
-
+            
             for (size_t iDim = 0; iDim < NDIM; ++iDim)
                   for (size_t jDim = 0; jDim < NDIM; ++jDim)
                         localE[iDim][jDim] = 0.0;
