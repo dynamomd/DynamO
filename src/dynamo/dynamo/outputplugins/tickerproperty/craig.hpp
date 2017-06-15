@@ -39,14 +39,16 @@ namespace dynamo {
 
             virtual void output(magnet::xml::XmlStream&);
 
-            virtual double getTemperature(const Vector&);
+            virtual double getTemperature(const Vector&, const double);
+
+            virtual double volume(const Vector&);
 
       protected:
             std::vector<double> temperatures;
             std::vector<double> densities;
-            std::vector<double> binnumbers;
+            std::vector<double> guf;
             size_t nBins;
             size_t tickCount;
-            const size_t X = 0;
+            static const size_t X = 0;
       };
 }

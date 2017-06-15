@@ -73,20 +73,22 @@ namespace dynamo {
             std::vector<double> currentDensity(nBins, 0.0);
             for (const Particle& p : Sim->particles) {
                   size_t binNumber = floor((0.5 + p.getPosition()[X] / Sim->primaryCellSize[X]) * nBins);
-                  if (binNumber > 100) {
-                        binnumbers.push_back(p.getPosition()[X]);
-                        binnumbers.push_back(Sim->primaryCellSize[X] / 2);
+                  if (0.5 + p.getPosition()[X] / Sim->primaryCellSize[X] > 1.0) {
+                        binNumber = nBins-1;
                   }
-                  //currentTemperature[binNumber] = 1;
-                  // try {
-                  //       currentTemperature[binNumber] = 1;
-                  // }
-                  // catch (std::exception& e) {
-                  //       M_throw() << "Error while adding temperature\n" << e.what();
-                  // }
+                  if (0.5 + p.getPosition()[X] / Sim->primaryCellSize[X] < 0.0) {
+                        binNumber = 0;
+                  }
+                  currentDensity[binNumber] += 1.0;
+                  currentTemperature[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
             }
             for (size_t i = 0; i < nBins; i++) {
-                  //temperatures[i] += currentTemperature[i];
+                  currentTemperature[i] /= 3.0 * currentDensity[i];
+                  currentDensity[i] *= nBins / (volume(Sim->primaryCellSize));
+            }
+            for (size_t i = 0; i < nBins; i++) {
+                  temperatures[i] += currentTemperature[i];
+                  densities[i] += currentDensity[i];
             }
             //This is called periodically, as set by the -t option of dynarun
       }
@@ -94,20 +96,23 @@ namespace dynamo {
       void
       OPCraig::output(magnet::xml::XmlStream& XML)
       {
+            for (size_t i = 0; i < nBins; i++) {
+                  temperatures[i] /= tickCount;
+                  densities[i] /= tickCount;
+            }
+
             XML << magnet::xml::tag("Profiles")
                 << magnet::xml::attr("NumberOfBins")
                 << nBins
                 << magnet::xml::attr("BinWidth")
-                << Sim->primaryCellSize[0] / nBins
-                << magnet::xml::attr("floor_test")
-                << floor(2.9);
+                << Sim->primaryCellSize[0] / nBins;
 
-            XML << magnet::xml::tag("binNumbers")
+            XML << magnet::xml::tag("guf")
                 << magnet::xml::chardata();
-            for (size_t i = 0; i < binnumbers.size(); i++) {
-                  XML << binnumbers[i] << " ";
+            for (size_t i = 0; i < guf.size(); i++) {
+                  XML << guf[i] << " ";
             }
-            XML << magnet::xml::endtag("binNumbers");
+            XML << magnet::xml::endtag("guf");
 
             XML << magnet::xml::tag("Temperature")
                 << magnet::xml::chardata();
@@ -127,8 +132,15 @@ namespace dynamo {
       }
 
       double
-      OPCraig::getTemperature(const Vector& velocity)
+      OPCraig::getTemperature(const Vector& velocity, const double mass)
       {
-            return 0;
+            return mass * (pow(velocity[0], 2) + pow(velocity[1], 2) + pow(velocity[2], 2));
       }
+
+      double
+      OPCraig::volume(const Vector& simulationLength)
+      {
+            return (simulationLength[0] * simulationLength[1] * simulationLength[2]);
+      }
+
 }
