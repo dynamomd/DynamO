@@ -72,18 +72,16 @@ namespace dynamo {
             std::vector<double> currentTemperature(nBins, 0.0);
             std::vector<double> currentDensity(nBins, 0.0);
             for (const Particle& p : Sim->particles) {
-                  size_t binNumber = floor((0.5 + p.getPosition()[X] / Sim->primaryCellSize[X]) * nBins);
-                  if (0.5 + p.getPosition()[X] / Sim->primaryCellSize[X] > 1.0) {
-                        binNumber = nBins-1;
-                  }
-                  if (0.5 + p.getPosition()[X] / Sim->primaryCellSize[X] < 0.0) {
-                        binNumber = 0;
-                  }
+                  Vector pos = p.getPosition();
+                  Sim->BCs->applyBC(pos);
+                  size_t binNumber = floor((0.5 + pos[X] / Sim->primaryCellSize[X]) * nBins);
                   currentDensity[binNumber] += 1.0;
                   currentTemperature[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
             }
             for (size_t i = 0; i < nBins; i++) {
-                  currentTemperature[i] /= 3.0 * currentDensity[i];
+                  if (currentTemperature[i] > 0) {
+                        currentTemperature[i] /= 3.0 * currentDensity[i];
+                  }
                   currentDensity[i] *= nBins / (volume(Sim->primaryCellSize));
             }
             for (size_t i = 0; i < nBins; i++) {
@@ -106,13 +104,6 @@ namespace dynamo {
                 << nBins
                 << magnet::xml::attr("BinWidth")
                 << Sim->primaryCellSize[0] / nBins;
-
-            XML << magnet::xml::tag("guf")
-                << magnet::xml::chardata();
-            for (size_t i = 0; i < guf.size(); i++) {
-                  XML << guf[i] << " ";
-            }
-            XML << magnet::xml::endtag("guf");
 
             XML << magnet::xml::tag("Temperature")
                 << magnet::xml::chardata();

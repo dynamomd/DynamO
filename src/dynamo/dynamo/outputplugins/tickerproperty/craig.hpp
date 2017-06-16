@@ -46,7 +46,6 @@ namespace dynamo {
       protected:
             std::vector<double> temperatures;
             std::vector<double> densities;
-            std::vector<double> guf;
             size_t nBins;
             size_t tickCount;
             static const size_t X = 0;
