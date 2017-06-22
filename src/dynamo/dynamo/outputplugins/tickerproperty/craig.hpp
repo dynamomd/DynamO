@@ -44,6 +44,7 @@ namespace dynamo {
             virtual double volume(const Vector&);
 
       protected:
+            std::vector<double> guf;
             std::vector<double> temperatures;
             std::vector<double> densities;
             size_t nBins;

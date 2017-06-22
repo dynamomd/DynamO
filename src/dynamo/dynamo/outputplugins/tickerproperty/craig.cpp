@@ -54,49 +54,49 @@ namespace dynamo {
       void
       OPCraig::initialise()
       {
+            //This is called once, after the simulation is set up, just before
+            //the first event is run.
             temperatures.resize(nBins);
             densities.resize(nBins);
             for (size_t i = 0; i < nBins; i++) {
                   temperatures[i] = 0.0;
                   densities[i] = 0.0;
             }
-            //This is called once, after the simulation is set up, just before
-            //the first event is run.
             ticker();
       }
 
       void
       OPCraig::ticker()
       {
+            //This is called periodically, as set by the -t option of dynarun
             tickCount++;
-            std::vector<double> currentTemperature(nBins, 0.0);
-            std::vector<double> currentDensity(nBins, 0.0);
             for (const Particle& p : Sim->particles) {
                   Vector pos = p.getPosition();
                   Sim->BCs->applyBC(pos);
                   size_t binNumber = floor((0.5 + pos[X] / Sim->primaryCellSize[X]) * nBins);
-                  currentDensity[binNumber] += 1.0;
-                  currentTemperature[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
+                  densities[binNumber] += 1.0;
+                  temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
             }
-            for (size_t i = 0; i < nBins; i++) {
-                  if (currentTemperature[i] > 0) {
-                        currentTemperature[i] /= 3.0 * currentDensity[i];
-                  }
-                  currentDensity[i] *= nBins / (volume(Sim->primaryCellSize));
-            }
-            for (size_t i = 0; i < nBins; i++) {
-                  temperatures[i] += currentTemperature[i];
-                  densities[i] += currentDensity[i];
-            }
-            //This is called periodically, as set by the -t option of dynarun
       }
 
       void
       OPCraig::output(magnet::xml::XmlStream& XML)
       {
+            std::vector<double> outputTemperature = temperatures;
+            std::vector<double> outputDensity = densities;
+
             for (size_t i = 0; i < nBins; i++) {
-                  temperatures[i] /= tickCount;
-                  densities[i] /= tickCount;
+                  if (outputTemperature[i] > 0) {
+                        outputTemperature[i] /= 3.0 * outputDensity[i];
+                  }
+                  outputDensity[i] /= tickCount;
+                  outputDensity[i] *= nBins / (volume(Sim->primaryCellSize));
+            }
+
+            // GUF
+            for (const Particle& p : Sim->particles) {
+                  guf.push_back(Sim->species(p)->isSpecies(p));
+                  //temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
             }
 
             XML << magnet::xml::tag("Profiles")
@@ -105,17 +105,25 @@ namespace dynamo {
                 << magnet::xml::attr("BinWidth")
                 << Sim->primaryCellSize[0] / nBins;
 
+            XML << magnet::xml::tag("Guf")
+                << magnet::xml::chardata();
+            for (size_t i = 0; i < guf.size(); i++) {
+                  XML << guf[i] << " ";
+            }
+            XML << magnet::xml::endtag("Guf");
+
+
             XML << magnet::xml::tag("Temperature")
                 << magnet::xml::chardata();
             for (size_t i = 0; i < nBins; i++) {
-                  XML << temperatures[i] << " ";
+                  XML << outputTemperature[i] << " ";
             }
             XML << magnet::xml::endtag("Temperature");
 
             XML << magnet::xml::tag("Density")
                 << magnet::xml::chardata();
             for (size_t i = 0; i < nBins; i++) {
-                  XML << densities[i] << " ";
+                  XML << outputDensity[i] << " ";
             }
             XML << magnet::xml::endtag("Density");
 
@@ -133,5 +141,4 @@ namespace dynamo {
       {
             return (simulationLength[0] * simulationLength[1] * simulationLength[2]);
       }
-
 }
