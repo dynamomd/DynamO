@@ -62,6 +62,19 @@ namespace dynamo {
                   temperatures[i] = 0.0;
                   densities[i] = 0.0;
             }
+            numberOfSpecies = 0;
+            for (const Particle& p : Sim->particles) {
+                  int n = Sim->species(p)->getID();
+                  if (n > numberOfSpecies) {
+                        numberOfSpecies = n;
+                  }
+            }numberOfSpecies++;
+            if (numberOfSpecies >= 2) {
+                  for (int sp = 0; sp < numberOfSpecies; sp++) {
+                        speciesTemperatures.push_back(temperatures);
+                        speciesDensities.push_back(densities);
+                  }
+            }
             ticker();
       }
 
@@ -76,6 +89,11 @@ namespace dynamo {
                   size_t binNumber = floor((0.5 + pos[X] / Sim->primaryCellSize[X]) * nBins);
                   densities[binNumber] += 1.0;
                   temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
+                  if (numberOfSpecies >= 2) {
+                        int species = Sim->species(p)->getID();
+                        speciesDensities[species][binNumber] += 1.0;
+                        speciesTemperatures[species][binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
+                  }
             }
       }
 
@@ -84,20 +102,35 @@ namespace dynamo {
       {
             std::vector<double> outputTemperature = temperatures;
             std::vector<double> outputDensity = densities;
+            std::vector<std::vector<double> > outputSpeciesTemperatures = speciesTemperatures;
+            std::vector<std::vector<double> > outputSpeciesDensities = speciesDensities;
 
             for (size_t i = 0; i < nBins; i++) {
                   if (outputTemperature[i] > 0) {
                         outputTemperature[i] /= 3.0 * outputDensity[i];
                   }
-                  outputDensity[i] /= tickCount;
-                  outputDensity[i] *= nBins / (volume(Sim->primaryCellSize));
+                  //outputDensity[i] /= tickCount;
+                  outputDensity[i] *= nBins / ((volume(Sim->primaryCellSize)) * tickCount);
+                  if (numberOfSpecies >= 2) {
+                        for (int species = 0; species < numberOfSpecies; species++) {
+                              if (outputSpeciesTemperatures[species][i] > 0) {
+                                    outputSpeciesTemperatures[species][i] /= 3.0 * outputSpeciesDensities[species][i];
+                              }
+                              outputSpeciesDensities[species][i] *= nBins / ((volume(Sim->primaryCellSize)) * tickCount);
+                        }
+                  }
             }
 
             // GUF
-            for (const Particle& p : Sim->particles) {
-                  guf.push_back(Sim->species(p)->isSpecies(p));
+            //for (const Particle& p : Sim->particles) {
+                  //guf.push_back(Sim->species(p)->isSpecies(p));
+                  //guf.push_back(Sim->species(p)->getCount());
+                  //guf.push_back(numberOfSpecies);
+                  //guf.push_back(Sim->species(p)->getID());
+                  //guf.push_back(speciesTemperatures.size());
+                  //guf.push_back(getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID())));
                   //temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
-            }
+            //}
 
             XML << magnet::xml::tag("Profiles")
                 << magnet::xml::attr("NumberOfBins")
@@ -105,18 +138,27 @@ namespace dynamo {
                 << magnet::xml::attr("BinWidth")
                 << Sim->primaryCellSize[0] / nBins;
 
-            XML << magnet::xml::tag("Guf")
-                << magnet::xml::chardata();
-            for (size_t i = 0; i < guf.size(); i++) {
-                  XML << guf[i] << " ";
-            }
-            XML << magnet::xml::endtag("Guf");
-
+            // XML << magnet::xml::tag("Guf")
+            //     << magnet::xml::chardata();
+            // for (size_t i = 0; i < guf.size(); i++) {
+            //       XML << guf[i] << " ";
+            // }
+            // XML << magnet::xml::endtag("Guf");
 
             XML << magnet::xml::tag("Temperature")
                 << magnet::xml::chardata();
             for (size_t i = 0; i < nBins; i++) {
                   XML << outputTemperature[i] << " ";
+            }
+            if (numberOfSpecies >= 2) {
+                  for (int species = 0; species < numberOfSpecies; species++) {
+                        XML << magnet::xml::tag("Species" + std::to_string(species+1))
+                            << magnet::xml::chardata();
+                        for (size_t i = 0; i < nBins; i++) {
+                              XML << outputSpeciesTemperatures[species][i] << " ";
+                        }
+                        XML << magnet::xml::endtag("Species" + std::to_string(species+1));
+                  }
             }
             XML << magnet::xml::endtag("Temperature");
 
@@ -124,6 +166,16 @@ namespace dynamo {
                 << magnet::xml::chardata();
             for (size_t i = 0; i < nBins; i++) {
                   XML << outputDensity[i] << " ";
+            }
+            if (numberOfSpecies >= 2) {
+                  for (int species = 0; species < numberOfSpecies; species++) {
+                        XML << magnet::xml::tag("Species" + std::to_string(species+1))
+                            << magnet::xml::chardata();
+                        for (size_t i = 0; i < nBins; i++) {
+                              XML << outputSpeciesDensities[species][i] << " ";
+                        }
+                        XML << magnet::xml::endtag("Species" + std::to_string(species+1));
+                  }
             }
             XML << magnet::xml::endtag("Density");
 

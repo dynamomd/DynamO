@@ -32,7 +32,6 @@ namespace dynamo {
 
             virtual void stream(double) {}
 
-	/*! \brief Craig's ticker, it does stuff */
             virtual void ticker();
 
             virtual void operator<<(const magnet::xml::Node&);
@@ -47,6 +46,9 @@ namespace dynamo {
             std::vector<double> guf;
             std::vector<double> temperatures;
             std::vector<double> densities;
+            std::vector<std::vector<double> > speciesTemperatures;
+            std::vector<std::vector<double> > speciesDensities;
+            int numberOfSpecies;
             size_t nBins;
             size_t tickCount;
             static const size_t X = 0;
