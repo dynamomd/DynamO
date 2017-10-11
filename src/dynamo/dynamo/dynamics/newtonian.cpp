@@ -232,22 +232,25 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double) const
+  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double, const double slip) const
   {  
     updateParticle(part);
 
     if (hasOrientationData())
       M_throw() << "Need to implement thermostating of the rotational degrees"
 	" of freedom";
-
+    
     //This gives a completely new random unit vector with a properly
     //distributed Normal component. See Granular Simulation Book
     ParticleEventData tmpDat(part, *Sim->species(part), WALL);
  
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
-    std::normal_distribution<> norm_dist;
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
-      part.getVelocity()[iDim] = norm_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
+
+    if (slip != 1) {
+      std::normal_distribution<> norm_dist;
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
+	part.getVelocity()[iDim] = (1-slip) * norm_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass) + slip * part.getVelocity()[iDim];
+    }
   
     std::uniform_real_distribution<> uniform_dist;
     part.getVelocity() 
