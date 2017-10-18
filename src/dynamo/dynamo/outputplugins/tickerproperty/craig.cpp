@@ -152,12 +152,14 @@ namespace dynamo {
             }
             if (numberOfSpecies >= 2) {
                   for (int species = 0; species < numberOfSpecies; species++) {
-                        XML << magnet::xml::tag("Species" + std::to_string(species+1))
+                        XML << magnet::xml::tag("Species")
+                            << magnet::xml::attr("id")
+                            << std::to_string(species+1)
                             << magnet::xml::chardata();
                         for (size_t i = 0; i < nBins; i++) {
                               XML << outputSpeciesTemperatures[species][i] << " ";
                         }
-                        XML << magnet::xml::endtag("Species" + std::to_string(species+1));
+                        XML << magnet::xml::endtag("Species");
                   }
             }
             XML << magnet::xml::endtag("Temperature");
@@ -169,12 +171,14 @@ namespace dynamo {
             }
             if (numberOfSpecies >= 2) {
                   for (int species = 0; species < numberOfSpecies; species++) {
-                        XML << magnet::xml::tag("Species" + std::to_string(species+1))
+                        XML << magnet::xml::tag("Species")
+                            << magnet::xml::attr("id")
+                            << std::to_string(species+1)
                             << magnet::xml::chardata();
                         for (size_t i = 0; i < nBins; i++) {
                               XML << outputSpeciesDensities[species][i] << " ";
                         }
-                        XML << magnet::xml::endtag("Species" + std::to_string(species+1));
+                        XML << magnet::xml::endtag("Species");
                   }
             }
             XML << magnet::xml::endtag("Density");
