@@ -18,8 +18,17 @@
 
 //Here we have the correct order of GL includes
 #include <GL/glew.h>
-#include <GL/glx.h>
 #include <GL/freeglut.h>
+
+#ifdef _WIN32
+# include <windows.h>
+# include <GL/wgl.h>
+typedef GLXContext ContextKey;
+#else
+# include <GL/glx.h>
+typedef GLXContext ContextKey;
+#endif
+
 
 #ifdef MAGNET_CLGL
 # define __CL_ENABLE_EXCEPTIONS
@@ -59,12 +68,14 @@ namespace magnet {
     {
     protected:
       /** @name Platform specific code. */
-      /**@{*/
-      typedef GLXContext ContextKey;
-
+      /**@{*/      
       inline static ContextKey getCurrentContextKey()
-      { 
+      {
+#ifdef _WIN32
+	ContextKey key = wglGetCurrentContext();
+#else
 	ContextKey key = glXGetCurrentContext();
+#endif
 	detail::errorCheck();
 	if (!key) M_throw() << "Not in a valid GLX context";
 	return key; 
@@ -556,9 +567,15 @@ namespace magnet {
       ////////////////X11 specific bindings////////////////
       inline bool getCLGLContext(cl::Platform clplatform, cl::Device dev)
       {
+#ifdef _WIN32
 	cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, (cl_context_properties) clplatform(),
 					  CL_GLX_DISPLAY_KHR, (cl_context_properties) glXGetCurrentDisplay(),
 					  CL_GL_CONTEXT_KHR, (cl_context_properties) _context, 0};
+#else
+	cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, (cl_context_properties) clplatform(),
+					  CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
+					  CL_GL_CONTEXT_KHR, (cl_context_properties) _context, 0};
+#endif
 	
 	std::vector<cl::Device> devlist;
 	devlist.push_back(dev);
