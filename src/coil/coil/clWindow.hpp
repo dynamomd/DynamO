@@ -59,8 +59,10 @@ namespace coil {
     const std::string& getWindowTitle() const { return windowTitle; }
     void setWindowtitle(const std::string& newtitle);
   
-    void addRenderObj(const std::shared_ptr<RenderObj>& nObj)
-    { _renderObjsTree._renderObjects.push_back(nObj); }
+    void addRenderObj(std::shared_ptr<RenderObj> nObj)
+    {
+      _glContext->queueTask(std::bind(&CLGLWindow::addObjectWorker, this, nObj));
+    }
 
     inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
@@ -91,6 +93,12 @@ namespace coil {
 
     magnet::GL::Camera& getCamera() { return _camera; }
   protected:
+    void addObjectWorker(const std::shared_ptr<RenderObj> nObj) {
+      _renderObjsTree._renderObjects.push_back(nObj);
+      _renderObjsTree._renderObjects.back()->init(_systemQueue);
+      _renderObjsTree.buildRenderView();
+    }
+    
     CLGLWindow(const CLGLWindow&);
     
     void setLabelText(Gtk::Label*, std::string);
