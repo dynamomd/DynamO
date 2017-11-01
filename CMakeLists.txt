@@ -109,6 +109,15 @@ else()
 endif()
 
 ######################################################################
+# Stack trace support
+######################################################################
+include(CheckIncludeFiles)
+check_include_files(execinfo.h STACKTRACE_AVAILABLE)
+if(STACKTRACE_AVAILABLE)
+  add_definitions(-DMAGNET_STACKTRACE)  
+endif()
+
+######################################################################
 # Test for libbz2 (for compressed files)
 ######################################################################
 if(NOT WIN32)
@@ -150,7 +159,6 @@ endif()
 ######################################################################
 # Test for libjudy requirements
 ######################################################################
-include(CheckIncludeFiles)
 check_include_files(Judy.h JUDY_H_AVAILABLE)
 include(CheckLibraryExists)
 check_library_exists(Judy  Judy1FreeArray "" JUDY_LIB_AVAILABLE)
@@ -167,6 +175,7 @@ elseif(JUDY_H_AVAILABLE AND JUDY_LIB_AVAILABLE)
 else()
   message(STATUS "libJudy header/library missing.")
 endif()
+
 
 ######################################################################
 # Visualiser support

@@ -16,16 +16,8 @@
 */
 
 #pragma once
-#define STACKTRACE_ENABLE 1
-#ifdef __GNUC__
-# ifndef _WIN32
-#  undef STACKTRACE_ENABLE
-#  define STACKTRACE_ENABLE 0
-# endif
-#endif
-//For the stack tracer
 #ifdef MAGNET_DEBUG
-# if STACKTRACE_ENABLE
+# ifdef MAGNET_STACKTRACE
 #  include <execinfo.h>  // for backtrace
 #  include <dlfcn.h>     // for dladdr
 #  include <cxxabi.h>    // for __cxa_demangle
@@ -49,7 +41,7 @@ namespace magnet {
    * appearing in the returned stack.
    */
 #ifdef MAGNET_DEBUG
-# if STACKTRACE_ENABLE
+# ifdef MAGNET_STACKTRACE
   inline std::string stacktrace(int skip = 1)
   {
     const int nMaxFrames = 128;
