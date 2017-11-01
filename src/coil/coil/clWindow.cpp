@@ -1552,17 +1552,17 @@ namespace coil {
     keyStates[std::tolower(key)] = false;
   }
 
-  void
+  bool
   CLGLWindow::simupdateTick(double t)
   {
-    if (!isReady()) return;
+    if (!isReady()) return false;
     
     //A loop for framelocked rendering, this holds the simulation
     //until the last data update has been rendered.
     while (_simframelock && (_lastUpdateTime == getLastFrameTime()))
       {
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_systemQueue->drainQueue();
 	
 	//1ms delay to lower CPU usage while blocking, but not to
@@ -1578,7 +1578,7 @@ namespace coil {
     if ((_lastUpdateTime != getLastFrameTime()) || !_simrun)
       {
 	std::lock_guard<std::mutex> lock(_destroyLock);
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_updateDataSignal();
 	_newData = true;
 	
@@ -1595,7 +1595,7 @@ namespace coil {
     while (!_simrun)
       {
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_systemQueue->drainQueue();
 	
 	//1ms delay to lower CPU usage while blocking
@@ -1604,6 +1604,8 @@ namespace coil {
 	sleeptime.tv_nsec = 1000000;
 	nanosleep(&sleeptime, NULL);
       }
+
+    return true;
   }
 
   void 

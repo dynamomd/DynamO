@@ -69,7 +69,7 @@ namespace coil {
     void init();
     void deinit();
 
-    void simupdateTick(double t);
+    bool simupdateTick(double t);
   
     const double& getUpdateInterval() {return _updateIntervalValue; }
 

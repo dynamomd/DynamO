@@ -87,7 +87,8 @@ int main(int argc, char *argv[])
 #endif
 	  }
       }
-      while (true) { window->simupdateTick(0); }
+
+      while (window->simupdateTick(0)) {}
     }
   catch (std::exception &cep)
     {

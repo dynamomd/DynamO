@@ -136,8 +136,6 @@ namespace coil {
       M_throw() << "Missing viewport!";
 #endif
 
-    std::cerr << "Mouse Wheel event!";
-
     CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackMouseWheelFunc(button, dir, x, y);
   }
 
