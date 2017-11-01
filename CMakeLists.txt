@@ -176,8 +176,10 @@ find_package(OpenGL)
 find_package(GLUT)
 find_package(GLEW)
 find_package(AVCodec)
-find_package(GTK2 2.4 COMPONENTS gtk gtkmm)
 find_package(PNG)
+
+find_package(PkgConfig)
+pkg_check_modules(GTKMM gtkmm-3.0)
 
 set(VISUALIZER_SUPPORT TRUE)
 function(visualiser_dependency varname message)
@@ -190,7 +192,7 @@ function(visualiser_dependency varname message)
 endfunction(visualiser_dependency)
 
 visualiser_dependency(OPENGL_FOUND "OpenGL libraries")
-visualiser_dependency(GTK2_FOUND "GTK/GTKMM-2.4 library")
+visualiser_dependency(GTKMM_FOUND "GTK/GTKMM 3 library")
 visualiser_dependency(PNG_FOUND "libPNG library")
 visualiser_dependency(GLUT_FOUND "GLUT/freeGLUT library")
 visualiser_dependency(GLEW_FOUND "GLEW library")
@@ -219,9 +221,9 @@ if(VISUALIZER_SUPPORT)
 
   
 
-  add_definitions(${OPENGL_DEFINITONS} ${GLUT_DEFINITIONS} ${GLEW_DEFINITIONS} ${GTK2_DEFINITIONS})
-  include_directories(${GTK2_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CAIROMM_INCLUDE_PATH} ${CAIROMM_CONFIG_PATH} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
-  link_libraries(${GTK2_LIBRARIES} ${CAIROMM_LIBRARIES} ${PNG_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
+  add_definitions(${OPENGL_DEFINITONS} ${GLUT_DEFINITIONS} ${GLEW_DEFINITIONS} ${GTKMM_DEFINITIONS})
+  include_directories(${GTKMM_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CAIROMM_INCLUDE_PATH} ${CAIROMM_CONFIG_PATH} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
+  link_libraries(${GTKMM_LIBRARIES} ${CAIROMM_LIBRARIES} ${PNG_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
 endif()
 
 ######################################################################

@@ -303,13 +303,13 @@ namespace coil {
       _glyphType.reset(new Gtk::ComboBoxText);
       _glyphType->show();
 
-      _glyphType->append_text("Sphere");      
-      _glyphType->append_text("Arrow");
-      _glyphType->append_text("Cylinder");
-      _glyphType->append_text("Rod");
-      _glyphType->append_text("Line");
-      _glyphType->append_text("Cube");
-      _glyphType->append_text("Dumbbell");
+      _glyphType->append("Sphere");      
+      _glyphType->append("Arrow");
+      _glyphType->append("Cylinder");
+      _glyphType->append("Rod");
+      _glyphType->append("Line");
+      _glyphType->append("Cube");
+      _glyphType->append("Dumbbell");
       _glyphType->set_active(_initGlyphType);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);

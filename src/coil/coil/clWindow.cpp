@@ -341,7 +341,7 @@ namespace coil {
 		   magnet::GL::detail::glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
       _aasamples.reset(new Gtk::ComboBoxText);
       for (size_t samples = maxsamples; samples > 0; samples /= 2)
-	_aasamples->insert_text(0, boost::lexical_cast<std::string>(samples));
+	_aasamples->insert(0, boost::lexical_cast<std::string>(samples));
       
       _aasamples->set_active(0);
       _aasamples->show();
@@ -701,7 +701,7 @@ namespace coil {
     {
       Gtk::Window* controlwindow;
       _refXml->get_widget("controlWindow", controlwindow);  
-      controlwindow->hide_all();
+      controlwindow->hide();
     }
   
     _refXml.reset(); //Destroy GTK instance

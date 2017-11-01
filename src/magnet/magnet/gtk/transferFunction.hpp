@@ -63,7 +63,7 @@ namespace magnet {
       {
 	set_events(::Gdk::KEY_PRESS_MASK | ::Gdk::EXPOSURE_MASK | ::Gdk::BUTTON_PRESS_MASK
 		   | ::Gdk::BUTTON_RELEASE_MASK | ::Gdk::POINTER_MOTION_MASK);
-	set_flags(::Gtk::CAN_FOCUS);
+	set_can_focus(true);
 
 	_transferFunction.addKnot(0.0, 1, 0, 1, 0.0);
 	_transferFunction.addKnot(0.5, 1, 0, 1, 0.5);
@@ -179,17 +179,17 @@ namespace magnet {
 		  
 		  Knot knot = *iPtr;
 		  
-		  select.get_colorsel()->set_current_color(ConvertKnotToGdk(knot));
-		  select.get_colorsel()->set_current_alpha(knot._a * G_MAXUSHORT);
-		  select.get_colorsel()->set_has_opacity_control(true);
+		  select.get_color_selection()->set_current_color(ConvertKnotToGdk(knot));
+		  select.get_color_selection()->set_current_alpha(knot._a * G_MAXUSHORT);
+		  select.get_color_selection()->set_has_opacity_control(true);
 		    
 		  switch(select.run())
 		    {
 		    case ::Gtk::RESPONSE_OK:
 		      {
 			_transferFunction
-			  .setKnot(iPtr, ConvertGdkToKnot(select.get_colorsel()->get_current_color(), 
-							  select.get_colorsel()->get_current_alpha(), 
+			  .setKnot(iPtr, ConvertGdkToKnot(select.get_color_selection()->get_current_color(), 
+							  select.get_color_selection()->get_current_alpha(), 
 							  knot._x));
 			_updatedCallback();
 			forceRedraw();
