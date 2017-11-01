@@ -22,8 +22,7 @@
 
 #ifdef _WIN32
 # include <windows.h>
-# include <GL/wgl.h>
-typedef GLXContext ContextKey;
+typedef HGLRC ContextKey;
 #else
 # include <GL/glx.h>
 typedef GLXContext ContextKey;
