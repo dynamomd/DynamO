@@ -192,10 +192,18 @@ namespace coil {
 
     {
       Gtk::Button* button;    
-      _refXml->get_widget("CamMode", button); 
+      _refXml->get_widget("CamMode", button);
       
       button->signal_clicked()
 	.connect(sigc::mem_fun(*this, &CLGLWindow::cameraModeCallback));
+    }
+
+    {
+      Gtk::Button* button;    
+      _refXml->get_widget("LoadDataButton", button); 
+      
+      button->signal_clicked()
+	.connect(sigc::mem_fun(*this, &CLGLWindow::LoadDataCallback));
     }
 
     {
@@ -1830,6 +1838,62 @@ namespace coil {
       }
   }
 
+  void 
+  CLGLWindow::LoadDataCallback() {
+    Gtk::FileChooserDialog dialog(*controlwindow, "Please select a data file to load");
+    
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("Raw volume data (*.raw)");
+    filter->add_pattern("*.raw");     
+    dialog.add_filter(filter);
+    dialog.add_button("Ok", Gtk::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+
+    if (dialog.run() == Gtk::RESPONSE_OK) {
+      Gtk::Dialog* volumedialog;
+      dialog.hide();
+      _refXml->get_widget("VolumeLoadDialog", volumedialog);
+      volumedialog->set_transient_for(*controlwindow);
+
+      std::string filename_only = boost::filesystem::path(dialog.get_filename()).filename().string();
+      
+      std::ifstream in(dialog.get_filename(), std::ifstream::ate | std::ifstream::binary);
+      size_t file_size = in.tellg();
+      in.close();      
+
+      Gtk::Label* label;
+      _refXml->get_widget("VolumeFileSizeLabel", label);
+      label->set_text(std::to_string(file_size));
+
+      _refXml->get_widget("VolumeFileNameLabel", label);
+      label->set_text(filename_only);
+
+      Gtk::SpinButton* but;
+      _refXml->get_widget("VolumeDataSizeButton", but);
+      
+      
+      if (volumedialog->run() == Gtk::RESPONSE_OK){
+	std::shared_ptr<coil::RVolume> voldata(new coil::RVolume(filename_only));
+	addRenderObj(voldata);
+
+	size_t data_size;
+	std::array<size_t, 3> data_dims;
+	_refXml->get_widget("VolumeDataSizeButton", but);
+	data_size = size_t(but->get_value_as_int());
+	
+	_refXml->get_widget("VolumeXDataSizeButton", but);
+	data_dims[0] = size_t(but->get_value_as_int());
+	_refXml->get_widget("VolumeYDataSizeButton", but);
+	data_dims[1] = size_t(but->get_value_as_int());
+	_refXml->get_widget("VolumeZDataSizeButton", but);
+	data_dims[2] = size_t(but->get_value_as_int());
+	
+	getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), dialog.get_filename(), data_dims, data_size));
+      }
+      volumedialog->hide();
+    }
+  }
+  
   void 
   CLGLWindow::filterClearCallback()
   {
