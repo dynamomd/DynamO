@@ -40,6 +40,10 @@
 # include <magnet/wiiheadtracking.hpp>
 #endif 
 
+#ifdef COIL_OpenVR
+# include <openvr_capi.h>
+#endif 
+
 #include <coil/images/images.hpp>
 
 //The glade xml file is "linked" into a binary file and stuffed in the
@@ -78,6 +82,7 @@ namespace coil {
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
+    _openVRMode(false),
     _ambientIntensity(0.001),
     _snapshot_counter(0),
     _video_counter(0),
@@ -437,13 +442,23 @@ namespace coil {
 	  stereoEnable->signal_toggled()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
+
+#ifdef COIL_OpenVR
+	{
+	  Gtk::CheckButton* vrEnable;
+	  _refXml->get_widget("OpenVREnable", vrEnable);
+	  vrEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+	  vrEnable->set_sensitive(true);
+	}
+#endif
 	
 	{
 	  Gtk::ComboBox* stereoMode;
 	  _refXml->get_widget("StereoMode", stereoMode);
 	  stereoMode->set_active(0);
 	}
-      
+
+	
 	{
 	  Gtk::Entry* simunits;
 	  _refXml->get_widget("SimLengthUnits", simunits);
@@ -2240,6 +2255,24 @@ namespace coil {
       _stereoMode = btn->get_active();
     }
 
+    {//OpenVR
+      Gtk::CheckButton* btn;
+      _refXml->get_widget("OpenVREnable", btn);    
+      bool newMode = btn->get_active();
+
+      if (newMode != _openVRMode)
+	if (newMode) {
+	  //Enabling OpenVR
+	  
+	} else {
+	  //Disabling OpenVR
+	  
+	}
+      
+      _openVRMode = newMode;
+    }
+
+    
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);

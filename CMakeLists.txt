@@ -228,7 +228,13 @@ if(VISUALIZER_SUPPORT)
     link_libraries(cwiid)
   endif()
 
-  
+  find_package(OpenVR)
+  if(OPENVR_FOUND)
+    message("OpenVR found!")
+  else()
+    message("OpenVR not found")
+  endif()
+
 
   add_definitions(${OPENGL_DEFINITONS} ${GLUT_DEFINITIONS} ${GLEW_DEFINITIONS} ${GTKMM_DEFINITIONS})
   include_directories(${GTKMM_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CAIROMM_INCLUDE_PATH} ${CAIROMM_CONFIG_PATH} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})

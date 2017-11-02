@@ -207,6 +207,7 @@ namespace coil {
     int  _fpsLimitValue;
     bool _filterEnable;
     bool _stereoMode;
+    bool _openVRMode;
     double _ambientIntensity;
     std::array<GLfloat, 3> _backColor;
     float _sceneKey;
