@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkAdjustment" id="FOVadjustment">
     <property name="lower">15</property>
     <property name="upper">180</property>
@@ -13,23 +14,6 @@
     <property name="upper">100</property>
     <property name="value">60</property>
     <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="ShadowMapSizeAdjustment">
-    <property name="lower">128</property>
-    <property name="upper">3072</property>
-    <property name="value">1024</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkWindow" id="aboutSplashWindow">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">About Coil</property>
-    <property name="resizable">False</property>
-    <child>
-      <object class="GtkImage" id="aboutSplashImage">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-    </child>
   </object>
   <object class="GtkWindow" id="controlWindow">
     <property name="visible">True</property>
@@ -68,13 +52,12 @@
                             <property name="has_tooltip">True</property>
                             <property name="tooltip_markup" translatable="yes">Play/Pause the simulation</property>
                             <property name="tooltip_text" translatable="yes">Play/Pause the simulation</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="SimRunButtonImage">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="stock">gtk-media-play</property>
-                                <property name="icon-size">3</property>
+                                <property name="icon_size">3</property>
                               </object>
                             </child>
                           </object>
@@ -93,13 +76,12 @@
                             <property name="has_tooltip">True</property>
                             <property name="tooltip_markup" translatable="yes">Take a single snapshot</property>
                             <property name="tooltip_text" translatable="yes">Take a single snapshot</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="image4">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="stock">gtk-orientation-portrait</property>
-                                <property name="icon-size">3</property>
+                                <property name="icon_size">3</property>
                               </object>
                             </child>
                           </object>
@@ -118,13 +100,12 @@
                             <property name="receives_default">True</property>
                             <property name="has_tooltip">True</property>
                             <property name="tooltip_text" translatable="yes">Record a video of the current scene.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="image5">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="stock">gtk-media-record</property>
-                                <property name="icon-size">3</property>
+                                <property name="icon_size">3</property>
                               </object>
                             </child>
                           </object>
@@ -184,7 +165,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Align camera down the +x axis.</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="yalign">0.50999999046325684</property>
                             <child>
                               <object class="GtkImage" id="CamPlusXimg">
@@ -207,7 +187,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Align camera down the -x axis.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamNegXimg">
                                 <property name="visible">True</property>
@@ -229,7 +208,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Align camera down the +y axis.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamPlusYimg">
                                 <property name="visible">True</property>
@@ -251,7 +229,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Align camera down the -y axis.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamNegYimg">
                                 <property name="visible">True</property>
@@ -273,7 +250,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Align camera down the +z axis.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamPlusZimg">
                                 <property name="visible">True</property>
@@ -295,7 +271,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Align camera down the -z axis.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamNegZimg">
                                 <property name="visible">True</property>
@@ -316,7 +291,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamRescaleimg">
                                 <property name="visible">True</property>
@@ -339,7 +313,6 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="tooltip_text" translatable="yes">Switch the camera mode, from rotate the system to First-Person-Shooter. If an object is selected, you can also select the track object mode.</property>
-                            <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamModeimg">
                                 <property name="visible">True</property>
@@ -400,8 +373,6 @@
                         <property name="has_tooltip">True</property>
                         <property name="tooltip_markup" translatable="yes">Limit the visualizers FPS, allowing multithreaded simulations more CPU time</property>
                         <property name="tooltip_text" translatable="yes">Limit the visualizers FPS, allowing multithreaded simulations more CPU time</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="active">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -419,7 +390,6 @@
                         <property name="tooltip_text" translatable="yes">Target FPS when limited</property>
                         <property name="invisible_char">●</property>
                         <property name="xalign">1</property>
-                        <property name="invisible_char_set">True</property>
                         <property name="adjustment">FPSAdjustment</property>
                         <property name="numeric">True</property>
                       </object>
@@ -434,8 +404,8 @@
                       <object class="GtkLabel" id="updateFreqLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.94999998807907104</property>
                         <property name="label" translatable="yes">Update Interval :</property>
+                        <property name="xalign">0.94999998807907104</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -470,7 +440,6 @@
                         <property name="tooltip_text" translatable="yes">Forces the simulator to only progress once the render is complete. 
 This forces the simulation to slow down to the FPS of the renderer. 
 It is very useful to do this when trying to record a video at a constant simulation pace.</property>
-                        <property name="use_action_appearance">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -551,7 +520,6 @@ It is very useful to do this when trying to record a video at a constant simulat
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <child>
                                   <object class="GtkImage" id="addLightImage">
                                     <property name="visible">True</property>
@@ -573,7 +541,6 @@ It is very useful to do this when trying to record a video at a constant simulat
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <child>
                                   <object class="GtkImage" id="addFunctionImage">
                                     <property name="visible">True</property>
@@ -692,8 +659,8 @@ The scene key for an average outdoor photograph on photographic paper is 0.18, h
                                       <object class="GtkLabel" id="label21">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0.94999998807907104</property>
                                         <property name="label" translatable="yes">Scene Key</property>
+                                        <property name="xalign">0.94999998807907104</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -709,7 +676,6 @@ The scene key for an average outdoor photograph on photographic paper is 0.18, h
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
                                         <property name="text" translatable="yes">0.18</property>
-                                        <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -754,8 +720,8 @@ The bloom compression controls the shape of the curve up to this cutoff.</proper
                                       <object class="GtkLabel" id="label4">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0.94999998807907104</property>
                                         <property name="label" translatable="yes">Saturation</property>
+                                        <property name="xalign">0.94999998807907104</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -771,7 +737,6 @@ The bloom compression controls the shape of the curve up to this cutoff.</proper
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
                                         <property name="text" translatable="yes">4</property>
-                                        <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -847,8 +812,8 @@ Large values will disable the bloom effect.</property>
                                       <object class="GtkLabel" id="label24">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0.94999998807907104</property>
                                         <property name="label" translatable="yes">Cutoff Luminance</property>
+                                        <property name="xalign">0.94999998807907104</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -864,7 +829,6 @@ Large values will disable the bloom effect.</property>
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
                                         <property name="text" translatable="yes">1.0</property>
-                                        <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -905,8 +869,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                       <object class="GtkLabel" id="label25">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0.94999998807907104</property>
                                         <property name="label" translatable="yes">Compression</property>
+                                        <property name="xalign">0.94999998807907104</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -923,7 +887,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="width_chars">12</property>
                                         <property name="text" translatable="yes">0.01</property>
                                         <property name="shadow_type">none</property>
-                                        <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -955,7 +918,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="xalign">0</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
@@ -1076,13 +1038,12 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_action_appearance">False</property>
                                         <child>
                                           <object class="GtkImage" id="filterUpImage">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="stock">gtk-go-up</property>
-                                            <property name="icon-size">3</property>
+                                            <property name="icon_size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1099,13 +1060,12 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_action_appearance">False</property>
                                         <child>
                                           <object class="GtkImage" id="filterDeleteImage">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="stock">gtk-delete</property>
-                                            <property name="icon-size">3</property>
+                                            <property name="icon_size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1122,13 +1082,12 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_action_appearance">False</property>
                                         <child>
                                           <object class="GtkImage" id="filterDownImage">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="stock">gtk-go-down</property>
-                                            <property name="icon-size">3</property>
+                                            <property name="icon_size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1144,13 +1103,12 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_action_appearance">False</property>
                                         <child>
                                           <object class="GtkImage" id="filterClearImage">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="stock">gtk-clear</property>
-                                            <property name="icon-size">3</property>
+                                            <property name="icon_size">3</property>
                                           </object>
                                         </child>
                                       </object>
@@ -1166,7 +1124,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_action_appearance">False</property>
                                         <child>
                                           <object class="GtkImage" id="filterActiveImage">
                                             <property name="visible">True</property>
@@ -1216,14 +1173,13 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <child>
                                       <object class="GtkImage" id="filterAddImage">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="xpad">10</property>
                                         <property name="stock">gtk-add</property>
-                                        <property name="icon-size">3</property>
+                                        <property name="icon_size">3</property>
                                       </object>
                                     </child>
                                   </object>
@@ -1285,7 +1241,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="xalign">0</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
@@ -1326,8 +1281,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                               <object class="GtkLabel" id="label22">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">Ambient light intensity</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1343,7 +1298,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="invisible_char">●</property>
                                 <property name="width_chars">12</property>
                                 <property name="xalign">0.0099999997764825821</property>
-                                <property name="invisible_char_set">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1355,8 +1309,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                               <object class="GtkLabel" id="label23">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0.94999998807907104</property>
                                 <property name="label" translatable="yes">Background Color</property>
+                                <property name="xalign">0.94999998807907104</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1370,7 +1324,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="title" translatable="yes">Back Color</property>
                                 <property name="color">#ffffffffffff</property>
                               </object>
@@ -1428,8 +1381,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                       <object class="GtkLabel" id="label13">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.94999998807907104</property>
                         <property name="label" translatable="yes">Battery</property>
+                        <property name="xalign">0.94999998807907104</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1466,8 +1419,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                       <object class="GtkLabel" id="label17">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.94999998807907104</property>
                         <property name="label" translatable="yes">Pixel Pitch</property>
+                        <property name="xalign">0.94999998807907104</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1516,8 +1469,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                       <object class="GtkLabel" id="label15">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="xalign">0.94999998807907104</property>
                         <property name="label" translatable="yes">Simulation Length Unit</property>
+                        <property name="xalign">0.94999998807907104</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1612,7 +1565,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -1660,7 +1612,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="xalign">0.0099999997764825821</property>
                         <property name="draw_indicator">True</property>
                       </object>
@@ -1726,7 +1677,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1766,7 +1716,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1779,8 +1728,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                               <object class="GtkLabel" id="label6">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0.94999998807907104</property>
                                 <property name="label" translatable="yes">Vertical Angle:</property>
+                                <property name="xalign">0.94999998807907104</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1792,8 +1741,8 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                               <object class="GtkLabel" id="wiiAngleStatus">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0.05000000074505806</property>
                                 <property name="label" translatable="yes">N/A</property>
+                                <property name="xalign">0.05000000074505806</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1871,7 +1820,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                             </child>
@@ -1959,7 +1907,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                       </object>
@@ -2120,6 +2067,23 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
             <property name="position">3</property>
           </packing>
         </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="ShadowMapSizeAdjustment">
+    <property name="lower">128</property>
+    <property name="upper">3072</property>
+    <property name="value">1024</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkWindow" id="aboutSplashWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">About Coil</property>
+    <property name="resizable">False</property>
+    <child>
+      <object class="GtkImage" id="aboutSplashImage">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
     </child>
   </object>
