@@ -36,6 +36,10 @@
 #include <vector>
 #include <memory>
 
+#ifdef COIL_OpenVR
+# include <magnet/openvr.hpp>
+#endif 
+
 namespace magnet {
   namespace image {
     class VideoEncoderFFMPEG;
@@ -304,6 +308,10 @@ namespace coil {
     std::unique_ptr<Gtk::ComboBoxText> _aasamples;
 #ifdef MAGNET_FFMPEG_SUPPORT
     std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
+#endif
+
+#ifdef COIL_OpenVR
+    magnet::OpenVRTracker _openVR;
 #endif
   };
 }

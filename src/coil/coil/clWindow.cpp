@@ -40,10 +40,6 @@
 # include <magnet/wiiheadtracking.hpp>
 #endif 
 
-#ifdef COIL_OpenVR
-# include <openvr_capi.h>
-#endif 
-
 #include <coil/images/images.hpp>
 
 //The glade xml file is "linked" into a binary file and stuffed in the
@@ -449,6 +445,14 @@ namespace coil {
 	  _refXml->get_widget("OpenVREnable", vrEnable);
 	  vrEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	  vrEnable->set_sensitive(true);
+
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  vrlog->set_text("OpenVR support available.\n");
+	}
+#else
+	{
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  vrlog->set_text("OpenVR not available (was not compiled in).\n");
 	}
 #endif
 	
@@ -2256,20 +2260,28 @@ namespace coil {
     }
 
     {//OpenVR
-      Gtk::CheckButton* btn;
-      _refXml->get_widget("OpenVREnable", btn);    
-      bool newMode = btn->get_active();
-
-      if (newMode != _openVRMode)
-	if (newMode) {
-	  //Enabling OpenVR
-	  
-	} else {
-	  //Disabling OpenVR
-	  
-	}
+      auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
       
-      _openVRMode = newMode;
+      Gtk::CheckButton* btn;
+      _refXml->get_widget("OpenVREnable", btn);
+      const bool newMode = btn->get_active();
+
+      if (newMode != _openVRMode){
+	if (newMode) {	  
+	  //Init OpenVR
+	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line); });
+	  _openVR.init();
+	  if (_openVR.initialised())
+	    _openVRMode = true;
+	  else
+	    btn->set_active(false);
+	} else {
+	  //Shutdown OpenVR
+	  _openVR.shutdown();
+	  _openVRMode = false;
+	  btn->set_active(false);
+	}
+      }
     }
 
     

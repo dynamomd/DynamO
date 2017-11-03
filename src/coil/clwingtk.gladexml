@@ -15,6 +15,9 @@
     <property name="value">60</property>
     <property name="step_increment">1</property>
   </object>
+  <object class="GtkTextBuffer" id="OpenVRTextBuffer">
+    <property name="text" translatable="yes">OpenVR Log</property>
+  </object>
   <object class="GtkWindow" id="controlWindow">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -2157,9 +2160,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkTextBuffer" id="OpenVRTextBuffer">
-    <property name="text" translatable="yes">OpenVR Log</property>
   </object>
   <object class="GtkAdjustment" id="ShadowMapSizeAdjustment">
     <property name="lower">128</property>

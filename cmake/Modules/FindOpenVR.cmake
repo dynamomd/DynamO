@@ -46,8 +46,7 @@ else()
 	set(_bitness 32)
 endif()
 
-# Test platform
-
+#Calculate which library path to use
 set(_platform)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(_platform_base osx)
@@ -65,13 +64,21 @@ else()
 	set(_libpath lib/${OPENVR_PLATFORM})
 endif()
 
+find_library(OPENVR_LIBRARY
+  NAMES openvr_api libopenvr_api
+  PATHS ${_root_dirs}
+  PATH_SUFFIXES ${_libpath}
+  )
+
+#message(WARNING "${_root_dirs}, ${_libpath}, ${OPENVR_LIBRARY}")
+
 find_path(OPENVR_INCLUDE_DIR
 	NAMES
 	openvr_driver.h
 	HINTS
-	"${_libdir}"
-	"${_libdir}/.."
-	"${_libdir}/../.."
+	"${_libpath}"
+	"${_libpath}/.."
+	"${_libpath}/../.."
 	PATHS
 	${_root_dirs}
 	PATH_SUFFIXES
@@ -80,10 +87,12 @@ find_path(OPENVR_INCLUDE_DIR
 	steam
 	public/steam)
 
+#message(WARNING ${OPENVR_INCLUDE_DIR})
+      
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(OpenVR
 	DEFAULT_MSG
-	OPENVR_INCLUDE_DIR)
+	OPENVR_INCLUDE_DIR OPENVR_LIBRARY)
 
 if(OPENVR_FOUND)
 	list(APPEND OPENVR_INCLUDE_DIRS ${OPENVR_INCLUDE_DIR})
