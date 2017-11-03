@@ -132,11 +132,9 @@ endif()
 ######################################################################
 ##########  Boost support
 ######################################################################
-if(WIN32)
-  set (Boost_USE_STATIC_LIBS ON)
-  # disable Boost auto-linking
-  add_definitions (-DBOOST_ALL_NO_LIB)
-endif()
+#if(WIN32)
+set (Boost_USE_STATIC_LIBS ON)
+#endif()
 find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem system unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
