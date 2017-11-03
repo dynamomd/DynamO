@@ -140,8 +140,7 @@ namespace coil {
       }
 	
     /////////Timeout for FPS and UPS calculation
-    _timeout_connection
-      = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
+    _timeout_connection = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
 
     //Timeout for render
     _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, Glib::PRIORITY_DEFAULT_IDLE);
@@ -1322,13 +1321,29 @@ namespace coil {
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
+#ifdef COIL_OpenVR
+    //If we are in OpenVR mode, we keep the window at the target
+    //render resolution
+    if (_openVRMode) {
+      std::array<uint32_t, 2> dims = _openVR.getRenderDims();
+      //We have to prevent infinite loops 
+      if ((uint32_t(w) != dims[0]) && (uint32_t(h) != dims[1])) {
+	//Prevent window resize!
+	glutReshapeWindow(dims[0], dims[1]);
+	return;
+      }
+    }
+#endif
     resizeRender(w, h);
   }
 
   void CLGLWindow::resizeRender(int w, int h)
   {
-    //We cannot resize a window 
+    //We cannot resize a window below a threshold
     if ((w < 4) || (h < 4)) return;
+
+    if ((size_t(h) == _camera.getHeight()) && (size_t(w) == _camera.getWidth()))
+      return; //Skip a null op
 
     _camera.setHeightWidth(h, w);
     _renderTarget.deinit();
@@ -1956,8 +1971,9 @@ namespace coil {
 
     _renderTimeout.disconnect();
     if (!_fpsLimit)
-      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
-						      Glib::PRIORITY_DEFAULT_IDLE);
+      _renderTimeout = Glib::signal_idle().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc));
+//    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
+//						      Glib::PRIORITY_DEFAULT_IDLE);
     else if (_fpsLimitValue != 0)
       _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
 						      1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
@@ -2259,6 +2275,7 @@ namespace coil {
       _stereoMode = btn->get_active();
     }
 
+#ifdef COIL_OpenVR
     {//OpenVR
       auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
       
@@ -2271,9 +2288,13 @@ namespace coil {
 	  //Init OpenVR
 	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line+"\n"); });
 	  _openVR.init();
-	  if (_openVR.initialised())
+	  if (_openVR.initialised()) {
 	    _openVRMode = true;
-	  else
+	    //Now establish the render size
+	    std::array<uint32_t, 2> dims = _openVR.getRenderDims();
+	    glutReshapeWindow(dims[0], dims[1]);
+	    glutPostRedisplay();
+	  } else
 	    btn->set_active(false);
 	} else {
 	  //Shutdown OpenVR
@@ -2283,7 +2304,7 @@ namespace coil {
 	}
       }
     }
-
+#endif
     
     {
       Gtk::Entry* simunits;

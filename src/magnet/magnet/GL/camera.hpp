@@ -75,8 +75,8 @@ namespace magnet {
         \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline Camera(size_t height = 600, 
-		    size_t width = 800,
+      inline Camera(size_t height = 1, 
+		    size_t width = 1,
 		    math::Vector position = math::Vector{0,0,5}, 
 		    math::Vector lookAtPoint = math::Vector{0,0,0},
 		    GLfloat zNearDist = 8.0f, 

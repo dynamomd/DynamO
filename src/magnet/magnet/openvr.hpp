@@ -25,7 +25,9 @@ namespace magnet {
   public:
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
       _vr(nullptr),
-      _log(log)
+      _log(log),
+      _nearClip(0.1f),
+      _farClip(30.0f)
     {}
 
     ~OpenVRTracker() { shutdown(); }
@@ -86,10 +88,32 @@ namespace magnet {
 	  
 	  _log("Device#"+std::to_string(i)+" class: "+to_string(_vr->GetTrackedDeviceClass(i)));
 	}
+
+      //Initialise GL
+      _projectionLeft = convert(_vr->GetProjectionMatrix(vr::Eye_Left, _nearClip, _farClip));
+      _projectionRight = convert(_vr->GetProjectionMatrix(vr::Eye_Right, _nearClip, _farClip));
+      _eyePosLeft = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Left)));
+      _eyePosRight = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Right)));
+      
+      //Initialise Compositor
+      if (vr::VRCompositor())
+	_log("Compositor initialised.");
+      else {
+	_log("Error: Compositor initialisation failed.");
+	shutdown();
+	return;
+      }
+	  
     }
 
     bool initialised() const { return _vr != nullptr; }
 
+    std::array<uint32_t, 2> getRenderDims() const {
+      uint32_t renderWidth, renderHeight;
+      _vr->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
+      return std::array<uint32_t, 2>{renderWidth, renderHeight};
+    }
+    
     void shutdown() {
       if (_vr != nullptr) {
 	vr::VR_Shutdown();
@@ -98,6 +122,27 @@ namespace magnet {
     }
 
   protected:
+    static magnet::GL::GLMatrix convert(vr::HmdMatrix44_t m) {
+      magnet::GL::GLMatrix retval;
+      for (size_t i(0); i < 4; ++i)
+	for (size_t j(0); j < 4; ++j)
+	  retval(i,j) = m.m[i][j];
+      return retval;
+    }
+
+    static magnet::GL::GLMatrix convert(vr::HmdMatrix34_t m) {
+      magnet::GL::GLMatrix retval;
+      for (size_t i(0); i < 3; ++i)
+	for (size_t j(0); j < 4; ++j)
+	  retval(i,j) = m.m[i][j];
+
+      retval(3,0) = 0;
+      retval(3,1) = 0;
+      retval(3,2) = 0;
+      retval(3,3) = 1.0f;
+      return retval;
+    }
+    
     static std::string to_string(vr::EVRInitError e) {
       return vr::VR_GetVRInitErrorAsEnglishDescription(e);
     }
@@ -178,5 +223,9 @@ namespace magnet {
     
     vr::IVRSystem* _vr;
     std::function<void(std::string)> _log;
+
+    magnet::GL::GLMatrix _projectionLeft, _projectionRight, _eyePosLeft, _eyePosRight;
+
+    float _nearClip, _farClip;
   };
 }
