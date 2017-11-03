@@ -2269,7 +2269,7 @@ namespace coil {
       if (newMode != _openVRMode){
 	if (newMode) {	  
 	  //Init OpenVR
-	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line); });
+	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line+"\n"); });
 	  _openVR.init();
 	  if (_openVR.initialised())
 	    _openVRMode = true;
