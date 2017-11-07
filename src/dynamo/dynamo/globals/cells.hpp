@@ -147,7 +147,6 @@ namespace dynamo {
     Vector _cellOffset;
 
     bool _inConfig;
-    double _oversizeCells;
     size_t overlink;
 
 #ifdef DYNAMO_JUDY

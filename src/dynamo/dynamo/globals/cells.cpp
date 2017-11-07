@@ -35,7 +35,6 @@ namespace dynamo {
     GNeighbourList(nSim, "CellNeighbourList"),
     _cellDimension({1,1,1}),
     _inConfig(true),
-    _oversizeCells(1.0),
     overlink(1)
   {
     globName = name;
@@ -46,7 +45,6 @@ namespace dynamo {
     GNeighbourList(ptrSim, "CellNeighbourList"),
     _cellDimension({1,1,1}),
     _inConfig(true),
-    _oversizeCells(1.0),
     overlink(1)
   {
     operator<<(XML);
@@ -62,12 +60,6 @@ namespace dynamo {
     
     if (XML.hasAttribute("NeighbourhoodRange"))
       _maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>() * Sim->units.unitLength();
-
-    if (XML.hasAttribute("Oversize"))
-      _oversizeCells = XML.getAttribute("Oversize").as<double>();
-    
-    if (_oversizeCells < 1.0)
-      M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
     
     globName = XML.getAttribute("Name");
     
@@ -147,9 +139,10 @@ namespace dynamo {
       
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
+    const double minDistance = _maxInteractionRange * (1.0 + 10 * std::numeric_limits<double>::epsilon()) / overlink;
+    const double unityOccupancy = std::cbrt(Sim->getSimVolume() / Sim->N());
     //Create the cells
-    addCells(_maxInteractionRange * (1.0 + 10 * std::numeric_limits<double>::epsilon()) * _oversizeCells / overlink);
-
+    addCells(std::max(minDistance, unityOccupancy));
     _sigReInitialise();
   }
 
@@ -164,7 +157,6 @@ namespace dynamo {
 	<< _maxInteractionRange / Sim->units.unitLength();
     
     if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
-    if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
     
     XML << range
 	<< magnet::xml::endtag("Global");
