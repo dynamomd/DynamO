@@ -438,6 +438,21 @@ namespace coil {
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
 
+	{
+	  Gtk::ScrolledWindow* win;
+	  _refXml->get_widget("OpenVRLogScrolledWindow", win);
+	  Gtk::TextView*  view;
+	  _refXml->get_widget("OpenVRLogTextView", view);
+	  Gtk::Button*  clear;
+	  _refXml->get_widget("OpenVRLogClearButton", clear);
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  
+	  view->signal_size_allocate().connect([=](Gtk::Allocation&) {
+	      win->get_vadjustment()->set_value(win->get_vadjustment()->get_upper());
+	    });
+
+	  clear->signal_clicked().connect([=](){ vrlog->set_text(""); });
+	}	
 #ifdef COIL_OpenVR
 	{
 	  Gtk::CheckButton* vrEnable;

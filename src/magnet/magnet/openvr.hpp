@@ -118,6 +118,7 @@ namespace magnet {
       if (_vr != nullptr) {
 	vr::VR_Shutdown();
 	_vr = nullptr;
+	_log("Shutdown of VR complete.");
       }
     }
 
