@@ -28,6 +28,7 @@ namespace coil {
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
     initGTK();
     _renderShader.build();
+    _initialised = True;
   }
 
   namespace{

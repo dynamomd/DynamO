@@ -53,6 +53,7 @@ namespace coil {
 
     _context = magnet::GL::Context::getContext();
     initGTK();
+    _initialised = True;
   }
 
   void 

@@ -86,10 +86,7 @@ namespace dynamo {
   {
     ID = nID;
 
-    //Add all of the objects to be rendered
-    _particleData.reset(new coil::DataSet("Particles", Sim->N()));
-    _window->addRenderObj(_particleData);
-
+    //Add all of the objects to be rendered    
     for (shared_ptr<Local>& local : Sim->locals)
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
@@ -151,6 +148,10 @@ namespace dynamo {
   void
   SVisualizer::initDataSet()
   {
+    _particleData.reset(new coil::DataSet("Particles", Sim->N()));
+    _window->addRenderObj(_particleData);
+    _particleData->waitTillInitialised();
+    
     _particleData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 4);

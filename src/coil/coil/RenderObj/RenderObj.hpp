@@ -21,6 +21,7 @@
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
 #include <memory>
+#include <thread>
 
 namespace Gtk { class ScrolledWindow; }
 
@@ -51,7 +52,7 @@ namespace coil {
     /*! \brief Default constructor which just sets the name of the
       object.
     */
-    RenderObj(std::string name): _name(name), _visible(true), _shadowCasting(true) {}
+    RenderObj(std::string name): _name(name), _visible(true), _shadowCasting(true), _initialised(false) {}
   
     /* \brief Initialises the object and any OpenCL, OpenGL or GTK
        resources it contains.
@@ -61,7 +62,7 @@ namespace coil {
        data. This is to allow callbacks to the (simulation) thread
        when user-generated interface events occur.
      */
-    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
     { _systemQueue = systemQueue; }
 
     /*! \brief Release any OpenCL, OpenGL and GTK resources held by
@@ -258,10 +259,17 @@ namespace coil {
 
     virtual bool deletable() { return false; }
 
+    void waitTillInitialised() const {
+      for (;!_initialised;)
+	std::this_thread::yield();
+    }
+	
+    
   protected:
     std::string _name;
     bool _visible;
     bool _shadowCasting;
+    volatile bool _initialised;
     std::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
   };
 
@@ -294,7 +302,6 @@ namespace coil {
     void delete_obj(RenderObj*);
 
   protected:
-    
 
     int _obj_col, _visible_col, _shadow_col;
 

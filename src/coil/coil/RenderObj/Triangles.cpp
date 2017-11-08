@@ -35,6 +35,7 @@ namespace coil {
     initGTK(); 
     _renderShader.build(); 
     _renderVSMShader.build(); 
+    _initialised = True;
   }
 
   void 
