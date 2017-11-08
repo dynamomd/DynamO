@@ -56,7 +56,10 @@ namespace magnet {
         location (relative to the viewing plane/screen) onto the
         current position.
        */
-      virtual math::Vector getPosition() const = 0;
+      math::Vector getPosition() const {
+	auto inv = inverse(getViewMatrix());
+	return math::Vector{inv(0,3), inv(1,3),inv(2,3)};
+      }
       
       //! \brief Set the height and width of the screen in pixels.
       inline void setHeightWidth(size_t height, size_t width)
@@ -224,10 +227,6 @@ namespace magnet {
       inline void setRenderScale(double newscale) { _simLength = newscale; }
 
       inline GLfloat getRenderScale() const { return _simLength; }
-
-      inline math::Vector getPosition() const
-      { return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition; }
-
 
       inline void lookAt(math::Vector lookAtPoint)
       {

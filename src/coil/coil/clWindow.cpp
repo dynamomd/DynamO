@@ -834,13 +834,13 @@ namespace coil {
 	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
       }
 #endif
-  
+
 #ifdef COIL_OpenVR
     if (_openVRMode) {
       _openVR.update();
       _camera.setEyeLocation(headPosition);
       drawScene(_camera);
-      _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());      
+      _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
     } else
 #endif     
       if (!_stereoMode) {
