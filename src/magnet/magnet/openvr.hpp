@@ -18,19 +18,27 @@
 
 #pragma once
 
+#include <magnet/GL/camera.hpp>
 #include <openvr.h>
 
 namespace magnet {
-  class OpenVRTracker {
+  class OpenVRTracker : public magnet::GL::Camera{
   public:
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
+      Camera(1,1, 0.1f, 30.0f),
       _vr(nullptr),
-      _log(log),
-      _nearClip(0.1f),
-      _farClip(30.0f)
+      _log(log)
     {
       _hmd_pose = magnet::GL::GLMatrix::identity();
     }
+
+    virtual magnet::GL::GLMatrix getViewRotationMatrix() const { return magnet::GL::GLMatrix();}
+    virtual magnet::math::Matrix getInvViewRotationMatrix() const { return magnet::math::Matrix(); }
+    virtual magnet::GL::GLMatrix getViewMatrix() const { return magnet::GL::GLMatrix();}
+    virtual magnet::GL::GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const { return magnet::GL::GLMatrix();}
+
+    //Not implemented!
+    virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) {}
 
     ~OpenVRTracker() { shutdown(); }
 

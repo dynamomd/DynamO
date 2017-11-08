@@ -43,10 +43,18 @@ namespace magnet {
       virtual GLMatrix getViewRotationMatrix() const = 0;
       virtual math::Matrix getInvViewRotationMatrix() const = 0;
       virtual GLMatrix getViewMatrix() const  = 0;
-      virtual GLMatrix getViewPlaneMatrix() const = 0;
       virtual GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const = 0;
-      virtual math::Matrix getNormalMatrix() const = 0;
       virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
+
+      /*! \brief Get the normal matrix.
+       
+        \param offset This is an offset in camera coordinates to apply
+        to the eye location. It's primary use is to calculate the
+        perspective shift for the left and right eye in Analygraph
+        rendering.
+       */
+      inline math::Matrix getNormalMatrix() const 
+      { return inverse(demoteToMatrix(getViewMatrix())); }
 
       /*! \brief Fetch the location of the users eyes, in object space
         coordinates.
@@ -278,13 +286,6 @@ namespace magnet {
 	return promoteToGLMatrix(_rotation.toMatrix()) * translate(-cameraLocation);
       }
 
-      /*! \brief Generate a matrix that locates objects at the near
-          ViewPlane (for rendering 3D objects attached to the
-          screen). 
-      */
-      virtual inline GLMatrix getViewPlaneMatrix() const
-      { return getViewMatrix() * translate(_nearPlanePosition) * promoteToGLMatrix(getInvViewRotationMatrix()); }
-
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
 
@@ -453,16 +454,6 @@ namespace magnet {
 			zoffset);
       }
       
-      /*! \brief Get the normal matrix.
-       
-        \param offset This is an offset in camera coordinates to apply
-        to the eye location. It's primary use is to calculate the
-        perspective shift for the left and right eye in Analygraph
-        rendering.
-       */
-      virtual inline math::Matrix getNormalMatrix() const 
-      { return inverse(demoteToMatrix(getViewMatrix())); }
-
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const
       { return _pixelPitch * _width / _simLength; }
