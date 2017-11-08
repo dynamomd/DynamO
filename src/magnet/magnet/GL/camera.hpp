@@ -25,6 +25,128 @@
 
 namespace magnet {
   namespace GL {
+    class Camera {
+    public:
+      inline Camera(size_t height = 1, 
+		    size_t width = 1,
+		    GLfloat zNearDist = 8.0f, 
+		    GLfloat zFarDist = 10000.0f):
+	_height(height),
+	_width(width),
+	_zNearDist(zNearDist),
+	_zFarDist(zFarDist)
+      {
+	if (zNearDist > zFarDist) 
+	  M_throw() << "zNearDist > _zFarDist!";
+      }
+      
+      virtual GLMatrix getViewRotationMatrix() const = 0;
+      virtual math::Matrix getInvViewRotationMatrix() const = 0;
+      virtual GLMatrix getViewMatrix() const  = 0;
+      virtual GLMatrix getViewPlaneMatrix() const = 0;
+      virtual GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const = 0;
+      virtual math::Matrix getNormalMatrix() const = 0;
+      virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
+
+      /*! \brief Fetch the location of the users eyes, in object space
+        coordinates.
+        
+        Useful for eye tracking applications. This returns the
+        position of the eyes in object space by adding the eye
+        location (relative to the viewing plane/screen) onto the
+        current position.
+       */
+      virtual math::Vector getPosition() const = 0;
+      
+      //! \brief Set the height and width of the screen in pixels.
+      inline void setHeightWidth(size_t height, size_t width)
+      { _height = height; _width = width; }
+
+      //! \brief Get the aspect ratio of the screen
+      inline GLfloat getAspectRatio() const
+      { return ((GLfloat)_width) / _height; }
+
+      //! \brief Get the height of the screen, in pixels.
+      inline const size_t& getHeight() const { return _height; }
+
+      //! \brief Get the width of the screen, in pixels.
+      inline const size_t& getWidth() const { return _width; }
+
+      /*! \brief Used to convert world positions to screen coordinates (pixels).
+	
+	This returns y coordinates in the format that cairo and other
+	image programs expect (inverted compared to OpenGL).
+	
+	\return An array containing the x and y pixel locations,
+	followed by the depth and w value.
+       */
+      magnet::math::NVector<GLfloat, 4> project(math::Vector invec) const
+      {
+	magnet::math::NVector<GLfloat, 4> vec = {GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f};
+	vec = getProjectionMatrix() * (getViewMatrix() * vec);
+	
+	for (size_t i(0); i < 3; ++i) vec[i] /= std::abs(vec[3]);
+	
+	vec[0] = (0.5 + 0.5 * vec[0]) * getWidth();
+	vec[1] = (0.5 - 0.5 * vec[1]) * getHeight();
+	return  vec;
+      }
+
+      /*! \brief Used to convert mouse positions (including depth
+          information) into a 3D position.
+       */
+      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
+      {
+	//We need to calculate the ray from the camera
+	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
+					       1.0f - (2.0f * windowy) / getHeight(),
+					       depth, 1.0f};
+	//Unproject from NDC to camera coords
+	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
+	
+	//Perform the w divide
+	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
+	
+	//Unproject from camera to object space
+	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
+	return magnet::math::Vector{w[0], w[1], w[2]};
+      }
+
+      /*! \brief Used to convert mouse positions (including depth
+          information) into a 3D position.
+       */
+      math::Vector unprojectToDirection(int windowx, int windowy) const
+      {
+	//We need to calculate the ray from the camera
+	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
+				     1.0f - (2.0f * windowy) / getHeight(),
+				     0.0f, 1.0f};
+	//Unproject from NDC to camera coords
+	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
+	
+	//Perform the w divide
+	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
+	
+	//Zero the w coordinate to stop the translations from the
+	//viewmatrix affecting the vector
+	v[3] = 0;
+
+	//Unproject from camera to object space
+	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
+	
+	math::Vector vec{w[0], w[1], w[2]};
+	vec /= vec.nrm();
+	return vec;
+      }
+
+    protected:
+      size_t _height, _width;
+      //! \brief Distance to the near clipping plane, in cm.
+      GLfloat _zNearDist;
+      //! \brief Distance to the far clipping plane, in cm.
+      GLfloat _zFarDist;      
+    };
+    
     /*! \brief An object to track the camera state.
      
       An OpenGL camera is a mapping between the object space (rendered
@@ -53,7 +175,7 @@ namespace magnet {
       is also support for eye tracking calculations using the \ref
       _eyeLocation \ref math::Vector.
      */
-    class Camera
+    class CameraHeadTracking : public Camera
     {
     public:
 
@@ -75,30 +197,24 @@ namespace magnet {
         \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline Camera(size_t height = 1, 
-		    size_t width = 1,
-		    math::Vector position = math::Vector{0,0,5}, 
-		    math::Vector lookAtPoint = math::Vector{0,0,0},
-		    GLfloat zNearDist = 8.0f, 
-		    GLfloat zFarDist = 10000.0f,
-		    math::Vector up = math::Vector{0,1,0},
-		    GLfloat simLength = 30.0f,
-		    math::Vector eye_location = math::Vector{0, 0, 70}):
-	_height(height),
-	_width(width),
+      inline CameraHeadTracking(size_t height = 1, 
+				size_t width = 1,
+				math::Vector position = math::Vector{0,0,5}, 
+				math::Vector lookAtPoint = math::Vector{0,0,0},
+				GLfloat zNearDist = 8.0f, 
+				GLfloat zFarDist = 10000.0f,
+				math::Vector up = math::Vector{0,1,0},
+				GLfloat simLength = 30.0f,
+				math::Vector eye_location = math::Vector{0, 0, 70}):
+	Camera(height, width, zNearDist, zFarDist),
 	_up(up.normal()),
 	_nearPlanePosition({0,0,0}),
 	_rotatePoint({0,0,0}),
-	_zNearDist(zNearDist),
-	_zFarDist(zFarDist),
 	_rotation(math::Quaternion::identity()),
 	_simLength(simLength),
 	_pixelPitch(0.04653), //cm per pixel (horizontal)
 	_camMode(ROTATE_POINT)
       {
-	if (_zNearDist > _zFarDist) 
-	  M_throw() << "zNearDist > _zFarDist!";
-
 	//We assume the user is around about 70cm from the screen
 	setEyeLocation(eye_location);
 	setPosition(position);
@@ -108,6 +224,10 @@ namespace magnet {
       inline void setRenderScale(double newscale) { _simLength = newscale; }
 
       inline GLfloat getRenderScale() const { return _simLength; }
+
+      inline math::Vector getPosition() const
+      { return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition; }
+
 
       inline void lookAt(math::Vector lookAtPoint)
       {
@@ -144,12 +264,12 @@ namespace magnet {
 
       /*! \brief Get the rotation part of the getViewMatrix().
        */
-      inline GLMatrix getViewRotationMatrix() const { return promoteToGLMatrix(_rotation.toMatrix()); }
+      virtual inline GLMatrix getViewRotationMatrix() const { return promoteToGLMatrix(_rotation.toMatrix()); }
 
-      inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
+      virtual inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
 
       /*! \brief Get the modelview matrix. */
-      inline GLMatrix getViewMatrix() const 
+      virtual inline GLMatrix getViewMatrix() const 
       {
 	//Add in the movement of the eye and the movement of the
 	//camera
@@ -163,7 +283,7 @@ namespace magnet {
           ViewPlane (for rendering 3D objects attached to the
           screen). 
       */
-      inline GLMatrix getViewPlaneMatrix() const
+      virtual inline GLMatrix getViewPlaneMatrix() const
       { return getViewMatrix() * translate(_nearPlanePosition) * promoteToGLMatrix(getInvViewRotationMatrix()); }
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
@@ -292,7 +412,7 @@ namespace magnet {
         The position of the viewers eye is relative to the center of
         the near viewing plane (in cm).
        */
-      inline const math::Vector getEyeLocation() const
+      virtual inline const math::Vector getEyeLocation() const
       { return _eyeLocation; }
 
       /*! \brief Get the projection matrix.
@@ -306,7 +426,7 @@ namespace magnet {
 	camera. See \ref GLMatrix::frustrum() for more information as
 	the parameter is directly passed to that function.
        */
-      inline GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
+      virtual inline GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
       {
 	//We will move the camera to the location of the eye in sim
 	//space. So we must create a viewing frustrum which, in real
@@ -341,7 +461,7 @@ namespace magnet {
         perspective shift for the left and right eye in Analygraph
         rendering.
        */
-      inline math::Matrix getNormalMatrix() const 
+      virtual inline math::Matrix getNormalMatrix() const 
       { return inverse(demoteToMatrix(getViewMatrix())); }
 
       //! \brief Returns the screen's width (in simulation units).
@@ -358,25 +478,6 @@ namespace magnet {
       //! \brief Get the distance to the far clipping plane
       inline const GLfloat& getZFar() const { return _zFarDist; }
 
-      /*! \brief Fetch the location of the users eyes, in object space
-        coordinates.
-        
-        Useful for eye tracking applications. This returns the
-        position of the eyes in object space by adding the eye
-        location (relative to the viewing plane/screen) onto the
-        current position.
-       */
-      inline math::Vector getPosition() const
-      { return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition; }
-
-      //! \brief Set the height and width of the screen in pixels.
-      inline void setHeightWidth(size_t height, size_t width)
-      { _height = height; _width = width; }
-
-      //! \brief Get the aspect ratio of the screen
-      inline GLfloat getAspectRatio() const
-      { return ((GLfloat)_width) / _height; }
-
       //! \brief Get the up direction of the camera.
       inline math::Vector getCameraUp() const 
       { return getInvViewRotationMatrix() * math::Vector{0,1,0}; } 
@@ -385,12 +486,6 @@ namespace magnet {
       inline math::Vector getCameraDirection() const 
       { return getInvViewRotationMatrix() * math::Vector{0,0,-1}; }
 
-      //! \brief Get the height of the screen, in pixels.
-      inline const size_t& getHeight() const { return _height; }
-
-      //! \brief Get the width of the screen, in pixels.
-      inline const size_t& getWidth() const { return _width; }
-      
       /*! \brief Gets the pixel "diameter" in cm. */
       inline const double& getPixelPitch() const { return _pixelPitch; }
 
@@ -400,73 +495,6 @@ namespace magnet {
       Camera_Mode getMode() const { return _camMode; }
 
       void setMode(Camera_Mode val) { _camMode = val; }
-
-      /*! \brief Used to convert world positions to screen coordinates (pixels).
-	
-	This returns y coordinates in the format that cairo and other
-	image programs expect (inverted compared to OpenGL).
-	
-	\return An array containing the x and y pixel locations,
-	followed by the depth and w value.
-       */
-      magnet::math::NVector<GLfloat, 4> project(math::Vector invec) const
-      {
-	magnet::math::NVector<GLfloat, 4> vec = {GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f};
-	vec = getProjectionMatrix() * (getViewMatrix() * vec);
-	
-	for (size_t i(0); i < 3; ++i) vec[i] /= std::abs(vec[3]);
-	
-	vec[0] = (0.5 + 0.5 * vec[0]) * getWidth();
-	vec[1] = (0.5 - 0.5 * vec[1]) * getHeight();
-	return  vec;
-      }
-
-      /*! \brief Used to convert mouse positions (including depth
-          information) into a 3D position.
-       */
-      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
-      {
-	//We need to calculate the ray from the camera
-	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
-					       1.0f - (2.0f * windowy) / getHeight(),
-					       depth, 1.0f};
-	//Unproject from NDC to camera coords
-	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
-	
-	//Perform the w divide
-	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
-	
-	//Unproject from camera to object space
-	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
-	return magnet::math::Vector{w[0], w[1], w[2]};
-      }
-
-      /*! \brief Used to convert mouse positions (including depth
-          information) into a 3D position.
-       */
-      math::Vector unprojectToDirection(int windowx, int windowy) const
-      {
-	//We need to calculate the ray from the camera
-	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
-				     1.0f - (2.0f * windowy) / getHeight(),
-				     0.0f, 1.0f};
-	//Unproject from NDC to camera coords
-	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
-	
-	//Perform the w divide
-	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
-	
-	//Zero the w coordinate to stop the translations from the
-	//viewmatrix affecting the vector
-	v[3] = 0;
-
-	//Unproject from camera to object space
-	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
-	
-	math::Vector vec{w[0], w[1], w[2]};
-	vec /= vec.nrm();
-	return vec;
-      }
 
       /*! \brief set the orientation (roll) of the camera by setting
           its up direction.
@@ -478,7 +506,7 @@ namespace magnet {
 	  the camera. It will look like the system is rotating but the
 	  camera is remaining fixed. The axis must be 
        */
-      void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0})
+      virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0})
       {
 	newup.normalise();
 	if (axis.nrm2() != 0)
@@ -493,15 +521,9 @@ namespace magnet {
       }
 
     protected:
-      size_t _height, _width;
       math::Vector _up;
       math::Vector _nearPlanePosition;
       math::Vector _rotatePoint;
-
-      //! \brief Distance to the near clipping plane, in cm.
-      GLfloat _zNearDist;
-      //! \brief Distance to the far clipping plane, in cm.
-      GLfloat _zFarDist;
 
       /*! \brief The location of the viewers eye, relative to the
 	screen, in cm.

@@ -28,7 +28,9 @@ namespace magnet {
       _log(log),
       _nearClip(0.1f),
       _farClip(30.0f)
-    {}
+    {
+      _hmd_pose = magnet::GL::GLMatrix::identity();
+    }
 
     ~OpenVRTracker() { shutdown(); }
 
@@ -94,7 +96,7 @@ namespace magnet {
       _projectionRight = convert(_vr->GetProjectionMatrix(vr::Eye_Right, _nearClip, _farClip));
       _eyePosLeft = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Left)));
       _eyePosRight = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Right)));
-      
+
       //Initialise Compositor
       if (vr::VRCompositor())
 	_log("Compositor initialised.");
@@ -121,7 +123,23 @@ namespace magnet {
 	_log("Shutdown of VR complete.");
       }
     }
+    
+    void update() {
+      float fSecondsSinceLastVsync;
+      _vr->GetTimeSinceLastVsync(&fSecondsSinceLastVsync, NULL);
+      
+      float fDisplayFrequency = _vr->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DisplayFrequency_Float);
+      float fFrameDuration = 1.f / fDisplayFrequency;
+      float fVsyncToPhotons = _vr->GetFloatTrackedDeviceProperty(vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SecondsFromVsyncToPhotons_Float);
+      
+      float fPredictedSecondsFromNow = fFrameDuration - fSecondsSinceLastVsync + fVsyncToPhotons;
+      
+      _vr->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, fPredictedSecondsFromNow, _tracked_devices.data(), vr::k_unMaxTrackedDeviceCount);
 
+      if (_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
+	_hmd_pose = convert(_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
+    }
+    
   protected:
     static magnet::GL::GLMatrix convert(vr::HmdMatrix44_t m) {
       magnet::GL::GLMatrix retval;
@@ -225,8 +243,9 @@ namespace magnet {
     vr::IVRSystem* _vr;
     std::function<void(std::string)> _log;
 
-    magnet::GL::GLMatrix _projectionLeft, _projectionRight, _eyePosLeft, _eyePosRight;
-
+    magnet::GL::GLMatrix _projectionLeft, _projectionRight, _eyePosLeft, _eyePosRight, _hmd_pose;
     float _nearClip, _farClip;
+
+    std::array<vr::TrackedDevicePose_t, vr::k_unMaxTrackedDeviceCount> _tracked_devices;
   };
 }

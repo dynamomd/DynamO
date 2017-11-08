@@ -95,7 +95,7 @@ namespace coil {
 
     void autoscaleView();
 
-    magnet::GL::Camera& getCamera() { return _camera; }
+    magnet::GL::CameraHeadTracking& getCamera() { return _camera; }
   protected:
     void addObjectWorker(const std::shared_ptr<RenderObj> nObj) {
       _renderObjsTree._renderObjects.push_back(nObj);
@@ -192,7 +192,7 @@ namespace coil {
     /*! \brief This camera must be a static member of the windows as
         other threads might queue tasks around it.
      */
-    magnet::GL::Camera _camera;
+    magnet::GL::CameraHeadTracking _camera;
     
     bool keyStates[256];
 

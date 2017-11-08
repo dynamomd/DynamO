@@ -166,28 +166,28 @@ namespace coil {
 
       _refXml->get_widget("CamPlusXbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{1,0,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{1,0,0}));
 
       _refXml->get_widget("CamPlusYbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,1,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,1,0}));
 
       _refXml->get_widget("CamPlusZbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,0,1}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,0,1}));
 
 
       _refXml->get_widget("CamNegXbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{-1,0,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{-1,0,0}));
 
       _refXml->get_widget("CamNegYbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,-1,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,-1,0}));
 
       _refXml->get_widget("CamNegZbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,0,-1}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,0,-1}));
     }
 
     {
@@ -413,7 +413,7 @@ namespace coil {
 	    _refXml->get_widget("filterActive", btn);
 	    btn->signal_toggled()
 	      .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
-	  }    
+	  }
 	}
       
 	{
@@ -817,7 +817,8 @@ namespace coil {
 
     ////////All of the camera movement and orientation has been
     ////////calculated with a certain fixed head position, now we
-    ////////actually perform the rendering with adjustments for the 
+    ////////actually perform the rendering with adjustments for the
+    ////////eyes
     
     const Vector oldHeadPosition = _camera.getEyeLocation();
     Vector headPosition = oldHeadPosition;
@@ -833,19 +834,23 @@ namespace coil {
 	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
       }
 #endif
-
-    //Bind to the multisample buffer
-    if (!_stereoMode)
-      {
-	_camera.setEyeLocation(headPosition);
-	drawScene(_camera);
-	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
-      }
-    else
-      {
-	const double eyedist = 6.5;
-	Vector eyeDisplacement{0.5 * eyedist, 0, 0};
-
+  
+#ifdef COIL_OpenVR
+    if (_openVRMode) {
+      _openVR.update();
+      _camera.setEyeLocation(headPosition);
+      drawScene(_camera);
+      _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());      
+    } else
+#endif     
+      if (!_stereoMode) {
+      _camera.setEyeLocation(headPosition);
+      drawScene(_camera);
+      _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+    } else {
+      const double eyedist = 6.5;
+      Vector eyeDisplacement{0.5 * eyedist, 0, 0};
+      
 	Gtk::ComboBox* stereoMode;
 	_refXml->get_widget("StereoMode", stereoMode);
 	int mode = stereoMode->get_active_row_number();
@@ -2133,18 +2138,18 @@ namespace coil {
       {
       case ROTATE_CAMERA:
 	_cameraMode = ROTATE_WORLD;
-	_camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	_camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_POINT);
 	break;
       case ROTATE_WORLD:
 	if (_selectedObject)
 	  {
 	    _cameraMode = ROTATE_POINT;
-	    _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	    _camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_POINT);
 	    break;
 	  }
       case ROTATE_POINT:
 	_cameraMode = ROTATE_CAMERA;
-	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
+	_camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_CAMERA);
 	break;
       default:
 	M_throw() << "Cannot change camera mode as it's in an unknown mode";
@@ -2612,7 +2617,7 @@ namespace coil {
 	
     _cameraFocus = centre;
     _cameraMode = ROTATE_WORLD;
-    _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+    _camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_POINT);
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);

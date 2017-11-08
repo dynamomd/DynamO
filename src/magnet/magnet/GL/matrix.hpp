@@ -34,7 +34,7 @@ namespace magnet {
     inline GLMatrix promoteToGLMatrix(const math::Matrix& M) {
       GLMatrix retval;
       for (size_t i(0); i < 3; ++i)
-	  for (size_t j(0); j < 3; ++j)
+	for (size_t j(0); j < 3; ++j)
 	    retval(i,j) = M(i, j);
       retval(3,3) = 1;
       return retval;
@@ -104,10 +104,10 @@ namespace magnet {
       GLfloat C = -(farVal + nearVal) / (farVal - nearVal);
       GLfloat D = -2 * farVal * nearVal / (farVal - nearVal);
       
-      return GLMatrix{2 * nearVal / (right - left), 0, A, 0,
-	  0, 2 * nearVal / (top - bottom), B, 0,
-	  0, 0, C, D,
-	  0, 0, -1, 0};
+      return GLMatrix{2 * nearVal / (right - left), 0,                            A, 0,
+	              0,                            2 * nearVal / (top - bottom), B, 0,
+	              0,                            0,                            C, D,
+	              0,                            0,                           -1, 0};
     }
     /*! \brief Return a matrix corresponding to a perspective projection.
      *
@@ -118,9 +118,9 @@ namespace magnet {
     { 
       GLfloat f = 1 / std::tan(fovy * 0.5f);
       return GLMatrix{f / aspect, 0, 0, 0,
-	              0, f, 0, 0,
-	              0, 0, (zFar + zNear) / (zNear - zFar), 2 * zFar * zNear / (zNear - zFar),
-	              0, 0, -1, 0};
+	              0,          f, 0, 0,
+	              0,          0, (zFar + zNear) / (zNear - zFar), 2 * zFar * zNear / (zNear - zFar),
+	              0,          0, -1, 0};
     }
   }
 }
