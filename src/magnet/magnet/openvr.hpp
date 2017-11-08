@@ -32,8 +32,6 @@ namespace magnet {
       _hmd_pose = magnet::GL::GLMatrix::identity();
     }
 
-    virtual magnet::GL::GLMatrix getViewRotationMatrix() const { return magnet::GL::GLMatrix();}
-    virtual magnet::math::Matrix getInvViewRotationMatrix() const { return magnet::math::Matrix(); }
     virtual magnet::GL::GLMatrix getViewMatrix() const { return magnet::GL::GLMatrix();}
     virtual magnet::GL::GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const { return magnet::GL::GLMatrix();}
 

@@ -40,8 +40,6 @@ namespace magnet {
 	  M_throw() << "zNearDist > _zFarDist!";
       }
       
-      virtual GLMatrix getViewRotationMatrix() const = 0;
-      virtual math::Matrix getInvViewRotationMatrix() const = 0;
       virtual GLMatrix getViewMatrix() const  = 0;
       virtual GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const = 0;
       virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
@@ -55,6 +53,13 @@ namespace magnet {
        */
       inline math::Matrix getNormalMatrix() const 
       { return inverse(demoteToMatrix(getViewMatrix())); }
+
+      /*! \brief Get the rotation part of the getViewMatrix(). */
+      GLMatrix getViewRotationMatrix() const {
+	//We can just cut it to a normal matrix, then re-promote to
+	//get the rotation piece
+	return magnet::GL::promoteToGLMatrix(magnet::GL::demoteToMatrix(getViewMatrix()));
+      }
 
       /*! \brief Fetch the location of the users eyes, in object space
         coordinates.
@@ -269,18 +274,12 @@ namespace magnet {
 	setPosition(oldEyePosition);
       }
 
-      /*! \brief Get the rotation part of the getViewMatrix().
-       */
-      virtual inline GLMatrix getViewRotationMatrix() const { return promoteToGLMatrix(_rotation.toMatrix()); }
-
-      virtual inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
-
       /*! \brief Get the modelview matrix. */
       virtual inline GLMatrix getViewMatrix() const 
       {
 	//Add in the movement of the eye and the movement of the
 	//camera
-	math::Vector cameraLocation = (getInvViewRotationMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
+	math::Vector cameraLocation = (_rotation.inverse().toMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
 	
 	//Setup the view matrix
 	return promoteToGLMatrix(_rotation.toMatrix()) * translate(-cameraLocation);
@@ -376,7 +375,7 @@ namespace magnet {
 
       inline void setPosition(math::Vector newposition)
       {
-	_nearPlanePosition = newposition - (getInvViewRotationMatrix() * _eyeLocation / _simLength);
+	_nearPlanePosition = newposition - (getNormalMatrix() * _eyeLocation / _simLength);
       }
 
       inline void setRotatePoint(math::Vector vec)
@@ -470,11 +469,11 @@ namespace magnet {
 
       //! \brief Get the up direction of the camera.
       inline math::Vector getCameraUp() const 
-      { return getInvViewRotationMatrix() * math::Vector{0,1,0}; } 
+      { return getNormalMatrix() * math::Vector{0,1,0}; } 
 
       //! \brief Get the direction the camera is pointing in
       inline math::Vector getCameraDirection() const 
-      { return getInvViewRotationMatrix() * math::Vector{0,0,-1}; }
+      { return getNormalMatrix() * math::Vector{0,0,-1}; }
 
       /*! \brief Gets the pixel "diameter" in cm. */
       inline const double& getPixelPitch() const { return _pixelPitch; }
