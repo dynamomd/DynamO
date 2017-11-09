@@ -41,7 +41,7 @@ namespace magnet {
       }
       
       virtual GLMatrix getViewMatrix() const  = 0;
-      virtual GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const = 0;
+      virtual GLMatrix getProjectionMatrix() const = 0;
       virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
 
       /*! \brief Get the normal matrix.
@@ -425,7 +425,7 @@ namespace magnet {
 	camera. See \ref GLMatrix::frustrum() for more information as
 	the parameter is directly passed to that function.
        */
-      virtual inline GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
+      virtual inline GLMatrix getProjectionMatrix() const 
       {
 	//We will move the camera to the location of the eye in sim
 	//space. So we must create a viewing frustrum which, in real
@@ -450,7 +450,7 @@ namespace magnet {
 			(+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
 			_zNearDist / _simLength,//Near distance
 			_zFarDist / _simLength,//Far distance
-			zoffset);
+			0.0f);
       }
       
       //! \brief Returns the screen's width (in simulation units).

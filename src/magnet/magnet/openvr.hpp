@@ -24,16 +24,28 @@
 namespace magnet {
   class OpenVRTracker : public magnet::GL::Camera{
   public:
+    enum class Eye {Left, Right};
+    
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
       Camera(1,1, 0.1f, 30.0f),
       _vr(nullptr),
-      _log(log)
+      _log(log),
+      _eye(Eye::Left)
     {
       _hmd_pose = magnet::GL::GLMatrix::identity();
     }
 
-    virtual magnet::GL::GLMatrix getViewMatrix() const { return magnet::GL::GLMatrix();}
-    virtual magnet::GL::GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const { return magnet::GL::GLMatrix();}
+    void setEye(Eye x) {
+      _eye = x;
+    }
+    
+    virtual magnet::GL::GLMatrix getViewMatrix() const {
+      return magnet::GL::GLMatrix();
+    }
+    
+    virtual magnet::GL::GLMatrix getProjectionMatrix() const {
+      return magnet::GL::GLMatrix();
+    }
 
     //Not implemented!
     virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) {}
@@ -97,9 +109,9 @@ namespace magnet {
 	  _log("Device#"+std::to_string(i)+" class: "+to_string(_vr->GetTrackedDeviceClass(i)));
 	}
 
-      //Initialise GL
-      _projectionLeft = convert(_vr->GetProjectionMatrix(vr::Eye_Left, _nearClip, _farClip));
-      _projectionRight = convert(_vr->GetProjectionMatrix(vr::Eye_Right, _nearClip, _farClip));
+      //Initialise GL	
+      _projectionLeft = convert(_vr->GetProjectionMatrix(vr::Eye_Left, _zNearDist, _zFarDist));
+      _projectionRight = convert(_vr->GetProjectionMatrix(vr::Eye_Right, _zNearDist, _zFarDist));
       _eyePosLeft = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Left)));
       _eyePosRight = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Right)));
 
@@ -250,8 +262,7 @@ namespace magnet {
     std::function<void(std::string)> _log;
 
     magnet::GL::GLMatrix _projectionLeft, _projectionRight, _eyePosLeft, _eyePosRight, _hmd_pose;
-    float _nearClip, _farClip;
-
+    Eye _eye;
     std::array<vr::TrackedDevicePose_t, vr::k_unMaxTrackedDeviceCount> _tracked_devices;
   };
 }
