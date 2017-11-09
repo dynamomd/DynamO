@@ -836,19 +836,18 @@ namespace coil {
 #endif
     
 #ifdef COIL_OpenVR
-    if (_openVRMode) {      
+    if (_openVRMode) {
       _openVR.getPosesAndSync();
 
       _openVR.setEye(vr::Eye_Left);
-      drawScene(_openVR);
+      drawScene(_openVR, _renderTarget);
       _openVR.submit(*_renderTarget.getColorTexture());
-      glBindTexture(GL_TEXTURE_2D, 0);
       
       _openVR.setEye(vr::Eye_Right);
-      drawScene(_openVR);
+      drawScene(_openVR, _renderTarget);
       _openVR.submit(*_renderTarget.getColorTexture());
-      glBindTexture(GL_TEXTURE_2D, 0);
-
+      glFlush();
+      
       _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
 
       _openVR.PostPresentHandoff();
@@ -858,7 +857,7 @@ namespace coil {
 #endif     
       if (!_stereoMode) {
       _camera.setEyeLocation(headPosition);
-      drawScene(_camera);
+      drawScene(_camera, _renderTarget);
       _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
     } else {
       const double eyedist = 6.5;
@@ -873,7 +872,7 @@ namespace coil {
 	  case 0: //Analygraph Red-Cyan
 	    //Do the right eye
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, _renderTarget);
 
 	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);	
 	    _glContext->setDepthTest(false);
@@ -886,7 +885,7 @@ namespace coil {
 	    ////Do the left eye
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, _renderTarget);
 
 	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
 	    _glContext->setDepthTest(false);
@@ -900,23 +899,23 @@ namespace coil {
 	    break;
 	  case 1:
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, _renderTarget);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, _renderTarget);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, _renderTarget);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, _renderTarget);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
@@ -975,7 +974,7 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::Camera& camera)
+  CLGLWindow::drawScene(magnet::GL::Camera& camera, magnet::GL::FBO& renderTarget)
   {
     //We perform a deffered shading pass followed by a forward shading
     //pass for objects which cannot be deferred, like volumes etc.
@@ -1234,7 +1233,7 @@ namespace coil {
       }
 
     ///////////////////////Tone Mapping///////////////////////////
-    _renderTarget.attach();
+    renderTarget.attach();
     _hdrBuffer.getColorTexture()->bind(0);
     luminanceSource->getColorTexture()->bind(1);
     if (_bloomEnable)
@@ -1251,18 +1250,18 @@ namespace coil {
     _toneMapShader["background_color"] = _backColor;
     _toneMapShader.invoke();
     _toneMapShader.detach();
-    _renderTarget.detach();
+    renderTarget.detach();
 
     //////////////////////FILTERING////////////
     //Attempt to perform some filtering
 
     bool FBOalternate = false;
-    magnet::GL::FBO* lastFBO = &_renderTarget;
+    magnet::GL::FBO* lastFBO = &renderTarget;
     
     if (_filterEnable)
       {
        	//Bind the original image to texture unit 0
-       	_renderTarget.getColorTexture(0)->bind(0);
+       	renderTarget.getColorTexture(0)->bind(0);
 
 	//We can attach the GBuffer textures, for the normals and the
 	//positions.
@@ -1337,17 +1336,17 @@ namespace coil {
 
     //Check if we actually did something and copy the data to the
     //output FBO if needed
-    if (lastFBO != &_renderTarget)
+    if (lastFBO != &renderTarget)
       {
 	lastFBO->attach();
-	_renderTarget.getColorTexture(0)->bind(0);
+	renderTarget.getColorTexture(0)->bind(0);
 	glActiveTextureARB(GL_TEXTURE0);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), 
 			    _camera.getHeight());
 	lastFBO->detach();
       }
 
-    _glContext->setDepthTest(true);   
+    _glContext->setDepthTest(true);
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
