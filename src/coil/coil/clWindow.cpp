@@ -838,8 +838,8 @@ namespace coil {
 #ifdef COIL_OpenVR
     if (_openVRMode) {
       _openVR.update();
-      _camera.setEyeLocation(headPosition);
-      drawScene(_camera);
+      _openVR.setEye(_openVR.Eye::Left);
+      drawScene(_openVR);
       _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
     } else
 #endif     

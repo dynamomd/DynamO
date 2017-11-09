@@ -40,11 +40,25 @@ namespace magnet {
     }
     
     virtual magnet::GL::GLMatrix getViewMatrix() const {
-      return magnet::GL::GLMatrix();
+      switch(_eye){
+      case Eye::Left:
+	return _eyePosLeft * _hmd_pose;
+      case Eye::Right:
+	return _eyePosRight * _hmd_pose;
+      default:
+	M_throw() << "Bad enumeration in OpenVRTracker::getViewMatrix";
+      }
     }
     
     virtual magnet::GL::GLMatrix getProjectionMatrix() const {
-      return magnet::GL::GLMatrix();
+      switch(_eye){
+      case Eye::Left:
+	return _projectionLeft;
+      case Eye::Right:
+	return _projectionRight;
+      default:
+	M_throw() << "Bad enumeration in OpenVRTracker::getProjectionMatrix";
+      }
     }
 
     //Not implemented!
