@@ -836,11 +836,24 @@ namespace coil {
 #endif
     
 #ifdef COIL_OpenVR
-    if (_openVRMode) {
-      _openVR.update();
-      _openVR.setEye(_openVR.Eye::Left);
+    if (_openVRMode) {      
+      _openVR.getPosesAndSync();
+
+      _openVR.setEye(vr::Eye_Left);
       drawScene(_openVR);
+      _openVR.submit(*_renderTarget.getColorTexture());
+      glBindTexture(GL_TEXTURE_2D, 0);
+      
+      _openVR.setEye(vr::Eye_Right);
+      drawScene(_openVR);
+      _openVR.submit(*_renderTarget.getColorTexture());
+      glBindTexture(GL_TEXTURE_2D, 0);
+
       _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+
+      _openVR.PostPresentHandoff();
+
+      _openVR.handleEvents();
     } else
 #endif     
       if (!_stereoMode) {
@@ -1428,14 +1441,13 @@ namespace coil {
       //Build the main/left-eye render buffer
       std::shared_ptr<magnet::GL::Texture2D> 
 	colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA8);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
       std::shared_ptr<magnet::GL::Texture2D> 
 	depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			 GL_DEPTH_COMPONENT);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
       depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
