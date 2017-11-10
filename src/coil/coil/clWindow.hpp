@@ -184,9 +184,6 @@ namespace coil {
     volatile int _lastFrameTime;
     int _FPStime; 
     int _lastUpdateTime;
-    int _frameRenderTime;
-
-    sigc::connection _renderTimeout;
 
     /*! \brief This camera must be a static member of the windows as
         other threads might queue tasks around it.

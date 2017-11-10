@@ -197,7 +197,7 @@ namespace coil {
 
     CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackVisibilityFunc(visible);
   }
-
+  
   void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWindow){
 
     // Open new window, record its windowID , 
@@ -207,14 +207,14 @@ namespace coil {
     coilWindow->SetWindowID(windowID);
 
     // Store the address of new window in global array 
-    // so CoilMaster can send events to propoer callback functions.
+    // so CoilMaster can send events to proper callback functions.
 
     // Hand address of universal static callback functions to Glut.
     // This must be for each new window, even though the address are constant.
     glutDisplayFunc(CallBackDisplayFunc);
    
     //Idling is handled in coilMasters main loop
-    glutIdleFunc(NULL);
+    //Timeout for render
     glutKeyboardFunc(CallBackKeyboardFunc);
     glutKeyboardUpFunc(CallBackKeyboardUpFunc);
     glutSpecialFunc(CallBackSpecialFunc);
@@ -257,19 +257,29 @@ namespace coil {
       glutInit(&magnet::ArgShare::getInstance().getArgc(), 
 	       magnet::ArgShare::getInstance().getArgv());
 
-      glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, 
-		    GLUT_ACTION_CONTINUE_EXECUTION);
+      glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
       //Register the idle function
-      Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
+      //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
       //Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
       //Glib::PRIORITY_DEFAULT_IDLE);
 
-      Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, 
-				     Glib::PRIORITY_DEFAULT_IDLE);
+      //This timeout is used to perform occasional tasks (that might block)
+      Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, Glib::PRIORITY_DEFAULT_IDLE);
     
       _coilReadyFlag = true;
-      _GTKit->run();
+
+      //Run a iterations, which can be stopped by the GTK loop, but
+      //process other periodic work like glut, and
+      //rendering. Rendering always comes first (as it may block on
+      //vsync and need to complete its work before the next vsync)
+      do {
+	for (auto& win : _viewPorts)
+	  win.second->CallBackIdleFunc();
+	    
+	glutMainLoopEvent();
+      } while (_GTKit->iteration(false));
+      
     } catch (std::exception& except)
       {
 	std::cerr << "\nRender thread caught an exception\n"
@@ -330,13 +340,6 @@ namespace coil {
 	renderThreadShutdownTasks();
       }
 
-    return true;
-  }
-
-  bool 
-  CoilMaster::glutIdleTimeout()
-  {
-    glutMainLoopEvent();
     return true;
   }
 

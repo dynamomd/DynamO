@@ -142,9 +142,6 @@ namespace coil {
     /////////Timeout for FPS and UPS calculation
     _timeout_connection = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
 
-    //Timeout for render
-    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, Glib::PRIORITY_DEFAULT_IDLE);
-
     ////////Store the control window
     _refXml->get_widget("controlWindow", controlwindow);
   
@@ -662,8 +659,7 @@ namespace coil {
     glutIgnoreKeyRepeat(1);
 
     _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
-    _frameRenderTime = 0;
-
+   
     _copyShader.build();
     _downsampleShader.build();
     _blurShader.build();
@@ -737,7 +733,6 @@ namespace coil {
     _filterStore->clear();
 
     _timeout_connection.disconnect();
-    _renderTimeout.disconnect();
 
     {
       Gtk::Window* controlwindow;
@@ -784,8 +779,7 @@ namespace coil {
   void 
   CLGLWindow::CallBackDisplayFunc()
   {
-    if (!CoilRegister::getCoilInstance().isRunning()
-	|| !_readyFlag) return;
+    if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
     //Setup the timings
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
@@ -811,18 +805,6 @@ namespace coil {
     float vertical =  moveAmp * (keyStates[static_cast<size_t>('q')] - keyStates[static_cast<size_t>('z')]);
     _camera.movement(0, 0, forward, sideways, vertical);
 
-    ////////////GUI UPDATES
-    //We frequently ping the gui update
-    guiUpdateCallback();
-
-    ////////All of the camera movement and orientation has been
-    ////////calculated with a certain fixed head position, now we
-    ////////actually perform the rendering with adjustments for the
-    ////////eyes
-    
-    const Vector oldHeadPosition = _camera.getEyeLocation();
-    Vector headPosition = oldHeadPosition;
-
 #ifdef COIL_wiimote
     //Run an update if the wiiMote was connected
     if ((magnet::TrackWiimote::getInstance()).connected())
@@ -837,22 +819,35 @@ namespace coil {
     
 #ifdef COIL_OpenVR
     if (_openVRMode) {
+
       _openVR.getPosesAndSync();
 
       _openVR.setEye(vr::Eye_Left);
-      drawScene(_openVR, _openVR.l_renderTarget);            
-      _openVR.submit(*_openVR.l_renderTarget.getColorTexture());
+      drawScene(_openVR, _openVR.l_renderTarget);
+      _openVR.submit(*_openVR.l_renderTarget.getColorTexture());      
 
       _openVR.setEye(vr::Eye_Right);
-      drawScene(_openVR, _openVR.r_renderTarget);
+      drawScene(_openVR, _openVR.r_renderTarget);      
       _openVR.submit(*_openVR.r_renderTarget.getColorTexture());
-      glFlush();
-      
+
       _openVR.PostPresentHandoff();
+      
       _openVR.handleEvents();
     }
 #endif
+
+    ////////////GUI UPDATES
+    //We frequently ping the gui update
+    guiUpdateCallback();
+
+    ////////All of the camera movement and orientation has been
+    ////////calculated with a certain fixed head position, now we
+    ////////actually perform the rendering with adjustments for the
+    ////////eyes
     
+    const Vector oldHeadPosition = _camera.getEyeLocation();
+    Vector headPosition = oldHeadPosition;
+
     if (!_stereoMode) {
       _camera.setEyeLocation(headPosition);
       drawScene(_camera, _renderTarget);
@@ -929,8 +924,7 @@ namespace coil {
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available
-    if (_snapshot 
-	|| ((_record) && (!_simframelock || _newData)))
+    if (_snapshot || ((_record) && (!_simframelock || _newData)))
       {	
 	std::vector<uint8_t> pixels;
 	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
@@ -965,10 +959,8 @@ namespace coil {
 	_newData = false;
       }
 
-    ++_frameCounter; 
+    ++_frameCounter;
     _lastFrameTime = _currFrameTime;
-    _frameRenderTime = glutGet(GLUT_ELAPSED_TIME) - _currFrameTime;
-    //M_throw() << "Abort render!";
   }
 
   void 
@@ -1999,14 +1991,11 @@ namespace coil {
     _refXml->get_widget("FPSLimitVal", fpsButton);
     _fpsLimitValue = fpsButton->get_value();
 
-    _renderTimeout.disconnect();
-    if (!_fpsLimit)
-      _renderTimeout = Glib::signal_idle().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc));
-//    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
-//						      Glib::PRIORITY_DEFAULT_IDLE);
-    else if (_fpsLimitValue != 0)
-      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
-						      1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
+    //_renderTimeout.disconnect();
+    //if (!_fpsLimit)
+    //  _renderTimeout = Glib::signal_idle().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc));
+    //else if (_fpsLimitValue != 0)
+    //  _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
   }
 
   void

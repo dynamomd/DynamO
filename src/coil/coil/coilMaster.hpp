@@ -118,8 +118,6 @@ namespace coil {
 
     std::unique_ptr<Gtk::Main> _GTKit;
 
-    bool glutIdleTimeout();
-
     //This is a GTK timeout function to make sure any tasks for the coil
     //thread are performed. This is performed in a timer as it's too
     //expensive to do all the time (due to the lock)
