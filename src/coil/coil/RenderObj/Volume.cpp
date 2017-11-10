@@ -78,7 +78,7 @@ namespace coil {
     _currentDepthFBO.attachTexture(depthTexture);
 
     initGTK();
-    _initialised = True;
+    _initialised = true;
   }
 
   void 
