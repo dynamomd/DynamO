@@ -819,12 +819,11 @@ namespace coil {
     
 #ifdef COIL_OpenVR
     if (_openVRMode) {
-
       _openVR.getPosesAndSync();
 
       _openVR.setEye(vr::Eye_Left);
       drawScene(_openVR, _openVR.l_renderTarget);
-      _openVR.submit(*_openVR.l_renderTarget.getColorTexture());      
+      _openVR.submit(*_openVR.l_renderTarget.getColorTexture());
 
       _openVR.setEye(vr::Eye_Right);
       drawScene(_openVR, _openVR.r_renderTarget);      
@@ -835,10 +834,6 @@ namespace coil {
       _openVR.handleEvents();
     }
 #endif
-
-    ////////////GUI UPDATES
-    //We frequently ping the gui update
-    guiUpdateCallback();
 
     ////////All of the camera movement and orientation has been
     ////////calculated with a certain fixed head position, now we
@@ -961,6 +956,10 @@ namespace coil {
 
     ++_frameCounter;
     _lastFrameTime = _currFrameTime;
+
+    ////////////GUI UPDATES
+    //We frequently ping the gui update
+    guiUpdateCallback();
   }
 
   void 
@@ -2316,7 +2315,6 @@ namespace coil {
 	  } else
 	    btn->set_active(false);
 	} else {
-	  //Shutdown OpenVR
 	  _openVR.shutdown();
 	  _openVRMode = false;
 	  btn->set_active(false);

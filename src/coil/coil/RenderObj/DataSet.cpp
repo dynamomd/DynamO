@@ -67,7 +67,7 @@ namespace coil {
     //We don't initialise the attributes, as they're initialised on access
     _context = magnet::GL::Context::getContext();
 
-    _initialised = True;
+    _initialised = true;
   }
 
 
