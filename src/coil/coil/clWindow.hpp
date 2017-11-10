@@ -25,7 +25,6 @@
 #include <magnet/GL/shader/toneMap.hpp>
 #include <magnet/GL/shader/depthResolver.hpp>
 #include <magnet/GL/camera.hpp>
-#include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
 #include <magnet/GL/objects/cairo.hpp>

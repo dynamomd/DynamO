@@ -840,22 +840,20 @@ namespace coil {
       _openVR.getPosesAndSync();
 
       _openVR.setEye(vr::Eye_Left);
-      drawScene(_openVR, _renderTarget);
-      _openVR.submit(*_renderTarget.getColorTexture());
-      
+      drawScene(_openVR, _openVR.l_renderTarget);            
+      _openVR.submit(*_openVR.l_renderTarget.getColorTexture());
+
       _openVR.setEye(vr::Eye_Right);
-      drawScene(_openVR, _renderTarget);
-      _openVR.submit(*_renderTarget.getColorTexture());
+      drawScene(_openVR, _openVR.r_renderTarget);
+      _openVR.submit(*_openVR.r_renderTarget.getColorTexture());
       glFlush();
       
-      _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
-
       _openVR.PostPresentHandoff();
-
       _openVR.handleEvents();
-    } else
-#endif     
-      if (!_stereoMode) {
+    }
+#endif
+    
+    if (!_stereoMode) {
       _camera.setEyeLocation(headPosition);
       drawScene(_camera, _renderTarget);
       _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
@@ -1016,7 +1014,7 @@ namespace coil {
     _depthResolverShader.attach();
     _depthResolverShader["posTex"] = 2;
     _depthResolverShader["samples"] = GLint(_samples);
-    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _depthResolverShader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _depthResolverShader.invoke();
     _depthResolverShader.detach();
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -1076,7 +1074,7 @@ namespace coil {
 	_shadowLightShader["positionTex"] = 2;
 	_shadowLightShader["shadowTex"] = 7;
 	_shadowLightShader["shadowMatrix"]
-	  = light->getShadowTextureMatrix() * inverse(_camera.getViewMatrix());
+	  = light->getShadowTextureMatrix() * inverse(camera.getViewMatrix());
 	_shadowLightShader["samples"] = GLint(_samples);
 	_shadowLightShader["lightColor"] = light->getLightColor();
 	_shadowLightShader["lightSpecularExponent"] = light->getSpecularExponent();
@@ -1282,7 +1280,7 @@ namespace coil {
        		lastFBO->attach();
        		glActiveTextureARB(GL_TEXTURE0);
        		//Now copy the texture 
-       		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
+       		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, camera.getWidth(), camera.getHeight());
        		lastFBO->detach();
        	      }
        	    else
@@ -1294,7 +1292,7 @@ namespace coil {
        		else
        		  _filterTarget2.attach();
        	      
-       		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
+       		filter.invoke(3, camera.getWidth(), camera.getHeight(), camera);
        	      
        		if (FBOalternate)
        		  { _filterTarget1.detach(); lastFBO = &_filterTarget1; }
@@ -1315,7 +1313,7 @@ namespace coil {
 
     _glContext->cleanupAttributeArrays();
     for (auto& obj : _renderObjsTree._renderObjects)
-      obj->interfaceRender(_camera, _cairo_screen);
+      obj->interfaceRender(camera, _cairo_screen);
 
     //Draw the cursor if an object is selected
     if (_selectedObject)
@@ -1341,8 +1339,8 @@ namespace coil {
 	lastFBO->attach();
 	renderTarget.getColorTexture(0)->bind(0);
 	glActiveTextureARB(GL_TEXTURE0);
-	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), 
-			    _camera.getHeight());
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, camera.getWidth(), 
+			    camera.getHeight());
 	lastFBO->detach();
       }
 
@@ -1359,12 +1357,13 @@ namespace coil {
     if (_openVRMode) {
       std::array<uint32_t, 2> dims = _openVR.getRenderDims();
       //We have to prevent infinite loops 
-      if ((uint32_t(w) != dims[0]) && (uint32_t(h) != dims[1])) {
-	//Prevent window resize!
-	glutReshapeWindow(dims[0], dims[1]);
-	return;
-      }
-    }
+      resizeRender(dims[0], dims[1]);
+      //if ((uint32_t(w) != dims[0]) && (uint32_t(h) != dims[1])) {
+      //	//Prevent window resize!
+      //	glutReshapeWindow(dims[0], dims[1]);
+      //	return;
+      //}
+    } else
 #endif
     resizeRender(w, h);
   }

@@ -26,7 +26,7 @@ namespace magnet {
   public:
     
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
-      Camera(1,1, 0.1f, 30.0f),
+      Camera(1, 1, 0.1f, 30.0f),
       _vr(nullptr),
       _log(log),
       _eye(vr::Eye_Left)
@@ -130,10 +130,47 @@ namespace magnet {
 	shutdown();
 	return;
       }
+
+      std::array<uint32_t, 2> dims = getRenderDims();
+      setHeightWidth(dims[0],dims[1]);
+      
+      std::shared_ptr<magnet::GL::Texture2D> l_colorTexture(new magnet::GL::Texture2D);
+      l_colorTexture->init(dims[0], dims[1], GL_RGBA8);
+      l_colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      l_colorTexture->parameter(GL_TEXTURE_MAX_LEVEL, 0);
+
+      std::shared_ptr<magnet::GL::Texture2D> l_depthTexture(new magnet::GL::Texture2D);
+      l_depthTexture->init(dims[0], dims[1], GL_DEPTH_COMPONENT);
+      l_depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      l_depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      l_depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+      l_renderTarget.init();
+      l_renderTarget.attachTexture(l_colorTexture, 0);
+      l_renderTarget.attachTexture(l_depthTexture);
+
+      std::shared_ptr<magnet::GL::Texture2D> r_colorTexture(new magnet::GL::Texture2D);
+      r_colorTexture->init(dims[0], dims[1], GL_RGBA8);
+      r_colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      l_colorTexture->parameter(GL_TEXTURE_MAX_LEVEL, 0);
+
+      std::shared_ptr<magnet::GL::Texture2D> r_depthTexture(new magnet::GL::Texture2D);
+      r_depthTexture->init(dims[0], dims[1], GL_DEPTH_COMPONENT);
+      r_depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      r_depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      r_depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      r_renderTarget.init();
+      r_renderTarget.attachTexture(r_colorTexture, 0);
+      r_renderTarget.attachTexture(r_depthTexture);
     }
 
-    bool initialised() const { return _vr != nullptr; }
+    magnet::GL::FBO l_renderTarget;
+    magnet::GL::FBO r_renderTarget;
 
+    
+    bool initialised() const { return _vr != nullptr; }
+    
     std::array<uint32_t, 2> getRenderDims() const {
       uint32_t renderWidth, renderHeight;
       _vr->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
@@ -144,6 +181,8 @@ namespace magnet {
       if (_vr != nullptr) {
 	vr::VR_Shutdown();
 	_vr = nullptr;
+	l_renderTarget.deinit();
+	r_renderTarget.deinit();
 	_log("Shutdown of VR complete.");
       }
     }
@@ -182,7 +221,7 @@ namespace magnet {
 	_log("Error: "+to_string(err));
       
       if (_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
-	_hmd_pose = convert(_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
+	_hmd_pose = magnet::math::inverse(convert(_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));
 	_eyePosLeft = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Left)));
 	_eyePosRight = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Right)));
 	
