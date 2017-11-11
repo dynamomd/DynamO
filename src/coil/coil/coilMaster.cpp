@@ -32,28 +32,26 @@ namespace coil {
   CoilMaster* CoilRegister::_instance = NULL;
   std::mutex CoilRegister::_mutex;
   size_t CoilRegister::_counter = 0;
+  bool CoilMaster::parallel = true;
 
   CoilMaster::CoilMaster():
-    _runFlag(false),
+    _runFlag(true),
     _coilReadyFlag(false)
   {
-    bootRenderThread();
+    if (parallel) {
+      _coilThread = std::thread(std::bind(&CoilMaster::render_thread_entry_point, this));
+      
+      //Spinlock waiting for the boot thread to come up
+      while (!_coilReadyFlag) { std::this_thread::yield(); }
+    } else
+      init_tasks();
   }
-
+  
   CoilMaster::~CoilMaster()
   {
     //The thread must be shut down first before we can destroy the data members of this class
     shutdownCoil();
     waitForShutdown();
-  }
-
-  void CoilMaster::bootRenderThread()
-  {
-    _runFlag = true;
-    _coilThread = std::thread(std::bind(&CoilMaster::coilThreadEntryPoint, this));
-  
-    //Spinlock waiting for the boot thread to come up
-    while (!_coilReadyFlag) { smallSleep(); }
   }
  
   void CoilMaster::CallBackDisplayFunc(){
@@ -234,52 +232,46 @@ namespace coil {
     _viewPorts.erase(windowID);
   }
 
-  void CoilMaster::smallSleep()
-  {
-    timespec sleeptime;
-    sleeptime.tv_sec = 0;
-    sleeptime.tv_nsec = 100000000;
-    nanosleep(&sleeptime, NULL);
-  }
-
   void 
   CoilMaster::waitForShutdown()
   {
-    if (_coilThread.joinable()) _coilThread.join();
+    if (parallel && _coilThread.joinable())
+      _coilThread.join();
   }
 
-  void CoilMaster::coilThreadEntryPoint()
+  void CoilMaster::init_tasks() {
+    _GTKit.reset(new Gtk::Main(magnet::ArgShare::getInstance().getArgc(),
+			       magnet::ArgShare::getInstance().getArgv()));
+
+    glutInit(&magnet::ArgShare::getInstance().getArgc(), 
+	     magnet::ArgShare::getInstance().getArgv());
+
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+    //Register the idle function
+    //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
+    //Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
+    //Glib::PRIORITY_DEFAULT_IDLE);
+
+    //This timeout is used to perform occasional tasks (that might block)
+    Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, Glib::PRIORITY_DEFAULT_IDLE);
+    
+    _coilReadyFlag = true;
+  }
+
+  bool CoilMaster::main_loop_iter() {
+    for (auto& win : _viewPorts)
+      win.second->CallBackIdleFunc();
+    
+    glutMainLoopEvent();
+    return _GTKit->iteration(false);
+  }
+  
+  void CoilMaster::render_thread_entry_point()
   {
     try {
-      _GTKit.reset(new Gtk::Main(magnet::ArgShare::getInstance().getArgc(),
-				 magnet::ArgShare::getInstance().getArgv()));
-
-      glutInit(&magnet::ArgShare::getInstance().getArgc(), 
-	       magnet::ArgShare::getInstance().getArgv());
-
-      glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-
-      //Register the idle function
-      //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
-      //Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
-      //Glib::PRIORITY_DEFAULT_IDLE);
-
-      //This timeout is used to perform occasional tasks (that might block)
-      Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, Glib::PRIORITY_DEFAULT_IDLE);
-    
-      _coilReadyFlag = true;
-
-      //Run a iterations, which can be stopped by the GTK loop, but
-      //process other periodic work like glut, and
-      //rendering. Rendering always comes first (as it may block on
-      //vsync and need to complete its work before the next vsync)
-      do {
-	for (auto& win : _viewPorts)
-	  win.second->CallBackIdleFunc();
-	    
-	glutMainLoopEvent();
-      } while (_GTKit->iteration(false));
-      
+      init_tasks();
+      while (main_loop_iter()) {};      
     } catch (std::exception& except)
       {
 	std::cerr << "\nRender thread caught an exception\n"

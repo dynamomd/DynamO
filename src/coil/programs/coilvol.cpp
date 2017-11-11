@@ -61,11 +61,11 @@ int main(int argc, char *argv[])
 	}
       
       magnet::ArgShare::getInstance().setArgs(argc, argv);
-      
+
+      coil::CoilMaster::parallel = false;
       coil::CoilRegister coil;
       std::shared_ptr<coil::CLGLWindow> window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
       coil.getInstance().addWindow(window);
-
       
       if (vm.count("data-file")) {
 	std::vector<std::string> files = vm["data-file"].as<std::vector<std::string> >();
@@ -88,7 +88,8 @@ int main(int argc, char *argv[])
 	  }
       }
 
-      while (window->simupdateTick(0)) {}
+      auto& master = coil.getInstance();
+      while (master.main_loop_iter()) {};
     }
   catch (std::exception &cep)
     {

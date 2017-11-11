@@ -43,13 +43,17 @@ namespace coil {
 
       _coilQueue.queueTask(std::bind(&CoilMaster::addWindowFunc, this, win));
 
-      //Spinlock waiting for the window to initialize
-      while ((!window->isReady())) 
-	{ 
-	  smallSleep(); 
-	  if (!isRunning())
-	    M_throw() << "Coil failed to add the window as the main render thread died";
-	}
+      if (parallel)
+	//Spinlock waiting for the window to initialize
+	while (parallel && (!window->isReady()))
+	  {
+	    std::this_thread::yield();
+	    if (!isRunning())
+	      M_throw() << "Coil failed to add the window as the main render thread died";
+	  }
+      else
+	//Process the window addition now
+	_coilQueue.drainQueue();
     }
 
     magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
@@ -62,6 +66,12 @@ namespace coil {
     //action if it's not.
     std::mutex _coilLock;
 
+    static bool parallel;
+
+    void init_tasks();
+    bool main_loop_iter();
+    void render_thread_entry_point();
+    
   private:
     friend class CoilRegister;
 
@@ -74,15 +84,11 @@ namespace coil {
     }
 
     void waitForShutdown();
-    void bootRenderThread();
 
     CoilMaster();
+    CoilMaster(bool);
     ~CoilMaster();
   
-    void coilThreadEntryPoint();
-
-    void smallSleep();
-
     void renderThreadShutdownTasks();
 
     volatile bool _runFlag; 
