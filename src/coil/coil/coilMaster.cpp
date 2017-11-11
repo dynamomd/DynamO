@@ -75,6 +75,7 @@ namespace coil {
 #endif
 
     CoilRegister::getCoilInstance()._viewPorts[windowID]->deinit();
+    CoilRegister::getCoilInstance()._viewPorts.erase(windowID);
   }
 
   void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
@@ -264,6 +265,10 @@ namespace coil {
       win.second->CallBackIdleFunc();
     
     glutMainLoopEvent();
+
+    if (!parallel && _viewPorts.empty())
+      return false;
+    
     return _GTKit->iteration(false);
   }
   

@@ -671,7 +671,7 @@ namespace coil {
     _toneMapShader.build();
     _depthResolverShader.build();
     
-    _cairo_screen.init(600, 600);
+    _cairo_screen.init(800, 600);
 
     {
       //Build depth buffer

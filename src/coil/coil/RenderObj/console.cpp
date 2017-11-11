@@ -78,7 +78,7 @@ namespace coil {
 	  * magnet::GL::scale(axisScale, axisScale, axisScale);
 
 	//Scale to a 100x100 box
-	cairo.getContext()->translate(0, camera.getHeight()-100);
+	cairo.getContext()->translate(0, cairo.getHeight()-100);
 	cairo.getContext()->scale(100, 100);
 
 	cairo.getContext()->set_line_width(0.015);
