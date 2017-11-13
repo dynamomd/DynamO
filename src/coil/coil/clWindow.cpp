@@ -822,11 +822,11 @@ namespace coil {
       _openVR.getPosesAndSync();
 
       _openVR.setEye(vr::Eye_Left);
-      drawScene(_openVR, _openVR.l_renderTarget);
+      drawScene(_openVR, _openVR.l_renderTarget, false);
       _openVR.submit(*_openVR.l_renderTarget.getColorTexture());
 
       _openVR.setEye(vr::Eye_Right);
-      drawScene(_openVR, _openVR.r_renderTarget);      
+      drawScene(_openVR, _openVR.r_renderTarget, false);
       _openVR.submit(*_openVR.r_renderTarget.getColorTexture());
 
       _openVR.PostPresentHandoff();
@@ -845,7 +845,7 @@ namespace coil {
 
     if (!_stereoMode) {
       _camera.setEyeLocation(headPosition);
-      drawScene(_camera, _renderTarget);
+      drawScene(_camera, _renderTarget, true);
       _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
     } else {
       const double eyedist = 6.5;
@@ -860,7 +860,7 @@ namespace coil {
 	  case 0: //Analygraph Red-Cyan
 	    //Do the right eye
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera, _renderTarget);
+	    drawScene(_camera, _renderTarget, true);
 
 	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);	
 	    _glContext->setDepthTest(false);
@@ -873,7 +873,7 @@ namespace coil {
 	    ////Do the left eye
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera, _renderTarget);
+	    drawScene(_camera, _renderTarget, true);
 
 	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
 	    _glContext->setDepthTest(false);
@@ -887,23 +887,23 @@ namespace coil {
 	    break;
 	  case 1:
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera, _renderTarget);
+	    drawScene(_camera, _renderTarget, true);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera, _renderTarget);
+	    drawScene(_camera, _renderTarget, true);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera, _renderTarget);
+	    drawScene(_camera, _renderTarget, true);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera, _renderTarget);
+	    drawScene(_camera, _renderTarget, true);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
@@ -963,7 +963,7 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::Camera& camera, magnet::GL::FBO& renderTarget)
+  CLGLWindow::drawScene(magnet::GL::Camera& camera, magnet::GL::FBO& renderTarget, bool draw_2D_overlay)
   {
     //We perform a deffered shading pass followed by a forward shading
     //pass for objects which cannot be deferred, like volumes etc.
@@ -1297,31 +1297,34 @@ namespace coil {
        
     //////////////Interface draw////////////////////////
     //We need alpha blending for the overlays
-    _glContext->setBlend(true);
-    lastFBO->attach();
-    //Enter the interface draw for all objects
-    _cairo_screen.clear();
 
-    _glContext->cleanupAttributeArrays();
-    for (auto& obj : _renderObjsTree._renderObjects)
-      obj->interfaceRender(camera, _cairo_screen);
+    if (draw_2D_overlay) { 
+      _glContext->setBlend(true);
+      lastFBO->attach();
+      //Enter the interface draw for all objects
+      _cairo_screen.clear();
+      
+      _glContext->cleanupAttributeArrays();
+      for (auto& obj : _renderObjsTree._renderObjects)
+	obj->interfaceRender(camera, _cairo_screen);
+      
+      //Draw the cursor if an object is selected
+      if (_selectedObject)
+	{
+	  std::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	  vec = camera.project(Vector{vec[0], vec[1], vec[2]});
+	  _cairo_screen.drawCursor(vec[0], vec[1], 5);
+	  _cairo_screen.drawTextBox(vec[0] + 5, vec[1] + 5, 
+				    _selectedObject->getCursorText(_selectedObjectID), 
+				    5);
+	}
 
-    //Draw the cursor if an object is selected
-    if (_selectedObject)
-      {
-	std::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	vec = camera.project(Vector{vec[0], vec[1], vec[2]});
-	_cairo_screen.drawCursor(vec[0], vec[1], 5);
-	_cairo_screen.drawTextBox(vec[0] + 5, vec[1] + 5, 
-				  _selectedObject->getCursorText(_selectedObjectID), 
-				  5);
-      }
-
-    _cairo_screen.syncCairoGL();
-    _cairo_screen.glRender();
-    lastFBO->detach();
-
-    _glContext->setBlend(false);
+      _cairo_screen.syncCairoGL();
+      _cairo_screen.glRender();
+      lastFBO->detach();
+      _glContext->setBlend(false);
+    }
+    
 
     //Check if we actually did something and copy the data to the
     //output FBO if needed

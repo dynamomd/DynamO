@@ -77,7 +77,6 @@ namespace coil {
 	  * camera.getViewRotationMatrix()
 	  * magnet::GL::scale(axisScale, axisScale, axisScale);
 
-	//Scale to a 100x100 box
 	cairo.getContext()->translate(0, cairo.getHeight()-100);
 	cairo.getContext()->scale(100, 100);
 
