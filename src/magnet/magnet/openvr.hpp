@@ -26,7 +26,7 @@ namespace magnet {
   public:
     
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
-      Camera(1, 1, 0.1f, 30.0f),
+      Camera(0.1f, 30.0f),
       _vr(nullptr),
       _log(log),
       _eye(vr::Eye_Left)
@@ -41,9 +41,9 @@ namespace magnet {
     virtual magnet::GL::GLMatrix getViewMatrix() const {
       switch(_eye){
       case vr::Eye_Left:
-	return _eyePosLeft * _hmd_pose;
+	return _eyePosLeft * _hmd_pose * magnet::GL::translate(0,1.5,0);
       case vr::Eye_Right:
-	return _eyePosRight * _hmd_pose;
+	return _eyePosRight * _hmd_pose * magnet::GL::translate(0,1.5,0);
       default:
 	M_throw() << "Bad enumeration in OpenVRTracker::getViewMatrix";
       }
@@ -59,7 +59,7 @@ namespace magnet {
 	M_throw() << "Bad enumeration in OpenVRTracker::getProjectionMatrix";
       }
     }
-
+    
     //Not implemented!
     virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) {}
 
@@ -132,42 +132,58 @@ namespace magnet {
       }
 
       std::array<uint32_t, 2> dims = getRenderDims();
-      setHeightWidth(dims[0],dims[1]);
+      resize(dims[0],dims[1]);
       
-      std::shared_ptr<magnet::GL::Texture2D> l_colorTexture(new magnet::GL::Texture2D);
-      l_colorTexture->init(dims[0], dims[1], GL_RGBA8);
-      l_colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      l_colorTexture->parameter(GL_TEXTURE_MAX_LEVEL, 0);
+    }
 
-      std::shared_ptr<magnet::GL::Texture2D> l_depthTexture(new magnet::GL::Texture2D);
-      l_depthTexture->init(dims[0], dims[1], GL_DEPTH_COMPONENT);
-      l_depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      l_depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      l_depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    magnet::GL::FBO r_renderTarget;
 
-      l_renderTarget.init();
-      l_renderTarget.attachTexture(l_colorTexture, 0);
-      l_renderTarget.attachTexture(l_depthTexture);
+
+    virtual magnet::GL::FBO& getResolveBuffer() {
+      switch(_eye){
+      case vr::Eye_Left:
+	return _renderTarget;
+      case vr::Eye_Right:
+	return r_renderTarget;
+      default:
+	M_throw() << "Bad enumeration in OpenVRTracker::getProjectionMatrix";
+      }
+      return r_renderTarget;
+    }
+    
+    virtual void deinit() {
+      magnet::GL::Camera::deinit();
+      r_renderTarget.deinit();
+    }
+
+    void submit() {
+      vr::Texture_t tex = {reinterpret_cast<void*>(intptr_t(getResolveBuffer().getColorTexture()->getGLHandle())),
+			   vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+      vr::EVRCompositorError err = vr::VRCompositor()->Submit(_eye, &tex);
+      if (err != vr::VRCompositorError_None)
+	_log("Error: "+to_string(err));
+    }
+
+    
+    virtual void resize(size_t width, size_t height) {
+      magnet::GL::Camera::resize(width, height);
 
       std::shared_ptr<magnet::GL::Texture2D> r_colorTexture(new magnet::GL::Texture2D);
-      r_colorTexture->init(dims[0], dims[1], GL_RGBA8);
+      r_colorTexture->init(width, height, GL_RGBA8);
       r_colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      l_colorTexture->parameter(GL_TEXTURE_MAX_LEVEL, 0);
+      r_colorTexture->parameter(GL_TEXTURE_MAX_LEVEL, 0);
 
       std::shared_ptr<magnet::GL::Texture2D> r_depthTexture(new magnet::GL::Texture2D);
-      r_depthTexture->init(dims[0], dims[1], GL_DEPTH_COMPONENT);
+      r_depthTexture->init(width, height, GL_DEPTH_COMPONENT);
       r_depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       r_depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       r_depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
       
       r_renderTarget.init();
       r_renderTarget.attachTexture(r_colorTexture, 0);
-      r_renderTarget.attachTexture(r_depthTexture);
+      r_renderTarget.attachTexture(r_depthTexture);      
     }
-
-    magnet::GL::FBO l_renderTarget;
-    magnet::GL::FBO r_renderTarget;
-
+    
     
     bool initialised() const { return _vr != nullptr; }
     
@@ -179,10 +195,9 @@ namespace magnet {
     
     void shutdown() {
       if (_vr != nullptr) {
+	deinit();
 	vr::VR_Shutdown();
 	_vr = nullptr;
-	l_renderTarget.deinit();
-	r_renderTarget.deinit();
 	_log("Shutdown of VR complete.");
       }
     }
@@ -231,14 +246,6 @@ namespace magnet {
       
     }
     
-    void submit(magnet::GL::Texture2D& color_tex) {
-      vr::Texture_t tex = {reinterpret_cast<void*>(intptr_t(color_tex.getGLHandle())),
-			   vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
-      vr::EVRCompositorError err = vr::VRCompositor()->Submit(_eye, &tex);
-      if (err != vr::VRCompositorError_None)
-	_log("Error: "+to_string(err));
-    }
-
     void PostPresentHandoff() {
       vr::VRCompositor()->PostPresentHandoff();
     }

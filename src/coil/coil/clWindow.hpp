@@ -118,7 +118,6 @@ namespace coil {
     magnet::GL::shader::CopyShader _copyShader;
 
     //Primary render target, or the render target for the left eye.
-    magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _shadowbuffer;
     magnet::GL::FBO _hdrBuffer;
@@ -165,7 +164,7 @@ namespace coil {
 
     void CameraSetup();
 
-    void drawScene(magnet::GL::Camera&, magnet::GL::FBO&, bool);
+    void drawScene(magnet::GL::Camera&, bool);
 
     enum KeyStateType
       {

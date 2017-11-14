@@ -18,6 +18,7 @@
 
 #include <magnet/GL/context.hpp>
 #include <magnet/GL/matrix.hpp>
+#include <magnet/GL/FBO.hpp>
 #include <magnet/math/quaternion.hpp>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
@@ -27,12 +28,10 @@ namespace magnet {
   namespace GL {
     class Camera {
     public:
-      inline Camera(size_t height = 1, 
-		    size_t width = 1,
-		    GLfloat zNearDist = 8.0f, 
+      inline Camera(GLfloat zNearDist = 8.0f, 
 		    GLfloat zFarDist = 10000.0f):
-	_height(height),
-	_width(width),
+	_height(1),
+	_width(1),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist)
       {
@@ -44,6 +43,45 @@ namespace magnet {
       virtual GLMatrix getProjectionMatrix() const = 0;
       virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
 
+      FBO _renderTarget;
+
+      virtual FBO& getResolveBuffer() {
+	return _renderTarget;
+      }
+      
+      virtual void deinit() {
+	_renderTarget.deinit();	
+      }
+      
+      virtual void resize(size_t width, size_t height) {
+	if ((_width == width) && (_height == height))
+	  return;
+
+	deinit();
+	_width = width;
+	_height = height;
+	
+	{
+	  //Build the main/left-eye render buffer
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA8);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    depthTexture(new magnet::GL::Texture2D);
+	  depthTexture->init(width, height, GL_DEPTH_COMPONENT);
+	  depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+	  _renderTarget.init();
+	  _renderTarget.attachTexture(colorTexture, 0);
+	  _renderTarget.attachTexture(depthTexture);
+	}	
+      }
+      
+      
       /*! \brief Get the normal matrix.
        
         \param offset This is an offset in camera coordinates to apply
@@ -74,10 +112,6 @@ namespace magnet {
 	return math::Vector{inv(0,3), inv(1,3),inv(2,3)};
       }
       
-      //! \brief Set the height and width of the screen in pixels.
-      inline void setHeightWidth(size_t height, size_t width)
-      { _height = height; _width = width; }
-
       //! \brief Get the aspect ratio of the screen
       inline GLfloat getAspectRatio() const
       { return ((GLfloat)_width) / _height; }
@@ -213,16 +247,14 @@ namespace magnet {
         \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline CameraHeadTracking(size_t height = 1, 
-				size_t width = 1,
-				math::Vector position = math::Vector{0,0,5}, 
+      inline CameraHeadTracking(math::Vector position = math::Vector{0,0,5}, 
 				math::Vector lookAtPoint = math::Vector{0,0,0},
 				GLfloat zNearDist = 8.0f, 
 				GLfloat zFarDist = 10000.0f,
 				math::Vector up = math::Vector{0,1,0},
 				GLfloat simLength = 30.0f,
 				math::Vector eye_location = math::Vector{0, 0, 70}):
-	Camera(height, width, zNearDist, zFarDist),
+	Camera(zNearDist, zFarDist),
 	_up(up.normal()),
 	_nearPlanePosition({0,0,0}),
 	_rotatePoint({0,0,0}),

@@ -747,7 +747,7 @@ namespace coil {
     for (auto& obj : _renderObjsTree._renderObjects) obj->deinit();
 
     _renderObjsTree._renderObjects.clear();
-    _renderTarget.deinit();
+    _camera.deinit();    
     _Gbuffer.deinit();
     _hdrBuffer.deinit();
     _luminanceBuffer1.deinit();
@@ -816,18 +816,21 @@ namespace coil {
 	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
       }
 #endif
-    
+
+    bool enable_2D = true;
 #ifdef COIL_OpenVR
+    
     if (_openVRMode) {
+      enable_2D = false;
       _openVR.getPosesAndSync();
 
       _openVR.setEye(vr::Eye_Left);
-      drawScene(_openVR, _openVR.l_renderTarget, false);
-      _openVR.submit(*_openVR.l_renderTarget.getColorTexture());
+      drawScene(_openVR, enable_2D);
+      _openVR.submit();
 
       _openVR.setEye(vr::Eye_Right);
-      drawScene(_openVR, _openVR.r_renderTarget, false);
-      _openVR.submit(*_openVR.r_renderTarget.getColorTexture());
+      drawScene(_openVR, enable_2D);
+      _openVR.submit();
 
       _openVR.PostPresentHandoff();
       
@@ -845,8 +848,8 @@ namespace coil {
 
     if (!_stereoMode) {
       _camera.setEyeLocation(headPosition);
-      drawScene(_camera, _renderTarget, true);
-      _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+      drawScene(_camera, enable_2D);
+      _camera._renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
     } else {
       const double eyedist = 6.5;
       Vector eyeDisplacement{0.5 * eyedist, 0, 0};
@@ -860,11 +863,11 @@ namespace coil {
 	  case 0: //Analygraph Red-Cyan
 	    //Do the right eye
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera, _renderTarget, true);
+	    drawScene(_camera, enable_2D);
 
 	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);	
 	    _glContext->setDepthTest(false);
-	    _renderTarget.getColorTexture(0)->bind(0);
+	    _camera._renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
 	    _copyShader.invoke(); 
@@ -873,11 +876,11 @@ namespace coil {
 	    ////Do the left eye
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera, _renderTarget, true);
+	    drawScene(_camera, enable_2D);
 
 	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
 	    _glContext->setDepthTest(false);
-	    _renderTarget.getColorTexture(0)->bind(0);
+	    _camera._renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
 	    _copyShader.invoke(); 
@@ -887,24 +890,24 @@ namespace coil {
 	    break;
 	  case 1:
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera, _renderTarget, true);
-	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera, _renderTarget, true);
-	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera, _renderTarget, true);
-	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera, _renderTarget, true);
-	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
 	  default:
@@ -924,7 +927,7 @@ namespace coil {
 	std::vector<uint8_t> pixels;
 	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
 	//Read the pixels into our container
-	_renderTarget.getColorTexture()->writeto(pixels);
+	_camera._renderTarget.getColorTexture()->writeto(pixels);
 	
 	//Chop off the alpha channel to save bandwidth
 	for (size_t i(0); i < _camera.getWidth() * _camera.getHeight(); ++i)
@@ -963,8 +966,10 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::Camera& camera, magnet::GL::FBO& renderTarget, bool draw_2D_overlay)
+  CLGLWindow::drawScene(magnet::GL::Camera& camera, bool draw_2D_overlay)
   {
+    magnet::GL::FBO& renderTarget = camera.getResolveBuffer();
+    
     //We perform a deffered shading pass followed by a forward shading
     //pass for objects which cannot be deferred, like volumes etc.
 
@@ -1370,8 +1375,7 @@ namespace coil {
     if ((size_t(h) == _camera.getHeight()) && (size_t(w) == _camera.getWidth()))
       return; //Skip a null op
 
-    _camera.setHeightWidth(h, w);
-    _renderTarget.deinit();
+    _camera.resize(w,h);
     _Gbuffer.deinit();
     _hdrBuffer.deinit();
     _luminanceBuffer1.deinit();
@@ -1429,25 +1433,6 @@ namespace coil {
       _blurTarget2.attachTexture(colorTexture, 0);
     }
 
-    {
-      //Build the main/left-eye render buffer
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA8);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      std::shared_ptr<magnet::GL::Texture2D> 
-	depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-      _renderTarget.init();
-      _renderTarget.attachTexture(colorTexture, 0);
-      _renderTarget.attachTexture(depthTexture);
-    }
 
     {
       std::shared_ptr<magnet::GL::Texture2D> 
@@ -2039,7 +2024,7 @@ namespace coil {
   void
   CLGLWindow::performPicking(int x, int y)
   {
-    _renderTarget.attach();
+    _camera._renderTarget.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     //Perform unique coloring of screen objects, note that the value 0 is no object picked
@@ -2062,7 +2047,7 @@ namespace coil {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
-    _renderTarget.detach();
+    _camera._renderTarget.detach();
     
     //For debugging the picking render
     //_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
