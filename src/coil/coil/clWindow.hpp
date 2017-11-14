@@ -119,18 +119,6 @@ namespace coil {
 
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _shadowbuffer;
-    magnet::GL::FBO _hdrBuffer;
-    magnet::GL::FBO _luminanceBuffer1;
-    magnet::GL::FBO _luminanceBuffer2;
-
-    //Blur Targets
-    magnet::GL::FBO _blurTarget1;
-    magnet::GL::FBO _blurTarget2;
-
-
-    //Frame buffers to flip flop between
-    magnet::GL::FBO _filterTarget1;
-    magnet::GL::FBO _filterTarget2;
 
     //For object selection
     /*! \brief If valid, the render object which is currently

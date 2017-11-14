@@ -46,6 +46,14 @@ namespace magnet {
       FBO _renderTarget;
       FBO _Gbuffer;
 
+      FBO _hdrBuffer;
+      FBO _luminanceBuffer1;
+      FBO _luminanceBuffer2;
+      FBO _blurTarget1;
+      FBO _blurTarget2;
+      FBO _filterTarget1;
+      FBO _filterTarget2;
+
       virtual FBO& getResolveBuffer() {
 	return _renderTarget;
       }
@@ -53,6 +61,13 @@ namespace magnet {
       virtual void deinit() {
 	_renderTarget.deinit();
 	_Gbuffer.deinit();	
+	_hdrBuffer.deinit();
+	_luminanceBuffer1.deinit();
+	_luminanceBuffer2.deinit();
+	_filterTarget1.deinit();
+	_filterTarget2.deinit();
+	_blurTarget1.deinit();
+	_blurTarget2.deinit();
       }
       
       virtual void resize(size_t width, size_t height, size_t samples) {
@@ -102,8 +117,100 @@ namespace magnet {
 	  _renderTarget.attachTexture(colorTexture, 0);
 	  _renderTarget.attachTexture(depthTexture);
 	}	
-      }
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
+	  _filterTarget1.init();
+	  _filterTarget1.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _filterTarget2.init();
+	  _filterTarget2.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width / 4, height / 4, GL_RGB16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _blurTarget1.init();
+	  _blurTarget1.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width / 4, height / 4, GL_RGB16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _blurTarget2.init();
+	  _blurTarget2.attachTexture(colorTexture, 0);
+	}
+
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    depthTexture(new magnet::GL::Texture2D);
+	  depthTexture->init(width, height, 
+			     GL_DEPTH_COMPONENT);
+	  depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+	  _hdrBuffer.init();
+	  _hdrBuffer.attachTexture(colorTexture, 0);
+	  _hdrBuffer.attachTexture(depthTexture);
+	}
+      
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    colorTexture(new magnet::GL::Texture2D);
+	
+	  colorTexture->init(width, height, GL_RGBA16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	  _luminanceBuffer1.init();
+	  _luminanceBuffer1.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    colorTexture(new magnet::GL::Texture2D);
+	
+	  colorTexture->init(width/2, height/2, GL_RGBA16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	  _luminanceBuffer2.init();
+	  _luminanceBuffer2.attachTexture(colorTexture, 0);
+	}
+      }
       
       /*! \brief Get the normal matrix.
        

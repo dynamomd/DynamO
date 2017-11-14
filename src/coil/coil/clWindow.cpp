@@ -748,14 +748,7 @@ namespace coil {
 
     _renderObjsTree._renderObjects.clear();
     _camera.deinit();    
-    _hdrBuffer.deinit();
-    _luminanceBuffer1.deinit();
-    _luminanceBuffer2.deinit();
     _shadowbuffer.deinit();
-    _filterTarget1.deinit();
-    _filterTarget2.deinit();
-    _blurTarget1.deinit();
-    _blurTarget2.deinit();
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
     _pointLightShader.deinit();	
@@ -997,7 +990,7 @@ namespace coil {
     camera._Gbuffer.getColorTexture(2)->bind(2);
 
     //First, set up the buffers for rendering
-    _hdrBuffer.attach();
+    camera._hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //We need the depth test on, to enable writes to the depth buffer
@@ -1039,7 +1032,7 @@ namespace coil {
 	if (!light || !(light->shadowCasting())) continue;
 
 	//Change from the hdr FBO 
-	_hdrBuffer.detach();
+	camera._hdrBuffer.detach();
 	//Render each light's shadow map
 	_shadowbuffer.attach();
 	_glContext->setDepthTest(true);
@@ -1059,7 +1052,7 @@ namespace coil {
 	_shadowbuffer.getColorTexture(0)->bind(7);
 
 	//Change back to the hdr FBO
-	_hdrBuffer.attach();
+	camera._hdrBuffer.attach();
 	_glContext->setDepthTest(false);
 	glDepthMask(GL_FALSE);
 	_glContext->setBlend(true);
@@ -1108,23 +1101,23 @@ namespace coil {
     //Enter the forward render ticks for all objects
     for (auto& obj : _renderObjsTree._renderObjects)
       if (obj->visible())
-	obj->forwardRender(_hdrBuffer, camera, lights, 
+	obj->forwardRender(camera._hdrBuffer, camera, lights, 
 			   _ambientIntensity, RenderObj::DEFAULT);
     
-    _hdrBuffer.detach();	
+    camera._hdrBuffer.detach();	
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
     _glContext->setDepthTest(false);
     _glContext->setBlend(false);
 
-    _hdrBuffer.getColorTexture()->bind(0);
+    camera._hdrBuffer.getColorTexture()->bind(0);
 
-    _luminanceBuffer1.attach();
+    camera._luminanceBuffer1.attach();
     _luminanceShader.attach();
     _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
     _luminanceShader.detach();
-    _luminanceBuffer1.detach();
+    camera._luminanceBuffer1.detach();
 
 //    std::vector<GLfloat> data;
 //    _luminanceBuffer1.getColorTexture()->writeto(data);
@@ -1148,15 +1141,15 @@ namespace coil {
 //    std::cout << "Luminance Avg="<< avg << ", max=" << max << ", min=" << min << ", count=" << count * 10000.0 << "\n";
       
 
-    magnet::GL::FBO* luminanceSource = &_luminanceBuffer1;
-    magnet::GL::FBO* luminanceDestination = &_luminanceBuffer2;
+    magnet::GL::FBO* luminanceSource = &camera._luminanceBuffer1;
+    magnet::GL::FBO* luminanceDestination = &camera._luminanceBuffer2;
 
     //Now we need to generate the mipmaps containing the scene
     //average, minimum and maximum luminances.
     {
-      GLsizei currentWidth = _luminanceBuffer1.getColorTexture()->getWidth();
-      GLsizei currentHeight = _luminanceBuffer1.getColorTexture()->getHeight();
-      GLint numLevels = _luminanceBuffer1.getColorTexture()->calcMipmapLevels();
+      GLsizei currentWidth = camera._luminanceBuffer1.getColorTexture()->getWidth();
+      GLsizei currentHeight = camera._luminanceBuffer1.getColorTexture()->getHeight();
+      GLint numLevels = camera._luminanceBuffer1.getColorTexture()->calcMipmapLevels();
 
       //Attach the mipmapping shader
       _luminanceMipMapShader.attach();
@@ -1186,10 +1179,10 @@ namespace coil {
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
       {
-	magnet::GL::Texture2D& tex = *_hdrBuffer.getColorTexture();
+	magnet::GL::Texture2D& tex = *camera._hdrBuffer.getColorTexture();
 	tex.bind(0);
       
-	_blurTarget1.attach();
+	camera._blurTarget1.attach();
 	_downsampleShader.attach();
 	_downsampleShader["inputTex"] = 0;
 	_downsampleShader["downscale"] = GLint(4);
@@ -1197,7 +1190,7 @@ namespace coil {
 	_downsampleShader["oldSize"] = oldSize;
 	_downsampleShader.invoke();
 	_downsampleShader.detach();
-	_blurTarget1.detach();
+	camera._blurTarget1.detach();
 
 
 	_blurShader.attach();
@@ -1208,29 +1201,29 @@ namespace coil {
 
 	for (size_t passes(0); passes < 1; ++passes)
 	  {
-	    _blurTarget1.getColorTexture()->bind(0);
-	    _blurTarget2.attach();
+	    camera._blurTarget1.getColorTexture()->bind(0);
+	    camera._blurTarget2.attach();
 	    _blurShader["direction"] = 0;	 
 	    _blurShader.invoke();
 	    _blurShader.detach();	  
-	    _blurTarget2.detach();
+	    camera._blurTarget2.detach();
 	  
-	    _blurTarget2.getColorTexture()->bind(0);
-	    _blurTarget1.attach();
+	    camera._blurTarget2.getColorTexture()->bind(0);
+	    camera._blurTarget1.attach();
 	    _blurShader.attach();
 	    _blurShader["direction"] = 1;
 	    _blurShader.invoke();
-	    _blurTarget1.detach();
+	    camera._blurTarget1.detach();
 	  }
 	_blurShader.detach();
       }
 
     ///////////////////////Tone Mapping///////////////////////////
     renderTarget.attach();
-    _hdrBuffer.getColorTexture()->bind(0);
+    camera._hdrBuffer.getColorTexture()->bind(0);
     luminanceSource->getColorTexture()->bind(1);
     if (_bloomEnable)
-      _blurTarget1.getColorTexture()->bind(2);
+      camera._blurTarget1.getColorTexture()->bind(2);
     _toneMapShader.attach();
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
@@ -1283,16 +1276,16 @@ namespace coil {
        		lastFBO->getColorTexture()->bind(3);
        		//The last output goes into texture 3
        		if (FBOalternate)
-       		  _filterTarget1.attach();
+       		  camera._filterTarget1.attach();
        		else
-       		  _filterTarget2.attach();
+       		  camera._filterTarget2.attach();
        	      
        		filter.invoke(3, camera.getWidth(), camera.getHeight(), camera);
        	      
        		if (FBOalternate)
-       		  { _filterTarget1.detach(); lastFBO = &_filterTarget1; }
+       		  { camera._filterTarget1.detach(); lastFBO = &camera._filterTarget1; }
        		else
-       		  { _filterTarget2.detach(); lastFBO = &_filterTarget2; }
+       		  { camera._filterTarget2.detach(); lastFBO = &camera._filterTarget2; }
        	      
        		FBOalternate = !FBOalternate;
        	      }
@@ -1375,106 +1368,6 @@ namespace coil {
       return; //Skip a null op
 
     _camera.resize(w, h, _samples);
-    _hdrBuffer.deinit();
-    _luminanceBuffer1.deinit();
-    _luminanceBuffer2.deinit();
-    _filterTarget1.deinit();
-    _filterTarget2.deinit();
-    _blurTarget1.deinit();
-    _blurTarget2.deinit();
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _filterTarget1.init();
-      _filterTarget1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _filterTarget2.init();
-      _filterTarget2.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _blurTarget1.init();
-      _blurTarget1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _blurTarget2.init();
-      _blurTarget2.attachTexture(colorTexture, 0);
-    }
-
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      std::shared_ptr<magnet::GL::Texture2D> 
-	depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			 GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-      _hdrBuffer.init();
-      _hdrBuffer.attachTexture(colorTexture, 0);
-      _hdrBuffer.attachTexture(depthTexture);
-    }
-      
-    {
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-	
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      _luminanceBuffer1.init();
-      _luminanceBuffer1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-	
-      colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      _luminanceBuffer2.init();
-      _luminanceBuffer2.attachTexture(colorTexture, 0);
-    }
 
     _cairo_screen.resize(w, h);
   }
