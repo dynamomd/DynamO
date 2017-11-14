@@ -653,7 +653,8 @@ namespace coil {
     _glContext->setDepthTest(true);
 
     //Setup the viewport
-    resizeRender(800, 600);
+    _camera.resize(800, 600, _samples);
+    _cairo_screen.init(800, 600);
  
     //Setup the keyboard controls
     glutIgnoreKeyRepeat(1);
@@ -671,8 +672,6 @@ namespace coil {
     _toneMapShader.build();
     _depthResolverShader.build();
     
-    _cairo_screen.init(800, 600);
-
     {
       //Build depth buffer
       std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D());
@@ -811,7 +810,6 @@ namespace coil {
 
     bool enable_2D = true;
 #ifdef COIL_OpenVR
-    
     if (_openVRMode) {
       enable_2D = false;
       _openVR.getPosesAndSync();
@@ -1341,21 +1339,6 @@ namespace coil {
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
-
-#ifdef COIL_OpenVR
-    //If we are in OpenVR mode, we keep the window at the target
-    //render resolution
-    if (_openVRMode) {
-      std::array<uint32_t, 2> dims = _openVR.getRenderDims();
-      //We have to prevent infinite loops 
-      resizeRender(dims[0], dims[1]);
-      //if ((uint32_t(w) != dims[0]) && (uint32_t(h) != dims[1])) {
-      //	//Prevent window resize!
-      //	glutReshapeWindow(dims[0], dims[1]);
-      //	return;
-      //}
-    } else
-#endif
     resizeRender(w, h);
   }
 
@@ -1368,7 +1351,6 @@ namespace coil {
       return; //Skip a null op
 
     _camera.resize(w, h, _samples);
-
     _cairo_screen.resize(w, h);
   }
 
@@ -2179,18 +2161,14 @@ namespace coil {
       _refXml->get_widget("OpenVREnable", btn);
       const bool newMode = btn->get_active();
 
-      if (newMode != _openVRMode){
+      if (newMode != _openVRMode) {
 	if (newMode) {	  
 	  //Init OpenVR
 	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line+"\n"); });
 	  _openVR.init();
-	  if (_openVR.initialised()) {
+	  if (_openVR.initialised())
 	    _openVRMode = true;
-	    //Now establish the render size
-	    std::array<uint32_t, 2> dims = _openVR.getRenderDims();
-	    glutReshapeWindow(dims[0], dims[1]);
-	    glutPostRedisplay();
-	  } else
+	  else
 	    btn->set_active(false);
 	} else {
 	  _openVR.shutdown();
