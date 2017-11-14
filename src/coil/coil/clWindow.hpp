@@ -118,7 +118,6 @@ namespace coil {
     magnet::GL::shader::CopyShader _copyShader;
 
     //Primary render target, or the render target for the left eye.
-    magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _shadowbuffer;
     magnet::GL::FBO _hdrBuffer;
     magnet::GL::FBO _luminanceBuffer1;

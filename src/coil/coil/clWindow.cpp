@@ -748,7 +748,6 @@ namespace coil {
 
     _renderObjsTree._renderObjects.clear();
     _camera.deinit();    
-    _Gbuffer.deinit();
     _hdrBuffer.deinit();
     _luminanceBuffer1.deinit();
     _luminanceBuffer2.deinit();
@@ -979,7 +978,7 @@ namespace coil {
 
     //We share the depth and stencil texture between the GBuffer and
     //the target fbo
-    _Gbuffer.attach();
+    camera._Gbuffer.attach();
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     _glContext->setDepthTest(true);
     _glContext->setBlend(false);
@@ -989,13 +988,13 @@ namespace coil {
     for (auto& obj :_renderObjsTree._renderObjects)
       if (obj->visible()) obj->glRender(camera, RenderObj::DEFAULT);
 
-    _Gbuffer.detach();
+    camera._Gbuffer.detach();
     
     ///////////////////////Lighting pass////////////////////////
     //Here we calculate the lighting of every pixel in the scene
-    _Gbuffer.getColorTexture(0)->bind(0);
-    _Gbuffer.getColorTexture(1)->bind(1);
-    _Gbuffer.getColorTexture(2)->bind(2);
+    camera._Gbuffer.getColorTexture(0)->bind(0);
+    camera._Gbuffer.getColorTexture(1)->bind(1);
+    camera._Gbuffer.getColorTexture(2)->bind(2);
 
     //First, set up the buffers for rendering
     _hdrBuffer.attach();
@@ -1261,9 +1260,9 @@ namespace coil {
 	//positions.
 	//
        	//Normals unit 1
-       	_Gbuffer.getColorTexture(1)->bind(1);
+       	camera._Gbuffer.getColorTexture(1)->bind(1);
        	//Screen space positions 2
-       	_Gbuffer.getColorTexture(2)->bind(2);
+       	camera._Gbuffer.getColorTexture(2)->bind(2);
          
        	for (auto& child : _filterStore->children())
        	  {
@@ -1375,8 +1374,7 @@ namespace coil {
     if ((size_t(h) == _camera.getHeight()) && (size_t(w) == _camera.getWidth()))
       return; //Skip a null op
 
-    _camera.resize(w,h);
-    _Gbuffer.deinit();
+    _camera.resize(w, h, _samples);
     _hdrBuffer.deinit();
     _luminanceBuffer1.deinit();
     _luminanceBuffer2.deinit();
@@ -1477,7 +1475,6 @@ namespace coil {
       _luminanceBuffer2.init();
       _luminanceBuffer2.attachTexture(colorTexture, 0);
     }
-    AAsamplechangeCallback();
 
     _cairo_screen.resize(w, h);
   }
@@ -2538,26 +2535,7 @@ namespace coil {
     if (_aasamples.get() != 0)
       _samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
 
-    //Build G buffer      
-    std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-    
-    std::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-    
-    std::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-    
-    std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);    
-
-    _Gbuffer.deinit();
-    _Gbuffer.init();
-
-    _Gbuffer.attachTexture(colorTexture, 0);
-    _Gbuffer.attachTexture(normalTexture, 1);
-    _Gbuffer.attachTexture(posTexture, 2);
-    _Gbuffer.attachTexture(depthTexture);
+    _camera.resize(_camera.getWidth(), _camera.getHeight(), _samples);
   }
   
 

@@ -44,22 +44,45 @@ namespace magnet {
       virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
 
       FBO _renderTarget;
+      FBO _Gbuffer;
 
       virtual FBO& getResolveBuffer() {
 	return _renderTarget;
       }
       
       virtual void deinit() {
-	_renderTarget.deinit();	
+	_renderTarget.deinit();
+	_Gbuffer.deinit();	
       }
       
-      virtual void resize(size_t width, size_t height) {
+      virtual void resize(size_t width, size_t height, size_t samples) {
 	if ((_width == width) && (_height == height))
 	  return;
 
 	deinit();
 	_width = width;
 	_height = height;
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  colorTexture->init(width, height, GL_RGBA16F_ARB);
+	  
+	  std::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  normalTexture->init(width, height, GL_RGBA16F_ARB);
+    
+	  std::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  posTexture->init(width, height, GL_RGBA16F_ARB);
+	  
+	  std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  depthTexture->init(width, height, GL_DEPTH_COMPONENT);    
+	  
+	  _Gbuffer.deinit();
+	  _Gbuffer.init();
+	  _Gbuffer.attachTexture(colorTexture, 0);
+	  _Gbuffer.attachTexture(normalTexture, 1);
+	  _Gbuffer.attachTexture(posTexture, 2);
+	  _Gbuffer.attachTexture(depthTexture);
+	}
 	
 	{
 	  //Build the main/left-eye render buffer

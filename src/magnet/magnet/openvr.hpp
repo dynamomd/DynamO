@@ -132,7 +132,7 @@ namespace magnet {
       }
 
       std::array<uint32_t, 2> dims = getRenderDims();
-      resize(dims[0],dims[1]);
+      resize(dims[0], dims[1], 1);
       
     }
 
@@ -165,8 +165,8 @@ namespace magnet {
     }
 
     
-    virtual void resize(size_t width, size_t height) {
-      magnet::GL::Camera::resize(width, height);
+    virtual void resize(size_t width, size_t height, size_t samples) {
+      magnet::GL::Camera::resize(width, height, samples);
 
       std::shared_ptr<magnet::GL::Texture2D> r_colorTexture(new magnet::GL::Texture2D);
       r_colorTexture->init(width, height, GL_RGBA8);
