@@ -26,7 +26,7 @@ namespace magnet {
   public:
     
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
-      Camera(0.1f, 30.0f),
+      Camera(0.3f, 30.0f),//Observe 30cm to 30m
       _vr(nullptr),
       _log(log),
       _eye(vr::Eye_Left)

@@ -1347,7 +1347,7 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="title" translatable="yes">Back Color</property>
-                                <property name="color">#ffffffffffff</property>
+                                <property name="color">#000000000000</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>

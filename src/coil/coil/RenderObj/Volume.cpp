@@ -166,7 +166,7 @@ namespace coil {
     //of the model (nyquist sampling rate)
     _stepSizeVal = HUGE_VAL;
     for (size_t i(0); i < 3; ++i)
-      _stepSizeVal = std::min(_stepSizeVal, GLfloat(0.5 * dimensions[i] / dim[i]));
+      _stepSizeVal = std::min(_stepSizeVal, GLfloat(dimensions[i] / dim[i]));
     if (_stepSize)
       _stepSize->set_text(boost::lexical_cast<std::string>(_stepSizeVal));
 

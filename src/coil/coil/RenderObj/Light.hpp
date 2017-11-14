@@ -34,12 +34,12 @@ namespace coil {
 	   GLfloat simLength = 25.0f, GLfloat size = 1.0):
       RenderObj(name),
       CameraHeadTracking(position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0,0,20}),
-      _intensity(1.0 / simLength),
+      _intensity(1.0),
       _specularExponent(32),
       _specularFactor(1),
       _maxvariance(0.1),
       _bleedreduction(0.2),
-      _size(size / simLength)
+      _size(size)
     {
       std::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;
