@@ -622,12 +622,10 @@ namespace coil {
 
     if (_readyFlag) return;
 
-    double light_distance = 3;
-    Vector look_at = Vector{0, 0, 0};
-    Vector up = Vector{0,1,0};
-    
+    const Vector look_at = Vector{0, 0, 0};
+    const Vector up = Vector{0,1,0};
     {
-      std::shared_ptr<RLight> light(new RLight("Light", Vector{1, 1, 1} * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light", Vector{1, 1, 1}, look_at, 0.1, 10000.0f, up, _camera.getRenderScale(), 0.2));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
