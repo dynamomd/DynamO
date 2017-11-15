@@ -87,7 +87,7 @@ namespace coil {
     _cameraMode(ROTATE_WORLD)
   {
     for (size_t i(0); i < 3; ++i)
-      _backColor[i] = 1.0;
+      _backColor[i] = 0.0;
 
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
   }

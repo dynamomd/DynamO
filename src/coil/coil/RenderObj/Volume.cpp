@@ -163,10 +163,11 @@ namespace coil {
     _dimensions = dimensions;
     
     //Figure out what the minimum step size is to capture all detail
-    //of the model (nyquist sampling rate)
+    //of the model (nyquist sampling, half the feature size), then
+    //multiply by 4 to speed it up.
     _stepSizeVal = HUGE_VAL;
     for (size_t i(0); i < 3; ++i)
-      _stepSizeVal = std::min(_stepSizeVal, GLfloat(dimensions[i] / dim[i]));
+      _stepSizeVal = std::min(_stepSizeVal, 2 * GLfloat(dimensions[i] / dim[i]));
     if (_stepSize)
       _stepSize->set_text(boost::lexical_cast<std::string>(_stepSizeVal));
 
