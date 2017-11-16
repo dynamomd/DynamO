@@ -144,13 +144,13 @@ namespace coil {
   }
 
   namespace {
-    inline GLubyte coordCalc(GLint x, GLint y, GLint z, 
+    inline int coordCalc(GLint x, GLint y, GLint z, 
 			     GLint width, GLint height, GLint depth, const std::vector<GLubyte>& buffer)
     {
       if (((x < 0) || (x >= width)) 
 	  || ((y < 0) || (y >= height))
 	  || ((z < 0) || (z >= depth)))
-	return 0;
+	return -1;
       else
 	return buffer[x + width * (y + height * z)];
     }
@@ -301,8 +301,15 @@ namespace coil {
     _shader["DepthTexture"] = 0;
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
-    _shader["DitherRay"] = GLint(_ditherRay->get_active());
-    _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
+    if (_ditherRay->get_active()) {
+      if (_variableDither->get_active())
+	_shader["DitherRay"] = GLfloat(_frameCounter);
+      else
+	_shader["DitherRay"] = GLfloat(1);
+    } else 
+      _shader["DitherRay"] = GLfloat(0);
+    ++_frameCounter;
+   _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
 
     Vector volumeMin = double(-0.5) * _dimensions;
@@ -382,15 +389,19 @@ namespace coil {
     {//Ray Dithering and filtering
       Gtk::HBox* box = manage(new Gtk::HBox);
       _ditherRay.reset(new Gtk::CheckButton("Dither"));
+      _variableDither.reset(new Gtk::CheckButton("Variable Dither"));
       _filterData.reset(new Gtk::CheckButton("Filter Data"));
       
       _ditherRay->set_active(true);
       _ditherRay->show();
       _filterData->set_active(true);
       _filterData->show();
+      _variableDither->set_active(true);
+      _variableDither->show();
 
-      box->pack_end(*_ditherRay, true, true);
       box->pack_end(*_filterData, true, true);
+      box->pack_end(*_ditherRay, true, true);
+      box->pack_end(*_variableDither, true, true);
       _optList->add(*box); box->show();
     }
     
