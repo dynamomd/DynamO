@@ -226,7 +226,7 @@ void main()
 
       ////////////Lighting calculations
       //We perform all the calculations in the eye space.
-      vec3 norm = sample.xyz * 2.0 - vec3(1.0);
+      vec3 norm = (ViewMatrix * vec4(sample.xyz * 2.0 - vec3(1.0), 0.0)).xyz;
       src.rgb = calcLighting((ViewMatrix * vec4(rayPos,1.0)).xyz, norm, src.rgb);
 
       ///////////Front to back blending
