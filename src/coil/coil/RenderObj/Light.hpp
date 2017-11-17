@@ -31,7 +31,7 @@ namespace coil {
   public:
     RLight(std::string name, magnet::math::Vector position, magnet::math::Vector lookAtPoint,
 	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector{0,1,0},
-	   GLfloat simLength = 25.0f, GLfloat size = 1.0):
+	   GLfloat simLength = 25.0f, GLfloat size = 0.2):
       RenderObj(name),
       CameraHeadTracking(position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0,0,20}),
       _intensity(1.0),
