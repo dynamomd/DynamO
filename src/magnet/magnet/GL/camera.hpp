@@ -28,8 +28,8 @@ namespace magnet {
   namespace GL {
     class Camera {
     public:
-      inline Camera(GLfloat zNearDist = 8.0f, 
-		    GLfloat zFarDist = 10000.0f):
+      inline Camera(GLfloat zNearDist = 0.3f, 
+		    GLfloat zFarDist = 300.0f):
 	_height(1),
 	_width(1),
 	_zNearDist(zNearDist),
