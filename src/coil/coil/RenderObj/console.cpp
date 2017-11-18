@@ -119,7 +119,7 @@ namespace coil {
       }
   }
 
-  void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode)
+  void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode, const uint32_t offset)
   {
   }
 

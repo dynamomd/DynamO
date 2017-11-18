@@ -263,6 +263,7 @@ namespace coil {
     void AAsamplechangeCallback();
 
     void LoadDataCallback();
+    void SaveDataCallback();
     
     void addLightCallback();
 

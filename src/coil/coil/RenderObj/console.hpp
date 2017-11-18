@@ -42,7 +42,7 @@ namespace coil {
     void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     void showControls(Gtk::ScrolledWindow* win);
     void deinit();
-    void glRender(const magnet::GL::Camera& cam, RenderMode mode);
+    void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset = 0);
     
   private:
     void initGTK();

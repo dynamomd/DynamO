@@ -26,6 +26,7 @@
 #include <magnet/image/bitmap.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <gtkmm/volumebutton.h>
+#include <stator/xml.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
@@ -187,38 +188,26 @@ namespace coil {
 	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,0,-1}));
     }
 
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("CamMode", button);
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::cameraModeCallback));
-    }
-
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("LoadDataButton", button); 
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::LoadDataCallback));
-    }
-
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("addLightButton", button); 
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::addLightCallback));
-    }
+    for (const auto& b : std::vector<std::pair<std::string, void(CLGLWindow::*)()> >{
+	{"CamMode", &CLGLWindow::cameraModeCallback},
+	{"LoadDataButton", &CLGLWindow::LoadDataCallback},
+	{"SaveDataButton", &CLGLWindow::SaveDataCallback},
+	{"addLightButton", &CLGLWindow::addLightCallback},
+	{"addFunctionButton", &CLGLWindow::addFunctionCallback},
+	{"SimSnapshot", &CLGLWindow::snapshotCallback},
+	{"filterUp", &CLGLWindow::filterUpCallback},
+	{"filterDown", &CLGLWindow::filterDownCallback},
+	{"filterDelete", &CLGLWindow::filterDeleteCallback},
+	{"filterAdd",&CLGLWindow::filterAddCallback},
+	{"filterClear", &CLGLWindow::filterClearCallback},
+	{"HeadTrackReset", &CLGLWindow::HeadReset}
+      })
+      {
+	Gtk::Button* button;
+	_refXml->get_widget(b.first, button);
+	button->signal_clicked().connect(sigc::mem_fun(*this, b.second));
+      }
     
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("addFunctionButton", button); 
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::addFunctionCallback));
-    }
-
     ///////Create a top menu
     {
       Glib::RefPtr<Gtk::UIManager> m_refUIManager;
@@ -286,12 +275,6 @@ namespace coil {
       _refXml->get_widget("SimLockButton", framelockButton);
       framelockButton->signal_toggled()
 	.connect(sigc::mem_fun(this, &CLGLWindow::simFramelockControlCallback));
-    }
-
-    {//////Snapshot button
-      Gtk::Button* btn;
-      _refXml->get_widget("SimSnapshot", btn);
-      btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::snapshotCallback));    
     }
 
     {
@@ -389,28 +372,10 @@ namespace coil {
 	}
       
 	{///Connect the control buttons
-	  Gtk::Button* btn;
-	  _refXml->get_widget("filterUp", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
-	  _refXml->get_widget("filterDown", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
-	  _refXml->get_widget("filterDelete", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
-	  _refXml->get_widget("filterAdd", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
-	  _refXml->get_widget("filterClear", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
-	  {
-	    Gtk::ToggleButton* btn;
-	    _refXml->get_widget("filterActive", btn);
-	    btn->signal_toggled()
-	      .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
-	  }
+	  Gtk::ToggleButton* btn;
+	  _refXml->get_widget("filterActive", btn);
+	  btn->signal_toggled()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
 	}
       
 	{
@@ -437,17 +402,16 @@ namespace coil {
 
 	{
 	  Gtk::ScrolledWindow* win;
-	  _refXml->get_widget("OpenVRLogScrolledWindow", win);
+	  _refXml->get_widget("OpenVRLogScrolledWindow", win);	  	  
 	  Gtk::TextView*  view;
 	  _refXml->get_widget("OpenVRLogTextView", view);
-	  Gtk::Button*  clear;
-	  _refXml->get_widget("OpenVRLogClearButton", clear);
-	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
-	  
 	  view->signal_size_allocate().connect([=](Gtk::Allocation&) {
 	      win->get_vadjustment()->set_value(win->get_vadjustment()->get_upper());
 	    });
 
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  Gtk::Button*  clear;
+	  _refXml->get_widget("OpenVRLogClearButton", clear);
 	  clear->signal_clicked().connect([=](){ vrlog->set_text(""); });
 	}	
 #ifdef COIL_OpenVR
@@ -500,13 +464,6 @@ namespace coil {
 	    .connect(sigc::bind(&magnet::gtk::forceNumericEntry, pixelPitch));
 	  pixelPitch->signal_activate()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
-	}
-
-	{
-	  Gtk::Button* btn;
-	  _refXml->get_widget("HeadTrackReset", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::HeadReset));
 	}
 
 #ifdef COIL_wiimote
@@ -1752,11 +1709,37 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::LoadDataCallback() {
-    Gtk::FileChooserDialog dialog(*controlwindow, "Please select a data file to load");
-    
+  CLGLWindow::SaveDataCallback() {
+    Gtk::FileChooserDialog dialog(*controlwindow, "Save as", Gtk::FILE_CHOOSER_ACTION_SAVE);    
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("Coil file");
+    filter->add_pattern("*.coil");
+    dialog.add_filter(filter);
+    dialog.add_button("Ok", Gtk::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    if (dialog.run() == Gtk::RESPONSE_OK) {
+      std::string file_path = dialog.get_filename();
+      if ((file_path.size() < 5) || (file_path.substr(file_path.size() - 5, 5) != ".coil"))
+	file_path = file_path + ".coil";
+      
+      stator::xml::Document doc;
+      auto root = doc.add_node("Coil");
 
-    std::vector<std::pair<std::string, std::string>> types{{"Coil file", "coil"}, {"Volume raw", "raw"}};
+      for (auto& obj :_renderObjsTree._renderObjects)
+	obj->xml(root);
+      
+      std::ofstream(file_path, std::ios::out | std::ios::trunc) << doc;
+    }
+  }
+  
+  void 
+  CLGLWindow::LoadDataCallback() {
+    Gtk::FileChooserDialog dialog(*controlwindow, "Load data");
+
+    std::vector<std::pair<std::string, std::string>> types{
+      {"Coil file", "coil"},
+      {"Volume raw", "raw"}
+    };
 
     Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
     filter->set_name("All supported types");

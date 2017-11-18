@@ -20,6 +20,7 @@
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
+#include <stator/xml.hpp>
 #include <memory>
 #include <thread>
 
@@ -263,7 +264,8 @@ namespace coil {
       for (;!_initialised;)
 	std::this_thread::yield();
     }
-	
+
+    virtual void xml(stator::xml::Node) {}
     
   protected:
     std::string _name;

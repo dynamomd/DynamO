@@ -109,6 +109,7 @@ else()
 endif()
 
 include_directories(./extern/stator/)
+include_directories(./extern/)
 
 ######################################################################
 # Stack trace support
