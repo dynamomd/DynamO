@@ -48,6 +48,7 @@ void main()
 
   public:
     RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions({1,1,1}), _frameCounter(0) {}
+    RVolume(stator::xml::Node);
   
     virtual bool deletable() { return true; }
     
@@ -61,7 +62,7 @@ void main()
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    void loadRawFile(std::string filename, std::array<size_t, 3> dimensions, size_t bytes);
+    void loadRawFile(std::string filename, std::array<size_t, 3> dimensions, size_t bytes, Vector dims = Vector{0,0,0});
 
 #ifdef COIL_TIFFSUPPORT
     void loadTIFFFiles(std::vector<std::string> files);
@@ -76,6 +77,7 @@ void main()
 
     void loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector scale);
 
+    virtual void xml(stator::xml::Node);
   protected:
     void loadSphereTestPattern();
 

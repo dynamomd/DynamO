@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	if (files.size() == 1)
 	  {
 	    size_t datasize[3] = {vm["x-elements"].as<size_t>(), vm["y-elements"].as<size_t>(), vm["z-elements"].as<size_t>()};
-	    window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), files[0], std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>()));
+	    window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), files[0], std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>(), magnet::math::Vector{0,0,0}));
 	  }
 	else
 	  {

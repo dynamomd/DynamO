@@ -1724,10 +1724,8 @@ namespace coil {
       
       stator::xml::Document doc;
       auto root = doc.add_node("Coil");
-
       for (auto& obj :_renderObjsTree._renderObjects)
 	obj->xml(root);
-      
       std::ofstream(file_path, std::ios::out | std::ios::trunc) << doc;
     }
   }
@@ -1761,7 +1759,7 @@ namespace coil {
       std::string path = dialog.get_filename();
       std::string filename_only = boost::filesystem::path(dialog.get_filename()).filename().string();
 
-      if (filename_only.substr(filename_only.size()-4,4) == ".raw") {
+      if ((filename_only.size() >= 4) && (filename_only.substr(filename_only.size()-4,4) == ".raw")) {
 	Gtk::Dialog* volumedialog;
 	dialog.hide();
 	_refXml->get_widget("VolumeLoadDialog", volumedialog);
@@ -1798,11 +1796,12 @@ namespace coil {
 	  _refXml->get_widget("VolumeZDataSizeButton", but);
 	  data_dims[2] = size_t(but->get_value_as_int());
 	  
-	  getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), dialog.get_filename(), data_dims, data_size));
+	  getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), dialog.get_filename(), data_dims, data_size, Vector{0,0,0}));
 	}
 	volumedialog->hide();
-      }
-      else {
+      } else if ((filename_only.size() >= 5) && (filename_only.substr(filename_only.size()-5,5) == ".coil")) {
+	
+      } else {
 	M_throw() << "Unhandled file type " << filename_only.substr(filename_only.size()-3,3);
       }
     }
