@@ -51,7 +51,9 @@ namespace coil {
     int _glutLastTime;
 
     magnet::GL::shader::RenderShader _renderShader;
-    std::unique_ptr<Gtk::VBox> _optList; 
+    magnet::GL::Buffer<GLfloat> _gridVertices;
+    std::unique_ptr<Gtk::VBox> _optList;
+    std::unique_ptr<Gtk::CheckButton> _showGrid;
     std::unique_ptr<Gtk::CheckButton> _showAxis;
   };
 }

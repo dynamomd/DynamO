@@ -19,6 +19,7 @@
 #include <magnet/exception.hpp>
 #include <magnet/clamp.hpp>
 #include <magnet/GL/objects/cairo.hpp>
+#include <magnet/GL/objects/primitives/grid.hpp>
 
 namespace coil {
   void 
@@ -26,6 +27,7 @@ namespace coil {
   {
     RenderObj::init(systemQueue);
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
+    _gridVertices.init(magnet::GL::objects::primitives::Grid::getVertices(10, 10), 3);
     initGTK();
     _renderShader.build();
     _initialised = true;
@@ -55,6 +57,7 @@ namespace coil {
   void
   Console::deinit()
   {
+    _gridVertices.deinit();
     _renderShader.deinit();
   }
 
@@ -121,6 +124,49 @@ namespace coil {
 
   void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode, const uint32_t offset)
   {
+    if (_showGrid->get_active())
+      {
+	//using namespace magnet::GL;
+	//const Context::ContextPtr& context = magnet::GL::Context::getContext();
+	//
+	//_renderShader.attach();
+	//_renderShader["ProjectionMatrix"] = camera.getProjectionMatrix();
+	//_renderShader["ViewMatrix"] = camera.getViewPlaneMatrix();
+	//context->color(1,1,1,1);
+	////Back face
+	//context->setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
+	//context->setAttribute(Context::instanceScaleAttrIndex,
+	//		      camera.getScreenPlaneWidth(),
+	//		      camera.getScreenPlaneHeight(), 1);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES);
+	//
+	////Sides
+	//context->setAttribute(Context::instanceOriginAttrIndex, 
+	//		      0.5 * camera.getScreenPlaneWidth(), 0, 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//context->rotation(M_PI / 2, Vector{0, 1, 0});
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES); //Right side
+	//
+	//context->setAttribute(Context::instanceOriginAttrIndex, 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0, 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES); //Left side
+	//
+	////Top and bottom
+	//context->rotation(M_PI / 2, Vector{1, 0, 0});
+	//context->setAttribute(Context::instanceScaleAttrIndex,
+	//		      camera.getScreenPlaneWidth(),
+	//		      camera.getScreenPlaneWidth(), 1);
+	//context->setAttribute(Context::instanceOriginAttrIndex, 0,
+	//		      -0.5 * camera.getScreenPlaneHeight(), 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES);
+	//context->setAttribute(Context::instanceOriginAttrIndex, 0,
+	//		      0.5 * camera.getScreenPlaneHeight(), 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES);
+	//_renderShader.detach();
+      }
   }
 
 
@@ -129,6 +175,13 @@ namespace coil {
   {
     _optList.reset(new Gtk::VBox);//The Vbox of options   
     {
+      _showGrid.reset(new Gtk::CheckButton("Show viewing grid"));
+      _showGrid->set_active(false);
+      _optList->pack_start(*_showGrid,false,false); 
+      _showGrid->show();
+    }
+
+    {   
       _showAxis.reset(new Gtk::CheckButton("Show axis"));
       _showAxis->set_active(true);
       _optList->pack_start(*_showAxis, false, false); 
