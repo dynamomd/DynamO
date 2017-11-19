@@ -92,11 +92,35 @@ namespace coil {
     //Debug loading of data
     //loadSphereTestPattern();
 
+    //Determine the data range
+    uint32_t min = -1, max = 0;
+    for (size_t x(0); x < data_dim[0]; ++x)
+      for (size_t y(0); y < data_dim[1]; ++y)
+	for (size_t z(0); z < data_dim[2]; ++z) {
+	  uint32_t val = 0;
+	  for (size_t byte(0); byte < bytes; ++byte)
+	    val += filebuffer[(x + (y + z * data_dim[1]) * data_dim[0]) * bytes + byte] << (8 * (bytes-byte));
+
+	  if (val != 0)
+	    min = std::min(min, val);
+	  max = std::max(max, val);
+	}
+
+    size_t shift(0);
+    for (; shift < 32-8; ++shift)
+      if ((max >> (shift+8)) == 0) break;
+    
+    std::cout << "min="<<min << ", max="<<max<< ", shift=" << shift << std::endl;
+    
     std::vector<GLubyte> outbuffer(data_dim[0] * data_dim[1] * data_dim[2]);
     for (size_t x(0); x < data_dim[0]; ++x)
       for (size_t y(0); y < data_dim[1]; ++y)
-	for (size_t z(0); z < data_dim[2]; ++z)
-	  outbuffer[x + (y + z* data_dim[1]) * data_dim[0]] = filebuffer[(x + (y + z * data_dim[1]) * data_dim[0]) * bytes];
+	for (size_t z(0); z < data_dim[2]; ++z) {
+	  uint32_t val = 0;
+	  for (size_t byte(0); byte < bytes; ++byte)
+	    val += filebuffer[(x + (y + z * data_dim[1]) * data_dim[0]) * bytes + byte] << (8 * (bytes-byte));
+	  outbuffer[x + (y + z* data_dim[1]) * data_dim[0]] = (val >> shift);
+	}
     
     loadData(outbuffer, data_dim, dims);
   }
