@@ -57,6 +57,7 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
     virtual double getInternalEnergy() const;
 
+    using ICapture::validateState;
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
   protected:
     ISquareWell(dynamo::Simulation* tmp, IDPairRange* nR):
