@@ -51,6 +51,7 @@ namespace dynamo {
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    using ICapture::validateState;
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
  
     virtual size_t captureTest(const Particle&, const Particle&) const;

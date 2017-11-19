@@ -96,7 +96,7 @@ namespace dynamo {
 	M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		  << " does not have an NVT ensemble";
 
-    //Ensure the types of the simulation Dynamicss match
+    //Ensure the types of the simulation Dynamics match
     for (size_t i(1); i < nSims; ++i)
       if (typeid(*Simulations[i].dynamics)
 	  != typeid(*Simulations[0].dynamics))

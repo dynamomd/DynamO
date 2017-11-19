@@ -56,6 +56,7 @@ namespace dynamo {
 
     virtual size_t captureTest(const Particle&, const Particle&) const;
 
+    using ICapture::validateState;
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
     void setUnusedDimension(size_t v) { _unusedDimension = v; }

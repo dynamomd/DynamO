@@ -486,7 +486,7 @@ namespace magnet {
       }
       
     private:
-      template<class T> friend class std::numeric_limits; 
+      template<class T> friend struct std::numeric_limits; 
 
       /*! \brief A mask for the settable bits of the dilated integer.
        */
