@@ -202,7 +202,7 @@ void main()
 
   //We only accumulate up to 0.95 alpha (the blending never reaches
   //1).
-  for (float length = tfar - tnear; (length > 0.0) && (color.a <= 0.95);
+  for (float length = tfar - tnear; (length > 0.0) && (color.a < 0.95);
        length -= StepSize, rayPos += rayDirection)
     {
       //Grab the volume sample
@@ -254,6 +254,8 @@ void main()
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */
   color.rgb /= float(color.a == 0.0) + color.a;
+  if (color.a >= 0.95)
+    color.a = 1.0;
   color_out = color;
 });
 	}
