@@ -195,6 +195,11 @@ void main()
   //Make this into the ray position step vector
   rayDirection *= StepSize;
 
+  //Here we store the direction of the transfer function alpha. This
+  //is used to flip the gradient/normal, so that it always points
+  //outwards from increasing alpha
+  float lastSign = 1;
+
   //We only accumulate up to 0.95 alpha (the blending never reaches
   //1).
   for (float length = tfar - tnear; (length > 0.0) && (color.a <= 0.95);
@@ -216,6 +221,7 @@ void main()
 	  /*Pre-Integrated color calc*/
 	  float deltaT = transfer.a - lastTransfer.a;
 	  vec3 deltaK = transfer.rgb - lastTransfer.rgb;
+	  lastSign = sign(deltaT);
 	  float opacity = 1.0 - exp( - deltaT * StepSize / delta);
 	  vec3 color = abs(deltaK) / (abs(deltaT) + 1.0e-10);
 	  src = vec4(color, opacity);
@@ -226,7 +232,7 @@ void main()
 
       ////////////Lighting calculations
       //We perform all the calculations in the eye space.
-      vec3 norm = (ViewMatrix * vec4(sample.xyz * 2.0 - vec3(1.0), 0.0)).xyz;
+      vec3 norm = (ViewMatrix * vec4(lastSign*(sample.xyz * 2.0 - vec3(1.0)), 0.0)).xyz;
       src.rgb = calcLighting((ViewMatrix * vec4(rayPos,1.0)).xyz, norm, src.rgb);
 
       ///////////Front to back blending
