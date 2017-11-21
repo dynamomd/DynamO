@@ -101,6 +101,7 @@ void main()
     std::unique_ptr<Gtk::CheckButton> _ditherRay;
     std::unique_ptr<Gtk::CheckButton> _variableDither;
     std::unique_ptr<Gtk::CheckButton> _filterData;
+    std::unique_ptr<Gtk::CheckButton> _preintegrate;
     std::unique_ptr<magnet::gtk::TransferFunction> _transferFunction;
     GLfloat _stepSizeVal;
     Vector _dimensions;

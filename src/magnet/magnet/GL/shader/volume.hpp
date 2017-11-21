@@ -31,7 +31,11 @@ namespace magnet {
        */
       class VolumeShader: public detail::Shader
       {
-      public:      
+      public:
+	VolumeShader() {
+	  defines("FORCE_DIRECT_INTEGRATION") = "false";
+	}
+	
 	virtual std::string initVertexShaderSource()
 	{ return STRINGIFY(
 uniform mat4 ProjectionMatrix;
@@ -200,9 +204,9 @@ void main()
   //outwards from increasing alpha
   float lastSign = 1;
 
-  //We only accumulate up to 0.95 alpha (the blending never reaches
+  //We only accumulate up to 0.99 alpha (the blending never reaches
   //1).
-  for (float length = tfar - tnear; (length > 0.0) && (color.a < 0.95);
+  for (float length = tfar - tnear; (length > 0.0) && (color.a < 0.99);
        length -= StepSize, rayPos += rayDirection)
     {
       //Grab the volume sample
@@ -211,8 +215,9 @@ void main()
       float delta = sample.a - lastsamplea;
 
       vec4 src;
-      if (delta == 0.0)
-	{ //Special case where the integration breaks down, just use the constant val.
+      if (FORCE_DIRECT_INTEGRATION || (delta == 0.0))
+	{ //Special case where the integration breaks down, just use
+	  //the constant val.
 	  src = texture(TransferTexture, sample.a);
 	  src.a = (1.0 - exp( - StepSize * src.a));
 	}
@@ -254,7 +259,7 @@ void main()
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */
   color.rgb /= float(color.a == 0.0) + color.a;
-  if (color.a >= 0.95)
+  if (color.a >= 0.99)
     color.a = 1.0;
   color_out = color;
 });

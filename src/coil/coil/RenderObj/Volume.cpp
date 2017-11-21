@@ -418,15 +418,19 @@ namespace coil {
       _ditherRay.reset(new Gtk::CheckButton("Dither"));
       _variableDither.reset(new Gtk::CheckButton("Variable Dither"));
       _filterData.reset(new Gtk::CheckButton("Filter Data"));
+      _preintegrate.reset(new Gtk::CheckButton("Preintegrate"));
       
       _ditherRay->set_active(true);
       _ditherRay->show();
       _filterData->set_active(true);
       _filterData->show();
+      _preintegrate->set_active(true);
+      _preintegrate->show();
       _variableDither->set_active(true);
       _variableDither->show();
 
       box->pack_end(*_filterData, true, true);
+      box->pack_end(*_preintegrate, true, true);
       box->pack_end(*_ditherRay, true, true);
       box->pack_end(*_variableDither, true, true);
       _optList->add(*box); box->show();
@@ -439,6 +443,9 @@ namespace coil {
     _stepSize->signal_activate().connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     _filterData->signal_toggled()
+      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+
+    _preintegrate->signal_toggled()
       .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     guiUpdate();
@@ -473,6 +480,12 @@ namespace coil {
 	    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	  }
+
+
+	if (_preintegrate->get_active())
+	  _shader.defines("FORCE_DIRECT_INTEGRATION") = "false";
+	else
+	  _shader.defines("FORCE_DIRECT_INTEGRATION") = "true";
       }
   }
 
