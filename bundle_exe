@@ -142,6 +142,7 @@ def main():
             if args.upx:
                 subprocess.call(["upx", target])
 
+        #Taken from www.tarnyko.net/repo/gtk3_build_system/tutorial/gtk3_tutorial.htm on the 22/11/2017
         copydirs = {
             'share':['glib-2.0', 'locale', 'themes', 'icons', 'gtk-3.0'],
             'etc':['gtk-3.0'],
@@ -156,6 +157,18 @@ def main():
                     shutil.copytree(src, dest)
                 except shutil.SameFileError:
                     print("Dependency '%s' was already in target directory, skipping..." % (dep))
+
+        extra_libs = [
+            '/mingw64/bin/librsvg-2-2.dll',
+            '/mingw64/bin/libxml2-2.dll',
+            '/mingw64/bin/liblzma-5.dll',
+            '/mingw64/bin/libcroco-0.6-3.dll',
+        ]
+        for lib in extra_libs:
+            try:
+                shutil.copy(lib, parent_dir)
+            except shutil.SameFileError:
+                print("Dependency '%s' was already in target directory, skipping..." % (dep))
 
 if __name__ == "__main__":
     main()
