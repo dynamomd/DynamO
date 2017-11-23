@@ -19,7 +19,11 @@
 #pragma once
 
 #include <magnet/GL/camera.hpp>
-#include <openvr.h>
+#ifdef __MINGW32__
+# include <openvr_mingw.hpp>
+#else
+# include <openvr.h>
+#endif
 
 namespace magnet {
   class OpenVRTracker : public magnet::GL::Camera{
