@@ -509,8 +509,7 @@ namespace coil {
 	{
 	  Gtk::DrawingArea *ir;
 	  _refXml->get_widget("wiiIRImage", ir);
-	  ir->signal_expose_event()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
+	  ir->signal_draw().connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
 	}
 	
 	{//Here all the wii stuff should go in
@@ -2482,46 +2481,31 @@ namespace coil {
   }
 
   bool 
-  CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
+  CLGLWindow::wiiMoteIRExposeEvent(const Cairo::RefPtr<Cairo::Context>& cr)
   {
 #ifdef COIL_wiimote
     Gtk::DrawingArea *ir;
     _refXml->get_widget("wiiIRImage", ir);
 
-    Glib::RefPtr<Gdk::Window> window = ir->get_window();
-    if (window)
+    cr->set_source_rgb(0, 0, 0);
+    cr->set_line_width(1);
+    
+    //Draw the tracked sources with a red dot, but only if there are just two sources!
+    
+    size_t trackeddrawn = 2;
+    for (const auto& irdata : magnet::TrackWiimote::getInstance().getSortedIRData())
       {
-	Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
-
-	if(event)
-	  {
-	    // clip to the area indicated by the expose event so that we only
-	    // redraw the portion of the window that needs to be redrawn
-	    cr->rectangle(event->area.x, event->area.y,
-			  event->area.width, event->area.height);
-	    cr->clip();
-	  }
-      
-	cr->set_source_rgb(0, 0, 0);
-	cr->set_line_width(1);
-
-	//Draw the tracked sources with a red dot, but only if there are just two sources!
-      
-	size_t trackeddrawn = 2;
-	for (const auto& irdata : magnet::TrackWiimote::getInstance().getSortedIRData())
-	  {
-	    cr->save();
-	    if (trackeddrawn-- > 0)
-	      cr->set_source_rgb(1, 0, 0);
-
-	    float x = ir->get_allocation().get_width() * (1 - float(irdata.x) / CWIID_IR_X_MAX);
-	    float y = ir->get_allocation().get_height() * (1 - float(irdata.y) / CWIID_IR_Y_MAX) ;
-
-	    cr->translate(x, y);
-	    cr->arc(0, 0, irdata.size + 1, 0, 2 * M_PI);
-	    cr->fill();	    
-	    cr->restore();
-	  }
+	cr->save();
+	if (trackeddrawn-- > 0)
+	  cr->set_source_rgb(1, 0, 0);
+	
+	float x = ir->get_allocation().get_width() * (1 - float(irdata.x) / CWIID_IR_X_MAX);
+	float y = ir->get_allocation().get_height() * (1 - float(irdata.y) / CWIID_IR_Y_MAX) ;
+	
+	cr->translate(x, y);
+	cr->arc(0, 0, irdata.size + 1, 0, 2 * M_PI);
+	cr->fill();	    
+	cr->restore();
       }
 #endif
     return true;

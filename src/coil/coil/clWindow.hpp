@@ -264,7 +264,7 @@ namespace coil {
 
     //Wii Remote callbacks
     void wiiMoteConnect(); 
-    bool wiiMoteIRExposeEvent(GdkEventExpose*);
+    bool wiiMoteIRExposeEvent(const Cairo::RefPtr<Cairo::Context>&);
 
     void HeadReset();
 
