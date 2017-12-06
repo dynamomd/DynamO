@@ -814,7 +814,7 @@ namespace coil {
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 	
 	if (wiiHeadTrack->get_active())
-	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
+	  _camera.setEyeLocation(magnet::TrackWiimote::getInstance().getHeadPosition());
       }
 #endif
 

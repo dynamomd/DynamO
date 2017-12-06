@@ -79,8 +79,6 @@ namespace magnet {
 	if (!_videoWidth || !_videoHeight) 
 	  M_throw() << "Can only encode images with a size of at least 2x2 pixels";
 
-	size_t size = _videoWidth * _videoHeight;
-
 	initialiseLibrary();
 
 	_h264 = true;
@@ -129,14 +127,18 @@ namespace magnet {
 	//We use normal malloc for a good reason, the library may
 	//realloc its memory any time it likes, so we don't give it
 	//control over this.
-	_pictureBuffer = reinterpret_cast<uint8_t*>(malloc((size * 3) / 2));
+	const size_t pixelcount = _videoWidth * _videoHeight;
+	_pictureBuffer = reinterpret_cast<uint8_t*>(malloc((pixelcount * 3) / 2));
 	_picture->data[0] = &(_pictureBuffer[0]);
-	_picture->data[1] = _picture->data[0] + size;
-	_picture->data[2] = _picture->data[1] + size / 4;
+	_picture->data[1] = _picture->data[0] + pixelcount;
+	_picture->data[2] = _picture->data[1] + pixelcount / 4;
 	_picture->linesize[0] = _videoWidth;
 	_picture->linesize[1] = _videoWidth / 2;
 	_picture->linesize[2] = _videoWidth / 2;
-    
+	_picture->width = _context->width;
+	_picture->height = _context->height;
+	_picture->format = _context->pix_fmt;
+	
 	_outputFile.open(filename.c_str(), std::ios_base::out | std::ios_base::binary  | std::ios_base::binary);
 	if (!_outputFile.is_open())  
 	  M_throw() << "Could not open the movie file for output";
@@ -146,7 +148,7 @@ namespace magnet {
       {
 	if (RGB24Frame.size() < 3 * _inputWidth * _videoHeight) 
 	  M_throw() << "The image is too small for the video size!";
-    
+	
 	//* convert the RGB image to YUV420p and copy it into the picture buffer
 	{
 	  size_t i = 0;
@@ -174,40 +176,44 @@ namespace magnet {
 	if (_h264)
 	  _picture->pts = (90000 / _fps) * (_frameCounter++);
 
-	AVPacket packet;
-	av_init_packet(&packet);
-	packet.data = NULL;
-	packet.size = 0;
-	int got_output;
-	int ret = avcodec_encode_video2(_context, &packet, _picture, &got_output);
+	//Send the new frame
+	int ret = avcodec_send_frame(_context, _picture);
 	if (ret < 0) M_throw() << "Failed to encode a frame of video.";
-	if (got_output) {
-	  _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
-	  av_free_packet(&packet);
+
+	//Now process output
+	AVPacket* packet = av_packet_alloc();
+	ret = avcodec_receive_packet(_context, packet);
+	while (!ret) {
+	  _outputFile.write(reinterpret_cast<const char*>(packet->data), packet->size);
+	  ret = avcodec_receive_packet(_context, packet);
 	}
+
+	av_packet_free(&packet);
+	if (ret != AVERROR(EAGAIN))
+	  M_throw() << "Error while recieving encoded video packets:" << ret;
       }
 
       void close()
       {
 	if (!_outputFile.is_open()) return;
 
-	/* get the delayed frames */
-	AVPacket packet;
-	av_init_packet(&packet);
-	packet.data = NULL;
-	packet.size = 0;
-	for (int got_output = 1; got_output;) {
-	  int ret = avcodec_encode_video2(_context, &packet, NULL, &got_output);
-	  if (ret < 0)
-	    M_throw() << "Error encoding end frames.";
-	  if (got_output) {
-	    _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
-	    av_free_packet(&packet);
-	  }
-	} 
-	  
+	//Flush the encoding queue
+	int ret = avcodec_send_frame(_context, NULL);
+	if (ret < 0)
+	  M_throw() << "Failed to flush the video encoder";
+	
+	AVPacket* packet = av_packet_alloc();
+	while (!ret) {
+	  _outputFile.write(reinterpret_cast<const char*>(packet->data), packet->size);
+	  ret = avcodec_receive_packet(_context, packet);
+	}
+	av_packet_free(&packet);
+
+	if (ret != AVERROR_EOF)
+	  M_throw() << "Error encoding end frames.";
+		  
 	/* add sequence end code to have a real mpeg file */
-	const uint8_t endcode[] = {0,0,1,0xb7};
+	const uint8_t endcode[] = {0, 0, 1, 0xb7};
 	_outputFile.write(reinterpret_cast<const char*>(endcode), sizeof(endcode));
 	_outputFile.close();
 
