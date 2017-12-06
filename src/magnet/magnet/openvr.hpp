@@ -194,7 +194,7 @@ namespace magnet {
     std::array<uint32_t, 2> getRenderDims() const {
       uint32_t renderWidth, renderHeight;
       _vr->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
-      return std::array<uint32_t, 2>{renderWidth, renderHeight};
+      return std::array<uint32_t, 2>{{renderWidth, renderHeight}};
     }
     
     void shutdown() {
