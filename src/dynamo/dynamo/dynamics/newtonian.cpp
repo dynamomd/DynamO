@@ -720,7 +720,7 @@ namespace dynamo {
     for (size_t i(0); i < NDIM; ++i)
       if (vel[i] != 0)
 	{
-	  double tmp = (0.5 * (0.5 * Sim->primaryCellSize[i] - lMax)) / fabs(vel[i]);
+	  double tmp = (0.5 * (0.5 * Sim->primaryCellSize[i] - lMax)) / std::abs(vel[i]);
 	  
 	  if (tmp < retval)
 	    retval = tmp;

@@ -140,9 +140,18 @@ namespace dynamo {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
     const double minDistance = _maxInteractionRange * (1.0 + 10 * std::numeric_limits<double>::epsilon()) / overlink;
+    dout << "Cell diameter from interaction distance and overlink " << minDistance << std::endl;
     const double unityOccupancy = std::cbrt(Sim->getSimVolume() / Sim->N());
+    dout << "Cell diameter from unitary occupancy " << unityOccupancy << std::endl;
+
+    double l = std::max(minDistance, unityOccupancy);
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
+      l = std::min(Sim->primaryCellSize[iDim] / 2 * overlink + 1, l);
+
+    dout << "Cell diameter use after taking into account system size " << l << std::endl;
     //Create the cells
-    addCells(std::max(minDistance, unityOccupancy));
+
+    addCells(l);
     _sigReInitialise();
   }
 
