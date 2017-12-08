@@ -158,12 +158,12 @@ namespace dynamo {
 
       //Ensure there are at least 4 cells in each dimension to allow
       //the PBCSentinel to work (if needed)
-      cellCount[iDim] = std::max(cellCount[iDim], 4ul);
+      cellCount[iDim] = std::max(cellCount[iDim], size_t(4));
       
       //Also make sure there are enough cells for the neighbour cell
       //calculations to work (to contain at least one full
       //neighbourhood template in the system)
-      cellCount[iDim] = std::max(cellCount[iDim], 2ul * overlink + 1ul);
+      cellCount[iDim] = std::max(cellCount[iDim], size_t(2) * overlink + size_t(1));
     }
 
     dout << "Target cell width use after taking into account system size" << l << std::endl;
