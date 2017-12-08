@@ -42,11 +42,11 @@ script:
   - "cd build"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-amd64-${COMPILER_NAME}; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=Release -DPACKAGE_SUFFIX=-ubuntu14.04-amd64-${COMPILER_NAME}; fi"
-  - "cmake --build . --config Release"
+  - "cmake --build . --config Release -- -j2"
   - "cpack --verbose -G ZIP"
   - "cpack --verbose"
   # Unit testing
-  - "CTEST_OUTPUT_ON_FAILURE=1 ctest --build-config $CONFIG"
+  - "CTEST_OUTPUT_ON_FAILURE=1 ctest --build-config $CONFIG -j2"
   - "cd .."
 
 before_deploy:

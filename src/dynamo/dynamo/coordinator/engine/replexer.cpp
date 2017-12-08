@@ -97,12 +97,16 @@ namespace dynamo {
 		  << " does not have an NVT ensemble";
 
     //Ensure the types of the simulation Dynamics match
-    for (size_t i(1); i < nSims; ++i)
-      if (typeid(*Simulations[i].dynamics)
-	  != typeid(*Simulations[0].dynamics))
+    const Dynamics& dyn0 = *Simulations[0].dynamics;
+    const std::type_info& dyntype0 = typeid(dyn0);
+    
+    for (size_t i(1); i < nSims; ++i) {
+      const Dynamics& dyni = *Simulations[i].dynamics;
+      if (typeid(dyni) != dyntype0)
 	M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		  << " does not have the same Dynamics type as "
 		  << vm["config-file"].as<std::vector<std::string> >()[0];
+    }
 
     //Test a thermostat is available
     for (size_t i = 0; i < nSims; i++)
