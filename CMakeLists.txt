@@ -196,7 +196,7 @@ find_package(PNG)
 find_package(PkgConfig)
 pkg_check_modules(GTKMM gtkmm-3.0)
 
-set(VISUALIZER_SUPPORT TRUE)
+set(VISUALIZER_SUPPORT TRUE CACHE BOOL "Attempt to enable the visualiser")
 function(visualiser_dependency varname message)
   if(${varname})
     message(STATUS "${message} found.")
