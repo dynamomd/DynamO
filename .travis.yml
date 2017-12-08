@@ -2,6 +2,9 @@ sudo: required
 language: cpp
 dist: trusty
 
+env:
+  - CONFIG=Release
+
 matrix:
   include:
     - compiler: gcc
