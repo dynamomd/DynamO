@@ -139,19 +139,36 @@ namespace dynamo {
       
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
-    const double minDistance = _maxInteractionRange * (1.0 + 10 * std::numeric_limits<double>::epsilon()) / overlink;
+    //This is the minimium cell size, based on the two-particle Interaction range
+    const double minDistance = _maxInteractionRange / overlink;
     dout << "Cell diameter from interaction distance and overlink " << minDistance << std::endl;
+
+    //This is the "optimal" neighbourlist size where we have unitary occupation
     const double unityOccupancy = std::cbrt(Sim->getSimVolume() / Sim->N());
     dout << "Cell diameter from unitary occupancy " << unityOccupancy << std::endl;
 
+    //Choose the largest cell size we can from the two choices so far
     double l = std::max(minDistance, unityOccupancy);
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
-      l = std::min(Sim->primaryCellSize[iDim] / 2 * overlink + 1, l);
 
-    dout << "Cell diameter use after taking into account system size " << l << std::endl;
-    //Create the cells
+    std::array<size_t, 3> cellCount;
+    const double embiggen = 1.0 + 10 * std::numeric_limits<double>::epsilon();
 
-    addCells(l);
+    for (size_t iDim = 0; iDim < NDIM; iDim++) {
+      cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (l * embiggen));
+
+      //Ensure there are at least 4 cells in each dimension to allow
+      //the PBCSentinel to work (if needed)
+      cellCount[iDim] = std::max(cellCount[iDim], 4ul);
+      
+      //Also make sure there are enough cells for the neighbour cell
+      //calculations to work (to contain at least one full
+      //neighbourhood template in the system)
+      cellCount[iDim] = std::max(cellCount[iDim], 2ul * overlink + 1ul);
+    }
+
+    dout << "Target cell width use after taking into account system size" << l << std::endl;
+
+    addCells(cellCount);
     _sigReInitialise();
   }
 
@@ -171,19 +188,12 @@ namespace dynamo {
 	<< magnet::xml::endtag("Global");
   }
 
-  void GCells::addCells(double maxdiam)
+  void GCells::addCells(std::array<size_t, 3> cellCount)
   {
-    double overlap = 0.9;
-    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
-      overlap = 0.001;
-    
-    std::array<size_t, 3> cellCount;
+    const double maxdiam = _maxInteractionRange;
+    const double overlap = (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics)) ? 0.001 : 0.9;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
-	cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
-      
-	if (cellCount[iDim] < 2 * overlink + 1)
-	  cellCount[iDim] = 2 * overlink + 1;
 	_cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / cellCount[iDim];
 	_cellDimension[iDim] = _cellLatticeWidth[iDim] + (_cellLatticeWidth[iDim] - maxdiam) * overlap;
 	_cellOffset[iDim] = -(_cellLatticeWidth[iDim] - maxdiam) * overlap * 0.5;
