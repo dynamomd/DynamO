@@ -36,6 +36,10 @@
 #include <vector>
 #include <memory>
 
+#ifdef COIL_OpenVR
+# include <magnet/openvr.hpp>
+#endif 
+
 namespace magnet {
   namespace image {
     class VideoEncoderFFMPEG;
@@ -59,15 +63,17 @@ namespace coil {
     const std::string& getWindowTitle() const { return windowTitle; }
     void setWindowtitle(const std::string& newtitle);
   
-    void addRenderObj(const std::shared_ptr<RenderObj>& nObj)
-    { _renderObjsTree._renderObjects.push_back(nObj); }
+    void addRenderObj(std::shared_ptr<RenderObj> nObj)
+    {
+      _glContext->queueTask(std::bind(&CLGLWindow::addObjectWorker, this, nObj));
+    }
 
     inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
     void init();
     void deinit();
 
-    void simupdateTick(double t);
+    bool simupdateTick(double t);
   
     const double& getUpdateInterval() {return _updateIntervalValue; }
 
@@ -91,6 +97,12 @@ namespace coil {
 
     magnet::GL::Camera& getCamera() { return _camera; }
   protected:
+    void addObjectWorker(const std::shared_ptr<RenderObj> nObj) {
+      _renderObjsTree._renderObjects.push_back(nObj);
+      _renderObjsTree._renderObjects.back()->init(_systemQueue);
+      _renderObjsTree.buildRenderView();
+    }
+    
     CLGLWindow(const CLGLWindow&);
     
     void setLabelText(Gtk::Label*, std::string);
@@ -199,6 +211,7 @@ namespace coil {
     int  _fpsLimitValue;
     bool _filterEnable;
     bool _stereoMode;
+    bool _openVRMode;
     double _ambientIntensity;
     std::array<GLfloat, 3> _backColor;
     float _sceneKey;
@@ -251,7 +264,7 @@ namespace coil {
 
     //Wii Remote callbacks
     void wiiMoteConnect(); 
-    bool wiiMoteIRExposeEvent(GdkEventExpose*);
+    bool wiiMoteIRExposeEvent(const Cairo::RefPtr<Cairo::Context>&);
 
     void HeadReset();
 
@@ -267,6 +280,8 @@ namespace coil {
 
     void AAsamplechangeCallback();
 
+    void LoadDataCallback();
+    
     void addLightCallback();
 
     void addFunctionCallback();
@@ -293,6 +308,10 @@ namespace coil {
     std::unique_ptr<Gtk::ComboBoxText> _aasamples;
 #ifdef MAGNET_FFMPEG_SUPPORT
     std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
+#endif
+
+#ifdef COIL_OpenVR
+    magnet::OpenVRTracker _openVR;
 #endif
   };
 }

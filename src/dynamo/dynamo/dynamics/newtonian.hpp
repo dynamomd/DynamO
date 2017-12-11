@@ -56,7 +56,7 @@ namespace dynamo {
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;
     virtual ParticleEventData runCylinderWallCollision(Particle&, const Vector &, const Vector &, const double&) const;
     virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, const double, const double) const;
-    virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d) const;
+    virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d, const double slip) const;
     virtual ParticleEventData randomGaussianEvent(Particle&, const double&, const size_t) const;
     virtual NEventData multibdyCollision(const IDRange&, const IDRange&, const double&, const EEventType&) const;
     virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const;

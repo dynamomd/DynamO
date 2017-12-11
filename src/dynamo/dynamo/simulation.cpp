@@ -276,6 +276,8 @@ namespace dynamo
       if (ptr->maxIntDist() > maxval)
 	maxval = ptr->maxIntDist();
 
+    //Should the locals be included here?
+    
     return maxval;
   }
 

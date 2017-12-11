@@ -49,6 +49,8 @@ namespace dynamo {
 
     //Build a window, ready to display it
     _window.reset(new coil::CLGLWindow("DynamO Visualizer", tickFreq, true));
+    //Initialise the window (and its GL context)
+    _coil.getInstance().addWindow(_window);
 
     //Cannot continue setting up the coil visualiser yet, as the other
     //dynamo classes have not been initialised.
@@ -105,9 +107,6 @@ namespace dynamo {
 	  _window->_updateDataSignal.connect<CoilRenderObj, &CoilRenderObj::updateRenderData>(obj);
 	}
       }
-
-    //Initialise coil
-    _coil.getInstance().addWindow(_window);
 
     //Now initialise data
     initDataSet();

@@ -346,13 +346,6 @@ namespace dynamo {
     return Sim->dynamics->sphereOverlap(p1, p2, max_dist) > 0;
   }
 
-  namespace {
-    inline double overlap(const Vector dist, double diam)
-    {
-      return std::sqrt(std::max(diam * diam - (dist | dist), 0.0));
-    }
-  }
-
   bool
   IDumbbells::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {

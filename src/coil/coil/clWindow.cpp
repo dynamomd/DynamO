@@ -78,6 +78,7 @@ namespace coil {
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
+    _openVRMode(false),
     _ambientIntensity(0.001),
     _snapshot_counter(0),
     _video_counter(0),
@@ -139,8 +140,7 @@ namespace coil {
       }
 	
     /////////Timeout for FPS and UPS calculation
-    _timeout_connection
-      = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
+    _timeout_connection = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
 
     //Timeout for render
     _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, Glib::PRIORITY_DEFAULT_IDLE);
@@ -192,10 +192,18 @@ namespace coil {
 
     {
       Gtk::Button* button;    
-      _refXml->get_widget("CamMode", button); 
+      _refXml->get_widget("CamMode", button);
       
       button->signal_clicked()
 	.connect(sigc::mem_fun(*this, &CLGLWindow::cameraModeCallback));
+    }
+
+    {
+      Gtk::Button* button;    
+      _refXml->get_widget("LoadDataButton", button); 
+      
+      button->signal_clicked()
+	.connect(sigc::mem_fun(*this, &CLGLWindow::LoadDataCallback));
     }
 
     {
@@ -341,7 +349,7 @@ namespace coil {
 		   magnet::GL::detail::glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
       _aasamples.reset(new Gtk::ComboBoxText);
       for (size_t samples = maxsamples; samples > 0; samples /= 2)
-	_aasamples->insert_text(0, boost::lexical_cast<std::string>(samples));
+	_aasamples->insert(0, boost::lexical_cast<std::string>(samples));
       
       _aasamples->set_active(0);
       _aasamples->show();
@@ -429,13 +437,31 @@ namespace coil {
 	  stereoEnable->signal_toggled()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
+
+#ifdef COIL_OpenVR
+	{
+	  Gtk::CheckButton* vrEnable;
+	  _refXml->get_widget("OpenVREnable", vrEnable);
+	  vrEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+	  vrEnable->set_sensitive(true);
+
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  vrlog->set_text("OpenVR support available.\n");
+	}
+#else
+	{
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  vrlog->set_text("OpenVR not available (was not compiled in).\n");
+	}
+#endif
 	
 	{
 	  Gtk::ComboBox* stereoMode;
 	  _refXml->get_widget("StereoMode", stereoMode);
 	  stereoMode->set_active(0);
 	}
-      
+
+	
 	{
 	  Gtk::Entry* simunits;
 	  _refXml->get_widget("SimLengthUnits", simunits);
@@ -483,8 +509,7 @@ namespace coil {
 	{
 	  Gtk::DrawingArea *ir;
 	  _refXml->get_widget("wiiIRImage", ir);
-	  ir->signal_expose_event()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
+	  ir->signal_draw().connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
 	}
 	
 	{//Here all the wii stuff should go in
@@ -701,7 +726,7 @@ namespace coil {
     {
       Gtk::Window* controlwindow;
       _refXml->get_widget("controlWindow", controlwindow);  
-      controlwindow->hide_all();
+      controlwindow->hide();
     }
   
     _refXml.reset(); //Destroy GTK instance
@@ -789,7 +814,7 @@ namespace coil {
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 	
 	if (wiiHeadTrack->get_active())
-	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
+	  _camera.setEyeLocation(magnet::TrackWiimote::getInstance().getHeadPosition());
       }
 #endif
 
@@ -1295,13 +1320,29 @@ namespace coil {
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
+#ifdef COIL_OpenVR
+    //If we are in OpenVR mode, we keep the window at the target
+    //render resolution
+    if (_openVRMode) {
+      std::array<uint32_t, 2> dims = _openVR.getRenderDims();
+      //We have to prevent infinite loops 
+      if ((uint32_t(w) != dims[0]) && (uint32_t(h) != dims[1])) {
+	//Prevent window resize!
+	glutReshapeWindow(dims[0], dims[1]);
+	return;
+      }
+    }
+#endif
     resizeRender(w, h);
   }
 
   void CLGLWindow::resizeRender(int w, int h)
   {
-    //We cannot resize a window 
+    //We cannot resize a window below a threshold
     if ((w < 4) || (h < 4)) return;
+
+    if ((size_t(h) == _camera.getHeight()) && (size_t(w) == _camera.getWidth()))
+      return; //Skip a null op
 
     _camera.setHeightWidth(h, w);
     _renderTarget.deinit();
@@ -1552,17 +1593,17 @@ namespace coil {
     keyStates[std::tolower(key)] = false;
   }
 
-  void
+  bool
   CLGLWindow::simupdateTick(double t)
   {
-    if (!isReady()) return;
+    if (!isReady()) return false;
     
     //A loop for framelocked rendering, this holds the simulation
     //until the last data update has been rendered.
     while (_simframelock && (_lastUpdateTime == getLastFrameTime()))
       {
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_systemQueue->drainQueue();
 	
 	//1ms delay to lower CPU usage while blocking, but not to
@@ -1578,7 +1619,7 @@ namespace coil {
     if ((_lastUpdateTime != getLastFrameTime()) || !_simrun)
       {
 	std::lock_guard<std::mutex> lock(_destroyLock);
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_updateDataSignal();
 	_newData = true;
 	
@@ -1595,7 +1636,7 @@ namespace coil {
     while (!_simrun)
       {
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_systemQueue->drainQueue();
 	
 	//1ms delay to lower CPU usage while blocking
@@ -1604,6 +1645,8 @@ namespace coil {
 	sleeptime.tv_nsec = 1000000;
 	nanosleep(&sleeptime, NULL);
       }
+
+    return true;
   }
 
   void 
@@ -1829,6 +1872,62 @@ namespace coil {
   }
 
   void 
+  CLGLWindow::LoadDataCallback() {
+    Gtk::FileChooserDialog dialog(*controlwindow, "Please select a data file to load");
+    
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("Raw volume data (*.raw)");
+    filter->add_pattern("*.raw");     
+    dialog.add_filter(filter);
+    dialog.add_button("Ok", Gtk::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+
+    if (dialog.run() == Gtk::RESPONSE_OK) {
+      Gtk::Dialog* volumedialog;
+      dialog.hide();
+      _refXml->get_widget("VolumeLoadDialog", volumedialog);
+      volumedialog->set_transient_for(*controlwindow);
+
+      std::string filename_only = boost::filesystem::path(dialog.get_filename()).filename().string();
+      
+      std::ifstream in(dialog.get_filename(), std::ifstream::ate | std::ifstream::binary);
+      size_t file_size = in.tellg();
+      in.close();      
+
+      Gtk::Label* label;
+      _refXml->get_widget("VolumeFileSizeLabel", label);
+      label->set_text(std::to_string(file_size));
+
+      _refXml->get_widget("VolumeFileNameLabel", label);
+      label->set_text(filename_only);
+
+      Gtk::SpinButton* but;
+      _refXml->get_widget("VolumeDataSizeButton", but);
+      
+      
+      if (volumedialog->run() == Gtk::RESPONSE_OK){
+	std::shared_ptr<coil::RVolume> voldata(new coil::RVolume(filename_only));
+	addRenderObj(voldata);
+
+	size_t data_size;
+	std::array<size_t, 3> data_dims;
+	_refXml->get_widget("VolumeDataSizeButton", but);
+	data_size = size_t(but->get_value_as_int());
+	
+	_refXml->get_widget("VolumeXDataSizeButton", but);
+	data_dims[0] = size_t(but->get_value_as_int());
+	_refXml->get_widget("VolumeYDataSizeButton", but);
+	data_dims[1] = size_t(but->get_value_as_int());
+	_refXml->get_widget("VolumeZDataSizeButton", but);
+	data_dims[2] = size_t(but->get_value_as_int());
+	
+	getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), dialog.get_filename(), data_dims, data_size));
+      }
+      volumedialog->hide();
+    }
+  }
+  
+  void 
   CLGLWindow::filterClearCallback()
   {
     if (_filterStore->children().empty()) return;
@@ -1871,8 +1970,9 @@ namespace coil {
 
     _renderTimeout.disconnect();
     if (!_fpsLimit)
-      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
-						      Glib::PRIORITY_DEFAULT_IDLE);
+      _renderTimeout = Glib::signal_idle().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc));
+//    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
+//						      Glib::PRIORITY_DEFAULT_IDLE);
     else if (_fpsLimitValue != 0)
       _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
 						      1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
@@ -2174,6 +2274,37 @@ namespace coil {
       _stereoMode = btn->get_active();
     }
 
+#ifdef COIL_OpenVR
+    {//OpenVR
+      auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+      
+      Gtk::CheckButton* btn;
+      _refXml->get_widget("OpenVREnable", btn);
+      const bool newMode = btn->get_active();
+
+      if (newMode != _openVRMode){
+	if (newMode) {	  
+	  //Init OpenVR
+	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line+"\n"); });
+	  _openVR.init();
+	  if (_openVR.initialised()) {
+	    _openVRMode = true;
+	    //Now establish the render size
+	    std::array<uint32_t, 2> dims = _openVR.getRenderDims();
+	    glutReshapeWindow(dims[0], dims[1]);
+	    glutPostRedisplay();
+	  } else
+	    btn->set_active(false);
+	} else {
+	  //Shutdown OpenVR
+	  _openVR.shutdown();
+	  _openVRMode = false;
+	  btn->set_active(false);
+	}
+      }
+    }
+#endif
+    
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);
@@ -2350,46 +2481,31 @@ namespace coil {
   }
 
   bool 
-  CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
+  CLGLWindow::wiiMoteIRExposeEvent(const Cairo::RefPtr<Cairo::Context>& cr)
   {
 #ifdef COIL_wiimote
     Gtk::DrawingArea *ir;
     _refXml->get_widget("wiiIRImage", ir);
 
-    Glib::RefPtr<Gdk::Window> window = ir->get_window();
-    if (window)
+    cr->set_source_rgb(0, 0, 0);
+    cr->set_line_width(1);
+    
+    //Draw the tracked sources with a red dot, but only if there are just two sources!
+    
+    size_t trackeddrawn = 2;
+    for (const auto& irdata : magnet::TrackWiimote::getInstance().getSortedIRData())
       {
-	Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
-
-	if(event)
-	  {
-	    // clip to the area indicated by the expose event so that we only
-	    // redraw the portion of the window that needs to be redrawn
-	    cr->rectangle(event->area.x, event->area.y,
-			  event->area.width, event->area.height);
-	    cr->clip();
-	  }
-      
-	cr->set_source_rgb(0, 0, 0);
-	cr->set_line_width(1);
-
-	//Draw the tracked sources with a red dot, but only if there are just two sources!
-      
-	size_t trackeddrawn = 2;
-	for (const auto& irdata : magnet::TrackWiimote::getInstance().getSortedIRData())
-	  {
-	    cr->save();
-	    if (trackeddrawn-- > 0)
-	      cr->set_source_rgb(1, 0, 0);
-
-	    float x = ir->get_allocation().get_width() * (1 - float(irdata.x) / CWIID_IR_X_MAX);
-	    float y = ir->get_allocation().get_height() * (1 - float(irdata.y) / CWIID_IR_Y_MAX) ;
-
-	    cr->translate(x, y);
-	    cr->arc(0, 0, irdata.size + 1, 0, 2 * M_PI);
-	    cr->fill();	    
-	    cr->restore();
-	  }
+	cr->save();
+	if (trackeddrawn-- > 0)
+	  cr->set_source_rgb(1, 0, 0);
+	
+	float x = ir->get_allocation().get_width() * (1 - float(irdata.x) / CWIID_IR_X_MAX);
+	float y = ir->get_allocation().get_height() * (1 - float(irdata.y) / CWIID_IR_Y_MAX) ;
+	
+	cr->translate(x, y);
+	cr->arc(0, 0, irdata.size + 1, 0, 2 * M_PI);
+	cr->fill();	    
+	cr->restore();
       }
 #endif
     return true;

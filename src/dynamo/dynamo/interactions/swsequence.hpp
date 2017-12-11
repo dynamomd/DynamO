@@ -82,6 +82,7 @@ namespace dynamo {
 
     std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
+    using ICapture::validateState;
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:

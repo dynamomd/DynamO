@@ -63,28 +63,32 @@ int main(int argc, char *argv[])
       magnet::ArgShare::getInstance().setArgs(argc, argv);
       
       coil::CoilRegister coil;
-      std::shared_ptr<coil::RVolume> voldata(new coil::RVolume("Volume data"));
       std::shared_ptr<coil::CLGLWindow> window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
-
-      window->addRenderObj(voldata);
       coil.getInstance().addWindow(window);
+
       
-      std::vector<std::string> files = vm["data-file"].as<std::vector<std::string> >();
-      if (files.size() == 1)
-	{
-	  size_t datasize[3] = {vm["x-elements"].as<size_t>(), vm["y-elements"].as<size_t>(), vm["z-elements"].as<size_t>()};
-	  window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), files[0], std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>()));
-	}
-      else
-	{
+      if (vm.count("data-file")) {
+	std::vector<std::string> files = vm["data-file"].as<std::vector<std::string> >();
+	std::shared_ptr<coil::RVolume> voldata(new coil::RVolume("Volume data"));
+	window->addRenderObj(voldata);
+	
+	if (files.size() == 1)
+	  {
+	    size_t datasize[3] = {vm["x-elements"].as<size_t>(), vm["y-elements"].as<size_t>(), vm["z-elements"].as<size_t>()};
+	    window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), files[0], std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>()));
+	  }
+	else
+	  {
 #ifdef COIL_TIFFSUPPORT
-	  std::cout << "Loading " << vm.count("data-file") << " datafiles" << std::endl;
-	  window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadTIFFFiles, voldata.get(), files));
+	    std::cout << "Loading " << vm.count("data-file") << " datafiles" << std::endl;
+	    window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadTIFFFiles, voldata.get(), files));
 #else
-	  M_throw() << "Loading multiple images is only supported if TIFF support is built in";
+	    M_throw() << "Loading multiple images is only supported if TIFF support is built in";
 #endif
-	}
-      while (true) { window->simupdateTick(0); }
+	  }
+      }
+
+      while (window->simupdateTick(0)) {}
     }
   catch (std::exception &cep)
     {

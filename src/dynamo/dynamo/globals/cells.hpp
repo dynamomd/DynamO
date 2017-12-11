@@ -147,7 +147,6 @@ namespace dynamo {
     Vector _cellOffset;
 
     bool _inConfig;
-    double _oversizeCells;
     size_t overlink;
 
 #ifdef DYNAMO_JUDY
@@ -163,7 +162,7 @@ namespace dynamo {
 
     std::array<size_t, 3> getCellCoords(Vector) const;
 
-    void addCells(double);
+    void addCells(std::array<size_t, 3> cellCount);
     void buildCells();
 
     Vector calcPosition(const size_t cellIndex, const Particle& part) const { return calcPosition(_ordering.toCoord(cellIndex), part);}

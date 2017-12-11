@@ -136,8 +136,6 @@ namespace coil {
       M_throw() << "Missing viewport!";
 #endif
 
-    std::cerr << "Mouse Wheel event!";
-
     CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackMouseWheelFunc(button, dir, x, y);
   }
 
@@ -263,9 +261,9 @@ namespace coil {
 		    GLUT_ACTION_CONTINUE_EXECUTION);
 
       //Register the idle function
-      //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::GTKIdleFunc));
-      Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
-				     Glib::PRIORITY_DEFAULT_IDLE);
+      Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
+      //Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
+      //Glib::PRIORITY_DEFAULT_IDLE);
 
       Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, 
 				     Glib::PRIORITY_DEFAULT_IDLE);
@@ -321,7 +319,7 @@ namespace coil {
     try {
       _coilQueue.drainQueue();
       
-      if (!isRunning()) 
+      if (!isRunning())
 	renderThreadShutdownTasks();
     }
     catch (std::exception& except)

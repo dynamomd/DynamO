@@ -1,16 +1,29 @@
 cmake_minimum_required (VERSION 3.0 FATAL_ERROR)
 
-if(NOT DEFINED CMAKE_BUILD_TYPE)
- message(STATUS "No build type selected, defaulting to Release")
- set(CMAKE_BUILD_TYPE "Release")
-endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release
+RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-if (NOT CMAKE_BUILD_TYPE)
-  message(STATUS "No build type selected, default to Release")
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+if(WIN32)
+add_definitions(-D_USE_MATH_DEFINES)
+add_definitions(-DNOMINMAX)
 endif()
+
+IF(DEFINED CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
+build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
+Release RelWithDebInfo MinSizeRel.")
+ELSE()
+   SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build,
+options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release
+RelWithDebInfo MinSizeRel.")
+ENDIF()
 
 ##########   OPTIONS
 project(DynamO) #Project name
@@ -104,6 +117,15 @@ else()
 endif()
 
 ######################################################################
+# Stack trace support
+######################################################################
+include(CheckIncludeFiles)
+check_include_files(execinfo.h STACKTRACE_AVAILABLE)
+if(STACKTRACE_AVAILABLE)
+  add_definitions(-DMAGNET_STACKTRACE)  
+endif()
+
+######################################################################
 # Test for libbz2 (for compressed files)
 ######################################################################
 if(NOT WIN32)
@@ -118,11 +140,9 @@ endif()
 ######################################################################
 ##########  Boost support
 ######################################################################
-if(WIN32)
-  set (Boost_USE_STATIC_LIBS ON)
-  # disable Boost auto-linking
-  add_definitions (-DBOOST_ALL_NO_LIB)
-endif()
+#if(WIN32)
+set (Boost_USE_STATIC_LIBS ON)
+#endif()
 find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem system unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
@@ -145,7 +165,6 @@ endif()
 ######################################################################
 # Test for libjudy requirements
 ######################################################################
-include(CheckIncludeFiles)
 check_include_files(Judy.h JUDY_H_AVAILABLE)
 include(CheckLibraryExists)
 check_library_exists(Judy  Judy1FreeArray "" JUDY_LIB_AVAILABLE)
@@ -163,21 +182,21 @@ else()
   message(STATUS "libJudy header/library missing.")
 endif()
 
+
 ######################################################################
 # Visualiser support
 ######################################################################
 INCLUDE (CheckIncludeFiles)
-find_package(PkgConfig)
 find_package(OpenGL)
 find_package(GLUT)
 find_package(GLEW)
-find_package(GLX)
 find_package(AVCodec)
-pkg_check_modules(GTKMM gtkmm-2.4)
-pkg_check_modules(CAIROMM cairomm-1.0)
-pkg_check_modules(PNG libpng)
+find_package(PNG)
 
-set(VISUALIZER_SUPPORT TRUE)
+find_package(PkgConfig)
+pkg_check_modules(GTKMM gtkmm-3.0)
+
+set(VISUALIZER_SUPPORT TRUE CACHE BOOL "Attempt to enable the visualiser")
 function(visualiser_dependency varname message)
   if(${varname})
     message(STATUS "${message} found.")
@@ -188,12 +207,23 @@ function(visualiser_dependency varname message)
 endfunction(visualiser_dependency)
 
 visualiser_dependency(OPENGL_FOUND "OpenGL libraries")
-visualiser_dependency(GTKMM_FOUND "Gtkmm library")
+visualiser_dependency(GTKMM_FOUND "GTK/GTKMM 3 library")
 visualiser_dependency(PNG_FOUND "libPNG library")
 visualiser_dependency(GLUT_FOUND "GLUT/freeGLUT library")
 visualiser_dependency(GLEW_FOUND "GLEW library")
-visualiser_dependency(CAIROMM_FOUND "Cairomm library")
-visualiser_dependency(GLX_FOUND "GLX library")
+#visualiser_dependency(GLX_FOUND "GLX library")
+
+find_path(CAIROMM_INCLUDE_PATH "cairomm.h" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm")
+find_path(CAIROMM_CONFIG_PATH "cairommconfig.h" PATHS "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm" "cairomm-1.0/include" "lib/cairomm-1.0/include")
+
+if(${CAIROMM_INCLUDE_PATH} STREQUAL "CAIROMM_INCLUDE_PATH-NOTFOUND" OR ${CAIROMM_CONFIG_PATH} STREQUAL "CAIROMM_CONFIG_PATH-NOTFOUND")
+   message("-- Cairomm headers not found - visualiser will not be built")
+   unset(CAIROMM_INCLUDE_PATH CACHE)
+   unset(CAIROMM_CONFIG_PATH CACHE)
+   set(VISUALIZER_SUPPORT FALSE)
+else()
+   message("-- Cairomm headers found")
+endif()
 
 if(VISUALIZER_SUPPORT)
   check_include_files(cwiid.h CWIID_H_AVAILABLE)
@@ -203,22 +233,21 @@ if(VISUALIZER_SUPPORT)
     add_definitions(-DCOIL_wiimote)
     link_libraries(cwiid)
   endif()
-  
-  add_definitions(${OPENGL_DEFINITONS} ${GLUT_DEFINITIONS} ${GLEW_DEFINITIONS})
-  include_directories(${GTKMM_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CAIROMM_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
-  link_libraries(${GTKMM_LIBRARIES} ${CAIROMM_LIBRARIES} ${PNG_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
-  
-  find_file(NEW_CAIRO_CONFIG_FOUND "cairommconfig.h" PATHS ${CAIROMM_INCLUDE_DIRS})
-  if(NOT NEW_CAIRO_CONFIG_FOUND)
-    message("Trying cairomm/ for cairommconfig.h")
-    find_file(OLD_CAIRO_CONFIG_FOUND "cairomm/cairommconfig.h" PATHS ${CAIROMM_INCLUDE_DIRS})
-    if(NOT OLD_CAIRO_CONFIG_FOUND)
-      message(SEND_ERROR "Failed to find cairommconfig.h")
-    endif()
-    add_definitions(-DOLD_CAIRO_CONFIG)
+
+  find_package(OpenVR)
+  if(OPENVR_FOUND)
+    message("OpenVR found!")
+    add_definitions(-DCOIL_OpenVR)
+    include_directories(${OPENVR_INCLUDE_DIRS})
+    link_libraries(${OPENVR_LIBRARY})
   else()
-    message("Located cairommconfig.h")
+    message("OpenVR not found")
   endif()
+
+
+  add_definitions(${OPENGL_DEFINITONS} ${GLUT_DEFINITIONS} ${GLEW_DEFINITIONS} ${GTKMM_DEFINITIONS})
+  include_directories(${GTKMM_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CAIROMM_INCLUDE_PATH} ${CAIROMM_CONFIG_PATH} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
+  link_libraries(${GTKMM_LIBRARIES} ${CAIROMM_LIBRARIES} ${PNG_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
 endif()
 
 ######################################################################
