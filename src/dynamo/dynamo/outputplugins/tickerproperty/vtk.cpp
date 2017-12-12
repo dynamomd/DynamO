@@ -48,13 +48,6 @@ namespace dynamo {
     printImage();
   }
 
-  std::string
-  OPVTK::getFileName(size_t idx) {
-    std::ostringstream ss;
-    ss << std::setw(5) << std::setfill('0') << idx;
-    return "paraview" + ss.str() + ".vtu";
-  }
-
   void
   OPVTK::printImage()
   {
@@ -135,7 +128,9 @@ namespace dynamo {
 	<< endtag("VTKFile")
       ;
 
-    XML.write_file(getFileName(imageCount).c_str());
+    std::ostringstream filename_oss;
+    filename_oss << "paraview" << std::setw(5) << std::setfill('0') << i << ".vtu";
+    XML.write_file(filename_oss.str());
     ++imageCount;
   }
 
@@ -159,13 +154,16 @@ namespace dynamo {
       << attr("byte_order") << "LittleEndian"
       << attr("compressor") << "vtkZLibDataCompressor"
       << tag("Collection");
-    for (size_t i(0); i < imageCount; ++i)
+    for (size_t i(0); i < imageCount; ++i) {
+      std::ostringstream filename_oss;
+      filename_oss << "paraview" << std::setw(5) << std::setfill('0') << i << ".vtu";
       XML << tag("DataSet")
 	  << attr("timestep") << i * dt
 	  << attr("group") << ""
 	  << attr("part") << "0"
-	  << attr("file") << getFileName(i)
+	  << attr("file") << filename.str()
 	  << endtag("DataSet");
+    }
     XML << endtag("Collection")
 	<< endtag("VTKFile");
 

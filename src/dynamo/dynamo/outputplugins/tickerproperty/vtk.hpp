@@ -39,7 +39,6 @@ namespace dynamo {
   protected:
 
     void printImage();
-    std::string getFileName(size_t idx);
     size_t imageCount;
   };
 }
