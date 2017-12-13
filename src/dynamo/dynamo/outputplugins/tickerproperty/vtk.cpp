@@ -36,7 +36,7 @@ namespace dynamo {
   OPVTK::operator<<(const magnet::xml::Node& XML) {
     double minBinWidth = 1;
     if (XML.hasAttribute("MinBinWidth"))
-      minBinWidth = XML.getAttribute("BinWidth").as<size_t>();
+      minBinWidth = XML.getAttribute("MinBinWidth").as<size_t>();
     
     _binWidths = Vector{minBinWidth, minBinWidth, minBinWidth};
 
@@ -62,6 +62,7 @@ namespace dynamo {
 	  
 	  vecSize *= _binCounts[iDim];
 	}
+      	_numberField.resize(vecSize, 0);
       	_massField.resize(vecSize, 0);
 	_kineticEnergyField.resize(vecSize, 0);
 	_momentumField.resize(vecSize, Vector{0,0,0});
@@ -161,6 +162,7 @@ namespace dynamo {
     XML.write_file(filename_oss.str());
 
     if (_fields) {
+      std::fill(_numberField.begin(), _numberField.end(), 0);
       std::fill(_massField.begin(), _massField.end(), 0.0);
       std::fill(_momentumField.begin(), _momentumField.end(), Vector{0,0,0});
       std::fill(_kineticEnergyField.begin(), _kineticEnergyField.end(), 0.0);
@@ -179,6 +181,7 @@ namespace dynamo {
 	  }
 
 	const double mass = Sim->species(p)->getMass(p.getID());
+	++_numberField[cellID];
 	_massField[cellID] += mass;
 	_momentumField[cellID] += mass * velocity;
 	_kineticEnergyField[cellID] += mass * velocity.nrm2() / 2;
@@ -214,19 +217,51 @@ namespace dynamo {
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	XML << " " << "0 " << _binCounts[iDim] - 1;
 
+      double cellVol = 1;
+      for (size_t iDim(0); iDim < NDIM; ++iDim)
+	cellVol *= _binWidths[iDim];
+      
       XML << magnet::xml::tag("PointData");
+
+      ////////////Mass field
+      XML << magnet::xml::tag("DataArray")
+	  << magnet::xml::attr("type") << "Float32"
+	  << magnet::xml::attr("Name") << "Number density"
+	  << magnet::xml::attr("NumberOfComponents") << NDIM
+	  << magnet::xml::attr("format") << "ascii"
+	  << magnet::xml::chardata();
+
+      for (size_t id(0); id < _numberField.size(); ++id)
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  XML << _numberField[id] * Sim->units.unitVolume() / cellVol << " ";
+
+      XML << "\n" << magnet::xml::endtag("DataArray");
+
+      ////////////Mass field
+      XML << magnet::xml::tag("DataArray")
+	  << magnet::xml::attr("type") << "Float32"
+	  << magnet::xml::attr("Name") << "Mass density"
+	  << magnet::xml::attr("NumberOfComponents") << NDIM   
+	  << magnet::xml::attr("format") << "ascii"
+	  << magnet::xml::chardata();
+
+      for (size_t id(0); id < _massField.size(); ++id)
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  XML << _massField[id] * Sim->units.unitVolume() / (cellVol * Sim->units.unitMass()) << " ";
+
+      XML << "\n" << magnet::xml::endtag("DataArray");
 
       ////////////Momentum field
       XML << magnet::xml::tag("DataArray")
 	  << magnet::xml::attr("type") << "Float32"
-	  << magnet::xml::attr("Name") << "Momentum"
+	  << magnet::xml::attr("Name") << "Momentum density"
 	  << magnet::xml::attr("NumberOfComponents") << NDIM   
 	  << magnet::xml::attr("format") << "ascii"
 	  << magnet::xml::chardata();
 
       for (size_t id(0); id < _momentumField.size(); ++id)
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
-	  XML << _momentumField[id][iDim] / Sim->units.unitMomentum();
+	  XML << _momentumField[id][iDim]  * Sim->units.unitVolume() / (cellVol * Sim->units.unitMomentum()) << " ";
 
       XML << "\n" << magnet::xml::endtag("DataArray");
   
@@ -234,12 +269,12 @@ namespace dynamo {
       ////////////Energy
       XML << magnet::xml::tag("DataArray")
 	  << magnet::xml::attr("type") << "Float32"
-	  << magnet::xml::attr("Name") << "Kinetic energy"
+	  << magnet::xml::attr("Name") << "Temperature"
 	  << magnet::xml::attr("format") << "ascii"
 	  << magnet::xml::chardata();
 
       for (size_t id(0); id < _kineticEnergyField.size(); ++id)
-	XML << _kineticEnergyField[id] / Sim->units.unitEnergy();
+	XML << 2 * _kineticEnergyField[id] / (NDIM * (_numberField[id] + (_numberField[id] == 1)) * Sim->units.unitEnergy()) << " ";
 
       XML << "\n" << magnet::xml::endtag("DataArray");
 
@@ -252,14 +287,14 @@ namespace dynamo {
 	  << magnet::xml::endtag("VTKFile");
 
       std::ostringstream filename_oss;
-      filename_oss << "fields_" << std::setw(5) << std::setfill('0') << imageCount << ".vtu";
+      filename_oss << "fields_" << std::setw(5) << std::setfill('0') << imageCount << ".vti";
       XML.write_file(filename_oss.str());
     }
     ++imageCount;
   }
 
   namespace {
-    void writePVDfile(std::string ext, size_t imgCount, double dt) {
+    void writePVDfile(std::string prefix, std::string ext, size_t imgCount, double dt) {
       using namespace magnet::xml;
       //Write out the unified file at the end
       XmlStream XML;
@@ -272,7 +307,7 @@ namespace dynamo {
 	  << tag("Collection");
       for (size_t i(0); i < imgCount; ++i) {
 	std::ostringstream filename_oss;
-	filename_oss << ext << "_" << std::setw(5) << std::setfill('0') << i << ".vtu";
+	filename_oss << prefix << "_" << std::setw(5) << std::setfill('0') << i << "." << ext;
 	XML << tag("DataSet")
 	    << attr("timestep") << i * dt
 	    << attr("group") << ""
@@ -283,7 +318,7 @@ namespace dynamo {
       XML << endtag("Collection")
 	  << endtag("VTKFile");
 
-      XML.write_file(ext+".pvd");
+      XML.write_file(prefix+".pvd");
     }
   }
   
@@ -291,7 +326,7 @@ namespace dynamo {
   OPVTK::output(magnet::xml::XmlStream&)
   {
     const double dt = getTickerTime();
-    writePVDfile("particles", imageCount, dt);
-    writePVDfile("fields", imageCount, dt);
+    writePVDfile("particles", "vtu", imageCount, dt);
+    writePVDfile("fields", "vti", imageCount, dt);
   }
 }
