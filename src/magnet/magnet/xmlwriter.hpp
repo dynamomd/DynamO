@@ -84,6 +84,10 @@ namespace magnet {
 	    M_throw() << "Failed during writing of contents of " << filename << ".";
 	}
       }
+
+      void clear() {
+	s.str("");
+      }
       
       /*! \brief Main insertion operator which changes the state of
         the XmlStream.
