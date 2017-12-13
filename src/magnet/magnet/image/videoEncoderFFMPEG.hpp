@@ -34,23 +34,6 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54, 25, 0 )
-
-#define CODEC_ID_H264	AV_CODEC_ID_H264
-#define CODEC_ID_MPEG2VIDEO AV_CODEC_ID_MPEG2VIDEO
-#define CODEC_ID_MPEG1VIDEO	AV_CODEC_ID_MPEG1VIDEO
-
-#endif
-
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 42, 0)
-#define PIX_FMT_YUV420P AV_PIX_FMT_YUV420P
-#define PIX_FMT_YUV420P10LE AV_PIX_FMT_YUV420P10LE
-#define PIX_FMT_BGR24 AV_PIX_FMT_BGR24
-#define PIX_FMT_RGB24 AV_PIX_FMT_RGB24
-#define PIX_FMT_RGBA AV_PIX_FMT_RGBA
-#endif
-
-
 
 namespace magnet {
   namespace image {
@@ -82,16 +65,16 @@ namespace magnet {
 	initialiseLibrary();
 
 	_h264 = true;
-	AVCodec* _codec = avcodec_find_encoder(CODEC_ID_H264);
+	AVCodec* _codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!_codec) 
 	  {
 	    _h264 = false;
 	    std::cerr << "\nWARNING: Cannot open the H264 codec (try installing libx264 [ubuntu:libavcodec-extra-53]), falling back to the MPEG2 codec.\n";
-	    _codec = avcodec_find_encoder(CODEC_ID_MPEG2VIDEO);
+	    _codec = avcodec_find_encoder(AV_CODEC_ID_MPEG2VIDEO);
 	    if (!_codec) 
 	      {
 		std::cerr << "\nWARNING: Cannot open a MPEG2 codec either! Dropping to MPEG1, quality of results will be poor.\n";
-		_codec = avcodec_find_encoder(CODEC_ID_MPEG1VIDEO);
+		_codec = avcodec_find_encoder(AV_CODEC_ID_MPEG1VIDEO);
 		if (!_codec)
 		  M_throw() << "Failed to find a suitable codec for encoding video";
 	      }
@@ -106,7 +89,7 @@ namespace magnet {
 	_context->width = _videoWidth;
 	_context->height = _videoHeight;
 	_context->time_base = (AVRational){1,fps};
-	_context->pix_fmt = PIX_FMT_YUV420P;
+	_context->pix_fmt = AV_PIX_FMT_YUV420P;
 	_context->max_b_frames=1;
 	if (_h264)
 	  av_opt_set(_context->priv_data, "preset", "medium", 0);
@@ -116,11 +99,7 @@ namespace magnet {
 
 	//Setup the frame/picture descriptor, this holds pointers to the
 	//various channel data and spacings.
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55, 45, 101)
 	_picture = av_frame_alloc();
-#else
-	_picture = avcodec_alloc_frame();
-#endif
 	if (!_picture)
 	  M_throw() << "Failed to allocate frame/picture for video encoding.";
 	
