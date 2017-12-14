@@ -18,7 +18,6 @@
 #pragma once
 #include <dynamo/base.hpp>
 #include <dynamo/eventtypes.hpp>
-#include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/math/quaternion.hpp>
 
@@ -585,35 +584,16 @@ namespace dynamo {
       
       This synchronises all the delayed states of the particles
      */
-    void updateAllParticles() const
-    {
-      //May as well take this opportunity to reset the streaming
-      //Note: the Replexing coordinator RELIES on this behaviour!
-      for (Particle& part : Sim->particles)
-	{
-	  streamParticle(part, part.getPecTime() + partPecTime);
-	  part.getPecTime() = 0;
-	}
-
-      partPecTime = 0;
-      streamCount = 0;
-    }
+    void updateAllParticles() const;
 
     /*! \brief Free streams a particle up to the current time.
       
       This synchronises the delayed states of the particle.
       \param part Particle to syncronise.
      */
-    inline void updateParticle(Particle& part) const
-    {
-      streamParticle(part, part.getPecTime() + partPecTime);
-      part.getPecTime() = -partPecTime;
-    }
+    void updateParticle(Particle& part) const;
 
-    inline bool isUpToDate(const Particle& part) const
-    {
-      return part.getPecTime() == -partPecTime;
-    }
+    bool isUpToDate(const Particle& part) const;
 
     /*! \brief Free streams two particles up to the current time.
       
@@ -623,38 +603,14 @@ namespace dynamo {
       \param p1 A Particle to syncronise.
       \param p2 A Particle to syncronise.
      */
-    inline void updateParticlePair(Particle& p1, Particle& p2) const
-    {
-      //This is slow but sure, other stuff like reverse streaming, and
-      //partial streaming are faster but work only for some collision
-      //detections, not compression
+    void updateParticlePair(Particle& p1, Particle& p2) const;
 
-      updateParticle(p1);
-      updateParticle(p2);
-    }
-
-    inline double getParticleDelay(const Particle& part) const
-    {
-      return partPecTime + part.getPecTime();
-    }
+    double getParticleDelay(const Particle& part) const;
 
     /*! \brief Called when the system is moved forward in time to update
       the delayed states state.
      */
-    inline void stream(const double& dt)
-    {
-      partPecTime += dt;
-
-      //Keep the magnitude of the partPecTime bounded
-      if (++streamCount == streamFreq)
-	{
-	  for (Particle& part : Sim->particles)
-	    part.getPecTime() += partPecTime;
-
-	  partPecTime = 0;
-	  streamCount = 0;
-	}
-    }
+    void stream(const double& dt);
 
     /*! \brief Collides a particle with a rough wall.
      
@@ -678,11 +634,8 @@ namespace dynamo {
     rotData& getRotData(const size_t& ID)
     { return orientationData[ID]; }
 
-    const rotData& getRotData(const Particle& part) const
-    { return getRotData(part.getID()); }
-
-    rotData& getRotData(const Particle& part)
-    { return getRotData(part.getID()); }
+    const rotData& getRotData(const Particle& part) const;
+    rotData& getRotData(const Particle& part);
   
     const std::vector<rotData>& getCompleteRotData() const
     { return orientationData; }
@@ -728,11 +681,7 @@ namespace dynamo {
       See GCellsShearing, this just over advances the particle to find
       its future position in boundary changes.
     */
-    inline void advanceUpdateParticle(Particle& part, double& dt) const
-    {
-      streamParticle(part, dt + partPecTime + part.getPecTime());
-      part.getPecTime() = - dt - partPecTime;
-    }
+    void advanceUpdateParticle(Particle& part, double& dt) const;
   
     /*! \brief The time by which the delayed state differs from the actual.*/
     mutable double partPecTime;

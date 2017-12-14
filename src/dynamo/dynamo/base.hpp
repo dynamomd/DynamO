@@ -16,7 +16,6 @@
 */
 
 #pragma once
-#include <magnet/stream/console_specials.hpp>
 #include <magnet/stream/formattedostream.hpp>
 #include <magnet/exception.hpp>
 #include <memory>
@@ -44,26 +43,10 @@ namespace dynamo
      
       \param aName The name of the class.
      */
-    Base(const std::string name):
-      dout(std::cout), derr(std::cerr)
-    {
-      setOutputPrefix(name);
-      //Reasonable precision for output
-      dout << std::setprecision(std::numeric_limits<float>::digits10);
-      derr << std::setprecision(std::numeric_limits<float>::digits10);
-    }
+    Base(const std::string name);
 
   protected:
-    void setOutputPrefix(const std::string& prefix)
-    {
-#ifdef DYNAMO_COLORIZE
-      dout.setPrefix(colorCode(prefix) + prefix + ": " + magnet::console::reset());
-      derr.setPrefix(magnet::console::bold() + magnet::console::red_fg() + prefix + ": " + magnet::console::reset());
-#else
-      dout.setPrefix(prefix + ": ");
-      derr.setPrefix(prefix + ": ");
-#endif
-    }
+    void setOutputPrefix(const std::string& prefix);
 
     /*! \brief A std::cout style output stream. 
      
@@ -84,7 +67,7 @@ namespace dynamo
       inheritance. The concrete derived class must call the other
       constructor.
     */
-    Base() { M_throw() << "Calling the default constructor!"; }
+    Base();
 
   private:
     /*! \brief Generate a random console text-color command based off
@@ -94,22 +77,7 @@ namespace dynamo
       formatted output of a class, by using a hash of the classes
       name.
      */
-    std::string colorCode(std::string str)
-    {
-      switch (std::hash<std::string>()(str) % 9)
-	{
-	case 0: return magnet::console::cyan_fg();
-	case 1: return magnet::console::purple_fg();
-	case 2: return magnet::console::blue_fg();
-	case 3: return magnet::console::yellow_fg();
-	case 4: return magnet::console::green_fg();
-	case 5: return magnet::console::bold() + magnet::console::green_fg();
-	case 6: return magnet::console::bold() + magnet::console::blue_fg();
-	case 7: return magnet::console::bold() + magnet::console::purple_fg();
-	case 8: return magnet::console::bold() + magnet::console::cyan_fg();
-	}
-      return "";
-    }
+    std::string colorCode(std::string str);
   };
 
   /*! \brief A Base class which contains a writable pointer to a
@@ -126,10 +94,7 @@ namespace dynamo
       \param SD Pointer to the Simulation class.
       \param aName The name of the class deriving from this class.
      */
-    SimBase(Simulation* const SD, const std::string aName):
-      Base(aName),
-      Sim(SD)
-    {};
+    SimBase(Simulation* const SD, const std::string aName);
     
     Simulation* const getSimPointer() { return Sim; }
 
@@ -159,10 +124,7 @@ namespace dynamo
       \param aName The name of the class deriving from this
       \param aColor The colour of the output from this class.
      */
-    SimBase_const(const Simulation* const SD, const std::string aName):
-      Base(aName),
-      Sim(SD)
-    {};
+    SimBase_const(const Simulation* const SD, const std::string aName);
 
     /*! \brief A pointer to a Simulation, which does not allow the
       simulation to be altered.*/

@@ -15,11 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/outputplugins/include.hpp>
-#include <dynamo/outputplugins/include.hpp>
-#include <dynamo/outputplugins/include.hpp>
-#include <dynamo/outputplugins/tickerproperty/include.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlreader.hpp>
