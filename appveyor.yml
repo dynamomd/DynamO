@@ -95,7 +95,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: 3vwYILVeleXA4wA0hDPjRi6sR8a9EVSdjaD89FVWdcEemtEjhos29NjvOF+ha++i
+    secure: cbbx/lcpVKPkbrXc14Ge3m8HqxOLt0QiAm+CDh8XJmCz9hCPBsuatLnihmTVPyQg
   artifact: DynamoMD.zip, DynamoMD.msi
   draft: false
   prerelease: false
