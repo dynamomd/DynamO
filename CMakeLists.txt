@@ -217,7 +217,7 @@ visualiser_dependency(GLEW_FOUND "GLEW library")
 #visualiser_dependency(GLX_FOUND "GLX library")
 
 find_path(CAIROMM_INCLUDE_PATH "cairomm.h" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm")
-find_path(CAIROMM_CONFIG_PATH "cairommconfig.h" PATHS "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm" "cairomm-1.0/include" "lib/cairomm-1.0/include")
+find_path(CAIROMM_CONFIG_PATH "cairommconfig.h" PATHS "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}" "/usr/lib64/${CMAKE_LIBRARY_ARCHITECTURE}" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm" "cairomm-1.0/include" "lib/cairomm-1.0/include")
 
 if(${CAIROMM_INCLUDE_PATH} STREQUAL "CAIROMM_INCLUDE_PATH-NOTFOUND" OR ${CAIROMM_CONFIG_PATH} STREQUAL "CAIROMM_CONFIG_PATH-NOTFOUND")
    message("-- Cairomm headers not found - visualiser will not be built")
