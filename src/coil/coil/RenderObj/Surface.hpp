@@ -24,7 +24,7 @@ namespace coil {
   class RSurface : public RTriangles
   {
   public:
-    RSurface(std::string name, size_t N = 10, Vector origin = Vector{-25,-10.0,-25}, Vector axis1 = Vector{50,0,0},
+    RSurface(std::string name, size_t N = 10, Vector origin = Vector{-25,-1.5,-25}, Vector axis1 = Vector{50,0,0},
 	     Vector axis2 = Vector{0,0,50}, Vector axis3 = Vector{0,1,0});
 
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);

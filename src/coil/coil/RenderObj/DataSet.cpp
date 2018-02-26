@@ -66,6 +66,8 @@ namespace coil {
     
     //We don't initialise the attributes, as they're initialised on access
     _context = magnet::GL::Context::getContext();
+
+    _initialised = true;
   }
 
 
@@ -188,9 +190,6 @@ namespace coil {
   {
     if (_attributes.find(name) != _attributes.end())
       M_throw() << "Trying to add an Attribute with a existing name, " << name;
-
-    //Spinlock to force that the Data set is initialised before the attribute is created
-    for (;;) if (_context) break;
     
     std::shared_ptr<Attribute> ptr(new Attribute(_N, type, components, _context));
     _attributes.insert(std::make_pair(name, ptr));

@@ -32,28 +32,26 @@ namespace coil {
   CoilMaster* CoilRegister::_instance = NULL;
   std::mutex CoilRegister::_mutex;
   size_t CoilRegister::_counter = 0;
+  bool CoilMaster::parallel = true;
 
   CoilMaster::CoilMaster():
-    _runFlag(false),
+    _runFlag(true),
     _coilReadyFlag(false)
   {
-    bootRenderThread();
+    if (parallel) {
+      _coilThread = std::thread(std::bind(&CoilMaster::render_thread_entry_point, this));
+      
+      //Spinlock waiting for the boot thread to come up
+      while (!_coilReadyFlag) { std::this_thread::yield(); }
+    } else
+      init_tasks();
   }
-
+  
   CoilMaster::~CoilMaster()
   {
     //The thread must be shut down first before we can destroy the data members of this class
     shutdownCoil();
     waitForShutdown();
-  }
-
-  void CoilMaster::bootRenderThread()
-  {
-    _runFlag = true;
-    _coilThread = std::thread(std::bind(&CoilMaster::coilThreadEntryPoint, this));
-  
-    //Spinlock waiting for the boot thread to come up
-    while (!_coilReadyFlag) { smallSleep(); }
   }
  
   void CoilMaster::CallBackDisplayFunc(){
@@ -77,6 +75,7 @@ namespace coil {
 #endif
 
     CoilRegister::getCoilInstance()._viewPorts[windowID]->deinit();
+    CoilRegister::getCoilInstance()._viewPorts.erase(windowID);
   }
 
   void CoilMaster::CallBackKeyboardFunc(unsigned char key, int x, int y){
@@ -197,7 +196,7 @@ namespace coil {
 
     CoilRegister::getCoilInstance()._viewPorts[windowID]->CallBackVisibilityFunc(visible);
   }
-
+  
   void CoilMaster::CallGlutCreateWindow(const char * setTitle, CoilWindow * coilWindow){
 
     // Open new window, record its windowID , 
@@ -207,14 +206,14 @@ namespace coil {
     coilWindow->SetWindowID(windowID);
 
     // Store the address of new window in global array 
-    // so CoilMaster can send events to propoer callback functions.
+    // so CoilMaster can send events to proper callback functions.
 
     // Hand address of universal static callback functions to Glut.
     // This must be for each new window, even though the address are constant.
     glutDisplayFunc(CallBackDisplayFunc);
    
     //Idling is handled in coilMasters main loop
-    glutIdleFunc(NULL);
+    //Timeout for render
     glutKeyboardFunc(CallBackKeyboardFunc);
     glutKeyboardUpFunc(CallBackKeyboardUpFunc);
     glutSpecialFunc(CallBackSpecialFunc);
@@ -234,42 +233,50 @@ namespace coil {
     _viewPorts.erase(windowID);
   }
 
-  void CoilMaster::smallSleep()
-  {
-    timespec sleeptime;
-    sleeptime.tv_sec = 0;
-    sleeptime.tv_nsec = 100000000;
-    nanosleep(&sleeptime, NULL);
-  }
-
   void 
   CoilMaster::waitForShutdown()
   {
-    if (_coilThread.joinable()) _coilThread.join();
+    if (parallel && _coilThread.joinable())
+      _coilThread.join();
   }
 
-  void CoilMaster::coilThreadEntryPoint()
+  void CoilMaster::init_tasks() {
+    _GTKit.reset(new Gtk::Main(magnet::ArgShare::getInstance().getArgc(),
+			       magnet::ArgShare::getInstance().getArgv()));
+
+    glutInit(&magnet::ArgShare::getInstance().getArgc(), 
+	     magnet::ArgShare::getInstance().getArgv());
+
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+    //Register the idle function
+    //Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
+    //Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
+    //Glib::PRIORITY_DEFAULT_IDLE);
+
+    //This timeout is used to perform occasional tasks (that might block)
+    Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, Glib::PRIORITY_DEFAULT_IDLE);
+    
+    _coilReadyFlag = true;
+  }
+
+  bool CoilMaster::main_loop_iter() {
+    for (auto& win : _viewPorts)
+      win.second->CallBackIdleFunc();
+    
+    glutMainLoopEvent();
+
+    if (!parallel && _viewPorts.empty())
+      return false;
+    
+    return _GTKit->iteration(false);
+  }
+  
+  void CoilMaster::render_thread_entry_point()
   {
     try {
-      _GTKit.reset(new Gtk::Main(magnet::ArgShare::getInstance().getArgc(),
-				 magnet::ArgShare::getInstance().getArgv()));
-
-      glutInit(&magnet::ArgShare::getInstance().getArgc(), 
-	       magnet::ArgShare::getInstance().getArgv());
-
-      glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, 
-		    GLUT_ACTION_CONTINUE_EXECUTION);
-
-      //Register the idle function
-      Glib::signal_idle().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout));
-      //Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::glutIdleTimeout), 30,
-      //Glib::PRIORITY_DEFAULT_IDLE);
-
-      Glib::signal_timeout().connect(sigc::mem_fun(this, &CoilMaster::taskTimeout), 50, 
-				     Glib::PRIORITY_DEFAULT_IDLE);
-    
-      _coilReadyFlag = true;
-      _GTKit->run();
+      init_tasks();
+      while (main_loop_iter()) {};      
     } catch (std::exception& except)
       {
 	std::cerr << "\nRender thread caught an exception\n"
@@ -330,13 +337,6 @@ namespace coil {
 	renderThreadShutdownTasks();
       }
 
-    return true;
-  }
-
-  bool 
-  CoilMaster::glutIdleTimeout()
-  {
-    glutMainLoopEvent();
     return true;
   }
 

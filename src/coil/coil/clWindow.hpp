@@ -25,7 +25,6 @@
 #include <magnet/GL/shader/toneMap.hpp>
 #include <magnet/GL/shader/depthResolver.hpp>
 #include <magnet/GL/camera.hpp>
-#include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
 #include <magnet/GL/objects/cairo.hpp>
@@ -95,7 +94,7 @@ namespace coil {
 
     void autoscaleView();
 
-    magnet::GL::Camera& getCamera() { return _camera; }
+    magnet::GL::CameraHeadTracking& getCamera() { return _camera; }
   protected:
     void addObjectWorker(const std::shared_ptr<RenderObj> nObj) {
       _renderObjsTree._renderObjects.push_back(nObj);
@@ -119,21 +118,7 @@ namespace coil {
     magnet::GL::shader::CopyShader _copyShader;
 
     //Primary render target, or the render target for the left eye.
-    magnet::GL::FBO _renderTarget;
-    magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _shadowbuffer;
-    magnet::GL::FBO _hdrBuffer;
-    magnet::GL::FBO _luminanceBuffer1;
-    magnet::GL::FBO _luminanceBuffer2;
-
-    //Blur Targets
-    magnet::GL::FBO _blurTarget1;
-    magnet::GL::FBO _blurTarget2;
-
-
-    //Frame buffers to flip flop between
-    magnet::GL::FBO _filterTarget1;
-    magnet::GL::FBO _filterTarget2;
 
     //For object selection
     /*! \brief If valid, the render object which is currently
@@ -166,7 +151,7 @@ namespace coil {
 
     void CameraSetup();
 
-    void drawScene(magnet::GL::Camera&);
+    void drawScene(magnet::GL::Camera&, bool);
 
     enum KeyStateType
       {
@@ -185,14 +170,11 @@ namespace coil {
     volatile int _lastFrameTime;
     int _FPStime; 
     int _lastUpdateTime;
-    int _frameRenderTime;
-
-    sigc::connection _renderTimeout;
 
     /*! \brief This camera must be a static member of the windows as
         other threads might queue tasks around it.
      */
-    magnet::GL::Camera _camera;
+    magnet::GL::CameraHeadTracking _camera;
     
     bool keyStates[256];
 
@@ -281,6 +263,7 @@ namespace coil {
     void AAsamplechangeCallback();
 
     void LoadDataCallback();
+    void SaveDataCallback();
     
     void addLightCallback();
 

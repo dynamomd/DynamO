@@ -61,11 +61,11 @@ int main(int argc, char *argv[])
 	}
       
       magnet::ArgShare::getInstance().setArgs(argc, argv);
-      
+
+      coil::CoilMaster::parallel = false;
       coil::CoilRegister coil;
       std::shared_ptr<coil::CLGLWindow> window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
       coil.getInstance().addWindow(window);
-
       
       if (vm.count("data-file")) {
 	std::vector<std::string> files = vm["data-file"].as<std::vector<std::string> >();
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	if (files.size() == 1)
 	  {
 	    size_t datasize[3] = {vm["x-elements"].as<size_t>(), vm["y-elements"].as<size_t>(), vm["z-elements"].as<size_t>()};
-	    window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), files[0], std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>()));
+	    window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), files[0], std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>(), magnet::math::Vector{0,0,0}));
 	  }
 	else
 	  {
@@ -88,7 +88,8 @@ int main(int argc, char *argv[])
 	  }
       }
 
-      while (window->simupdateTick(0)) {}
+      auto& master = coil.getInstance();
+      while (master.main_loop_iter()) {};
     }
   catch (std::exception &cep)
     {

@@ -27,10 +27,10 @@ namespace coil {
   {
     RenderObj::init(systemQueue);
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
-
     _gridVertices.init(magnet::GL::objects::primitives::Grid::getVertices(10, 10), 3);
     initGTK();
     _renderShader.build();
+    _initialised = true;
   }
 
   namespace{
@@ -57,7 +57,7 @@ namespace coil {
   void
   Console::deinit()
   {
-    _gridVertices.deinit(); 
+    _gridVertices.deinit();
     _renderShader.deinit();
   }
 
@@ -80,8 +80,7 @@ namespace coil {
 	  * camera.getViewRotationMatrix()
 	  * magnet::GL::scale(axisScale, axisScale, axisScale);
 
-	//Scale to a 100x100 box
-	cairo.getContext()->translate(0, camera.getHeight()-100);
+	cairo.getContext()->translate(0, cairo.getHeight()-100);
 	cairo.getContext()->scale(100, 100);
 
 	cairo.getContext()->set_line_width(0.015);
@@ -123,50 +122,50 @@ namespace coil {
       }
   }
 
-  void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode)
+  void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode, const uint32_t offset)
   {
     if (_showGrid->get_active())
       {
-	using namespace magnet::GL;
-	const Context::ContextPtr& context = magnet::GL::Context::getContext();
-
-	_renderShader.attach();
-	_renderShader["ProjectionMatrix"] = camera.getProjectionMatrix();
-	_renderShader["ViewMatrix"] = camera.getViewPlaneMatrix();
-	context->color(1,1,1,1);
-	//Back face
-	context->setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
-	context->setAttribute(Context::instanceScaleAttrIndex,
-			      camera.getScreenPlaneWidth(),
-			      camera.getScreenPlaneHeight(), 1);
-	_gridVertices.drawArray(magnet::GL::element_type::LINES);
-
-	//Sides
-	context->setAttribute(Context::instanceOriginAttrIndex, 
-			      0.5 * camera.getScreenPlaneWidth(), 0, 
-			      -0.5 * camera.getScreenPlaneWidth(), 0);
-	context->rotation(M_PI / 2, Vector{0, 1, 0});
-	_gridVertices.drawArray(magnet::GL::element_type::LINES); //Right side
-
-	context->setAttribute(Context::instanceOriginAttrIndex, 
-			      -0.5 * camera.getScreenPlaneWidth(), 0, 
-			      -0.5 * camera.getScreenPlaneWidth(), 0);
-	_gridVertices.drawArray(magnet::GL::element_type::LINES); //Left side
-
-	//Top and bottom
-	context->rotation(M_PI / 2, Vector{1, 0, 0});
-	context->setAttribute(Context::instanceScaleAttrIndex,
-			      camera.getScreenPlaneWidth(),
-			      camera.getScreenPlaneWidth(), 1);
-	context->setAttribute(Context::instanceOriginAttrIndex, 0,
-			      -0.5 * camera.getScreenPlaneHeight(), 
-			      -0.5 * camera.getScreenPlaneWidth(), 0);
-	_gridVertices.drawArray(magnet::GL::element_type::LINES);
-	context->setAttribute(Context::instanceOriginAttrIndex, 0,
-			      0.5 * camera.getScreenPlaneHeight(), 
-			      -0.5 * camera.getScreenPlaneWidth(), 0);
-	_gridVertices.drawArray(magnet::GL::element_type::LINES);
-	_renderShader.detach();
+	//using namespace magnet::GL;
+	//const Context::ContextPtr& context = magnet::GL::Context::getContext();
+	//
+	//_renderShader.attach();
+	//_renderShader["ProjectionMatrix"] = camera.getProjectionMatrix();
+	//_renderShader["ViewMatrix"] = camera.getViewPlaneMatrix();
+	//context->color(1,1,1,1);
+	////Back face
+	//context->setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
+	//context->setAttribute(Context::instanceScaleAttrIndex,
+	//		      camera.getScreenPlaneWidth(),
+	//		      camera.getScreenPlaneHeight(), 1);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES);
+	//
+	////Sides
+	//context->setAttribute(Context::instanceOriginAttrIndex, 
+	//		      0.5 * camera.getScreenPlaneWidth(), 0, 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//context->rotation(M_PI / 2, Vector{0, 1, 0});
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES); //Right side
+	//
+	//context->setAttribute(Context::instanceOriginAttrIndex, 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0, 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES); //Left side
+	//
+	////Top and bottom
+	//context->rotation(M_PI / 2, Vector{1, 0, 0});
+	//context->setAttribute(Context::instanceScaleAttrIndex,
+	//		      camera.getScreenPlaneWidth(),
+	//		      camera.getScreenPlaneWidth(), 1);
+	//context->setAttribute(Context::instanceOriginAttrIndex, 0,
+	//		      -0.5 * camera.getScreenPlaneHeight(), 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES);
+	//context->setAttribute(Context::instanceOriginAttrIndex, 0,
+	//		      0.5 * camera.getScreenPlaneHeight(), 
+	//		      -0.5 * camera.getScreenPlaneWidth(), 0);
+	//_gridVertices.drawArray(magnet::GL::element_type::LINES);
+	//_renderShader.detach();
       }
   }
 
@@ -182,7 +181,7 @@ namespace coil {
       _showGrid->show();
     }
 
-    {
+    {   
       _showAxis.reset(new Gtk::CheckButton("Show axis"));
       _showAxis->set_active(true);
       _optList->pack_start(*_showAxis, false, false); 

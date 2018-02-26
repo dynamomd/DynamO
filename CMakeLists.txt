@@ -116,6 +116,9 @@ else()
   endif()
 endif()
 
+include_directories(./extern/stator/)
+include_directories(./extern/)
+
 ######################################################################
 # Stack trace support
 ######################################################################
@@ -241,7 +244,7 @@ if(VISUALIZER_SUPPORT)
     include_directories(${OPENVR_INCLUDE_DIRS})
     link_libraries(${OPENVR_LIBRARY})
   else()
-    message("OpenVR not found")
+    message("OpenVR not found (try setting OPENVR_ROOT_DIR to the location of the openvr git repository")
   endif()
 
 

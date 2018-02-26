@@ -28,6 +28,7 @@ namespace coil {
     _vertices.clear();
     _elements.clear();
     _colours.clear();
+    _initialised = true;
   }
 
   void 

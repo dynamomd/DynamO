@@ -18,17 +18,54 @@
 
 #pragma once
 
-#include <openvr.h>
+#include <magnet/GL/camera.hpp>
+#ifdef __MINGW32__
+# include <openvr_mingw.hpp>
+#else
+# include <openvr.h>
+#endif
 
 namespace magnet {
-  class OpenVRTracker {
+  class OpenVRTracker : public magnet::GL::Camera{
   public:
+    
     OpenVRTracker(std::function<void(std::string)> log = [](std::string){}):
+      Camera(0.3f, 30.0f),//Observe 30cm to 30m
       _vr(nullptr),
       _log(log),
-      _nearClip(0.1f),
-      _farClip(30.0f)
-    {}
+      _eye(vr::Eye_Left)
+    {
+      _hmd_pose = magnet::GL::GLMatrix::identity();
+    }
+
+    void setEye(vr::EVREye x) {
+      _eye = x;
+    }
+    
+    virtual magnet::GL::GLMatrix getViewMatrix() const {
+      switch(_eye){
+      case vr::Eye_Left:
+	return _eyePosLeft * _hmd_pose * magnet::GL::translate(0,1.5,0);
+      case vr::Eye_Right:
+	return _eyePosRight * _hmd_pose * magnet::GL::translate(0,1.5,0);
+      default:
+	M_throw() << "Bad enumeration in OpenVRTracker::getViewMatrix";
+      }
+    }
+    
+    virtual magnet::GL::GLMatrix getProjectionMatrix() const {
+      switch(_eye){
+      case vr::Eye_Left:
+	return _projectionLeft;
+      case vr::Eye_Right:
+	return _projectionRight;
+      default:
+	M_throw() << "Bad enumeration in OpenVRTracker::getProjectionMatrix";
+      }
+    }
+    
+    //Not implemented!
+    virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) {}
 
     ~OpenVRTracker() { shutdown(); }
 
@@ -89,12 +126,6 @@ namespace magnet {
 	  _log("Device#"+std::to_string(i)+" class: "+to_string(_vr->GetTrackedDeviceClass(i)));
 	}
 
-      //Initialise GL
-      _projectionLeft = convert(_vr->GetProjectionMatrix(vr::Eye_Left, _nearClip, _farClip));
-      _projectionRight = convert(_vr->GetProjectionMatrix(vr::Eye_Right, _nearClip, _farClip));
-      _eyePosLeft = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Left)));
-      _eyePosRight = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Right)));
-      
       //Initialise Compositor
       if (vr::VRCompositor())
 	_log("Compositor initialised.");
@@ -103,24 +134,126 @@ namespace magnet {
 	shutdown();
 	return;
       }
-	  
+
+      std::array<uint32_t, 2> dims = getRenderDims();
+      resize(dims[0], dims[1], 1);
+      
     }
 
-    bool initialised() const { return _vr != nullptr; }
+    magnet::GL::FBO r_renderTarget;
 
+
+    virtual magnet::GL::FBO& getResolveBuffer() {
+      switch(_eye){
+      case vr::Eye_Left:
+	return _renderTarget;
+      case vr::Eye_Right:
+	return r_renderTarget;
+      default:
+	M_throw() << "Bad enumeration in OpenVRTracker::getProjectionMatrix";
+      }
+      return r_renderTarget;
+    }
+    
+    virtual void deinit() {
+      magnet::GL::Camera::deinit();
+      r_renderTarget.deinit();
+    }
+
+    void submit() {
+      vr::Texture_t tex = {reinterpret_cast<void*>(intptr_t(getResolveBuffer().getColorTexture()->getGLHandle())),
+			   vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
+      vr::EVRCompositorError err = vr::VRCompositor()->Submit(_eye, &tex);
+      if (err != vr::VRCompositorError_None)
+	_log("Error: "+to_string(err));
+    }
+
+    
+    virtual void resize(size_t width, size_t height, size_t samples) {
+      magnet::GL::Camera::resize(width, height, samples);
+
+      std::shared_ptr<magnet::GL::Texture2D> r_colorTexture(new magnet::GL::Texture2D);
+      r_colorTexture->init(width, height, GL_RGBA8);
+      r_colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      r_colorTexture->parameter(GL_TEXTURE_MAX_LEVEL, 0);
+
+      std::shared_ptr<magnet::GL::Texture2D> r_depthTexture(new magnet::GL::Texture2D);
+      r_depthTexture->init(width, height, GL_DEPTH_COMPONENT);
+      r_depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      r_depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      r_depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      r_renderTarget.init();
+      r_renderTarget.attachTexture(r_colorTexture, 0);
+      r_renderTarget.attachTexture(r_depthTexture);      
+    }
+    
+    
+    bool initialised() const { return _vr != nullptr; }
+    
     std::array<uint32_t, 2> getRenderDims() const {
       uint32_t renderWidth, renderHeight;
       _vr->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
-      return std::array<uint32_t, 2>{renderWidth, renderHeight};
+      return std::array<uint32_t, 2>{{renderWidth, renderHeight}};
     }
     
     void shutdown() {
       if (_vr != nullptr) {
+	deinit();
 	vr::VR_Shutdown();
 	_vr = nullptr;
+	_log("Shutdown of VR complete.");
       }
     }
+    
+    void handleEvents() {
+      	vr::VREvent_t event;
+	while( _vr->PollNextEvent( &event, sizeof( event ) ) ) {
+	  switch( event.eventType )
+	    {
+	    case vr::VREvent_TrackedDeviceActivated:
+	      //SetupRenderModelForTrackedDevice( event.trackedDeviceIndex );
+	      _log( "Device "+std::to_string(event.trackedDeviceIndex)+" attached." );
+	      break;
+	    case vr::VREvent_TrackedDeviceDeactivated:
+	      _log( "Device "+std::to_string(event.trackedDeviceIndex)+" detached.");
+	      break;
+	    case vr::VREvent_TrackedDeviceUpdated:
+	      _log( "Device "+std::to_string(event.trackedDeviceIndex)+" updated.");
+	      break;
+	    }
+	}
+	
+	//// Process SteamVR controller state
+	//for( vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++ )
+	//  {
+	//    vr::VRControllerState_t state;
+	//    if(_vr->GetControllerState( unDevice, &state, sizeof(state) ) )
+	//      _tracked_devices[ unDevice ] = state.ulButtonPressed == 0;
+	//  }
+    }
 
+    void getPosesAndSync() {
+      vr::EVRCompositorError err = vr::VRCompositor()->WaitGetPoses(_tracked_devices.data(), vr::k_unMaxTrackedDeviceCount, nullptr, 0);
+      
+      if (err != vr::VRCompositorError_None)
+	_log("Error: "+to_string(err));
+      
+      if (_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
+	_hmd_pose = magnet::math::inverse(convert(_tracked_devices[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking));
+	_eyePosLeft = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Left)));
+	_eyePosRight = magnet::math::inverse(convert(_vr->GetEyeToHeadTransform(vr::Eye_Right)));
+	
+	_projectionLeft = convert(_vr->GetProjectionMatrix(vr::Eye_Left, _zNearDist, _zFarDist));
+	_projectionRight = convert(_vr->GetProjectionMatrix(vr::Eye_Right, _zNearDist, _zFarDist));
+      }
+      
+    }
+    
+    void PostPresentHandoff() {
+      vr::VRCompositor()->PostPresentHandoff();
+    }
+    
   protected:
     static magnet::GL::GLMatrix convert(vr::HmdMatrix44_t m) {
       magnet::GL::GLMatrix retval;
@@ -197,6 +330,37 @@ namespace magnet {
       }
     }
 
+    static std::string to_string(vr::EVRCompositorError err) {
+      switch (err) {
+      case vr::VRCompositorError_None:
+	return "None";
+      case vr::VRCompositorError_RequestFailed:
+	return "Request failed";
+      case vr::VRCompositorError_IncompatibleVersion:
+	return "Incompatible version";
+      case vr::VRCompositorError_DoNotHaveFocus:
+	return "Do not have focus";
+      case vr::VRCompositorError_InvalidTexture:
+	return "Invalid texture";
+      case vr::VRCompositorError_IsNotSceneApplication:
+	return "Is not a scene application";
+      case vr::VRCompositorError_TextureIsOnWrongDevice:
+	return "Texture is on wrong device";
+      case vr::VRCompositorError_TextureUsesUnsupportedFormat:
+	return "Texture uses unsupported format";
+      case vr::VRCompositorError_SharedTexturesNotSupported:
+	return "Shared textures are not supported";
+      case vr::VRCompositorError_IndexOutOfRange:
+	return "Index out of range";
+      case vr::VRCompositorError_AlreadySubmitted:
+	return "Texture already submitted";
+      case vr::VRCompositorError_InvalidBounds:
+	return "Invalid bounds";
+      default:
+	return "Unhandled VR Compositor Error "+std::to_string(err);
+      }
+    }
+    
     std::tuple<bool, std::string> GetTrackedDeviceString(vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop)
     {
       vr::TrackedPropertyError error;
@@ -224,8 +388,8 @@ namespace magnet {
     vr::IVRSystem* _vr;
     std::function<void(std::string)> _log;
 
-    magnet::GL::GLMatrix _projectionLeft, _projectionRight, _eyePosLeft, _eyePosRight;
-
-    float _nearClip, _farClip;
+    magnet::GL::GLMatrix _projectionLeft, _projectionRight, _eyePosLeft, _eyePosRight, _hmd_pose;
+    vr::EVREye _eye;
+    std::array<vr::TrackedDevicePose_t, vr::k_unMaxTrackedDeviceCount> _tracked_devices;
   };
 }
