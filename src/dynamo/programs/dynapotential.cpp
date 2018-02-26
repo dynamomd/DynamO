@@ -101,11 +101,9 @@ int main(int argc, char *argv[])
     }
   catch (std::exception& cep)
     {
-      std::cout.flush();
-      magnet::stream::FormattedOStream os(std::cerr, magnet::console::bold() + magnet::console::red_fg() + "Main(): " + magnet::console::reset());
-      os << cep.what() << std::endl;
+      std::cout << cep.what() << std::endl;
 #ifndef DYNAMO_DEBUG
-      os << "Try using the debugging executable for more information on the error." << std::endl;
+      std::cout << "Try using the debugging executable for more information on the error." << std::endl;
 #endif
       return 1;
     }
