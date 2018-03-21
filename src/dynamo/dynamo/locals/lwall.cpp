@@ -68,8 +68,10 @@ namespace dynamo {
     _sqrtT = 0;
     if (XML.hasAttribute("Temperature")) {
       _sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
-		   * Sim->units.unitEnergy());
-      _slip = XML.getAttribute("Slip").as<double>();
+		    * Sim->units.unitEnergy());
+      _slip = 0;
+      if (XML.hasAttribute("Slip"))
+	_slip = XML.getAttribute("Slip").as<double>();
     }
 
     if (_sqrtT < 0)
