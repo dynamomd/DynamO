@@ -1,9 +1,9 @@
 environment:
   global:
-    P: "c:/projects/libs"
-    BOOSTROOT: C:/Libraries/boost_1_59_0
-    BOOST_LIBRARYDIR_WIN32: C:/Libraries/boost_1_59_0/lib32-msvc-14.0
-    BOOST_LIBRARYDIR_WIN64: C:/Libraries/boost_1_59_0/lib64-msvc-14.0
+    P: "C:\projects\libs"
+    BOOSTROOT: "C:\Libraries\boost_1_59_0"
+    BOOST_LIBRARYDIR_WIN32: "C:\Libraries\boost_1_59_0\lib32-msvc-14.0"
+    BOOST_LIBRARYDIR_WIN64: "C:\Libraries\boost_1_59_0\lib64-msvc-14.0"
     PYTHON: "C:/Python27"
     PYTHON_VERSION: 2.7
     MINICONDA: C:\Miniconda
@@ -55,7 +55,7 @@ clone_folder: c:\projects\dynamo
 before_build:
   #Xamarin (a unused SDK) fills the build log with warnings, so delete it
   - del "C:\Program Files (x86)\MSBuild\14.0\Microsoft.Common.targets\ImportAfter\Xamarin.Common.targets"
-  - cmd: dir %BOOSTROOT%
+  - cmd: dir C:\Libraries
   - echo "#  Configuring..."
   - cd c:\projects\dynamo
   - cmd: md build
