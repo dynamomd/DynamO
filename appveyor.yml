@@ -1,9 +1,9 @@
 environment:
   global:
-    P: "C:\projects\libs"
-    BOOSTROOT: "C:\Libraries\boost_1_59_0"
-    BOOST_LIBRARYDIR_WIN32: "C:\Libraries\boost_1_59_0\lib32-msvc-14.0"
-    BOOST_LIBRARYDIR_WIN64: "C:\Libraries\boost_1_59_0\lib64-msvc-14.0"
+    P: "c:/projects/libs"
+    BOOSTROOT: c:\Libraries\boost_1_59_0
+    BOOST_LIBRARYDIR_WIN32: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
+    BOOST_LIBRARYDIR_WIN64: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
     PYTHON: "C:/Python27"
     PYTHON_VERSION: 2.7
     MINICONDA: C:\Miniconda
