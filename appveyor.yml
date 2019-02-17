@@ -1,7 +1,7 @@
 environment:
   global:
     P: "c:/projects/libs"
-    BOOST_ROOT: c:\Libraries\boost_1_59_0
+    BOOSTROOT: c:\Libraries\boost_1_59_0
     BOOST_LIBRARYDIR_WIN32: C:\Libraries\boost_1_59_0\lib32-msvc-14.0
     BOOST_LIBRARYDIR_WIN64: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
     PYTHON: "C:/Python27"
@@ -60,8 +60,8 @@ before_build:
   - cmd: md build
   - cmd: cd build
   - echo Running cmake...
-  - cmd: if "%platform%"=="Win32" cmake .. -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN32%" -DPACKAGE_SUFFIX="-windows-32bit"
-  - cmd: if "%platform%"=="x64" cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN64%" -DPACKAGE_SUFFIX="-windows-64bit"
+  - cmd: if "%platform%"=="Win32" cmake .. -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=%configuration% -DBOOSTROOT="%BOOSTROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN32%" -DPACKAGE_SUFFIX="-windows-32bit"
+  - cmd: if "%platform%"=="x64" cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%configuration% -DBOOSTROOT="%BOOSTROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR_WIN64%" -DPACKAGE_SUFFIX="-windows-64bit"
   - cmd: cd ..
 
 build_script:
