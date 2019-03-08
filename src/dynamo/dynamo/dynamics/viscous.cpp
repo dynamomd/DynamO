@@ -36,27 +36,18 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  bool 
-  DynViscous::cubeOverlap(const Particle& p1, const Particle& p2, 
-			    const double d) const
+  DynViscous::DynViscous(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
+    DynNewtonian(tmp), g({0, -1, 0}), lastAbsoluteClock(-1), lastCollParticle1(0), lastCollParticle2(0)
   {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->BCs->applyBC(r12);
-    return magnet::overlap::point_cube(r12, 2 * Vector{d, d, d});
+    g << XML.getNode("g");
+    g *= Sim->units.unitAcceleration();
   }
 
-  double
-  DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
+  void 
+  DynViscous::outputXML(magnet::xml::XmlStream& XML) const
   {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_sphere(r12, v12, d);
-  }
-  
-  DynViscous::DynViscous(dynamo::Simulation* tmp, const magnet::xml::Node& xml):
-    Dynamics(tmp), lastAbsoluteClock(-1), lastCollParticle1(0), lastCollParticle2(0)  
-  {
+    XML << magnet::xml::attr("Type") << "Viscous";
+    XML << magnet::xml::tag("g") << g / Sim->units.unitAcceleration() << magnet::xml::endtag("g");
   }
 
   void
@@ -72,133 +63,15 @@ namespace dynamo {
       }
   }
 
-  double 
-  DynViscous::getPlaneEvent(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, double diameter) const
-  {
-    Vector rij = part.getPosition() - wallLoc, vel = part.getVelocity();
-    Sim->BCs->applyBC(rij, vel);
-
-    
-    return magnet::intersection::ray_plane(rij, vel, wallNorm, diameter);
-  }
-
-  ParticleEventData 
-  DynViscous::runPlaneEvent(Particle& part, const Vector& vNorm, const double e, const double diameter) const
-  {
-    updateParticle(part);
-
-    ParticleEventData retVal(part, *Sim->species(part), WALL);
-  
-    part.getVelocity() -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
-  
-    return retVal; 
-  }
-
   double
-  DynViscous::getSquareCellCollision2(const Particle& part, const Vector & origin, const Vector & width) const
+  DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
-    Vector  rpos(part.getPosition() - origin);
-    Vector  vel(part.getVelocity());
-    Sim->BCs->applyBC(rpos, vel);
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->BCs->applyBC(r12, v12);
+    return magnet::intersection::ray_sphere(r12, v12, d);
+  }
   
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-	vel[iDim] = 0;
-
-    double retVal;
-    if (vel[0] < 0)
-      retVal = -rpos[0] / vel[0];
-    else
-      retVal = (width[0]-rpos[0]) / vel[0];
-
-    for (size_t iDim = 1; iDim < NDIM; ++iDim)
-      {
-	double tmpdt((vel[iDim] < 0)
-		     ? -rpos[iDim]/vel[iDim] 
-		     : (width[iDim]-rpos[iDim]) / vel[iDim]);
-      
-	if (tmpdt < retVal)
-	  retVal = tmpdt;
-      }
-  
-    return retVal;
-  }
-
-  int
-  DynViscous::getSquareCellCollision3(const Particle& part, const Vector & origin, const Vector & width) const
-  {
-    Vector rpos(part.getPosition() - origin);
-    Vector vel(part.getVelocity());
-    Sim->BCs->applyBC(rpos, vel);
-
-    int retVal(0);
-    double time(std::numeric_limits<float>::infinity());
-  
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-	vel[iDim] = 0;
-
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      {
-	double tmpdt = ((vel[iDim] < 0) ? -rpos[iDim]/vel[iDim] : (width[iDim]-rpos[iDim]) / vel[iDim]);
-
-	if (tmpdt < time)
-	  {
-	    time = tmpdt;
-	    retVal = (vel[iDim] < 0) ? -(iDim+1) : (iDim+1);
-	  }
-      }
-
-    if (((retVal < 0) && (vel[abs(retVal)-1] > 0)) || ((retVal > 0) && (vel[abs(retVal)-1] < 0)))
-      M_throw() << "Found an error! retVal " << retVal
-		<< " vel is " << vel[abs(retVal)-1];
-
-    return retVal;
-  }
-
-  PairEventData 
-  DynViscous::SmoothSpheresColl(Event& event, const double& e, const double&, const EEventType& eType) const
-  {
-    Particle& particle1 = Sim->particles[event._particle1ID];
-    Particle& particle2 = Sim->particles[event._particle2ID];
-    updateParticlePair(particle1, particle2);  
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
-
-    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-
-    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
-    double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
- 
-    retVal.rvdot = retVal.rij | retVal.vijold;
-
-    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
-
-    //If both particles have infinite mass, we need to modify the
-    //masses (and mu) to allow collisions.
-    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
-    if (infinite_masses)
-      {
-	p1Mass = p2Mass = 1;
-	mu = 0.5;
-      }
-
-    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
-    particle1.getVelocity() -= retVal.impulse / p1Mass;
-    particle2.getVelocity() += retVal.impulse / p2Mass;
-    retVal.impulse *= !infinite_masses;
-
-    lastCollParticle1 = particle1.getID();
-    lastCollParticle2 = particle2.getID();
-    lastAbsoluteClock = Sim->systemTime;
-    return retVal;
-  }
-
-  void 
-  DynViscous::outputXML(magnet::xml::XmlStream& XML) const
-  {
-    XML << magnet::xml::attr("Type") << "Viscous";
-  }
-
   double 
   DynViscous::getPBCSentinelTime(const Particle& part, const double& lMax) const
   {
@@ -223,62 +96,5 @@ namespace dynamo {
 	}
 
     return retval;
-  }
-
-  double 
-  DynViscous::sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const
-  {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->BCs->applyBC(r12);
-
-    return std::max(d  - std::sqrt(r12 | r12), 0.0);
-  }
-
-  PairEventData 
-  DynViscous::RoughSpheresColl(Event& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
-  {
-    if (!hasOrientationData())
-      M_throw() << "Cannot use tangential coefficients of inelasticity without orientational data/species";
-
-    Particle& particle1 = Sim->particles[event._particle1ID];
-    Particle& particle2 = Sim->particles[event._particle2ID];
-
-    updateParticlePair(particle1, particle2);  
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
-    
-    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-  
-    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
-    double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-
-    retVal.rvdot = (retVal.rij | retVal.vijold);
-
-    const Vector rijhat = retVal.rij / retVal.rij.nrm();
-    const Vector gij = retVal.vijold - ((0.5 * d1 * orientationData[particle1.getID()].angularVelocity + 0.5 * d2 * orientationData[particle2.getID()].angularVelocity) ^ rijhat);
-    const Vector rcrossgij = rijhat ^ gij;
-    const double rdotgij = rijhat | gij;
-
-    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
-
-    double I = 2.0/5.0;
-    
-    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
-    if (infinite_masses)
-      {
-	p1Mass = p2Mass = 1;
-	mu = 0.5;
-      }
-    
-    retVal.impulse = mu * ((1+e) * rijhat * rdotgij + ((et - 1) / (1 + 1.0 / I)) * (rijhat ^ (rcrossgij)));
-    particle1.getVelocity() -= retVal.impulse / p1Mass;
-    particle2.getVelocity() += retVal.impulse / p2Mass;
-
-    retVal.impulse *= !infinite_masses;
-
-    Vector angularVchange = (mu * (1-et) / (1 + I)) * rcrossgij;
- 
-    orientationData[particle1.getID()].angularVelocity += angularVchange / (p1Mass * d1 * 0.5);
-    orientationData[particle2.getID()].angularVelocity += angularVchange / (p2Mass * d2 * 0.5);
-    return retVal;
   }
 }

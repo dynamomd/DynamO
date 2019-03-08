@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
 
@@ -27,42 +27,47 @@ namespace dynamo {
      This Dynamics provides the dynamics of a system of particles
      damped by a viscous term.
    */
-  class DynViscous: public Dynamics
+  class DynViscous: public DynNewtonian
   {
   public:
     DynViscous(dynamo::Simulation*, const magnet::xml::Node&);
-
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const { M_throw() << "Not implemented";}
-    virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not implemented";}
-    virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const { M_throw() << "Not implemented";}
-    virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
-    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not implemented";}
-    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const;
     virtual void streamParticle(Particle&, const double&) const;
-    virtual double getSquareCellCollision2(const Particle&, const Vector &, const Vector &) const;
-    virtual int getSquareCellCollision3(const Particle&, const Vector &, const Vector &) const;
-    virtual std::pair<bool,double> getPointPlateCollision(const Particle& np1, const Vector& nrw0, const Vector& nhat, const double& Delta, const double& Omega, const double& Sigma, const double& t, bool) const { M_throw() << "Not implemented";}
-    virtual ParticleEventData runOscilatingPlate(Particle& part, const Vector& rw0, const Vector& nhat, double& delta, const double& omega0, const double& sigma, const double& mass, const double& e, double& t, bool strongPlate) const { M_throw() << "Not implemented";}
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
-    virtual PairEventData SmoothSpheresColl(Event&, const double&, const double&, const EEventType& eType) const;
-    virtual bool DSMCSpheresTest(Particle&, Particle&, double&, const double&, Vector) const { M_throw() << "Not implemented";}
-    virtual PairEventData DSMCSpheresRun(Particle&, Particle&, const double&, Vector) const { M_throw() << "Not implemented";}
-    virtual PairEventData SphereWellEvent(Event&, const double&, const double&, size_t) const { M_throw() << "Not implemented";}
-    virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
-    virtual std::pair<double, Dynamics::TriangleIntersectingPart> getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const { M_throw() << "Not implemented";}
-    virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const { M_throw() << "Not implemented";}
-    virtual ParticleEventData runCylinderWallCollision(Particle&, const Vector &, const Vector &, const double&) const { M_throw() << "Not implemented";}
-    virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, const double, const double) const;
-    virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d, const double slip) const { M_throw() << "Not implemented";}
-    virtual ParticleEventData randomGaussianEvent(Particle&, const double&, const size_t) const { M_throw() << "Not implemented";}
-    virtual NEventData multibdyCollision(const IDRange&, const IDRange&, const double&, const EEventType&) const { M_throw() << "Not implemented";}
-    virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const { M_throw() << "Not implemented";}
-    virtual PairEventData parallelCubeColl(Event& event, const double& e, const double& d, const EEventType& eType = CORE) const { M_throw() << "Not implemented";}
-    virtual std::pair<bool, double> getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const { M_throw() << "Not implemented";}
-    virtual PairEventData runLineLineCollision(Event& eevent, const double& elasticity, const double& length) const { M_throw() << "Not implemented";}
-    virtual PairEventData RoughSpheresColl(Event& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
-    virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const { M_throw() << "Not implemented";}
+
+    Vector g;
+
+    //Inherited
+    // virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const;
+    // virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
+    // virtual PairEventData RoughSpheresColl(Event& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const { M_throw() << "Not implemented";}
+    // virtual PairEventData SmoothSpheresColl(Event&, const double&, const double&, const EEventType& eType) const;
+
+    //Not implemented
+    virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const { M_throw() << "Not implemented"; }
+    virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not implemented"; }
+    virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const { M_throw() << "Not implemented"; }
+    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not implemented"; }
+    virtual double getSquareCellCollision2(const Particle&, const Vector &, const Vector &) const { M_throw() << "Not implemented"; }
+    virtual int getSquareCellCollision3(const Particle&, const Vector &, const Vector &) const { M_throw() << "Not implemented"; }
+    virtual std::pair<bool,double> getPointPlateCollision(const Particle& np1, const Vector& nrw0, const Vector& nhat, const double& Delta, const double& Omega, const double& Sigma, const double& t, bool) const { M_throw() << "Not implemented"; }
+    virtual ParticleEventData runOscilatingPlate(Particle& part, const Vector& rw0, const Vector& nhat, double& delta, const double& omega0, const double& sigma, const double& mass, const double& e, double& t, bool strongPlate) const { M_throw() << "Not implemented"; }
+    virtual bool DSMCSpheresTest(Particle&, Particle&, double&, const double&, Vector) const { M_throw() << "Not implemented"; }
+    virtual PairEventData DSMCSpheresRun(Particle&, Particle&, const double&, Vector) const { M_throw() << "Not implemented"; }
+    virtual PairEventData SphereWellEvent(Event&, const double&, const double&, size_t) const { M_throw() << "Not implemented"; }
+    virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const { M_throw() << "Not implemented"; }
+    virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, const double, const double) const { M_throw() << "Not implemented"; }
+    virtual std::pair<double, Dynamics::TriangleIntersectingPart> getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const { M_throw() << "Not implemented"; }
+    virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const { M_throw() << "Not implemented"; }
+    virtual ParticleEventData runCylinderWallCollision(Particle&, const Vector &, const Vector &, const double&) const { M_throw() << "Not implemented"; }
+    virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d, const double slip) const { M_throw() << "Not implemented"; }
+    virtual ParticleEventData randomGaussianEvent(Particle&, const double&, const size_t) const { M_throw() << "Not implemented"; }
+    virtual NEventData multibdyCollision(const IDRange&, const IDRange&, const double&, const EEventType&) const { M_throw() << "Not implemented"; }
+    virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const { M_throw() << "Not implemented"; }
+    virtual PairEventData parallelCubeColl(Event& event, const double& e, const double& d, const EEventType& eType = CORE) const { M_throw() << "Not implemented"; }
+    virtual std::pair<bool, double> getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const { M_throw() << "Not implemented"; }
+    virtual PairEventData runLineLineCollision(Event& eevent, const double& elasticity, const double& length) const { M_throw() << "Not implemented"; }
+    virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const { M_throw() << "Not implemented"; }
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
