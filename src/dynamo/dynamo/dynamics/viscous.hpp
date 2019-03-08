@@ -35,8 +35,9 @@ namespace dynamo {
     virtual void streamParticle(Particle&, const double&) const;
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-    Vector g;
-
+    Vector _g;
+    double _gamma;
+    
     //Inherited
     // virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const;
     // virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;

@@ -35,19 +35,23 @@
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 
+#include <magnet/intersection/polynomial.hpp>
+
 namespace dynamo {
   DynViscous::DynViscous(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-    DynNewtonian(tmp), g({0, -1, 0}), lastAbsoluteClock(-1), lastCollParticle1(0), lastCollParticle2(0)
+    DynNewtonian(tmp), _g({0, -1, 0}), lastAbsoluteClock(-1), lastCollParticle1(0), lastCollParticle2(0)
   {
-    g << XML.getNode("g");
-    g *= Sim->units.unitAcceleration();
+    _g << XML.getNode("g");
+    _g *= Sim->units.unitAcceleration();
+    _gamma = XML.getAttribute("gamma").as<double>() * Sim->units.unitAcceleration();
   }
-
+ 
   void 
   DynViscous::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "Viscous";
-    XML << magnet::xml::tag("g") << g / Sim->units.unitAcceleration() << magnet::xml::endtag("g");
+    XML << magnet::xml::attr("gamma") << _gamma * Sim->units.unitTime();
+    XML << magnet::xml::tag("g") << _g / Sim->units.unitAcceleration() << magnet::xml::endtag("g");
   }
 
   void
@@ -64,37 +68,34 @@ namespace dynamo {
   }
 
   double
-  DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
+  DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double sigma) const
   {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_sphere(r12, v12, d);
+    const Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->BCs->applyBC(r12);
+
+    const double m1 = Sim->species(p1)->getMass(p1.getID());
+    const double m2 = Sim->species(p2)->getMass(p2.getID());
+    
+    const Vector X = r12;
+    const Vector V = (p1.getVelocity() / m1) - (p2.getVelocity() / m2);
+    const double M = 1 / m1 - 1 / m2;
+
+    const double c = (X - V / gamma).nrm2() - sigma * sigma;
+    const double b = -2 * (V | (X - V / gamma)) / gamma;
+    const double a = V.nrm2() / (gamma * gamma); 
+
+    //Not doing this correctly! The transform of the overlap function must be taken into account!
+    
+    magnet::intersection::detail::PolynomialFunction<2> f(c, b, 2 * a);
+    const double y = magnet::intersection::detail::nextEvent(f);
+    
+    return 0;
   }
   
   double 
   DynViscous::getPBCSentinelTime(const Particle& part, const double& lMax) const
   {
-#ifdef DYNAMO_DEBUG
-    if (!isUpToDate(part))
-      M_throw() << "Particle is not up to date";
-#endif
-
-    Vector pos(part.getPosition()), vel(part.getVelocity());
-
-    Sim->BCs->applyBC(pos, vel);
-
-    double retval = std::numeric_limits<float>::infinity();
-
-    for (size_t i(0); i < NDIM; ++i)
-      if (vel[i] != 0)
-	{
-	  double tmp = (0.5 * (0.5 * Sim->primaryCellSize[i] - lMax)) / std::abs(vel[i]);
-	  
-	  if (tmp < retval)
-	    retval = tmp;
-	}
-
-    return retval;
+    //This is bad for low densities!
+    return HUGE_VAL;
   }
 }
