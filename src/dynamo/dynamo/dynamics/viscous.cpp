@@ -70,7 +70,7 @@ namespace dynamo {
   double
   DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double sigma) const
   {
-    const Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
 
     const double m1 = Sim->species(p1)->getMass(p1.getID());
@@ -80,9 +80,9 @@ namespace dynamo {
     const Vector V = (p1.getVelocity() / m1) - (p2.getVelocity() / m2);
     const double M = 1 / m1 - 1 / m2;
 
-    const double c = (X - V / gamma).nrm2() - sigma * sigma;
-    const double b = -2 * (V | (X - V / gamma)) / gamma;
-    const double a = V.nrm2() / (gamma * gamma); 
+    const double c = (X - V / _gamma).nrm2() - sigma * sigma;
+    const double b = -2 * (V | (X - V / _gamma)) / _gamma;
+    const double a = V.nrm2() / (_gamma * _gamma); 
 
     //Not doing this correctly! The transform of the overlap function must be taken into account!
     
