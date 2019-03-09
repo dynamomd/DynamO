@@ -57,8 +57,16 @@ namespace dynamo {
   void
   DynViscous::streamParticle(Particle &particle, const double &dt) const
   {
-    particle.getPosition() += particle.getVelocity() * dt;
+    const double m = Sim->species(particle)->getMass(particle.getID());
+    
+    particle.getPosition()
+      += particle.getPosition()
+      - _g * dt / (_gamma * m)
+      + (1 - std::exp(-_gamma * dt)) * (particle.getVelocity() + _g / _gamma) / (_gamma * m);
+      
+    particle.getVelocity() = -_g / _gamma + (particle.getVelocity() + _g / _gamma) * std::exp(-_gamma * dt);
 
+    //This part is also incorrect, but left here for future work
     if (hasOrientationData())
       {
 	orientationData[particle.getID()].orientation = Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
@@ -71,25 +79,28 @@ namespace dynamo {
   DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double sigma) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->BCs->applyBC(r12);
-
+    Sim->BCs->applyBC(r12);    
+    const Vector X = r12;
     const double m1 = Sim->species(p1)->getMass(p1.getID());
     const double m2 = Sim->species(p2)->getMass(p2.getID());
-    
-    const Vector X = r12;
     const Vector V = (p1.getVelocity() / m1) - (p2.getVelocity() / m2);
-    const double M = 1 / m1 - 1 / m2;
 
-    const double c = (X - V / _gamma).nrm2() - sigma * sigma;
-    const double b = -2 * (V | (X - V / _gamma)) / _gamma;
-    const double a = V.nrm2() / (_gamma * _gamma); 
+    if (m1!=m2)
+      M_throw() << "Not implemented asymmetric particle masses for viscous dynamics";
 
-    //Not doing this correctly! The transform of the overlap function must be taken into account!
+    const double c = X.nrm2() - sigma * sigma;
+    const double b = -2 * (V | X) / _gamma;
+    const double a = V.nrm2() / (_gamma * _gamma);
+
     
+    //As the transform from y=e^{-\gamma t} to t is a monotonic
+    //transform we can perform the stable algorithm in y, but we need
+    //to ensure that t=0 corresponds to y=0 and t>0 corresponds to y>0
+    // Thus the appropriate transformation is y=1-e^{-\gamma\,t}
     magnet::intersection::detail::PolynomialFunction<2> f(c, b, 2 * a);
     const double y = magnet::intersection::detail::nextEvent(f);
     
-    return 0;
+    return - std::log(1-y) / _gamma;
   }
   
   double 
