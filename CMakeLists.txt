@@ -89,7 +89,8 @@ endif()
 
 
 ##########   DEBUG MODE
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG -D_GLIBCXX_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG")
+#  -D_GLIBCXX_DEBUG <- Not compatible with boost program_options
 
 if(NOT WIN32)
   link_libraries(debug dl)

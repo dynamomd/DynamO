@@ -39,7 +39,7 @@
 
 namespace dynamo {
   DynViscous::DynViscous(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-    DynNewtonian(tmp), _g({0, -1, 0}), lastAbsoluteClock(-1), lastCollParticle1(0), lastCollParticle2(0)
+    DynNewtonian(tmp), _g({0, -1, 0})
   {
     _g << XML.getNode("g");
     _g *= Sim->units.unitAcceleration();
@@ -58,10 +58,9 @@ namespace dynamo {
   DynViscous::streamParticle(Particle &particle, const double &dt) const
   {
     const double m = Sim->species(particle)->getMass(particle.getID());
-    
+
     particle.getPosition()
-      += particle.getPosition()
-      - _g * dt / (_gamma * m)
+      += - _g * dt / (_gamma * m)
       + (1 - std::exp(-_gamma * dt)) * (particle.getVelocity() + _g / _gamma) / (_gamma * m);
       
     particle.getVelocity() = -_g / _gamma + (particle.getVelocity() + _g / _gamma) * std::exp(-_gamma * dt);
@@ -79,7 +78,7 @@ namespace dynamo {
   DynViscous::SphereSphereInRoot(const Particle& p1, const Particle& p2, double sigma) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->BCs->applyBC(r12);    
+    Sim->BCs->applyBC(r12);
     const Vector X = r12;
     const double m1 = Sim->species(p1)->getMass(p1.getID());
     const double m2 = Sim->species(p2)->getMass(p2.getID());
@@ -89,18 +88,21 @@ namespace dynamo {
       M_throw() << "Not implemented asymmetric particle masses for viscous dynamics";
 
     const double c = X.nrm2() - sigma * sigma;
-    const double b = -2 * (V | X) / _gamma;
+    const double b = 2 * (V | X) / _gamma;
     const double a = V.nrm2() / (_gamma * _gamma);
 
-    
     //As the transform from y=e^{-\gamma t} to t is a monotonic
     //transform we can perform the stable algorithm in y, but we need
     //to ensure that t=0 corresponds to y=0 and t>0 corresponds to y>0
     // Thus the appropriate transformation is y=1-e^{-\gamma\,t}
     magnet::intersection::detail::PolynomialFunction<2> f(c, b, 2 * a);
     const double y = magnet::intersection::detail::nextEvent(f);
-    
-    return - std::log(1-y) / _gamma;
+
+    //If y>1 then there's no real roots
+    if (y > 1) return HUGE_VAL;
+
+    const double t = - std::log(1-y) / _gamma;
+    return t;
   }
   
   double 
