@@ -53,7 +53,10 @@ namespace dynamo {
   void 
   GSOCells::operator<<(const magnet::xml::Node& XML)
   {
-    globName = XML.getAttribute("Name");	
+    globName = XML.getAttribute("Name");
+
+    cellDimension << XML.getNode("CellSize");
+    cellDimension *= Sim->units.unitLength();
   }
 
   Event 
@@ -70,12 +73,12 @@ namespace dynamo {
     //Sim->dynamics->getParticleDelay(part)
 
     Vector CellOrigin;
-    size_t ID(part.getID());
+    size_t pidx(part.getID());
 
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       {
-	CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->primaryCellSize[iDim];
-	ID /= cuberootN;
+	CellOrigin[iDim] = (pidx % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];
+	pidx /= cuberootN;
       }
 
     return Event(part, Sim->dynamics->getSquareCellCollision2(part, CellOrigin, cellDimension) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
@@ -91,15 +94,12 @@ namespace dynamo {
 
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       {
-	CellOrigin[iDim] = (ID % cuberootN) * cellDimension[iDim] - 0.5*Sim->primaryCellSize[iDim];
+	CellOrigin[iDim] = (ID % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];
 	ID /= cuberootN;
       }
   
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics->
-			 getSquareCellCollision3
-			 (part, CellOrigin, 
-			  cellDimension));
+    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, CellOrigin, cellDimension));
 
     size_t cellDirection = abs(cellDirectionInt) - 1;
 
@@ -151,9 +151,6 @@ namespace dynamo {
 		<< "\nN = " << Sim->N()
 		<< "\nN^(1/3) = " << cuberootN;
 
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
-
     if (std::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
 	   << "You must add the ParabolaSentinel Global event." << std::endl;
@@ -166,6 +163,8 @@ namespace dynamo {
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << "SOCells"
 	<< magnet::xml::attr("Name") << globName
+	<< magnet::xml::tag("CellSize") << cellDimension / Sim->units.unitLength()
+	<< magnet::xml::endtag("CellSize")
 	<< magnet::xml::endtag("Global");
   }
 }
