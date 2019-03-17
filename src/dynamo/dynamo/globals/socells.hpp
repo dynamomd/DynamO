@@ -39,8 +39,11 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const;
 
+      void load_cell_origins(const std::vector<Particle>);
+      
   protected:
-    Vector  cellDimension;
-    size_t cuberootN;
+      Vector  cellDimension;
+      // size_t cuberootN;
+      std::vector<Vector> cell_origins;
   };
 }

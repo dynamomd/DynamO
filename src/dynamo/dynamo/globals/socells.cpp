@@ -34,19 +34,26 @@ namespace dynamo {
   GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
     Global(nSim, "SingleOccupancyCells"),
     cellDimension({1,1,1}),
-    cuberootN(0)
+    cell_origins(nSim->particles.size())
+    // cuberootN(0)
   {
     globName = name;
+
+    load_cell_origins(nSim->particles);
+    
     dout << "Single occupancy cells loaded" << std::endl;
   }
 
   GSOCells::GSOCells(const magnet::xml::Node&XML, dynamo::Simulation* ptrSim):
     Global(ptrSim, "SingleOccupancyCells"),
     cellDimension({1,1,1}),
-    cuberootN(0)
+    cell_origins(ptrSim->particles.size())
+    // cuberootN(0)
   {
     operator<<(XML);
 
+    load_cell_origins(ptrSim->particles);
+    
     dout << "Single occupancy cells loaded" << std::endl;
   }
 
@@ -72,14 +79,21 @@ namespace dynamo {
     //is not required as we compensate for the delay using 
     //Sim->dynamics->getParticleDelay(part)
 
-    Vector CellOrigin;
     size_t pidx(part.getID());
+    // std::cout << "\npidx: " << pidx << "\n";
 
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      {
-	CellOrigin[iDim] = (pidx % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];
-	pidx /= cuberootN;
-      }
+    Vector CellOrigin = cell_origins[pidx];
+    
+    // for (size_t iDim(0); iDim < NDIM; ++iDim)
+    //   {
+    // 	  std::cout << "CellOrigin[iDim] = (pidx % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];" << "\n";
+    // 	  std::cout << "CellOrigin[" << iDim << "] = (" << pidx << " % " << cuberootN << ") * " << Sim->primaryCellSize[iDim] << " / "<< cuberootN << " - 0.5 * " << Sim->primaryCellSize[iDim] << ";\n";
+    // 	  CellOrigin[iDim] = (pidx % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];
+    // 	  std::cout << "pidx /= cuberootN;" << "\n";
+    // 	  std::cout << pidx << " /= " << cuberootN << ";" << "\n";
+    // 	  pidx /= cuberootN;
+    // 	  std::cout << pidx << "\n";
+    //   }
 
     return Event(part, Sim->dynamics->getSquareCellCollision2(part, CellOrigin, cellDimension) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
@@ -89,14 +103,15 @@ namespace dynamo {
   {
     Sim->dynamics->updateParticle(part);
 
-    Vector CellOrigin;
     size_t ID(part.getID());
 
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      {
-	CellOrigin[iDim] = (ID % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];
-	ID /= cuberootN;
-      }
+    Vector CellOrigin = cell_origins[ID];
+
+    // for (size_t iDim(0); iDim < NDIM; ++iDim)
+    //   {
+    // 	CellOrigin[iDim] = (ID % cuberootN) * Sim->primaryCellSize[iDim] / cuberootN - 0.5 * Sim->primaryCellSize[iDim];
+    // 	ID /= cuberootN;
+    //   }
   
     //Determine the cell transition direction, its saved
     int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, CellOrigin, cellDimension));
@@ -143,13 +158,14 @@ namespace dynamo {
   GSOCells::initialise(size_t nID)
   {
     Global::initialise(nID);
+
+    // cuberootN = (unsigned long)(std::pow(Sim->N(), 1.0/3.0) + 0.5);
+    // std::cout << "CUBE ROOT N: " << cuberootN << "";
   
-    cuberootN = (unsigned long)(std::pow(Sim->N(), 1.0/3.0) + 0.5);
-  
-    if (boost::math::pow<3>(cuberootN) != Sim->N())
-      M_throw() << "Cannot use single occupancy cells without a integer cube root of N"
-		<< "\nN = " << Sim->N()
-		<< "\nN^(1/3) = " << cuberootN;
+    // if (boost::math::pow<3>(cuberootN) != Sim->N())
+    //   M_throw() << "Cannot use single occupancy cells without a integer cube root of N"
+    // 		<< "\nN = " << Sim->N()
+    // 		<< "\nN^(1/3) = " << cuberootN;
 
     if (std::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
@@ -167,4 +183,19 @@ namespace dynamo {
 	<< magnet::xml::endtag("CellSize")
 	<< magnet::xml::endtag("Global");
   }
+
+
+    void GSOCells::load_cell_origins(const std::vector<Particle> particles) {
+	for (size_t ip = 0; ip < particles.size(); ip++) {
+	    // std::cout << particles[ip].getPosition() << "\n";
+	    // std::cout << cellDimension << "\n";
+	    const size_t pid = particles[ip].getID();
+	    // std::cout << ip << ", " << pid << "\n";
+	    cell_origins[pid] = particles[ip].getPosition() - 0.5 * cellDimension;
+	    // std::cout << cell_origins[pid] << "\n";
+	}
+    }
 }
+
+
+
