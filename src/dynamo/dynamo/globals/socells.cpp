@@ -82,9 +82,16 @@ namespace dynamo {
     //Not needed as we compensate for particle delay
     //Sim->dynamics->updateParticle(part);
 
-
     //Create a fake particle which represents the cell center
     const Particle cellParticle(cell_origins[part.getID()], Vector({0,0,0}), -1);
+
+    //dout << "#Testing event, Particle " << part.getID() << std::endl;
+    //dout << "#Distance " << (part.getPosition() - cellParticle.getPosition()).nrm() * Sim->units.unitLength() << std::endl;
+    //dout << "#Delay " << Sim->dynamics->getParticleDelay(part) * Sim->units.unitTime() << std::endl;
+    //dout << "#event t = " << Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD) * Sim->units.unitTime() << std::endl;
+
+    if ((part.getPosition() - cellParticle.getPosition()).nrm() > _cellD)
+      derr << "Particle " << part.getID() << " outside the cell by " << ((part.getPosition() - cellParticle.getPosition()).nrm() - _cellD) / _cellD  << std::endl;
     
     return Event(part, Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
@@ -103,24 +110,35 @@ namespace dynamo {
     if (iEvent._dt == std::numeric_limits<float>::infinity())
       M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n";
 #endif
-
+    
     //Move the system forward to the time of the event
     Sim->systemTime += iEvent._dt;
     Sim->ptrScheduler->stream(iEvent._dt);
     Sim->stream(iEvent._dt);
     ++Sim->eventCount;
 
+    //dout << "!Particle " << part.getID() << " at " << part.getPosition() * Sim->units.unitLength() << std::endl;
+    //dout << "!Cell origin " << cell_origins[part.getID()] * Sim->units.unitLength() << std::endl;
+    //dout << "!Normal " << (part.getPosition() - cell_origins[part.getID()]).normal() * Sim->units.unitLength() << std::endl;
+    //dout << "!Distance " << (part.getPosition() - cell_origins[part.getID()]).nrm() * Sim->units.unitLength() << std::endl;
+    //dout << "!CellD " << _cellD * Sim->units.unitLength() << std::endl;
+    //dout << "!Relative distance " << (part.getPosition() - cell_origins[part.getID()]).nrm() / _cellD << std::endl;
+    dout << "!Perp velocity " << ((part.getPosition() - cell_origins[part.getID()]).normal() | part.getVelocity()) << std::endl;
+
     //Now execute the event
     const Vector cell_origin = cell_origins[part.getID()];  
-    Vector pos = part.getPosition() - cell_origin, vel = part.getVelocity();
-    //Sim->BCs->applyBC(pos, vel); We don't apply the PBC, as 
-    NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, 0.0));
+    Vector pos = part.getPosition() - cell_origin;
+    Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, _cellD));
+
+    dout << "!Perp velocity post " << ((part.getPosition() - cell_origins[part.getID()]).normal() | part.getVelocity()) << std::endl;
     
     //Now we're past the event update everything
     Sim->_sigParticleUpdate(EDat);
     Sim->ptrScheduler->fullUpdate(part);
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
+
   }
 
   void 
@@ -132,10 +150,21 @@ namespace dynamo {
     //and total cell volume are equal.
     const double cellVolume = Sim->getSimVolume() / Sim->N();
     _cellD = std::cbrt(cellVolume * 6 / M_PI);
-    
-    if (std::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
-      dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
-	   << "You must add the ParabolaSentinel Global event." << std::endl;
+
+    if (((_cellD >= 0.5 * Sim->primaryCellSize[0])
+	|| (_cellD >= 0.5 * Sim->primaryCellSize[1])
+	|| (_cellD >= 0.5 * Sim->primaryCellSize[2]))
+	&& (std::dynamic_pointer_cast<BCPeriodic>(Sim->BCs)))
+      M_throw() << "ERROR: SOCells diameter (" << _cellD * Sim->units.unitLength() << ") is more than half the primary image size (" << Sim->primaryCellSize << "), this will break in periodic boundary conditions";
+
+    for (const Particle& p : Sim->particles) {
+      Vector pos = p.getPosition() - cell_origins[p.getID()];
+      Sim->BCs->applyBC(pos);
+      if (pos.nrm2() > _cellD * _cellD)
+	derr << "Particle " << p.getID() << " is at a distance of "
+	     << (p.getPosition() - cell_origins[p.getID()]).nrm() * Sim->units.unitLength()
+	     << " outside its SOCell where the diameter is " << _cellD * Sim->units.unitLength() << std::endl;
+    }
   }
 
   void
