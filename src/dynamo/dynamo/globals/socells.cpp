@@ -32,8 +32,7 @@
 
 namespace dynamo {
   GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
-    Global(nSim, "SingleOccupancyCells"),
-    cellDimension({1,1,1})
+    Global(nSim, "SingleOccupancyCells")
   {
     globName = name;
     load_cell_origins(nSim->particles);
@@ -41,8 +40,7 @@ namespace dynamo {
   }
 
   GSOCells::GSOCells(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
-    Global(ptrSim, "SingleOccupancyCells"),
-    cellDimension({1,1,1})
+    Global(ptrSim, "SingleOccupancyCells")
   {
     operator<<(XML);
 
@@ -58,9 +56,7 @@ namespace dynamo {
   GSOCells::operator<<(const magnet::xml::Node& XML)
   {
     globName = XML.getAttribute("Name");
-    cellDimension << XML.getNode("CellSize");
-    cellDimension *= Sim->units.unitLength();
-
+    
     if (XML.hasNode("CellOrigins")) {
       Vector pos;
       for (magnet::xml::Node node = XML.getNode("CellOrigins").findNode("Origin"); node.valid(); ++node) {
@@ -83,28 +79,21 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    //This 
+    //Not needed as we compensate for particle delay
     //Sim->dynamics->updateParticle(part);
-    //is not required as we compensate for the delay using 
-    //Sim->dynamics->getParticleDelay(part)
 
-    const Vector CellOrigin = cell_origins[part.getID()];
+
+    //Create a fake particle which represents the cell center
+    const Particle cellParticle(cell_origins[part.getID()], Vector({0,0,0}), -1);
     
-    return Event(part, Sim->dynamics->getSquareCellCollision2(part, CellOrigin, cellDimension) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
+    return Event(part, Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void
   GSOCells::runEvent(Particle& part, const double)
   {
     Sim->dynamics->updateParticle(part);
-
-    const Vector CellOrigin = cell_origins[part.getID()];
-  
-    //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, CellOrigin, cellDimension));
-
-    size_t cellDirection = abs(cellDirectionInt) - 1;
-
+    Sim->ptrScheduler->popNextEvent();
     Event iEvent = getEvent(part);
 
 #ifdef DYNAMO_DEBUG 
@@ -115,28 +104,21 @@ namespace dynamo {
       M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n";
 #endif
 
+    //Move the system forward to the time of the event
     Sim->systemTime += iEvent._dt;
-    
     Sim->ptrScheduler->stream(iEvent._dt);
-  
     Sim->stream(iEvent._dt);
+    ++Sim->eventCount;
 
-    Vector vNorm({0,0,0});
-
-    Vector pos(part.getPosition()), vel(part.getVelocity());
-
-    Sim->BCs->applyBC(pos, vel);
-
-    vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
+    //Now execute the event
+    const Vector cell_origin = cell_origins[part.getID()];  
+    Vector pos = part.getPosition() - cell_origin, vel = part.getVelocity();
+    //Sim->BCs->applyBC(pos, vel); We don't apply the PBC, as 
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, 0.0));
     
-    //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0));
-
+    //Now we're past the event update everything
     Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);
-  
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
   }
@@ -146,6 +128,11 @@ namespace dynamo {
   {
     Global::initialise(nID);
 
+    //Set the diameter of the cells such that the simulation volume
+    //and total cell volume are equal.
+    const double cellVolume = Sim->getSimVolume() / Sim->N();
+    _cellD = std::cbrt(cellVolume * 6 / M_PI);
+    
     if (std::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
 	   << "You must add the ParabolaSentinel Global event." << std::endl;
@@ -156,19 +143,15 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << "SOCells"
-	<< magnet::xml::attr("Name") << globName
-	<< magnet::xml::tag("CellSize") << cellDimension / Sim->units.unitLength()
-	<< magnet::xml::endtag("CellSize");
+	<< magnet::xml::attr("Name") << globName;
 
     XML << magnet::xml::tag("CellOrigins");
     for (const Vector cellorigin : cell_origins)
       XML << magnet::xml::tag("Origin")
 	  << cellorigin / Sim->units.unitLength()
 	  << magnet::xml::endtag("Origin");
-    XML << magnet::xml::endtag("CellOrigins");
-      
-    
-    XML << magnet::xml::endtag("Global");
+    XML << magnet::xml::endtag("CellOrigins")
+	<< magnet::xml::endtag("Global");
   }
 
   
@@ -177,7 +160,7 @@ namespace dynamo {
     cell_origins.resize(Sim->particles.size());
     
     for (const Particle& p : particles) {
-      cell_origins[p.getID()] = p.getPosition() - 0.5 * cellDimension;
+      cell_origins[p.getID()] = p.getPosition();
     }
   }
 }
