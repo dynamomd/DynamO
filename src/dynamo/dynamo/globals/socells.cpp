@@ -83,15 +83,14 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    //Not needed as we compensate for particle delay
+    //The following is not needed as we compensate for particle delay
     //Sim->dynamics->updateParticle(part);
 
     //Create a fake particle which represents the cell center
     const Particle cellParticle(cell_origins[part.getID()], Vector({0,0,0}), -1);
 
-    Vector pos = part.getPosition() - cellParticle.getPosition();
-    Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
-
+    //Vector pos = part.getPosition() - cellParticle.getPosition();
+    //Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
     //if (part.getID() == 2) {
     //  dout << "#Testing event, Particle " << part.getID() << std::endl;
     //  dout << "#Position " << pos / Sim->units.unitLength() << std::endl;
@@ -130,6 +129,8 @@ namespace dynamo {
     Sim->stream(iEvent._dt);
     ++Sim->eventCount;
 
+    
+    Sim->dynamics->updateParticle(part);
     Vector pos = part.getPosition() - cell_origins[part.getID()];
     Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
     
@@ -144,11 +145,10 @@ namespace dynamo {
     //Now execute the event
     NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, _cellD));
     //dout << "!Perp velocity post " << (pos.normal() | part.getVelocity()) << std::endl;
-
-    if (pos.nrm() > _cellD * 1.00000001)
-      derr << "Particle " << part.getID() << " outside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
-    if (pos.nrm() < _cellD * 0.99999999)
-      derr << "Particle " << part.getID() << " inside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
+    //if (pos.nrm() > _cellD * 1.00000001)
+    //  derr << "Particle " << part.getID() << " outside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
+    //if (pos.nrm() < _cellD * 0.99999999)
+    //  derr << "Particle " << part.getID() << " inside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
     
     //Now we're past the event update everything
     Sim->_sigParticleUpdate(EDat);
