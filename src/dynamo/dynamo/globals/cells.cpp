@@ -166,7 +166,7 @@ namespace dynamo {
       cellCount[iDim] = std::max(cellCount[iDim], size_t(2) * overlink + size_t(1));
     }
 
-    dout << "Target cell width use after taking into account system size" << l << std::endl;
+    dout << "Target cell width use after taking into account system size = " << l << std::endl;
 
     addCells(cellCount);
     _sigReInitialise();
