@@ -32,7 +32,8 @@
 
 namespace dynamo {
   GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
-    Global(nSim, "SingleOccupancyCells")
+    Global(nSim, "SingleOccupancyCells"),
+    _cellD(0)
   {
     globName = name;
     load_cell_origins(nSim->particles);
@@ -40,7 +41,8 @@ namespace dynamo {
   }
 
   GSOCells::GSOCells(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
-    Global(ptrSim, "SingleOccupancyCells")
+    Global(ptrSim, "SingleOccupancyCells"),
+    _cellD(0)
   {
     operator<<(XML);
 
@@ -69,6 +71,8 @@ namespace dynamo {
 	M_throw() << "Number of CellOrigins (" << cell_origins.size() << ") does not match number of particles (" << Sim->N() << ")\n" << XML.getPath();
     }
 
+    if (XML.hasAttribute("Diameter"))
+      _cellD = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
   }
 
   Event 
@@ -90,16 +94,16 @@ namespace dynamo {
 
     //if (part.getID() == 2) {
     //  dout << "#Testing event, Particle " << part.getID() << std::endl;
-    //  dout << "#Position " << pos * Sim->units.unitLength() << std::endl;
-    //  dout << "#Velocity " << part.getVelocity() * Sim->units.unitVelocity() << std::endl;
-    //  dout << "#Distance " << pos.nrm() * Sim->units.unitLength() << std::endl;
-    //  dout << "#Delay " << Sim->dynamics->getParticleDelay(part) * Sim->units.unitTime() << std::endl;
+    //  dout << "#Position " << pos / Sim->units.unitLength() << std::endl;
+    //  dout << "#Velocity " << part.getVelocity() / Sim->units.unitVelocity() << std::endl;
+    //  dout << "#Distance " << pos.nrm() / Sim->units.unitLength() << std::endl;
+    //  dout << "#Delay " << Sim->dynamics->getParticleDelay(part) / Sim->units.unitTime() << std::endl;
     //  double dt = Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD);
-    //  dout << "#event t = " << dt * Sim->units.unitTime() << std::endl;
+    //  dout << "#event t = " << dt / Sim->units.unitTime() << std::endl;
     //  Vector finalP = (pos + dt * part.getVelocity());
-    //  dout << "#Final Position " << finalP * Sim->units.unitLength() << std::endl;
+    //  dout << "#Final Position " << finalP / Sim->units.unitLength() << std::endl;
     //  dout << "#Relative final p" << (finalP.nrm() - _cellD)/_cellD<< std::endl;
-    //  dout << " cell origin " << cell_origins[part.getID()] * Sim->units.unitLength() << std::endl;
+    //  dout << " cell origin " << cell_origins[part.getID()] / Sim->units.unitLength() << std::endl;
     //}
     
     if (pos.nrm() > _cellD)
@@ -132,11 +136,11 @@ namespace dynamo {
     Vector pos = part.getPosition() - cell_origins[part.getID()];
     Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
     
-    //dout << "!Particle " << part.getID() << " at " << part.getPosition() * Sim->units.unitLength() << std::endl;
-    //dout << "!Cell origin " << cell_origins[part.getID()] * Sim->units.unitLength() << std::endl;
-    //dout << "!Normal " << pos.normal() * Sim->units.unitLength() << std::endl;
-    //dout << "!Distance " << pos.nrm() * Sim->units.unitLength() << std::endl;
-    //dout << "!CellD " << _cellD * Sim->units.unitLength() << std::endl;
+    //dout << "!Particle " << part.getID() << " at " << part.getPosition() / Sim->units.unitLength() << std::endl;
+    //dout << "!Cell origin " << cell_origins[part.getID()] / Sim->units.unitLength() << std::endl;
+    //dout << "!Normal " << pos.normal() / Sim->units.unitLength() << std::endl;
+    //dout << "!Distance " << pos.nrm() / Sim->units.unitLength() << std::endl;
+    //dout << "!CellD " << _cellD / Sim->units.unitLength() << std::endl;
     //dout << "!Relative distance " << pos.nrm() / _cellD << std::endl;
     //dout << "!Perp velocity " << (pos.normal() | part.getVelocity()) << std::endl;
 
@@ -157,25 +161,27 @@ namespace dynamo {
   {
     Global::initialise(nID);
 
-    //Set the diameter of the cells such that the simulation volume
-    //and total cell volume are equal.
-    const double cellVolume = Sim->getSimVolume() / Sim->N();
-    _cellD = std::cbrt(cellVolume * 6 / M_PI);
+    //If not set already, set the diameter of the cells such that the
+    //simulation volume and total cell volume are equal.
+    if (_cellD == 0) {
+      const double cellVolume = Sim->getSimVolume() / Sim->N();
+      _cellD = std::cbrt(cellVolume * 6 / M_PI);
+    }
 
     if (((_cellD >= 0.5 * Sim->primaryCellSize[0])
 	|| (_cellD >= 0.5 * Sim->primaryCellSize[1])
 	|| (_cellD >= 0.5 * Sim->primaryCellSize[2]))
 	&& (std::dynamic_pointer_cast<BCPeriodic>(Sim->BCs)))
-      M_throw() << "ERROR: SOCells diameter (" << _cellD * Sim->units.unitLength() << ") is more than half the primary image size (" << Sim->primaryCellSize << "), this will break in periodic boundary conditions";
+      M_throw() << "ERROR: SOCells diameter (" << _cellD / Sim->units.unitLength() << ") is more than half the primary image size (" << Sim->primaryCellSize << "), this will break in periodic boundary conditions";
 
     for (const Particle& p : Sim->particles) {
       Vector pos = p.getPosition() - cell_origins[p.getID()];
       Sim->BCs->applyBC(pos);
       if (pos.nrm2() > _cellD * _cellD)
 	derr << "Particle " << p.getID() << " is at a distance of "
-	     << (pos).nrm() * Sim->units.unitLength()
-	     << " cell origin " << cell_origins[p.getID()] * Sim->units.unitLength()
-	     << " outside its SOCell where the diameter is " << _cellD * Sim->units.unitLength() << std::endl;
+	     << (pos).nrm() / Sim->units.unitLength()
+	     << " cell origin " << cell_origins[p.getID()] / Sim->units.unitLength()
+	     << " outside its SOCell where the diameter is " << _cellD / Sim->units.unitLength() << std::endl;
     }
   }
 
@@ -184,7 +190,8 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << "SOCells"
-	<< magnet::xml::attr("Name") << globName;
+	<< magnet::xml::attr("Name") << globName
+	<< magnet::xml::attr("Diameter") << _cellD / Sim->units.unitLength();
 
     XML << magnet::xml::tag("CellOrigins");
     for (const Vector cellorigin : cell_origins)
