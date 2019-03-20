@@ -105,16 +105,13 @@ namespace dynamo {
     //  dout << "#Relative final p" << (finalP.nrm() - _cellD)/_cellD<< std::endl;
     //  dout << " cell origin " << cell_origins[part.getID()] / Sim->units.unitLength() << std::endl;
     //}
-    
-    if (pos.nrm() > _cellD)
-      derr << "Particle " << part.getID() << " outside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
-    
+        
     return Event(part, Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void
   GSOCells::runEvent(Particle& part, const double)
-  {
+  {    
     Sim->dynamics->updateParticle(part);
     Sim->ptrScheduler->popNextEvent();
     Event iEvent = getEvent(part);
@@ -147,6 +144,11 @@ namespace dynamo {
     //Now execute the event
     NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, _cellD));
     //dout << "!Perp velocity post " << (pos.normal() | part.getVelocity()) << std::endl;
+
+    if (pos.nrm() > _cellD * 1.00000001)
+      derr << "Particle " << part.getID() << " outside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
+    if (pos.nrm() < _cellD * 0.99999999)
+      derr << "Particle " << part.getID() << " inside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
     
     //Now we're past the event update everything
     Sim->_sigParticleUpdate(EDat);
