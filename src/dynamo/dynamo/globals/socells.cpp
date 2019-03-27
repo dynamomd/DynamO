@@ -50,7 +50,7 @@ namespace dynamo {
       derr << "Loading SOCells from the current particle positions!" << std::endl;
       load_cell_origins(ptrSim->particles);
     }
-    
+    dout << "Cell diameter " << _cellD << std::endl;
     dout << "Single occupancy cells loaded" << std::endl;
   }
 
@@ -105,7 +105,7 @@ namespace dynamo {
     //  dout << " cell origin " << cell_origins[part.getID()] / Sim->units.unitLength() << std::endl;
     //}
         
-    return Event(part, Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
+    return Event(part, Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD/2) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void
@@ -143,7 +143,7 @@ namespace dynamo {
     //dout << "!Perp velocity " << (pos.normal() | part.getVelocity()) << std::endl;
 
     //Now execute the event
-    NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, _cellD));
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, pos.normal(), 1.0, _cellD/2));
     //dout << "!Perp velocity post " << (pos.normal() | part.getVelocity()) << std::endl;
     //if (pos.nrm() > _cellD * 1.00000001)
     //  derr << "Particle " << part.getID() << " outside the cell by " << (pos.nrm() - _cellD) / _cellD  << std::endl;
