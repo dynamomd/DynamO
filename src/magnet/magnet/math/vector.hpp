@@ -64,7 +64,7 @@ namespace magnet {
 	  Base::operator[](i) = *it;
 
 	for (; i < N; ++i)
-	  Base::operator[](i) = 0.0;
+	  Base::operator[](i) = T();
       }
 
       /*! \brief Conversion copy constructor.
