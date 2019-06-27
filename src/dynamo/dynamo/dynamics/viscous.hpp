@@ -34,6 +34,7 @@ namespace dynamo {
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual void streamParticle(Particle&, const double&) const;
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
+    virtual PairEventData SmoothSpheresColl(Event&, const double&, const double&, const EEventType& eType) const;
 
     Vector _g;
     double _gamma;

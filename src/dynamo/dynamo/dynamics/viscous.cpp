@@ -104,6 +104,57 @@ namespace dynamo {
     const double t = - std::log(1-y) / _gamma;
     return t;
   }
+
+  PairEventData 
+  DynViscous::SmoothSpheresColl(Event& event, const double& e, const double&, const EEventType& eType) const
+  {
+    Particle& particle1 = Sim->particles[event._particle1ID];
+    Particle& particle2 = Sim->particles[event._particle2ID];
+    updateParticlePair(particle1, particle2);  
+    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
+
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
+
+    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
+    double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
+ 
+    retVal.rvdot = retVal.rij | retVal.vijold;
+
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+
+    //If both particles have infinite mass, we need to modify the
+    //masses (and mu) to allow collisions.
+    bool infinite_masses = (p1Mass == std::numeric_limits<float>::infinity()) && (p2Mass == std::numeric_limits<float>::infinity());
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
+
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
+
+    while(true) {
+      const Vector v1n = particle1.getVelocity() - retVal.impulse / p1Mass;
+      const Vector v2n = particle2.getVelocity() + retVal.impulse / p2Mass;
+      Vector rijn = particle1.getPosition() - particle2.getPosition();
+      Vector vijn = v1n - v2n;
+      Sim->BCs->applyBC(rijn, vijn);
+      if ( ((retVal.rvdot < 0) && ((rijn | vijn) > 0))
+	   || ((retVal.rvdot > 0) && ((rijn | vijn) < 0))) {
+	particle1.getVelocity() = v1n;
+	particle2.getVelocity() = v2n;
+	break;
+      }
+      retVal.impulse *= 2;
+    }
+    
+    retVal.impulse *= !infinite_masses;
+
+    lastCollParticle1 = particle1.getID();
+    lastCollParticle2 = particle2.getID();
+    lastAbsoluteClock = Sim->systemTime;
+    return retVal;
+  }
   
   double 
   DynViscous::getPBCSentinelTime(const Particle& part, const double& lMax) const
