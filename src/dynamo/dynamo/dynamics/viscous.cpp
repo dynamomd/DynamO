@@ -133,6 +133,7 @@ namespace dynamo {
 
     retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
 
+    bool neededFix = false;
     while(true) {
       const Vector v1n = particle1.getVelocity() - retVal.impulse / p1Mass;
       const Vector v2n = particle2.getVelocity() + retVal.impulse / p2Mass;
@@ -145,8 +146,11 @@ namespace dynamo {
 	particle2.getVelocity() = v2n;
 	break;
       }
+      neededFix = true;
       retVal.impulse *= 2;
     }
+    if (neededFix)
+      retVal.impulse *= 8;
     
     retVal.impulse *= !infinite_masses;
 
