@@ -122,14 +122,24 @@ if(UNIX)
       #/etc/issue, which is pretty popular.
       set(LINUX_NAME "")
       file(READ "/etc/issue" LINUX_ISSUE)
-      #CentOS case
-      if(LINUX_ISSUE MATCHES "CentOS")
-        string(REGEX MATCH "release ([0-9\\.]+)" CENTOS "${LINUX_ISSUE}")
-        set(DISTRO_ID "CentOS")
+      message(STATUS ${LINUX_ISSUE})
+      #RHEL case
+      if(LINUX_ISSUE MATCHES "Red")
+        message(STATUS "we are in the red hat case")
+        string(REGEX MATCH "release ([0-9\\.]+)" RHEL "${LINUX_ISSUE}")
+        set(DISTRO_ID "RHEL")
         set(DISTRO_RELEASE "${CMAKE_MATCH_1}")
-        # FIXME can we find that in /etc/issue
+        # fixme can we find that in /etc/issue
         set(DISTRO_CODENAME "")
-      endif(LINUX_ISSUE MATCHES "CentOS")
+      endif(LINUX_ISSUE MATCHES "Red")
+      #centos case
+      if(LINUX_ISSUE MATCHES "centos")
+        string(REGEX MATCH "release ([0-9\\.]+)" centos "${LINUX_ISSUE}")
+        set(DISTRO_ID "centos")
+        set(DISTRO_RELEASE "${CMAKE_MATCH_1}")
+        # fixme can we find that in /etc/issue
+        set(DISTRO_CODENAME "")
+      endif(LINUX_ISSUE MATCHES "centos")
       #Scientific Linux
       if(LINUX_ISSUE MATCHES "Scientific")
         string(REGEX MATCH "release ([0-9\\.]+)" SCIENTIFIC "${LINUX_ISSUE}")
@@ -175,9 +185,9 @@ if(UNIX)
     string(TOLOWER ${DISTRO_ID} DISTRO_ID)
     # Now mangle some names
     set(LINUX_NAME "${DISTRO_ID}_${DISTRO_RELEASE}")
-    if(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos|scientific")
+    if(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos|scientific|RHEL")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "RPM")
-    endif(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos|scientific")
+    endif(DISTRO_ID MATCHES "fedora|mandriva|suse|opensuse|centos|scientific|RHEL")
     if(DISTRO_ID MATCHES "debian|ubuntu")
       set(SPECIFIC_SYSTEM_PREFERED_CPACK_GENERATOR "DEB")
     endif(DISTRO_ID MATCHES "debian|ubuntu")
