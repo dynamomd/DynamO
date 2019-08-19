@@ -20,6 +20,7 @@
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 #include <vector>
+#include <boost/algorithm/string.hpp>
 
 namespace dynamo {
   class OPRadialDistribution: public OPTicker
@@ -46,6 +47,7 @@ namespace dynamo {
     unsigned long sampleCount;
     double sample_energy; 
     double sample_energy_bin_width;
+    std::pair<std::string, std::string> rdfpairs;
     std::vector<std::vector<std::vector<unsigned long> > > data;
   };
 }

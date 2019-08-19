@@ -29,13 +29,21 @@ namespace dynamo {
     length(100),
     sampleCount(0),
     sample_energy(0),
-    sample_energy_bin_width(0)
+    sample_energy_bin_width(0),
+    rdfpairs(std::make_pair("",""))
   { operator<<(XML); }
 
   void 
   OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
   {
     try {
+      if(XML.hasAttribute("rdfpairs")){
+        std::string pairval("");
+        pairval = XML.getAttribute("rdfpairs").as<std::string>();
+        std::vector<std::string> pairstrings(2);
+        boost::split(pairstrings, pairval, [](char c){return c == ' ';});
+        rdfpairs = std::make_pair(pairstrings[0],pairstrings[1]);
+      }
       if (XML.hasAttribute("BinWidth"))
 	binWidth = XML.getAttribute("BinWidth").as<double>();
 
@@ -66,7 +74,8 @@ namespace dynamo {
 	}
       
       dout << "BinWidth = " << binWidth / Sim->units.unitLength()
-	   << "\nLength = " << length << std::endl;
+	   << "\nLength = " << length
+       << "\nrdfpairs = " << std::get<0>(rdfpairs) << ", " << std::get<1>(rdfpairs) << std::endl;
     }
     catch (std::exception& excep)
       {
@@ -111,6 +120,9 @@ namespace dynamo {
   
     for (const shared_ptr<Species>& sp1 : Sim->species)
       for (const shared_ptr<Species>& sp2 : Sim->species)
+        {
+         if (sp1->getName() == std::get<0>(rdfpairs) && sp2->getName() == std::get<1>(rdfpairs))
+         {
 	for (const size_t& p1 : *sp1->getRange())
 	  for (const size_t& p2 : *sp2->getRange())
 	    {
@@ -119,6 +131,8 @@ namespace dynamo {
 	      const size_t i = static_cast<size_t>(rij.nrm() / binWidth + 0.5);
 	      if (i < length) ++data[sp1->getID()][sp2->getID()][i];
 	    }
+        }
+        }
   }
 
   std::vector<std::pair<double, double> > 
@@ -152,6 +166,8 @@ namespace dynamo {
     for (const shared_ptr<Species>& sp1 : Sim->species)
       for (const shared_ptr<Species>& sp2 : Sim->species)
       {
+        if (sp1->getName() == std::get<0>(rdfpairs) && sp2->getName() == std::get<1>(rdfpairs))
+        {
 	const double density = (sp2->getCount() - (sp1 == sp2)) / Sim->getSimVolume();
 	const size_t originsTaken = sampleCount * sp1->getCount();
 
@@ -173,7 +189,7 @@ namespace dynamo {
 	  }
 	XML << magnet::xml::endtag("Species");
       }
-  
+  }
     XML << magnet::xml::endtag("RadialDistribution");
   }
 }
