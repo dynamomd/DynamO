@@ -48,6 +48,10 @@ namespace dynamo {
   LWall::runEvent(Particle& part, const Event& iEvent) const
   {
     ++Sim->eventCount;
+    if (_amplitude > 0) {
+      const double current_T = _sqrtT * _sqrtT + _amplitude * std::sin(_frequency * Sim->systemTime + _phase_offset);
+      return Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrt(current_T), _diameter->getProperty(part));
+    }
     if (_sqrtT > 0)
       return Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part));
     else
@@ -66,13 +70,29 @@ namespace dynamo {
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     
     _sqrtT = 0;
-    if (XML.hasAttribute("Temperature"))
+    _amplitude = 0;
+    _frequency = 0;
+    _phase_offset = 0;
+    if (XML.hasAttribute("Temperature")){
       _sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
-		   * Sim->units.unitEnergy());
+		    * Sim->units.unitEnergy());
+
+      if (XML.hasAttribute("Amplitude") or XML.hasAttribute("Frequency") or XML.hasAttribute("Phase_Offset")) {
+	_amplitude = XML.getAttribute("Amplitude").as<double>() * Sim->units.unitEnergy();
+	_frequency = XML.getAttribute("Frequency").as<double>();
+	_phase_offset = XML.getAttribute("Phase_Offset").as<double>();
+      }
+    }
 
     if (_sqrtT < 0)
       M_throw() << "Cannot use negative temperatures on a Wall";
+    
+    if (_frequency < 0)
+      M_throw() << "Cannot use negative frequencies on a Wall";
 
+    if (_amplitude > _sqrtT * _sqrtT)
+      M_throw() << "Amplitude of temperature oscillation cannot be bigger than main temperature value";
+	  
     magnet::xml::Node xBrowseNode = XML.getNode("Norm");
     localName = XML.getAttribute("Name");
     vNorm << xBrowseNode;
@@ -97,6 +117,13 @@ namespace dynamo {
     if (_sqrtT > 0)
       XML << magnet::xml::attr("Temperature") << _sqrtT * _sqrtT
 	/ Sim->units.unitEnergy();
+
+    if (_frequency > 0) {
+      XML << magnet::xml::attr("Frequency") << _frequency;
+      XML << magnet::xml::attr("Amplitude") << _amplitude / Sim->units.unitEnergy();
+      static const double PI = 3.14159265359;
+      XML << magnet::xml::attr("Phase_Offset") << std::fmod(_frequency * Sim->systemTime, 2*PI);
+    }
 
     XML << range
 	<< magnet::xml::tag("Norm")
