@@ -15,15 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/outputplugins/include.hpp>
-#include <dynamo/outputplugins/include.hpp>
-#include <dynamo/outputplugins/include.hpp>
-#include <dynamo/outputplugins/tickerproperty/include.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/tokenizer.hpp>
+#include <iostream>
 
 namespace dynamo {
   OutputPlugin::OutputPlugin(const dynamo::Simulation* tmp, const char *aName, unsigned char order):
@@ -170,6 +167,8 @@ namespace dynamo {
       return testGeneratePlugin<OPPolarNematic>(Sim, XML);
     else if (!Name.compare("VTK"))
       return testGeneratePlugin<OPVTK>(Sim, XML);
+    else if (!Name.compare("Craig"))
+      return testGeneratePlugin<OPCraig>(Sim, XML);
     else
       M_throw() << Name << ", Unknown type of OutputPlugin encountered";
   }

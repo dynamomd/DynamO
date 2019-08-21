@@ -103,7 +103,7 @@ namespace magnet {
       inline size_t getThreadCount() const { return _threads.size(); }
 
       //Actual queuer
-      inline void queueTask(std::function<void()>&& threadfunc)
+      inline void queueTask(std::function<void()> threadfunc)
       {
 	TaskQueue::queueTask(threadfunc);
 	_need_thread_mutex.notify_all();

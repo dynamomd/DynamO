@@ -26,20 +26,20 @@
 #include <array>
 
 namespace coil {
-  class RLight : public RenderObj, public magnet::GL::Camera
+  class RLight : public RenderObj, public magnet::GL::CameraHeadTracking
   {
   public:
     RLight(std::string name, magnet::math::Vector position, magnet::math::Vector lookAtPoint,
 	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector{0,1,0},
-	   GLfloat simLength = 25.0f, GLfloat size = 1.0):
+	   GLfloat simLength = 25.0f, GLfloat size = 0.2):
       RenderObj(name),
-      Camera(1024, 1024, position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0,0,20}),
-      _intensity(1.0 / simLength),
+      CameraHeadTracking(position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0,0,20}),
+      _intensity(1.0),
       _specularExponent(32),
       _specularFactor(1),
       _maxvariance(0.1),
       _bleedreduction(0.2),
-      _size(size / simLength)
+      _size(size)
     {
       std::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;

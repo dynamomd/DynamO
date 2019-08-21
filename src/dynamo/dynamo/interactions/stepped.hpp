@@ -59,6 +59,7 @@ namespace dynamo {
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
+    using ICapture::validateState;
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
     virtual void outputData(magnet::xml::XmlStream&) const;

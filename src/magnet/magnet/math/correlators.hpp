@@ -156,9 +156,13 @@ namespace magnet {
 	contributions (and sum up the impulsive contributions)
      */
     template<class T>
-    class TimeCorrelator: protected Correlator<T>
+    class TimeCorrelator
     {
-      typedef Correlator<T> Base;
+      Correlator<T> cc;
+      Correlator<T> ci;
+      Correlator<T> ic;
+      Correlator<T> ii;
+      
     public:
       /*! \brief Constructor allowing the setting of the sample_time
           and the length of correlator.
@@ -172,10 +176,10 @@ namespace magnet {
 
 	  \sa Correlator
        */
-      TimeCorrelator(double sample_time, size_t length): 
-	Base(length),
+      TimeCorrelator(double sample_time, size_t length):
+	cc(length), ci(length), ic(length), ii(length),
 	_sample_time(sample_time)
-      { 
+      {
 	if ((sample_time <= 0) || (length == 0))
 	  M_throw() << "TimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
 		    << ", length=" << length;
@@ -188,8 +192,7 @@ namespace magnet {
       */
       void addImpulse(const T& W1, const T& W2)
       {
-	_W_sums.first += W1; 
-	_W_sums.second += W2;
+	_impulse_sums += NVector<T, 2>({W1, W2});
       }
 
       /*! \brief Set the free streaming contributions to \f$W^{(1)}\f$
@@ -199,7 +202,7 @@ namespace magnet {
       */
       void setFreeStreamValue(const T& W1, const T& W2)
       {
-	_freestream_values = std::pair<T,T>(W1,W2);
+	_freestream_values = NVector<T, 2>({W1, W2});
       }
 
       /*! \brief Integrate the free streaming contributions to
@@ -214,18 +217,21 @@ namespace magnet {
 	while ((_current_time + dt) >= _sample_time)
 	  {
 	    const double deltat = _sample_time - _current_time;
-	    _W_sums.first += _freestream_values.first * deltat;
-	    _W_sums.second += _freestream_values.second * deltat;
-	    Base::push(_W_sums.first, _W_sums.second);
+	    
+	    _continuous_sums += _freestream_values * deltat;
 
-	    _W_sums.first = _W_sums.second = T();
+	    cc.push(_continuous_sums[0], _continuous_sums[1]);
+	    ci.push(_continuous_sums[0], _impulse_sums[1]);
+	    ic.push(_impulse_sums[0],    _continuous_sums[1]);
+	    ii.push(_impulse_sums[0],    _impulse_sums[1]);
+
+	    _continuous_sums = _impulse_sums = NVector<T,2>({0,0});
 	    _current_time = 0;
 	    dt -= deltat;
 	    ++loops;
 	  }
-
-	_W_sums.first += _freestream_values.first * dt;
-	_W_sums.second += _freestream_values.second * dt;
+	
+	_continuous_sums += _freestream_values * dt;
 	_current_time += dt;
 	return loops;
       }
@@ -235,15 +241,26 @@ namespace magnet {
        */
       void clear()
       {
-	Base::clear();
-	_freestream_values = std::pair<T,T>();
-	_W_sums = std::pair<T,T>();
+	cc.clear(); ci.clear(); ic.clear(); ii.clear();
+	_freestream_values = _continuous_sums = _impulse_sums = NVector<T,2>({0,0});
 	_current_time = 0;
-	
       }
 
-      using Base::getAveragedCorrelator;
-      using Base::getSampleCount;
+      std::vector<T> getAveragedCorrelator(bool i1, bool i2) {
+	if (i1 && i2)
+	  return ii.getAveragedCorrelator();
+	if (i1 && !i2)
+	  return ic.getAveragedCorrelator();
+	if (!i1 && i2)
+	  return ci.getAveragedCorrelator();
+	if (!i1 && !i2)
+	  return cc.getAveragedCorrelator();
+	M_throw() << "This should be unreachable, is there some corruption?";
+      }
+      
+      size_t getSampleCount(size_t i) const {
+	return cc.getSampleCount(i);
+      }
 
       /*! \brief Returns the time between samples used in the
           correlator.
@@ -251,8 +268,9 @@ namespace magnet {
       double getSampleTime() const { return _sample_time; }
 
     protected:
-      std::pair<T,T> _freestream_values;
-      std::pair<T,T> _W_sums;
+      NVector<T,2> _freestream_values;
+      NVector<T,2> _impulse_sums;
+      NVector<T,2> _continuous_sums;
       double _sample_time;
       double _current_time;
     };
@@ -399,14 +417,14 @@ namespace magnet {
 	  outputted in its entirety, followed by the non-overlapping
 	  parts of every other correlator.
        */
-      std::vector<Data> getAveragedCorrelator()
+      std::vector<Data> getAveragedCorrelator(bool i1, bool i2)
       {
 	std::vector<Data> avg_correlator;
 
 	if (!_correlators.empty())
 	  {
 	    {
-	      std::vector<T> result = _correlators.front().getAveragedCorrelator();
+	      std::vector<T> result = _correlators.front().getAveragedCorrelator(i1, i2);
 	      
 	      for (size_t i(0); i < result.size(); ++i)
 		avg_correlator.push_back(Data(_correlators.front().getSampleTime() * (i+1), 
@@ -416,7 +434,7 @@ namespace magnet {
 	    //Now copy the rest of the correlators
 	    for (size_t i(1); i < _correlators.size(); ++i)
 	      {
-		std::vector<T> result = _correlators[i].getAveragedCorrelator();
+		std::vector<T> result = _correlators[i].getAveragedCorrelator(i1, i2);
 		for (size_t j(_length / _scaling); j < result.size(); ++j) 
 		  avg_correlator.push_back(Data(_correlators[i].getSampleTime() * (j+1),
 						_correlators[i].getSampleCount(j), result[j]));

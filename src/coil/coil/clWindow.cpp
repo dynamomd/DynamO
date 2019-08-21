@@ -26,6 +26,7 @@
 #include <magnet/image/bitmap.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <gtkmm/volumebutton.h>
+#include <stator/xml.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
@@ -78,6 +79,7 @@ namespace coil {
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
+    _openVRMode(false),
     _ambientIntensity(0.001),
     _snapshot_counter(0),
     _video_counter(0),
@@ -86,7 +88,7 @@ namespace coil {
     _cameraMode(ROTATE_WORLD)
   {
     for (size_t i(0); i < 3; ++i)
-      _backColor[i] = 1.0;
+      _backColor[i] = 0.0;
 
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
   }
@@ -139,11 +141,7 @@ namespace coil {
       }
 	
     /////////Timeout for FPS and UPS calculation
-    _timeout_connection
-      = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
-
-    //Timeout for render
-    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, Glib::PRIORITY_DEFAULT_IDLE);
+    _timeout_connection = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
 
     ////////Store the control window
     _refXml->get_widget("controlWindow", controlwindow);
@@ -166,54 +164,50 @@ namespace coil {
 
       _refXml->get_widget("CamPlusXbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{1,0,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{1,0,0}));
 
       _refXml->get_widget("CamPlusYbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,1,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,1,0}));
 
       _refXml->get_widget("CamPlusZbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,0,1}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,0,1}));
 
 
       _refXml->get_widget("CamNegXbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{-1,0,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{-1,0,0}));
 
       _refXml->get_widget("CamNegYbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,-1,0}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,-1,0}));
 
       _refXml->get_widget("CamNegZbtn", button);
       button->signal_clicked()
-	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector{0,0,-1}));
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::CameraHeadTracking::setViewAxis), magnet::math::Vector{0,0,-1}));
     }
 
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("CamMode", button); 
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::cameraModeCallback));
-    }
-
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("addLightButton", button); 
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::addLightCallback));
-    }
+    for (const auto& b : std::vector<std::pair<std::string, void(CLGLWindow::*)()> >{
+	{"CamMode", &CLGLWindow::cameraModeCallback},
+	{"LoadDataButton", &CLGLWindow::LoadDataCallback},
+	{"SaveDataButton", &CLGLWindow::SaveDataCallback},
+	{"addLightButton", &CLGLWindow::addLightCallback},
+	{"addFunctionButton", &CLGLWindow::addFunctionCallback},
+	{"SimSnapshot", &CLGLWindow::snapshotCallback},
+	{"filterUp", &CLGLWindow::filterUpCallback},
+	{"filterDown", &CLGLWindow::filterDownCallback},
+	{"filterDelete", &CLGLWindow::filterDeleteCallback},
+	{"filterAdd",&CLGLWindow::filterAddCallback},
+	{"filterClear", &CLGLWindow::filterClearCallback},
+	{"HeadTrackReset", &CLGLWindow::HeadReset}
+      })
+      {
+	Gtk::Button* button;
+	_refXml->get_widget(b.first, button);
+	button->signal_clicked().connect(sigc::mem_fun(*this, b.second));
+      }
     
-    {
-      Gtk::Button* button;    
-      _refXml->get_widget("addFunctionButton", button); 
-      
-      button->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::addFunctionCallback));
-    }
-
     ///////Create a top menu
     {
       Glib::RefPtr<Gtk::UIManager> m_refUIManager;
@@ -283,12 +277,6 @@ namespace coil {
 	.connect(sigc::mem_fun(this, &CLGLWindow::simFramelockControlCallback));
     }
 
-    {//////Snapshot button
-      Gtk::Button* btn;
-      _refXml->get_widget("SimSnapshot", btn);
-      btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::snapshotCallback));    
-    }
-
     {
       namespace fs = boost::filesystem;
       Gtk::FileChooserButton* fileChooser;
@@ -341,7 +329,7 @@ namespace coil {
 		   magnet::GL::detail::glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
       _aasamples.reset(new Gtk::ComboBoxText);
       for (size_t samples = maxsamples; samples > 0; samples /= 2)
-	_aasamples->insert_text(0, boost::lexical_cast<std::string>(samples));
+	_aasamples->insert(0, boost::lexical_cast<std::string>(samples));
       
       _aasamples->set_active(0);
       _aasamples->show();
@@ -384,28 +372,10 @@ namespace coil {
 	}
       
 	{///Connect the control buttons
-	  Gtk::Button* btn;
-	  _refXml->get_widget("filterUp", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
-	  _refXml->get_widget("filterDown", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
-	  _refXml->get_widget("filterDelete", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
-	  _refXml->get_widget("filterAdd", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
-	  _refXml->get_widget("filterClear", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
-	  {
-	    Gtk::ToggleButton* btn;
-	    _refXml->get_widget("filterActive", btn);
-	    btn->signal_toggled()
-	      .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
-	  }    
+	  Gtk::ToggleButton* btn;
+	  _refXml->get_widget("filterActive", btn);
+	  btn->signal_toggled()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
 	}
       
 	{
@@ -429,13 +399,45 @@ namespace coil {
 	  stereoEnable->signal_toggled()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
+
+	{
+	  Gtk::ScrolledWindow* win;
+	  _refXml->get_widget("OpenVRLogScrolledWindow", win);	  	  
+	  Gtk::TextView*  view;
+	  _refXml->get_widget("OpenVRLogTextView", view);
+	  view->signal_size_allocate().connect([=](Gtk::Allocation&) {
+	      win->get_vadjustment()->set_value(win->get_vadjustment()->get_upper());
+	    });
+
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  Gtk::Button*  clear;
+	  _refXml->get_widget("OpenVRLogClearButton", clear);
+	  clear->signal_clicked().connect([=](){ vrlog->set_text(""); });
+	}	
+#ifdef COIL_OpenVR
+	{
+	  Gtk::CheckButton* vrEnable;
+	  _refXml->get_widget("OpenVREnable", vrEnable);
+	  vrEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+	  vrEnable->set_sensitive(true);
+
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  vrlog->set_text("OpenVR support available.\n");
+	}
+#else
+	{
+	  auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+	  vrlog->set_text("OpenVR not available (was not compiled in).\n");
+	}
+#endif
 	
 	{
 	  Gtk::ComboBox* stereoMode;
 	  _refXml->get_widget("StereoMode", stereoMode);
 	  stereoMode->set_active(0);
 	}
-      
+
+	
 	{
 	  Gtk::Entry* simunits;
 	  _refXml->get_widget("SimLengthUnits", simunits);
@@ -464,13 +466,6 @@ namespace coil {
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
 	}
 
-	{
-	  Gtk::Button* btn;
-	  _refXml->get_widget("HeadTrackReset", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::HeadReset));
-	}
-
 #ifdef COIL_wiimote
 	{//Here all the wii stuff should go in
 	  Gtk::Button* btn;
@@ -483,8 +478,7 @@ namespace coil {
 	{
 	  Gtk::DrawingArea *ir;
 	  _refXml->get_widget("wiiIRImage", ir);
-	  ir->signal_expose_event()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
+	  ir->signal_draw().connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
 	}
 	
 	{//Here all the wii stuff should go in
@@ -584,12 +578,10 @@ namespace coil {
 
     if (_readyFlag) return;
 
-    double light_distance = 3;
-    Vector look_at = Vector{0, 0, 0};
-    Vector up = Vector{0,1,0};
-    
+    const Vector look_at = Vector{0, 0, 0};
+    const Vector up = Vector{0,1,0};
     {
-      std::shared_ptr<RLight> light(new RLight("Light", Vector{1, 1, 1} * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light", Vector{1, 1, 1}, look_at, 0.1f, 300.0f, up, _camera.getRenderScale(), 0.2));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
@@ -615,14 +607,14 @@ namespace coil {
     _glContext->setDepthTest(true);
 
     //Setup the viewport
-    resizeRender(800, 600);
+    _camera.resize(800, 600, _samples);
+    _cairo_screen.init(800, 600);
  
     //Setup the keyboard controls
     glutIgnoreKeyRepeat(1);
 
     _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
-    _frameRenderTime = 0;
-
+   
     _copyShader.build();
     _downsampleShader.build();
     _blurShader.build();
@@ -634,8 +626,6 @@ namespace coil {
     _toneMapShader.build();
     _depthResolverShader.build();
     
-    _cairo_screen.init(600, 600);
-
     {
       //Build depth buffer
       std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D());
@@ -696,12 +686,11 @@ namespace coil {
     _filterStore->clear();
 
     _timeout_connection.disconnect();
-    _renderTimeout.disconnect();
 
     {
       Gtk::Window* controlwindow;
       _refXml->get_widget("controlWindow", controlwindow);  
-      controlwindow->hide_all();
+      controlwindow->hide();
     }
   
     _refXml.reset(); //Destroy GTK instance
@@ -711,16 +700,8 @@ namespace coil {
     for (auto& obj : _renderObjsTree._renderObjects) obj->deinit();
 
     _renderObjsTree._renderObjects.clear();
-    _renderTarget.deinit();
-    _Gbuffer.deinit();
-    _hdrBuffer.deinit();
-    _luminanceBuffer1.deinit();
-    _luminanceBuffer2.deinit();
+    _camera.deinit();    
     _shadowbuffer.deinit();
-    _filterTarget1.deinit();
-    _filterTarget2.deinit();
-    _blurTarget1.deinit();
-    _blurTarget2.deinit();
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
     _pointLightShader.deinit();	
@@ -743,8 +724,7 @@ namespace coil {
   void 
   CLGLWindow::CallBackDisplayFunc()
   {
-    if (!CoilRegister::getCoilInstance().isRunning()
-	|| !_readyFlag) return;
+    if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
     //Setup the timings
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
@@ -770,17 +750,6 @@ namespace coil {
     float vertical =  moveAmp * (keyStates[static_cast<size_t>('q')] - keyStates[static_cast<size_t>('z')]);
     _camera.movement(0, 0, forward, sideways, vertical);
 
-    ////////////GUI UPDATES
-    //We frequently ping the gui update
-    guiUpdateCallback();
-
-    ////////All of the camera movement and orientation has been
-    ////////calculated with a certain fixed head position, now we
-    ////////actually perform the rendering with adjustments for the 
-    
-    const Vector oldHeadPosition = _camera.getEyeLocation();
-    Vector headPosition = oldHeadPosition;
-
 #ifdef COIL_wiimote
     //Run an update if the wiiMote was connected
     if ((magnet::TrackWiimote::getInstance()).connected())
@@ -789,22 +758,46 @@ namespace coil {
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 	
 	if (wiiHeadTrack->get_active())
-	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
+	  _camera.setEyeLocation(magnet::TrackWiimote::getInstance().getHeadPosition());
       }
 #endif
 
-    //Bind to the multisample buffer
-    if (!_stereoMode)
-      {
-	_camera.setEyeLocation(headPosition);
-	drawScene(_camera);
-	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
-      }
-    else
-      {
-	const double eyedist = 6.5;
-	Vector eyeDisplacement{0.5 * eyedist, 0, 0};
+    bool enable_2D = true;
+#ifdef COIL_OpenVR
+    if (_openVRMode) {
+      enable_2D = false;
+      _openVR.getPosesAndSync();
 
+      _openVR.setEye(vr::Eye_Left);
+      drawScene(_openVR, enable_2D);
+      _openVR.submit();
+
+      _openVR.setEye(vr::Eye_Right);
+      drawScene(_openVR, enable_2D);
+      _openVR.submit();
+
+      _openVR.PostPresentHandoff();
+      
+      _openVR.handleEvents();
+    }
+#endif
+
+    ////////All of the camera movement and orientation has been
+    ////////calculated with a certain fixed head position, now we
+    ////////actually perform the rendering with adjustments for the
+    ////////eyes
+    
+    const Vector oldHeadPosition = _camera.getEyeLocation();
+    Vector headPosition = oldHeadPosition;
+
+    if (!_stereoMode) {
+      _camera.setEyeLocation(headPosition);
+      drawScene(_camera, enable_2D);
+      _camera._renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+    } else {
+      const double eyedist = 6.5;
+      Vector eyeDisplacement{0.5 * eyedist, 0, 0};
+      
 	Gtk::ComboBox* stereoMode;
 	_refXml->get_widget("StereoMode", stereoMode);
 	int mode = stereoMode->get_active_row_number();
@@ -814,11 +807,11 @@ namespace coil {
 	  case 0: //Analygraph Red-Cyan
 	    //Do the right eye
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, enable_2D);
 
 	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);	
 	    _glContext->setDepthTest(false);
-	    _renderTarget.getColorTexture(0)->bind(0);
+	    _camera._renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
 	    _copyShader.invoke(); 
@@ -827,11 +820,11 @@ namespace coil {
 	    ////Do the left eye
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera);
+	    drawScene(_camera, enable_2D);
 
 	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
 	    _glContext->setDepthTest(false);
-	    _renderTarget.getColorTexture(0)->bind(0);
+	    _camera._renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
 	    _copyShader.invoke(); 
@@ -841,24 +834,24 @@ namespace coil {
 	    break;
 	  case 1:
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera);
-	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera);
-	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
-	    drawScene(_camera);
-	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 	    
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
-	    drawScene(_camera);
-	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
+	    drawScene(_camera, enable_2D);
+	    _camera._renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
 	  default:
@@ -869,17 +862,15 @@ namespace coil {
     _camera.setEyeLocation(oldHeadPosition);
 
     getGLContext()->swapBuffers();
-    glFinish();
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available
-    if (_snapshot 
-	|| ((_record) && (!_simframelock || _newData)))
+    if (_snapshot || ((_record) && (!_simframelock || _newData)))
       {	
 	std::vector<uint8_t> pixels;
 	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
 	//Read the pixels into our container
-	_renderTarget.getColorTexture()->writeto(pixels);
+	_camera._renderTarget.getColorTexture()->writeto(pixels);
 	
 	//Chop off the alpha channel to save bandwidth
 	for (size_t i(0); i < _camera.getWidth() * _camera.getHeight(); ++i)
@@ -909,15 +900,19 @@ namespace coil {
 	_newData = false;
       }
 
-    ++_frameCounter; 
+    ++_frameCounter;
     _lastFrameTime = _currFrameTime;
-    _frameRenderTime = glutGet(GLUT_ELAPSED_TIME) - _currFrameTime;
-    //M_throw() << "Abort render!";
+
+    ////////////GUI UPDATES
+    //We frequently ping the gui update
+    guiUpdateCallback();
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::Camera& camera)
+  CLGLWindow::drawScene(magnet::GL::Camera& camera, bool draw_2D_overlay)
   {
+    magnet::GL::FBO& renderTarget = camera.getResolveBuffer();
+    
     //We perform a deffered shading pass followed by a forward shading
     //pass for objects which cannot be deferred, like volumes etc.
 
@@ -927,7 +922,7 @@ namespace coil {
 
     //We share the depth and stencil texture between the GBuffer and
     //the target fbo
-    _Gbuffer.attach();
+    camera._Gbuffer.attach();
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     _glContext->setDepthTest(true);
     _glContext->setBlend(false);
@@ -937,16 +932,16 @@ namespace coil {
     for (auto& obj :_renderObjsTree._renderObjects)
       if (obj->visible()) obj->glRender(camera, RenderObj::DEFAULT);
 
-    _Gbuffer.detach();
+    camera._Gbuffer.detach();
     
     ///////////////////////Lighting pass////////////////////////
     //Here we calculate the lighting of every pixel in the scene
-    _Gbuffer.getColorTexture(0)->bind(0);
-    _Gbuffer.getColorTexture(1)->bind(1);
-    _Gbuffer.getColorTexture(2)->bind(2);
+    camera._Gbuffer.getColorTexture(0)->bind(0);
+    camera._Gbuffer.getColorTexture(1)->bind(1);
+    camera._Gbuffer.getColorTexture(2)->bind(2);
 
     //First, set up the buffers for rendering
-    _hdrBuffer.attach();
+    camera._hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //We need the depth test on, to enable writes to the depth buffer
@@ -958,7 +953,7 @@ namespace coil {
     _depthResolverShader.attach();
     _depthResolverShader["posTex"] = 2;
     _depthResolverShader["samples"] = GLint(_samples);
-    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _depthResolverShader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _depthResolverShader.invoke();
     _depthResolverShader.detach();
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -988,7 +983,7 @@ namespace coil {
 	if (!light || !(light->shadowCasting())) continue;
 
 	//Change from the hdr FBO 
-	_hdrBuffer.detach();
+	camera._hdrBuffer.detach();
 	//Render each light's shadow map
 	_shadowbuffer.attach();
 	_glContext->setDepthTest(true);
@@ -1008,7 +1003,7 @@ namespace coil {
 	_shadowbuffer.getColorTexture(0)->bind(7);
 
 	//Change back to the hdr FBO
-	_hdrBuffer.attach();
+	camera._hdrBuffer.attach();
 	_glContext->setDepthTest(false);
 	glDepthMask(GL_FALSE);
 	_glContext->setBlend(true);
@@ -1018,7 +1013,7 @@ namespace coil {
 	_shadowLightShader["positionTex"] = 2;
 	_shadowLightShader["shadowTex"] = 7;
 	_shadowLightShader["shadowMatrix"]
-	  = light->getShadowTextureMatrix() * inverse(_camera.getViewMatrix());
+	  = light->getShadowTextureMatrix() * inverse(camera.getViewMatrix());
 	_shadowLightShader["samples"] = GLint(_samples);
 	_shadowLightShader["lightColor"] = light->getLightColor();
 	_shadowLightShader["lightSpecularExponent"] = light->getSpecularExponent();
@@ -1057,23 +1052,23 @@ namespace coil {
     //Enter the forward render ticks for all objects
     for (auto& obj : _renderObjsTree._renderObjects)
       if (obj->visible())
-	obj->forwardRender(_hdrBuffer, camera, lights, 
+	obj->forwardRender(camera._hdrBuffer, camera, lights, 
 			   _ambientIntensity, RenderObj::DEFAULT);
     
-    _hdrBuffer.detach();	
+    camera._hdrBuffer.detach();	
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
     _glContext->setDepthTest(false);
     _glContext->setBlend(false);
 
-    _hdrBuffer.getColorTexture()->bind(0);
+    camera._hdrBuffer.getColorTexture()->bind(0);
 
-    _luminanceBuffer1.attach();
+    camera._luminanceBuffer1.attach();
     _luminanceShader.attach();
     _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
     _luminanceShader.detach();
-    _luminanceBuffer1.detach();
+    camera._luminanceBuffer1.detach();
 
 //    std::vector<GLfloat> data;
 //    _luminanceBuffer1.getColorTexture()->writeto(data);
@@ -1097,15 +1092,15 @@ namespace coil {
 //    std::cout << "Luminance Avg="<< avg << ", max=" << max << ", min=" << min << ", count=" << count * 10000.0 << "\n";
       
 
-    magnet::GL::FBO* luminanceSource = &_luminanceBuffer1;
-    magnet::GL::FBO* luminanceDestination = &_luminanceBuffer2;
+    magnet::GL::FBO* luminanceSource = &camera._luminanceBuffer1;
+    magnet::GL::FBO* luminanceDestination = &camera._luminanceBuffer2;
 
     //Now we need to generate the mipmaps containing the scene
     //average, minimum and maximum luminances.
     {
-      GLsizei currentWidth = _luminanceBuffer1.getColorTexture()->getWidth();
-      GLsizei currentHeight = _luminanceBuffer1.getColorTexture()->getHeight();
-      GLint numLevels = _luminanceBuffer1.getColorTexture()->calcMipmapLevels();
+      GLsizei currentWidth = camera._luminanceBuffer1.getColorTexture()->getWidth();
+      GLsizei currentHeight = camera._luminanceBuffer1.getColorTexture()->getHeight();
+      GLint numLevels = camera._luminanceBuffer1.getColorTexture()->calcMipmapLevels();
 
       //Attach the mipmapping shader
       _luminanceMipMapShader.attach();
@@ -1135,10 +1130,10 @@ namespace coil {
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
       {
-	magnet::GL::Texture2D& tex = *_hdrBuffer.getColorTexture();
+	magnet::GL::Texture2D& tex = *camera._hdrBuffer.getColorTexture();
 	tex.bind(0);
       
-	_blurTarget1.attach();
+	camera._blurTarget1.attach();
 	_downsampleShader.attach();
 	_downsampleShader["inputTex"] = 0;
 	_downsampleShader["downscale"] = GLint(4);
@@ -1146,7 +1141,7 @@ namespace coil {
 	_downsampleShader["oldSize"] = oldSize;
 	_downsampleShader.invoke();
 	_downsampleShader.detach();
-	_blurTarget1.detach();
+	camera._blurTarget1.detach();
 
 
 	_blurShader.attach();
@@ -1157,29 +1152,29 @@ namespace coil {
 
 	for (size_t passes(0); passes < 1; ++passes)
 	  {
-	    _blurTarget1.getColorTexture()->bind(0);
-	    _blurTarget2.attach();
+	    camera._blurTarget1.getColorTexture()->bind(0);
+	    camera._blurTarget2.attach();
 	    _blurShader["direction"] = 0;	 
 	    _blurShader.invoke();
 	    _blurShader.detach();	  
-	    _blurTarget2.detach();
+	    camera._blurTarget2.detach();
 	  
-	    _blurTarget2.getColorTexture()->bind(0);
-	    _blurTarget1.attach();
+	    camera._blurTarget2.getColorTexture()->bind(0);
+	    camera._blurTarget1.attach();
 	    _blurShader.attach();
 	    _blurShader["direction"] = 1;
 	    _blurShader.invoke();
-	    _blurTarget1.detach();
+	    camera._blurTarget1.detach();
 	  }
 	_blurShader.detach();
       }
 
     ///////////////////////Tone Mapping///////////////////////////
-    _renderTarget.attach();
-    _hdrBuffer.getColorTexture()->bind(0);
+    renderTarget.attach();
+    camera._hdrBuffer.getColorTexture()->bind(0);
     luminanceSource->getColorTexture()->bind(1);
     if (_bloomEnable)
-      _blurTarget1.getColorTexture()->bind(2);
+      camera._blurTarget1.getColorTexture()->bind(2);
     _toneMapShader.attach();
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
@@ -1192,26 +1187,26 @@ namespace coil {
     _toneMapShader["background_color"] = _backColor;
     _toneMapShader.invoke();
     _toneMapShader.detach();
-    _renderTarget.detach();
+    renderTarget.detach();
 
     //////////////////////FILTERING////////////
     //Attempt to perform some filtering
 
     bool FBOalternate = false;
-    magnet::GL::FBO* lastFBO = &_renderTarget;
+    magnet::GL::FBO* lastFBO = &renderTarget;
     
     if (_filterEnable)
       {
        	//Bind the original image to texture unit 0
-       	_renderTarget.getColorTexture(0)->bind(0);
+       	renderTarget.getColorTexture(0)->bind(0);
 
 	//We can attach the GBuffer textures, for the normals and the
 	//positions.
 	//
        	//Normals unit 1
-       	_Gbuffer.getColorTexture(1)->bind(1);
+       	camera._Gbuffer.getColorTexture(1)->bind(1);
        	//Screen space positions 2
-       	_Gbuffer.getColorTexture(2)->bind(2);
+       	camera._Gbuffer.getColorTexture(2)->bind(2);
          
        	for (auto& child : _filterStore->children())
        	  {
@@ -1224,7 +1219,7 @@ namespace coil {
        		lastFBO->attach();
        		glActiveTextureARB(GL_TEXTURE0);
        		//Now copy the texture 
-       		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
+       		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, camera.getWidth(), camera.getHeight());
        		lastFBO->detach();
        	      }
        	    else
@@ -1232,16 +1227,16 @@ namespace coil {
        		lastFBO->getColorTexture()->bind(3);
        		//The last output goes into texture 3
        		if (FBOalternate)
-       		  _filterTarget1.attach();
+       		  camera._filterTarget1.attach();
        		else
-       		  _filterTarget2.attach();
+       		  camera._filterTarget2.attach();
        	      
-       		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
+       		filter.invoke(3, camera.getWidth(), camera.getHeight(), camera);
        	      
        		if (FBOalternate)
-       		  { _filterTarget1.detach(); lastFBO = &_filterTarget1; }
+       		  { camera._filterTarget1.detach(); lastFBO = &camera._filterTarget1; }
        		else
-       		  { _filterTarget2.detach(); lastFBO = &_filterTarget2; }
+       		  { camera._filterTarget2.detach(); lastFBO = &camera._filterTarget2; }
        	      
        		FBOalternate = !FBOalternate;
        	      }
@@ -1250,184 +1245,65 @@ namespace coil {
        
     //////////////Interface draw////////////////////////
     //We need alpha blending for the overlays
-    _glContext->setBlend(true);
-    lastFBO->attach();
-    //Enter the interface draw for all objects
-    _cairo_screen.clear();
 
-    _glContext->cleanupAttributeArrays();
-    for (auto& obj : _renderObjsTree._renderObjects)
-      obj->interfaceRender(_camera, _cairo_screen);
+    if (draw_2D_overlay) { 
+      _glContext->setBlend(true);
+      lastFBO->attach();
+      //Enter the interface draw for all objects
+      _cairo_screen.clear();
+      
+      _glContext->cleanupAttributeArrays();
+      for (auto& obj : _renderObjsTree._renderObjects)
+	obj->interfaceRender(camera, _cairo_screen);
+      
+      //Draw the cursor if an object is selected
+      if (_selectedObject)
+	{
+	  std::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	  vec = camera.project(Vector{vec[0], vec[1], vec[2]});
+	  _cairo_screen.drawCursor(vec[0], vec[1], 5);
+	  _cairo_screen.drawTextBox(vec[0] + 5, vec[1] + 5, 
+				    _selectedObject->getCursorText(_selectedObjectID), 
+				    5);
+	}
 
-    //Draw the cursor if an object is selected
-    if (_selectedObject)
-      {
-	std::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	vec = camera.project(Vector{vec[0], vec[1], vec[2]});
-	_cairo_screen.drawCursor(vec[0], vec[1], 5);
-	_cairo_screen.drawTextBox(vec[0] + 5, vec[1] + 5, 
-				  _selectedObject->getCursorText(_selectedObjectID), 
-				  5);
-      }
-
-    _cairo_screen.syncCairoGL();
-    _cairo_screen.glRender();
-    lastFBO->detach();
-
-    _glContext->setBlend(false);
+      _cairo_screen.syncCairoGL();
+      _cairo_screen.glRender();
+      lastFBO->detach();
+      _glContext->setBlend(false);
+    }
+    
 
     //Check if we actually did something and copy the data to the
     //output FBO if needed
-    if (lastFBO != &_renderTarget)
+    if (lastFBO != &renderTarget)
       {
 	lastFBO->attach();
-	_renderTarget.getColorTexture(0)->bind(0);
+	renderTarget.getColorTexture(0)->bind(0);
 	glActiveTextureARB(GL_TEXTURE0);
-	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), 
-			    _camera.getHeight());
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, camera.getWidth(), 
+			    camera.getHeight());
 	lastFBO->detach();
       }
 
-    _glContext->setDepthTest(true);   
+    _glContext->setDepthTest(true);
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
-
     resizeRender(w, h);
   }
 
   void CLGLWindow::resizeRender(int w, int h)
   {
-    //We cannot resize a window 
+    //We cannot resize a window below a threshold
     if ((w < 4) || (h < 4)) return;
 
-    _camera.setHeightWidth(h, w);
-    _renderTarget.deinit();
-    _Gbuffer.deinit();
-    _hdrBuffer.deinit();
-    _luminanceBuffer1.deinit();
-    _luminanceBuffer2.deinit();
-    _filterTarget1.deinit();
-    _filterTarget2.deinit();
-    _blurTarget1.deinit();
-    _blurTarget2.deinit();
+    if ((size_t(h) == _camera.getHeight()) && (size_t(w) == _camera.getWidth()))
+      return; //Skip a null op
 
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _filterTarget1.init();
-      _filterTarget1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _filterTarget2.init();
-      _filterTarget2.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _blurTarget1.init();
-      _blurTarget1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _blurTarget2.init();
-      _blurTarget2.attachTexture(colorTexture, 0);
-    }
-
-    {
-      //Build the main/left-eye render buffer
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      std::shared_ptr<magnet::GL::Texture2D> 
-	depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			 GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-      _renderTarget.init();
-      _renderTarget.attachTexture(colorTexture, 0);
-      _renderTarget.attachTexture(depthTexture);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      std::shared_ptr<magnet::GL::Texture2D> 
-	depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			 GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-      _hdrBuffer.init();
-      _hdrBuffer.attachTexture(colorTexture, 0);
-      _hdrBuffer.attachTexture(depthTexture);
-    }
-      
-    {
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-	
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      _luminanceBuffer1.init();
-      _luminanceBuffer1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-	
-      colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      _luminanceBuffer2.init();
-      _luminanceBuffer2.attachTexture(colorTexture, 0);
-    }
-    AAsamplechangeCallback();
-
+    _camera.resize(w, h, _samples);
     _cairo_screen.resize(w, h);
   }
 
@@ -1552,17 +1428,17 @@ namespace coil {
     keyStates[std::tolower(key)] = false;
   }
 
-  void
+  bool
   CLGLWindow::simupdateTick(double t)
   {
-    if (!isReady()) return;
+    if (!isReady()) return false;
     
     //A loop for framelocked rendering, this holds the simulation
     //until the last data update has been rendered.
     while (_simframelock && (_lastUpdateTime == getLastFrameTime()))
       {
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_systemQueue->drainQueue();
 	
 	//1ms delay to lower CPU usage while blocking, but not to
@@ -1578,7 +1454,7 @@ namespace coil {
     if ((_lastUpdateTime != getLastFrameTime()) || !_simrun)
       {
 	std::lock_guard<std::mutex> lock(_destroyLock);
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_updateDataSignal();
 	_newData = true;
 	
@@ -1595,7 +1471,7 @@ namespace coil {
     while (!_simrun)
       {
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
+	if (!isReady()) return false;
 	_systemQueue->drainQueue();
 	
 	//1ms delay to lower CPU usage while blocking
@@ -1604,6 +1480,8 @@ namespace coil {
 	sleeptime.tv_nsec = 1000000;
 	nanosleep(&sleeptime, NULL);
       }
+
+    return true;
   }
 
   void 
@@ -1829,6 +1707,105 @@ namespace coil {
   }
 
   void 
+  CLGLWindow::SaveDataCallback() {
+    Gtk::FileChooserDialog dialog(*controlwindow, "Save as", Gtk::FILE_CHOOSER_ACTION_SAVE);    
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("Coil file");
+    filter->add_pattern("*.coil");
+    dialog.add_filter(filter);
+    dialog.add_button("Ok", Gtk::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    if (dialog.run() == Gtk::RESPONSE_OK) {
+      std::string file_path = dialog.get_filename();
+      if ((file_path.size() < 5) || (file_path.substr(file_path.size() - 5, 5) != ".coil"))
+	file_path = file_path + ".coil";
+      
+      stator::xml::Document doc;
+      auto root = doc.add_node("Coil");
+      for (auto& obj :_renderObjsTree._renderObjects)
+	obj->xml(root);
+      std::ofstream(file_path, std::ios::out | std::ios::trunc) << doc;
+    }
+  }
+  
+  void 
+  CLGLWindow::LoadDataCallback() {
+    Gtk::FileChooserDialog dialog(*controlwindow, "Load data");
+
+    std::vector<std::pair<std::string, std::string>> types{
+      {"Coil file", "coil"},
+      {"Volume raw", "raw"}
+    };
+
+    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+    filter->set_name("All supported types");
+    for (const auto& pair : types)
+      filter->add_pattern("*."+pair.second);
+    dialog.add_filter(filter);
+    
+    for (const auto& pair : types) {
+      Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+      filter->set_name(pair.first + " (*."+pair.second+")");
+      filter->add_pattern("*."+pair.second);
+      dialog.add_filter(filter);
+    }
+
+    dialog.add_button("Ok", Gtk::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+
+    if (dialog.run() == Gtk::RESPONSE_OK) {
+      std::string path = dialog.get_filename();
+      std::string filename_only = boost::filesystem::path(dialog.get_filename()).filename().string();
+
+      if ((filename_only.size() >= 4) && (filename_only.substr(filename_only.size()-4,4) == ".raw")) {
+	Gtk::Dialog* volumedialog;
+	dialog.hide();
+	_refXml->get_widget("VolumeLoadDialog", volumedialog);
+	volumedialog->set_transient_for(*controlwindow);
+	
+	std::ifstream in(dialog.get_filename(), std::ifstream::ate | std::ifstream::binary);
+	size_t file_size = in.tellg();
+	in.close();      
+	
+	Gtk::Label* label;
+	_refXml->get_widget("VolumeFileSizeLabel", label);
+	label->set_text(std::to_string(file_size));
+	
+	_refXml->get_widget("VolumeFileNameLabel", label);
+	label->set_text(filename_only);
+	
+	Gtk::SpinButton* but;
+	_refXml->get_widget("VolumeDataSizeButton", but);
+	
+	
+	if (volumedialog->run() == Gtk::RESPONSE_OK){
+	  std::shared_ptr<coil::RVolume> voldata(new coil::RVolume(filename_only));
+	  addRenderObj(voldata);
+	  
+	  size_t data_size;
+	  std::array<size_t, 3> data_dims;
+	  _refXml->get_widget("VolumeDataSizeButton", but);
+	  data_size = size_t(but->get_value_as_int());
+	  
+	  _refXml->get_widget("VolumeXDataSizeButton", but);
+	  data_dims[0] = size_t(but->get_value_as_int());
+	  _refXml->get_widget("VolumeYDataSizeButton", but);
+	  data_dims[1] = size_t(but->get_value_as_int());
+	  _refXml->get_widget("VolumeZDataSizeButton", but);
+	  data_dims[2] = size_t(but->get_value_as_int());
+	  
+	  getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), dialog.get_filename(), data_dims, data_size, Vector{0,0,0}));
+	}
+	volumedialog->hide();
+      } else if ((filename_only.size() >= 5) && (filename_only.substr(filename_only.size()-5,5) == ".coil")) {
+	
+      } else {
+	M_throw() << "Unhandled file type " << filename_only.substr(filename_only.size()-3,3);
+      }
+    }
+  }
+  
+  void 
   CLGLWindow::filterClearCallback()
   {
     if (_filterStore->children().empty()) return;
@@ -1869,13 +1846,11 @@ namespace coil {
     _refXml->get_widget("FPSLimitVal", fpsButton);
     _fpsLimitValue = fpsButton->get_value();
 
-    _renderTimeout.disconnect();
-    if (!_fpsLimit)
-      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
-						      Glib::PRIORITY_DEFAULT_IDLE);
-    else if (_fpsLimitValue != 0)
-      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
-						      1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
+    //_renderTimeout.disconnect();
+    //if (!_fpsLimit)
+    //  _renderTimeout = Glib::signal_idle().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc));
+    //else if (_fpsLimitValue != 0)
+    //  _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
   }
 
   void
@@ -1917,7 +1892,7 @@ namespace coil {
   void
   CLGLWindow::performPicking(int x, int y)
   {
-    _renderTarget.attach();
+    _camera._renderTarget.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     //Perform unique coloring of screen objects, note that the value 0 is no object picked
@@ -1940,7 +1915,7 @@ namespace coil {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
-    _renderTarget.detach();
+    _camera._renderTarget.detach();
     
     //For debugging the picking render
     //_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
@@ -2017,18 +1992,18 @@ namespace coil {
       {
       case ROTATE_CAMERA:
 	_cameraMode = ROTATE_WORLD;
-	_camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	_camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_POINT);
 	break;
       case ROTATE_WORLD:
 	if (_selectedObject)
 	  {
 	    _cameraMode = ROTATE_POINT;
-	    _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	    _camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_POINT);
 	    break;
 	  }
       case ROTATE_POINT:
 	_cameraMode = ROTATE_CAMERA;
-	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
+	_camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_CAMERA);
 	break;
       default:
 	M_throw() << "Cannot change camera mode as it's in an unknown mode";
@@ -2038,7 +2013,7 @@ namespace coil {
   void
   CLGLWindow::addLightCallback()
   {
-    std::shared_ptr<RLight> light(new RLight("Light", Vector{0, 1, 0} * 50 / _camera.getRenderScale(), Vector{0, 0, 0}, 8.0, 10000.0f, Vector{0,1,0}, _camera.getRenderScale()));
+    std::shared_ptr<RLight> light(new RLight("Light", Vector{0, 1, 0} * 50 / _camera.getRenderScale(), Vector{0, 0, 0}, 0.1f, 300.0f, Vector{0,1,0}, _camera.getRenderScale()));
     _renderObjsTree._renderObjects.push_back(light);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();
@@ -2174,6 +2149,32 @@ namespace coil {
       _stereoMode = btn->get_active();
     }
 
+#ifdef COIL_OpenVR
+    {//OpenVR
+      auto vrlog = Glib::RefPtr<Gtk::TextBuffer>::cast_dynamic(_refXml->get_object("OpenVRTextBuffer"));
+      
+      Gtk::CheckButton* btn;
+      _refXml->get_widget("OpenVREnable", btn);
+      const bool newMode = btn->get_active();
+
+      if (newMode != _openVRMode) {
+	if (newMode) {	  
+	  //Init OpenVR
+	  _openVR.setLog([=](std::string line){ vrlog->insert_at_cursor(line+"\n"); });
+	  _openVR.init();
+	  if (_openVR.initialised())
+	    _openVRMode = true;
+	  else
+	    btn->set_active(false);
+	} else {
+	  _openVR.shutdown();
+	  _openVRMode = false;
+	  btn->set_active(false);
+	}
+      }
+    }
+#endif
+    
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);
@@ -2350,46 +2351,31 @@ namespace coil {
   }
 
   bool 
-  CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
+  CLGLWindow::wiiMoteIRExposeEvent(const Cairo::RefPtr<Cairo::Context>& cr)
   {
 #ifdef COIL_wiimote
     Gtk::DrawingArea *ir;
     _refXml->get_widget("wiiIRImage", ir);
 
-    Glib::RefPtr<Gdk::Window> window = ir->get_window();
-    if (window)
+    cr->set_source_rgb(0, 0, 0);
+    cr->set_line_width(1);
+    
+    //Draw the tracked sources with a red dot, but only if there are just two sources!
+    
+    size_t trackeddrawn = 2;
+    for (const auto& irdata : magnet::TrackWiimote::getInstance().getSortedIRData())
       {
-	Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
-
-	if(event)
-	  {
-	    // clip to the area indicated by the expose event so that we only
-	    // redraw the portion of the window that needs to be redrawn
-	    cr->rectangle(event->area.x, event->area.y,
-			  event->area.width, event->area.height);
-	    cr->clip();
-	  }
-      
-	cr->set_source_rgb(0, 0, 0);
-	cr->set_line_width(1);
-
-	//Draw the tracked sources with a red dot, but only if there are just two sources!
-      
-	size_t trackeddrawn = 2;
-	for (const auto& irdata : magnet::TrackWiimote::getInstance().getSortedIRData())
-	  {
-	    cr->save();
-	    if (trackeddrawn-- > 0)
-	      cr->set_source_rgb(1, 0, 0);
-
-	    float x = ir->get_allocation().get_width() * (1 - float(irdata.x) / CWIID_IR_X_MAX);
-	    float y = ir->get_allocation().get_height() * (1 - float(irdata.y) / CWIID_IR_Y_MAX) ;
-
-	    cr->translate(x, y);
-	    cr->arc(0, 0, irdata.size + 1, 0, 2 * M_PI);
-	    cr->fill();	    
-	    cr->restore();
-	  }
+	cr->save();
+	if (trackeddrawn-- > 0)
+	  cr->set_source_rgb(1, 0, 0);
+	
+	float x = ir->get_allocation().get_width() * (1 - float(irdata.x) / CWIID_IR_X_MAX);
+	float y = ir->get_allocation().get_height() * (1 - float(irdata.y) / CWIID_IR_Y_MAX) ;
+	
+	cr->translate(x, y);
+	cr->arc(0, 0, irdata.size + 1, 0, 2 * M_PI);
+	cr->fill();	    
+	cr->restore();
       }
 #endif
     return true;
@@ -2401,26 +2387,7 @@ namespace coil {
     if (_aasamples.get() != 0)
       _samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
 
-    //Build G buffer      
-    std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-    
-    std::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-    
-    std::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-    
-    std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(_samples));
-    depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);    
-
-    _Gbuffer.deinit();
-    _Gbuffer.init();
-
-    _Gbuffer.attachTexture(colorTexture, 0);
-    _Gbuffer.attachTexture(normalTexture, 1);
-    _Gbuffer.attachTexture(posTexture, 2);
-    _Gbuffer.attachTexture(depthTexture);
+    _camera.resize(_camera.getWidth(), _camera.getHeight(), _samples);
   }
   
 
@@ -2465,7 +2432,7 @@ namespace coil {
 	
     _cameraFocus = centre;
     _cameraMode = ROTATE_WORLD;
-    _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+    _camera.setMode(magnet::GL::CameraHeadTracking::ROTATE_POINT);
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);

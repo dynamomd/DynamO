@@ -34,23 +34,6 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54, 25, 0 )
-
-#define CODEC_ID_H264	AV_CODEC_ID_H264
-#define CODEC_ID_MPEG2VIDEO AV_CODEC_ID_MPEG2VIDEO
-#define CODEC_ID_MPEG1VIDEO	AV_CODEC_ID_MPEG1VIDEO
-
-#endif
-
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 42, 0)
-#define PIX_FMT_YUV420P AV_PIX_FMT_YUV420P
-#define PIX_FMT_YUV420P10LE AV_PIX_FMT_YUV420P10LE
-#define PIX_FMT_BGR24 AV_PIX_FMT_BGR24
-#define PIX_FMT_RGB24 AV_PIX_FMT_RGB24
-#define PIX_FMT_RGBA AV_PIX_FMT_RGBA
-#endif
-
-
 
 namespace magnet {
   namespace image {
@@ -79,21 +62,19 @@ namespace magnet {
 	if (!_videoWidth || !_videoHeight) 
 	  M_throw() << "Can only encode images with a size of at least 2x2 pixels";
 
-	size_t size = _videoWidth * _videoHeight;
-
 	initialiseLibrary();
 
 	_h264 = true;
-	AVCodec* _codec = avcodec_find_encoder(CODEC_ID_H264);
+	AVCodec* _codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!_codec) 
 	  {
 	    _h264 = false;
 	    std::cerr << "\nWARNING: Cannot open the H264 codec (try installing libx264 [ubuntu:libavcodec-extra-53]), falling back to the MPEG2 codec.\n";
-	    _codec = avcodec_find_encoder(CODEC_ID_MPEG2VIDEO);
+	    _codec = avcodec_find_encoder(AV_CODEC_ID_MPEG2VIDEO);
 	    if (!_codec) 
 	      {
 		std::cerr << "\nWARNING: Cannot open a MPEG2 codec either! Dropping to MPEG1, quality of results will be poor.\n";
-		_codec = avcodec_find_encoder(CODEC_ID_MPEG1VIDEO);
+		_codec = avcodec_find_encoder(AV_CODEC_ID_MPEG1VIDEO);
 		if (!_codec)
 		  M_throw() << "Failed to find a suitable codec for encoding video";
 	      }
@@ -108,7 +89,7 @@ namespace magnet {
 	_context->width = _videoWidth;
 	_context->height = _videoHeight;
 	_context->time_base = (AVRational){1,fps};
-	_context->pix_fmt = PIX_FMT_YUV420P;
+	_context->pix_fmt = AV_PIX_FMT_YUV420P;
 	_context->max_b_frames=1;
 	if (_h264)
 	  av_opt_set(_context->priv_data, "preset", "medium", 0);
@@ -118,25 +99,25 @@ namespace magnet {
 
 	//Setup the frame/picture descriptor, this holds pointers to the
 	//various channel data and spacings.
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55, 45, 101)
 	_picture = av_frame_alloc();
-#else
-	_picture = avcodec_alloc_frame();
-#endif
 	if (!_picture)
 	  M_throw() << "Failed to allocate frame/picture for video encoding.";
 	
 	//We use normal malloc for a good reason, the library may
 	//realloc its memory any time it likes, so we don't give it
 	//control over this.
-	_pictureBuffer = reinterpret_cast<uint8_t*>(malloc((size * 3) / 2));
+	const size_t pixelcount = _videoWidth * _videoHeight;
+	_pictureBuffer = reinterpret_cast<uint8_t*>(malloc((pixelcount * 3) / 2));
 	_picture->data[0] = &(_pictureBuffer[0]);
-	_picture->data[1] = _picture->data[0] + size;
-	_picture->data[2] = _picture->data[1] + size / 4;
+	_picture->data[1] = _picture->data[0] + pixelcount;
+	_picture->data[2] = _picture->data[1] + pixelcount / 4;
 	_picture->linesize[0] = _videoWidth;
 	_picture->linesize[1] = _videoWidth / 2;
 	_picture->linesize[2] = _videoWidth / 2;
-    
+	_picture->width = _context->width;
+	_picture->height = _context->height;
+	_picture->format = _context->pix_fmt;
+	
 	_outputFile.open(filename.c_str(), std::ios_base::out | std::ios_base::binary  | std::ios_base::binary);
 	if (!_outputFile.is_open())  
 	  M_throw() << "Could not open the movie file for output";
@@ -146,7 +127,7 @@ namespace magnet {
       {
 	if (RGB24Frame.size() < 3 * _inputWidth * _videoHeight) 
 	  M_throw() << "The image is too small for the video size!";
-    
+	
 	//* convert the RGB image to YUV420p and copy it into the picture buffer
 	{
 	  size_t i = 0;
@@ -174,40 +155,44 @@ namespace magnet {
 	if (_h264)
 	  _picture->pts = (90000 / _fps) * (_frameCounter++);
 
-	AVPacket packet;
-	av_init_packet(&packet);
-	packet.data = NULL;
-	packet.size = 0;
-	int got_output;
-	int ret = avcodec_encode_video2(_context, &packet, _picture, &got_output);
+	//Send the new frame
+	int ret = avcodec_send_frame(_context, _picture);
 	if (ret < 0) M_throw() << "Failed to encode a frame of video.";
-	if (got_output) {
-	  _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
-	  av_free_packet(&packet);
+
+	//Now process output
+	AVPacket* packet = av_packet_alloc();
+	ret = avcodec_receive_packet(_context, packet);
+	while (!ret) {
+	  _outputFile.write(reinterpret_cast<const char*>(packet->data), packet->size);
+	  ret = avcodec_receive_packet(_context, packet);
 	}
+
+	av_packet_free(&packet);
+	if (ret != AVERROR(EAGAIN))
+	  M_throw() << "Error while recieving encoded video packets:" << ret;
       }
 
       void close()
       {
 	if (!_outputFile.is_open()) return;
 
-	/* get the delayed frames */
-	AVPacket packet;
-	av_init_packet(&packet);
-	packet.data = NULL;
-	packet.size = 0;
-	for (int got_output = 1; got_output;) {
-	  int ret = avcodec_encode_video2(_context, &packet, NULL, &got_output);
-	  if (ret < 0)
-	    M_throw() << "Error encoding end frames.";
-	  if (got_output) {
-	    _outputFile.write(reinterpret_cast<const char*>(packet.data), packet.size);
-	    av_free_packet(&packet);
-	  }
-	} 
-	  
+	//Flush the encoding queue
+	int ret = avcodec_send_frame(_context, NULL);
+	if (ret < 0)
+	  M_throw() << "Failed to flush the video encoder";
+	
+	AVPacket* packet = av_packet_alloc();
+	while (!ret) {
+	  _outputFile.write(reinterpret_cast<const char*>(packet->data), packet->size);
+	  ret = avcodec_receive_packet(_context, packet);
+	}
+	av_packet_free(&packet);
+
+	if (ret != AVERROR_EOF)
+	  M_throw() << "Error encoding end frames.";
+		  
 	/* add sequence end code to have a real mpeg file */
-	const uint8_t endcode[] = {0,0,1,0xb7};
+	const uint8_t endcode[] = {0, 0, 1, 0xb7};
 	_outputFile.write(reinterpret_cast<const char*>(endcode), sizeof(endcode));
 	_outputFile.close();
 

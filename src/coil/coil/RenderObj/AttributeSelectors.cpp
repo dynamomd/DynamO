@@ -323,7 +323,7 @@ namespace coil {
 	  _scalarvalues[i].set_visible(true);
       }
 
-    _componentSelect.clear_items();
+    _componentSelect.remove_all();
     if (singlevalmode || !_enableDataFiltering)
       _componentSelect.set_visible(false);
     else
@@ -333,16 +333,16 @@ namespace coil {
 	Gtk::TreeModel::iterator iter = _comboBox.get_active();
 	std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 
-	_componentSelect.append_text("Raw Data");
-	_componentSelect.append_text("Magnitude");
-	_componentSelect.append_text("X");
+	_componentSelect.append("Raw Data");
+	_componentSelect.append("Magnitude");
+	_componentSelect.append("X");
 	    
 	if (ptr->components() > 1)
-	  _componentSelect.append_text("Y");
+	  _componentSelect.append("Y");
 	if (ptr->components() > 2)
-	  _componentSelect.append_text("Z");
+	  _componentSelect.append("Z");
 	if (ptr->components() > 3)
-	  _componentSelect.append_text("W");
+	  _componentSelect.append("W");
 	  
 	//Default to coloring using the raw values
 	_componentSelect.set_active(0);

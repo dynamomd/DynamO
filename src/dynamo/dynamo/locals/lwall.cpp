@@ -53,7 +53,7 @@ namespace dynamo {
       return Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrt(current_T), _diameter->getProperty(part));
     }
     if (_sqrtT > 0)
-      return Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part));
+      return Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part), _slip);
     else
       return Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part), _diameter->getProperty(part));
   }
@@ -73,6 +73,7 @@ namespace dynamo {
     _amplitude = 0;
     _frequency = 0;
     _phase_offset = 0;
+    
     if (XML.hasAttribute("Temperature")){
       _sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
 		    * Sim->units.unitEnergy());
@@ -82,6 +83,9 @@ namespace dynamo {
 	_frequency = XML.getAttribute("Frequency").as<double>();
 	_phase_offset = XML.getAttribute("Phase_Offset").as<double>();
       }
+      _slip = 0;
+      if (XML.hasAttribute("Slip"))
+	      _slip = XML.getAttribute("Slip").as<double>();
     }
 
     if (_sqrtT < 0)
@@ -115,14 +119,13 @@ namespace dynamo {
 	<< magnet::xml::attr("Diameter") << _diameter->getName();
     
     if (_sqrtT > 0)
-      XML << magnet::xml::attr("Temperature") << _sqrtT * _sqrtT
-	/ Sim->units.unitEnergy();
+      XML << magnet::xml::attr("Temperature") << _sqrtT * _sqrtT 
+	/ Sim->units.unitEnergy() << magnet::xml::attr("Slip") << _slip;
 
     if (_frequency > 0) {
       XML << magnet::xml::attr("Frequency") << _frequency;
       XML << magnet::xml::attr("Amplitude") << _amplitude / Sim->units.unitEnergy();
-      static const double PI = 3.14159265359;
-      XML << magnet::xml::attr("Phase_Offset") << std::fmod(_frequency * Sim->systemTime, 2*PI);
+      XML << magnet::xml::attr("Phase_Offset") << std::fmod(_frequency * Sim->systemTime, 2 * M_PI);
     }
 
     XML << range

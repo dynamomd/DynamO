@@ -25,7 +25,6 @@
 #include <magnet/GL/shader/toneMap.hpp>
 #include <magnet/GL/shader/depthResolver.hpp>
 #include <magnet/GL/camera.hpp>
-#include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
 #include <magnet/GL/objects/cairo.hpp>
@@ -35,6 +34,10 @@
 #include <coil/coilMaster.hpp>
 #include <vector>
 #include <memory>
+
+#ifdef COIL_OpenVR
+# include <magnet/openvr.hpp>
+#endif 
 
 namespace magnet {
   namespace image {
@@ -59,15 +62,17 @@ namespace coil {
     const std::string& getWindowTitle() const { return windowTitle; }
     void setWindowtitle(const std::string& newtitle);
   
-    void addRenderObj(const std::shared_ptr<RenderObj>& nObj)
-    { _renderObjsTree._renderObjects.push_back(nObj); }
+    void addRenderObj(std::shared_ptr<RenderObj> nObj)
+    {
+      _glContext->queueTask(std::bind(&CLGLWindow::addObjectWorker, this, nObj));
+    }
 
     inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
     void init();
     void deinit();
 
-    void simupdateTick(double t);
+    bool simupdateTick(double t);
   
     const double& getUpdateInterval() {return _updateIntervalValue; }
 
@@ -89,8 +94,14 @@ namespace coil {
 
     void autoscaleView();
 
-    magnet::GL::Camera& getCamera() { return _camera; }
+    magnet::GL::CameraHeadTracking& getCamera() { return _camera; }
   protected:
+    void addObjectWorker(const std::shared_ptr<RenderObj> nObj) {
+      _renderObjsTree._renderObjects.push_back(nObj);
+      _renderObjsTree._renderObjects.back()->init(_systemQueue);
+      _renderObjsTree.buildRenderView();
+    }
+    
     CLGLWindow(const CLGLWindow&);
     
     void setLabelText(Gtk::Label*, std::string);
@@ -107,21 +118,7 @@ namespace coil {
     magnet::GL::shader::CopyShader _copyShader;
 
     //Primary render target, or the render target for the left eye.
-    magnet::GL::FBO _renderTarget;
-    magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _shadowbuffer;
-    magnet::GL::FBO _hdrBuffer;
-    magnet::GL::FBO _luminanceBuffer1;
-    magnet::GL::FBO _luminanceBuffer2;
-
-    //Blur Targets
-    magnet::GL::FBO _blurTarget1;
-    magnet::GL::FBO _blurTarget2;
-
-
-    //Frame buffers to flip flop between
-    magnet::GL::FBO _filterTarget1;
-    magnet::GL::FBO _filterTarget2;
 
     //For object selection
     /*! \brief If valid, the render object which is currently
@@ -154,7 +151,7 @@ namespace coil {
 
     void CameraSetup();
 
-    void drawScene(magnet::GL::Camera&);
+    void drawScene(magnet::GL::Camera&, bool);
 
     enum KeyStateType
       {
@@ -173,14 +170,11 @@ namespace coil {
     volatile int _lastFrameTime;
     int _FPStime; 
     int _lastUpdateTime;
-    int _frameRenderTime;
-
-    sigc::connection _renderTimeout;
 
     /*! \brief This camera must be a static member of the windows as
         other threads might queue tasks around it.
      */
-    magnet::GL::Camera _camera;
+    magnet::GL::CameraHeadTracking _camera;
     
     bool keyStates[256];
 
@@ -199,6 +193,7 @@ namespace coil {
     int  _fpsLimitValue;
     bool _filterEnable;
     bool _stereoMode;
+    bool _openVRMode;
     double _ambientIntensity;
     std::array<GLfloat, 3> _backColor;
     float _sceneKey;
@@ -251,7 +246,7 @@ namespace coil {
 
     //Wii Remote callbacks
     void wiiMoteConnect(); 
-    bool wiiMoteIRExposeEvent(GdkEventExpose*);
+    bool wiiMoteIRExposeEvent(const Cairo::RefPtr<Cairo::Context>&);
 
     void HeadReset();
 
@@ -267,6 +262,9 @@ namespace coil {
 
     void AAsamplechangeCallback();
 
+    void LoadDataCallback();
+    void SaveDataCallback();
+    
     void addLightCallback();
 
     void addFunctionCallback();
@@ -293,6 +291,10 @@ namespace coil {
     std::unique_ptr<Gtk::ComboBoxText> _aasamples;
 #ifdef MAGNET_FFMPEG_SUPPORT
     std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
+#endif
+
+#ifdef COIL_OpenVR
+    magnet::OpenVRTracker _openVR;
 #endif
   };
 }

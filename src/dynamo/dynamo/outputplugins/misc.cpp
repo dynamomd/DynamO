@@ -105,6 +105,71 @@ namespace dynamo {
   OPMisc::getMeanSqrUConfigurational() const
   { return _internalE.meanSqr(); }
 
+  void outputCorrelator(magnet::xml::XmlStream& XML, const bool i1, const bool i2, const double inv_units, const double time_units, magnet::math::LogarithmicTimeCorrelator<Vector>& corr) {
+    std::string t = "CC";
+    if (i1) t[0] = 'I';
+    if (i2) t[1] = 'I';
+
+    using namespace magnet::xml;
+    
+    XML	<< tag("Component") << attr("type") << t
+	<< chardata();
+    {
+      std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+	data = corr.getAveragedCorrelator(i1, i2);
+            
+      XML << "0 0 0 0 0\n";
+      for (size_t i(0); i < data.size(); ++i) {
+	XML << data[i].time / time_units << " "
+	    << data[i].sample_count << " ";
+	for (size_t j(0); j < 3; ++j)
+	  XML << data[i].value[j] * inv_units << " ";
+	XML << "\n";
+      }
+    }
+
+    XML << endtag("Component");
+  }
+  
+  void outputCorrelator(magnet::xml::XmlStream& XML, const bool i1, const bool i2, const double inv_units, const double time_units, magnet::math::LogarithmicTimeCorrelator<Matrix>& corr) {
+    std::string t = "CC";
+    if (i1) t[0] = 'I';
+    if (i2) t[1] = 'I';
+
+    using namespace magnet::xml;
+    
+    XML	<< tag("Component") << attr("type") << t
+	<< chardata();
+    
+    {
+      std::vector<magnet::math::LogarithmicTimeCorrelator<Matrix>::Data>
+	data = corr.getAveragedCorrelator(i1, i2);
+      
+
+      XML << "0 0 0 0 0 0 0 0 0 0 0\n";
+      for (size_t i(0); i < data.size(); ++i)
+	{
+	  XML << data[i].time / time_units << " "
+	      << data[i].sample_count << " ";
+	  
+	  for (size_t j(0); j < 3; ++j)
+	    for (size_t k(0); k < 3; ++k)
+	      XML << data[i].value(j, k) * inv_units << " ";
+	  XML << "\n";
+	}
+    }
+    
+    XML << endtag("Component");    
+  }
+
+  template<class T>
+  void outputCorrelator(magnet::xml::XmlStream& XML, const double inv_units, const double time_units, magnet::math::LogarithmicTimeCorrelator<T>& corr) {
+    outputCorrelator(XML, false, false, inv_units, time_units, corr);
+    outputCorrelator(XML, false, true, inv_units, time_units, corr);
+    outputCorrelator(XML, true, false, inv_units, time_units, corr);
+    outputCorrelator(XML, true, true, inv_units, time_units, corr);    
+  }
+
   void
   OPMisc::initialise()
   {
@@ -513,78 +578,36 @@ namespace dynamo {
 	<< endtag("Memusage");
 
     if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs)) {
-      XML	<< tag("ThermalConductivity")
-		<< tag("Correlator")
-		<< chardata();
+      XML << tag("ThermalConductivity") << tag("Correlator");
 
       {
-	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
-	  data = _thermalConductivity.getAveragedCorrelator();
-    
 	const double inv_units = Sim->units.unitk()
 	  / ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 * getMeankT() * V);
-
-	XML << "0 0 0 0 0\n";
-	for (size_t i(0); i < data.size(); ++i)
-	  XML << data[i].time / Sim->units.unitTime() << " "
-	      << data[i].sample_count << " "
-	      << data[i].value[0] * inv_units << " "
-	      << data[i].value[1] * inv_units << " "
-	      << data[i].value[2] * inv_units << "\n";
+	
+	outputCorrelator(XML, inv_units, Sim->units.unitTime(), _thermalConductivity);
       }
-
-      XML << endtag("Correlator")
-	  << endtag("ThermalConductivity")
-	  << tag("Viscosity")
-	  << tag("Correlator")
-	  << chardata();
+      
+      XML << endtag("Correlator") << endtag("ThermalConductivity")
+	  << tag("Viscosity") << tag("Correlator");
 
       {
-	std::vector<magnet::math::LogarithmicTimeCorrelator<Matrix>::Data>
-	  data = _viscosity.getAveragedCorrelator();
-      
-	double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
-
-	XML << "0 0 0 0 0 0 0 0 0 0 0\n";
-	for (size_t i(0); i < data.size(); ++i)
-	  {
-	    XML << data[i].time / Sim->units.unitTime() << " "
-		<< data[i].sample_count << " ";
-	  
-	    for (size_t j(0); j < 3; ++j)
-	      for (size_t k(0); k < 3; ++k)
-		XML << (data[i].value(j, k) - std::pow(data[i].time * P(j,k) * V, 2.0)) * inv_units << " ";
-	    XML << "\n";
-	  }
+	const double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
+	outputCorrelator(XML, inv_units, Sim->units.unitTime(), _viscosity);
       }
-
-      XML << endtag("Correlator")
-	  << endtag("Viscosity")
+      
+      XML << endtag("Correlator") << endtag("Viscosity")
 	  << tag("ThermalDiffusion");
 
       for (size_t i(0); i < Sim->species.size(); ++i)
 	{
 	  XML << tag("Correlator")
-	      << attr("Species") << Sim->species[i]->getName()
-	      << chardata();
-	
-	  std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
-	    data = _thermalDiffusion[i].getAveragedCorrelator();
-	
-	  double inv_units = 1.0
+	      << attr("Species") << Sim->species[i]->getName();
+
+	  const double inv_units = 1.0
 	    / (Sim->units.unitTime() * Sim->units.unitThermalDiffusion() * 2.0 * getMeankT() * V);
-	
-	  XML << "0 0 0 0 0\n";
-	  for (size_t i(0); i < data.size(); ++i)
-	    {
-	      XML << data[i].time / Sim->units.unitTime() << " "
-		  << data[i].sample_count << " ";
-	    
-	      for (size_t j(0); j < 3; ++j)
-		XML << data[i].value[j] * inv_units << " ";
-	      XML << "\n";
-	    }
-	
+	  
+	  outputCorrelator(XML, inv_units, Sim->units.unitTime(), _thermalDiffusion[i]);
+	  
 	  XML << endtag("Correlator");
 	}
 
@@ -596,26 +619,13 @@ namespace dynamo {
 	  {
 	    XML << tag("Correlator")
 		<< attr("Species1") << Sim->species[i]->getName()
-		<< attr("Species2") << Sim->species[j]->getName()
-		<< chardata();
-	
-	    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
-	      data = _mutualDiffusion[i * Sim->species.size() + j].getAveragedCorrelator();
-	
-	    double inv_units = 1.0
+		<< attr("Species2") << Sim->species[j]->getName();
+
+	    const double inv_units = 1.0
 	      / (Sim->units.unitTime() * Sim->units.unitMutualDiffusion() * 2.0 * getMeankT() * V);
-	
-	    XML << "0 0 0 0 0\n";
-	    for (size_t i(0); i < data.size(); ++i)
-	      {
-		XML << data[i].time / Sim->units.unitTime() << " "
-		    << data[i].sample_count << " ";
 	    
-		for (size_t j(0); j < 3; ++j)
-		  XML << data[i].value[j] * inv_units << " ";
-		XML << "\n";
-	      }
-	
+	    outputCorrelator(XML, inv_units, Sim->units.unitTime(), _mutualDiffusion[i * Sim->species.size() + j]);
+
 	    XML << endtag("Correlator");
 	  }
 

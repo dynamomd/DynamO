@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <boost/serialization/valarray.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix.hpp>

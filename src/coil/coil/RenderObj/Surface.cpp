@@ -104,6 +104,8 @@ namespace coil {
 	  }
       setGLElements(ElementData);
     }
+
+    _initialised = true;
   }
 
   magnet::math::Vector 

@@ -18,6 +18,7 @@
 
 #include <magnet/GL/context.hpp>
 #include <magnet/GL/matrix.hpp>
+#include <magnet/GL/FBO.hpp>
 #include <magnet/math/quaternion.hpp>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
@@ -25,6 +26,307 @@
 
 namespace magnet {
   namespace GL {
+    class Camera {
+    public:
+      inline Camera(GLfloat zNearDist = 0.3f, 
+		    GLfloat zFarDist = 300.0f):
+	_height(1),
+	_width(1),
+	_zNearDist(zNearDist),
+	_zFarDist(zFarDist)
+      {
+	if (zNearDist > zFarDist) 
+	  M_throw() << "zNearDist > _zFarDist!";
+      }
+      
+      virtual GLMatrix getViewMatrix() const  = 0;
+      virtual GLMatrix getProjectionMatrix() const = 0;
+      virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0}) = 0;
+
+      FBO _renderTarget;
+      FBO _Gbuffer;
+
+      FBO _hdrBuffer;
+      FBO _luminanceBuffer1;
+      FBO _luminanceBuffer2;
+      FBO _blurTarget1;
+      FBO _blurTarget2;
+      FBO _filterTarget1;
+      FBO _filterTarget2;
+
+      virtual FBO& getResolveBuffer() {
+	return _renderTarget;
+      }
+      
+      virtual void deinit() {
+	_renderTarget.deinit();
+	_Gbuffer.deinit();	
+	_hdrBuffer.deinit();
+	_luminanceBuffer1.deinit();
+	_luminanceBuffer2.deinit();
+	_filterTarget1.deinit();
+	_filterTarget2.deinit();
+	_blurTarget1.deinit();
+	_blurTarget2.deinit();
+      }
+      
+      virtual void resize(size_t width, size_t height, size_t samples) {
+	if ((_width == width) && (_height == height))
+	  return;
+
+	deinit();
+	_width = width;
+	_height = height;
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  colorTexture->init(width, height, GL_RGBA16F_ARB);
+	  
+	  std::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  normalTexture->init(width, height, GL_RGBA16F_ARB);
+    
+	  std::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  posTexture->init(width, height, GL_RGBA16F_ARB);
+	  
+	  std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(samples));
+	  depthTexture->init(width, height, GL_DEPTH_COMPONENT);    
+	  
+	  _Gbuffer.deinit();
+	  _Gbuffer.init();
+	  _Gbuffer.attachTexture(colorTexture, 0);
+	  _Gbuffer.attachTexture(normalTexture, 1);
+	  _Gbuffer.attachTexture(posTexture, 2);
+	  _Gbuffer.attachTexture(depthTexture);
+	}
+	
+	{
+	  //Build the main/left-eye render buffer
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA8);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    depthTexture(new magnet::GL::Texture2D);
+	  depthTexture->init(width, height, GL_DEPTH_COMPONENT);
+	  depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+	  _renderTarget.init();
+	  _renderTarget.attachTexture(colorTexture, 0);
+	  _renderTarget.attachTexture(depthTexture);
+	}	
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _filterTarget1.init();
+	  _filterTarget1.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _filterTarget2.init();
+	  _filterTarget2.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width / 4, height / 4, GL_RGB16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _blurTarget1.init();
+	  _blurTarget1.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width / 4, height / 4, GL_RGB16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+	  _blurTarget2.init();
+	  _blurTarget2.attachTexture(colorTexture, 0);
+	}
+
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    colorTexture(new magnet::GL::Texture2D);
+	  colorTexture->init(width, height, GL_RGBA16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    depthTexture(new magnet::GL::Texture2D);
+	  depthTexture->init(width, height, 
+			     GL_DEPTH_COMPONENT);
+	  depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+	  _hdrBuffer.init();
+	  _hdrBuffer.attachTexture(colorTexture, 0);
+	  _hdrBuffer.attachTexture(depthTexture);
+	}
+      
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    colorTexture(new magnet::GL::Texture2D);
+	
+	  colorTexture->init(width, height, GL_RGBA16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	  _luminanceBuffer1.init();
+	  _luminanceBuffer1.attachTexture(colorTexture, 0);
+	}
+
+	{
+	  std::shared_ptr<magnet::GL::Texture2D> 
+	    colorTexture(new magnet::GL::Texture2D);
+	
+	  colorTexture->init(width/2, height/2, GL_RGBA16F);
+	  colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	  _luminanceBuffer2.init();
+	  _luminanceBuffer2.attachTexture(colorTexture, 0);
+	}
+      }
+      
+      /*! \brief Get the normal matrix.
+       
+        \param offset This is an offset in camera coordinates to apply
+        to the eye location. It's primary use is to calculate the
+        perspective shift for the left and right eye in Analygraph
+        rendering.
+       */
+      inline math::Matrix getNormalMatrix() const 
+      { return inverse(demoteToMatrix(getViewMatrix())); }
+
+      /*! \brief Get the rotation part of the getViewMatrix(). */
+      GLMatrix getViewRotationMatrix() const {
+	//We can just cut it to a normal matrix, then re-promote to
+	//get the rotation piece
+	return magnet::GL::promoteToGLMatrix(magnet::GL::demoteToMatrix(getViewMatrix()));
+      }
+
+      /*! \brief Fetch the location of the users eyes, in object space
+        coordinates.
+        
+        Useful for eye tracking applications. This returns the
+        position of the eyes in object space by adding the eye
+        location (relative to the viewing plane/screen) onto the
+        current position.
+       */
+      math::Vector getPosition() const {
+	auto inv = inverse(getViewMatrix());
+	return math::Vector{inv(0,3), inv(1,3),inv(2,3)};
+      }
+      
+      //! \brief Get the aspect ratio of the screen
+      inline GLfloat getAspectRatio() const
+      { return ((GLfloat)_width) / _height; }
+
+      //! \brief Get the height of the screen, in pixels.
+      inline const size_t& getHeight() const { return _height; }
+
+      //! \brief Get the width of the screen, in pixels.
+      inline const size_t& getWidth() const { return _width; }
+
+      /*! \brief Used to convert world positions to screen coordinates (pixels).
+	
+	This returns y coordinates in the format that cairo and other
+	image programs expect (inverted compared to OpenGL).
+	
+	\return An array containing the x and y pixel locations,
+	followed by the depth and w value.
+       */
+      magnet::math::NVector<GLfloat, 4> project(math::Vector invec) const
+      {
+	magnet::math::NVector<GLfloat, 4> vec = {GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f};
+	vec = getProjectionMatrix() * (getViewMatrix() * vec);
+	
+	for (size_t i(0); i < 3; ++i) vec[i] /= std::abs(vec[3]);
+	
+	vec[0] = (0.5 + 0.5 * vec[0]) * getWidth();
+	vec[1] = (0.5 - 0.5 * vec[1]) * getHeight();
+	return  vec;
+      }
+
+      /*! \brief Used to convert mouse positions (including depth
+          information) into a 3D position.
+       */
+      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
+      {
+	//We need to calculate the ray from the camera
+	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
+					       1.0f - (2.0f * windowy) / getHeight(),
+					       depth, 1.0f};
+	//Unproject from NDC to camera coords
+	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
+	
+	//Perform the w divide
+	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
+	
+	//Unproject from camera to object space
+	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
+	return magnet::math::Vector{w[0], w[1], w[2]};
+      }
+
+      /*! \brief Used to convert mouse positions (including depth
+          information) into a 3D position.
+       */
+      math::Vector unprojectToDirection(int windowx, int windowy) const
+      {
+	//We need to calculate the ray from the camera
+	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
+				     1.0f - (2.0f * windowy) / getHeight(),
+				     0.0f, 1.0f};
+	//Unproject from NDC to camera coords
+	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
+	
+	//Perform the w divide
+	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
+	
+	//Zero the w coordinate to stop the translations from the
+	//viewmatrix affecting the vector
+	v[3] = 0;
+
+	//Unproject from camera to object space
+	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
+	
+	math::Vector vec{w[0], w[1], w[2]};
+	vec /= vec.nrm();
+	return vec;
+      }
+
+    protected:
+      size_t _height, _width;
+      //! \brief Distance to the near clipping plane, in cm.
+      GLfloat _zNearDist;
+      //! \brief Distance to the far clipping plane, in cm.
+      GLfloat _zFarDist;      
+    };
+    
     /*! \brief An object to track the camera state.
      
       An OpenGL camera is a mapping between the object space (rendered
@@ -53,7 +355,7 @@ namespace magnet {
       is also support for eye tracking calculations using the \ref
       _eyeLocation \ref math::Vector.
      */
-    class Camera
+    class CameraHeadTracking : public Camera
     {
     public:
 
@@ -75,30 +377,22 @@ namespace magnet {
         \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline Camera(size_t height = 600, 
-		    size_t width = 800,
-		    math::Vector position = math::Vector{0,0,5}, 
-		    math::Vector lookAtPoint = math::Vector{0,0,0},
-		    GLfloat zNearDist = 8.0f, 
-		    GLfloat zFarDist = 10000.0f,
-		    math::Vector up = math::Vector{0,1,0},
-		    GLfloat simLength = 3.0f,
-		    math::Vector eye_location = math::Vector{0, 0, 70}):
-	_height(height),
-	_width(width),
+      inline CameraHeadTracking(math::Vector position = math::Vector{0,0,5}, 
+				math::Vector lookAtPoint = math::Vector{0,0,0},
+				GLfloat zNearDist = 8.0f, 
+				GLfloat zFarDist = 10000.0f,
+				math::Vector up = math::Vector{0,1,0},
+				GLfloat simLength = 30.0f,
+				math::Vector eye_location = math::Vector{0, 0, 70}):
+	Camera(zNearDist, zFarDist),
 	_up(up.normal()),
 	_nearPlanePosition({0,0,0}),
 	_rotatePoint({0,0,0}),
-	_zNearDist(zNearDist),
-	_zFarDist(zFarDist),
 	_rotation(math::Quaternion::identity()),
 	_simLength(simLength),
 	_pixelPitch(0.04653), //cm per pixel (horizontal)
 	_camMode(ROTATE_POINT)
       {
-	if (_zNearDist > _zFarDist) 
-	  M_throw() << "zNearDist > _zFarDist!";
-
 	//We assume the user is around about 70cm from the screen
 	setEyeLocation(eye_location);
 	setPosition(position);
@@ -142,29 +436,16 @@ namespace magnet {
 	setPosition(oldEyePosition);
       }
 
-      /*! \brief Get the rotation part of the getViewMatrix().
-       */
-      inline GLMatrix getViewRotationMatrix() const { return promoteToGLMatrix(_rotation.toMatrix()); }
-
-      inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
-
       /*! \brief Get the modelview matrix. */
-      inline GLMatrix getViewMatrix() const 
+      virtual inline GLMatrix getViewMatrix() const 
       {
 	//Add in the movement of the eye and the movement of the
 	//camera
-	math::Vector cameraLocation = (getInvViewRotationMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
+	math::Vector cameraLocation = (_rotation.inverse().toMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
 	
 	//Setup the view matrix
 	return promoteToGLMatrix(_rotation.toMatrix()) * translate(-cameraLocation);
       }
-
-      /*! \brief Generate a matrix that locates objects at the near
-          ViewPlane (for rendering 3D objects attached to the
-          screen). 
-      */
-      inline GLMatrix getViewPlaneMatrix() const
-      { return getViewMatrix() * translate(_nearPlanePosition) * promoteToGLMatrix(getInvViewRotationMatrix()); }
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
@@ -256,7 +537,7 @@ namespace magnet {
 
       inline void setPosition(math::Vector newposition)
       {
-	_nearPlanePosition = newposition - (getInvViewRotationMatrix() * _eyeLocation / _simLength);
+	_nearPlanePosition = newposition - (getNormalMatrix() * _eyeLocation / _simLength);
       }
 
       inline void setRotatePoint(math::Vector vec)
@@ -292,7 +573,7 @@ namespace magnet {
         The position of the viewers eye is relative to the center of
         the near viewing plane (in cm).
        */
-      inline const math::Vector getEyeLocation() const
+      virtual inline const math::Vector getEyeLocation() const
       { return _eyeLocation; }
 
       /*! \brief Get the projection matrix.
@@ -306,7 +587,7 @@ namespace magnet {
 	camera. See \ref GLMatrix::frustrum() for more information as
 	the parameter is directly passed to that function.
        */
-      inline GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
+      virtual inline GLMatrix getProjectionMatrix() const 
       {
 	//We will move the camera to the location of the eye in sim
 	//space. So we must create a viewing frustrum which, in real
@@ -331,19 +612,9 @@ namespace magnet {
 			(+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
 			_zNearDist / _simLength,//Near distance
 			_zFarDist / _simLength,//Far distance
-			zoffset);
+			0.0f);
       }
       
-      /*! \brief Get the normal matrix.
-       
-        \param offset This is an offset in camera coordinates to apply
-        to the eye location. It's primary use is to calculate the
-        perspective shift for the left and right eye in Analygraph
-        rendering.
-       */
-      inline math::Matrix getNormalMatrix() const 
-      { return inverse(demoteToMatrix(getViewMatrix())); }
-
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const
       { return _pixelPitch * _width / _simLength; }
@@ -358,39 +629,14 @@ namespace magnet {
       //! \brief Get the distance to the far clipping plane
       inline const GLfloat& getZFar() const { return _zFarDist; }
 
-      /*! \brief Fetch the location of the users eyes, in object space
-        coordinates.
-        
-        Useful for eye tracking applications. This returns the
-        position of the eyes in object space by adding the eye
-        location (relative to the viewing plane/screen) onto the
-        current position.
-       */
-      inline math::Vector getPosition() const
-      { return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition; }
-
-      //! \brief Set the height and width of the screen in pixels.
-      inline void setHeightWidth(size_t height, size_t width)
-      { _height = height; _width = width; }
-
-      //! \brief Get the aspect ratio of the screen
-      inline GLfloat getAspectRatio() const
-      { return ((GLfloat)_width) / _height; }
-
       //! \brief Get the up direction of the camera.
       inline math::Vector getCameraUp() const 
-      { return getInvViewRotationMatrix() * math::Vector{0,1,0}; } 
+      { return getNormalMatrix() * math::Vector{0,1,0}; } 
 
       //! \brief Get the direction the camera is pointing in
       inline math::Vector getCameraDirection() const 
-      { return getInvViewRotationMatrix() * math::Vector{0,0,-1}; }
+      { return getNormalMatrix() * math::Vector{0,0,-1}; }
 
-      //! \brief Get the height of the screen, in pixels.
-      inline const size_t& getHeight() const { return _height; }
-
-      //! \brief Get the width of the screen, in pixels.
-      inline const size_t& getWidth() const { return _width; }
-      
       /*! \brief Gets the pixel "diameter" in cm. */
       inline const double& getPixelPitch() const { return _pixelPitch; }
 
@@ -400,73 +646,6 @@ namespace magnet {
       Camera_Mode getMode() const { return _camMode; }
 
       void setMode(Camera_Mode val) { _camMode = val; }
-
-      /*! \brief Used to convert world positions to screen coordinates (pixels).
-	
-	This returns y coordinates in the format that cairo and other
-	image programs expect (inverted compared to OpenGL).
-	
-	\return An array containing the x and y pixel locations,
-	followed by the depth and w value.
-       */
-      magnet::math::NVector<GLfloat, 4> project(math::Vector invec) const
-      {
-	magnet::math::NVector<GLfloat, 4> vec = {GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f};
-	vec = getProjectionMatrix() * (getViewMatrix() * vec);
-	
-	for (size_t i(0); i < 3; ++i) vec[i] /= std::abs(vec[3]);
-	
-	vec[0] = (0.5 + 0.5 * vec[0]) * getWidth();
-	vec[1] = (0.5 - 0.5 * vec[1]) * getHeight();
-	return  vec;
-      }
-
-      /*! \brief Used to convert mouse positions (including depth
-          information) into a 3D position.
-       */
-      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
-      {
-	//We need to calculate the ray from the camera
-	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
-					       1.0f - (2.0f * windowy) / getHeight(),
-					       depth, 1.0f};
-	//Unproject from NDC to camera coords
-	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
-	
-	//Perform the w divide
-	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
-	
-	//Unproject from camera to object space
-	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
-	return magnet::math::Vector{w[0], w[1], w[2]};
-      }
-
-      /*! \brief Used to convert mouse positions (including depth
-          information) into a 3D position.
-       */
-      math::Vector unprojectToDirection(int windowx, int windowy) const
-      {
-	//We need to calculate the ray from the camera
-	magnet::math::NVector<GLfloat, 4> n = {(2.0f * windowx) / getWidth() - 1.0f,
-				     1.0f - (2.0f * windowy) / getHeight(),
-				     0.0f, 1.0f};
-	//Unproject from NDC to camera coords
-	magnet::math::NVector<GLfloat, 4> v = inverse(getProjectionMatrix()) * n;
-	
-	//Perform the w divide
-	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
-	
-	//Zero the w coordinate to stop the translations from the
-	//viewmatrix affecting the vector
-	v[3] = 0;
-
-	//Unproject from camera to object space
-	magnet::math::NVector<GLfloat, 4> w = inverse(getViewMatrix()) * v;
-	
-	math::Vector vec{w[0], w[1], w[2]};
-	vec /= vec.nrm();
-	return vec;
-      }
 
       /*! \brief set the orientation (roll) of the camera by setting
           its up direction.
@@ -478,7 +657,7 @@ namespace magnet {
 	  the camera. It will look like the system is rotating but the
 	  camera is remaining fixed. The axis must be 
        */
-      void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0})
+      virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0,0,0})
       {
 	newup.normalise();
 	if (axis.nrm2() != 0)
@@ -493,15 +672,9 @@ namespace magnet {
       }
 
     protected:
-      size_t _height, _width;
       math::Vector _up;
       math::Vector _nearPlanePosition;
       math::Vector _rotatePoint;
-
-      //! \brief Distance to the near clipping plane, in cm.
-      GLfloat _zNearDist;
-      //! \brief Distance to the far clipping plane, in cm.
-      GLfloat _zFarDist;
 
       /*! \brief The location of the viewers eye, relative to the
 	screen, in cm.

@@ -78,29 +78,51 @@ namespace coil {
     _currentDepthFBO.attachTexture(depthTexture);
 
     initGTK();
+    _initialised = true;
   }
 
   void 
-  RVolume::loadRawFile(std::string filename, std::array<size_t, 3> dim, size_t bytes)
+  RVolume::loadRawFile(std::string filename, std::array<size_t, 3> data_dim, size_t bytes, Vector dims)
   {
     std::ifstream file(filename.c_str(), std::ifstream::binary);
-    std::vector<uint8_t> filebuffer(dim[0] * dim[1] * dim[2] * bytes);
+    std::vector<uint8_t> filebuffer(data_dim[0] * data_dim[1] * data_dim[2] * bytes);
     file.read(reinterpret_cast<char*>(&filebuffer[0]), filebuffer.size());
     if (file.fail()) M_throw() << "Failed to load the texture from the file, possible incorrect dimensions ";
 	  
     //Debug loading of data
     //loadSphereTestPattern();
 
-    std::vector<GLubyte> outbuffer(dim[0] * dim[1] * dim[2]);
-    for (size_t x(0); x < dim[0]; ++x)
-      for (size_t y(0); y < dim[1]; ++y)
-	for (size_t z(0); z < dim[2]; ++z)
-	  outbuffer[x + (y + z* dim[1]) * dim[0]] = filebuffer[(x + (y + z * dim[1]) * dim[0]) * bytes];
+    //Determine the data range
+    uint32_t min = -1, max = 0;
+    for (size_t x(0); x < data_dim[0]; ++x)
+      for (size_t y(0); y < data_dim[1]; ++y)
+	for (size_t z(0); z < data_dim[2]; ++z) {
+	  uint32_t val = 0;
+	  for (size_t byte(0); byte < bytes; ++byte)
+	    val += filebuffer[(x + (y + z * data_dim[1]) * data_dim[0]) * bytes + byte] << (8 * (bytes-byte));
 
-    //size_t maxdim = std::max(dim[0], std::max(dim[1], dim[2]));
-    //_dimensions = Vector{double(dim[0]) / maxdim, double(dim[1]) / maxdim, double(dim[2]) / maxdim};
+	  if (val != 0)
+	    min = std::min(min, val);
+	  max = std::max(max, val);
+	}
 
-    loadData(outbuffer, dim, Vector{1,1,1});
+    size_t shift(0);
+    for (; shift < 32-8; ++shift)
+      if ((max >> (shift+8)) == 0) break;
+    
+    std::cout << "min="<<min << ", max="<<max<< ", shift=" << shift << std::endl;
+    
+    std::vector<GLubyte> outbuffer(data_dim[0] * data_dim[1] * data_dim[2]);
+    for (size_t x(0); x < data_dim[0]; ++x)
+      for (size_t y(0); y < data_dim[1]; ++y)
+	for (size_t z(0); z < data_dim[2]; ++z) {
+	  uint32_t val = 0;
+	  for (size_t byte(0); byte < bytes; ++byte)
+	    val += filebuffer[(x + (y + z * data_dim[1]) * data_dim[0]) * bytes + byte] << (8 * (bytes-byte));
+	  outbuffer[x + (y + z* data_dim[1]) * data_dim[0]] = (val >> shift);
+	}
+    
+    loadData(outbuffer, data_dim, dims);
   }
 
 #ifdef COIL_TIFFSUPPORT
@@ -143,13 +165,13 @@ namespace coil {
   }
 
   namespace {
-    inline GLubyte coordCalc(GLint x, GLint y, GLint z, 
+    inline int coordCalc(GLint x, GLint y, GLint z, 
 			     GLint width, GLint height, GLint depth, const std::vector<GLubyte>& buffer)
     {
       if (((x < 0) || (x >= width)) 
 	  || ((y < 0) || (y >= height))
 	  || ((z < 0) || (z >= depth)))
-	return 0;
+	return -1;
       else
 	return buffer[x + width * (y + height * z)];
     }
@@ -157,15 +179,22 @@ namespace coil {
 
   
   void
-  RVolume::loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector dimensions)
+  RVolume::loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector d)
   {
-    _dimensions = dimensions;
+    _dimensions = d;
+
+    if (_dimensions*_dimensions == 0) {
+      size_t maxdim = std::max(dim[0], std::max(dim[1], dim[2]));
+      _dimensions = Vector{double(dim[0]) / maxdim, double(dim[1]) / maxdim, double(dim[2]) / maxdim};
+    }
+
     
     //Figure out what the minimum step size is to capture all detail
-    //of the model (nyquist sampling rate)
+    //of the model (nyquist sampling, half the feature size), then
+    //multiply by 4 to speed it up.
     _stepSizeVal = HUGE_VAL;
     for (size_t i(0); i < 3; ++i)
-      _stepSizeVal = std::min(_stepSizeVal, GLfloat(0.5 * dimensions[i] / dim[i]));
+      _stepSizeVal = std::min(_stepSizeVal, 2 * GLfloat(_dimensions[i] / dim[i]));
     if (_stepSize)
       _stepSize->set_text(boost::lexical_cast<std::string>(_stepSizeVal));
 
@@ -299,8 +328,15 @@ namespace coil {
     _shader["DepthTexture"] = 0;
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
-    _shader["DitherRay"] = GLint(_ditherRay->get_active());
-    _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
+    if (_ditherRay->get_active()) {
+      if (_variableDither->get_active())
+	_shader["DitherRay"] = GLfloat(_frameCounter);
+      else
+	_shader["DitherRay"] = GLfloat(1);
+    } else 
+      _shader["DitherRay"] = GLfloat(0);
+    ++_frameCounter;
+   _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
 
     Vector volumeMin = double(-0.5) * _dimensions;
@@ -380,15 +416,23 @@ namespace coil {
     {//Ray Dithering and filtering
       Gtk::HBox* box = manage(new Gtk::HBox);
       _ditherRay.reset(new Gtk::CheckButton("Dither"));
+      _variableDither.reset(new Gtk::CheckButton("Variable Dither"));
       _filterData.reset(new Gtk::CheckButton("Filter Data"));
+      _preintegrate.reset(new Gtk::CheckButton("Preintegrate"));
       
       _ditherRay->set_active(true);
       _ditherRay->show();
       _filterData->set_active(true);
       _filterData->show();
+      _preintegrate->set_active(true);
+      _preintegrate->show();
+      _variableDither->set_active(true);
+      _variableDither->show();
 
-      box->pack_end(*_ditherRay, true, true);
       box->pack_end(*_filterData, true, true);
+      box->pack_end(*_preintegrate, true, true);
+      box->pack_end(*_ditherRay, true, true);
+      box->pack_end(*_variableDither, true, true);
       _optList->add(*box); box->show();
     }
     
@@ -399,6 +443,9 @@ namespace coil {
     _stepSize->signal_activate().connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     _filterData->signal_toggled()
+      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+
+    _preintegrate->signal_toggled()
       .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     guiUpdate();
@@ -433,6 +480,41 @@ namespace coil {
 	    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	  }
+
+
+	if (_preintegrate->get_active())
+	  _shader.defines("FORCE_DIRECT_INTEGRATION") = "false";
+	else
+	  _shader.defines("FORCE_DIRECT_INTEGRATION") = "true";
       }
+  }
+
+  void
+  RVolume::xml(stator::xml::Node xml) {
+    auto volnode = xml.add_node("Volume");
+    volnode.add_attribute("name", _name);
+
+    auto data_size_node = xml.add_node("DataSize");
+    data_size_node.add_attribute("x", _data.getWidth());
+    data_size_node.add_attribute("y", _data.getHeight());
+    data_size_node.add_attribute("z", _data.getDepth());
+
+    auto dimensions_node = xml.add_node("Dimensions");
+    dimensions_node.add_attribute("x", _dimensions[0]);
+    dimensions_node.add_attribute("y", _dimensions[1]);
+    dimensions_node.add_attribute("z", _dimensions[2]);
+    
+    volnode.add_attribute("stepsize", _stepSizeVal);
+  }
+
+  RVolume::RVolume(stator::xml::Node xml):
+    RenderObj(xml.getAttribute("name")), _frameCounter(0)
+  {
+    auto data_size_node = xml.getNode("DataSize");
+    _stepSizeVal = xml.getAttribute("stepsize").as<double>();
+    auto dimensions_node = xml.getNode("Dimensions");
+    _dimensions[0] = dimensions_node.getAttribute("x").as<double>();
+    _dimensions[1] = dimensions_node.getAttribute("x").as<double>();
+    _dimensions[2] = dimensions_node.getAttribute("x").as<double>();
   }
 }

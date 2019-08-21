@@ -18,6 +18,7 @@
 import os
 import math
 import xml.etree.ElementTree as ET
+import numpy as np
 
 #Function to load a (possibly compressed) xml file.
 def loadXMLFile(filename):
@@ -57,7 +58,7 @@ def parseToArray(text):
         dataline = map(float, line.split())
         if (len(dataline) > 1) and (dataline[0] >= options.starttime) and (dataline[0] <= options.cutofftime):
             data.append(dataline)
-    return data
+    return np.array(data)
 
 def avg(data):
     if len(data) is 0:
@@ -101,22 +102,33 @@ for filename in datafiles:
     RootElement=XMLDoc.getroot()
 
     #Parse all of the transport data (and draw the plots if requested)
-    for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-        shear_viscosity_data.extend([fitData([3, 4, 7], parseToArray(xmlelement.text), filename)])
+    def parseComponents(matches):
+        data = None
+        for xmlelement in matches:
+            if data is None:
+                data = parseToArray(xmlelement.text)
+            else:
+                data[:,2:] = data[:,2:] + parseToArray(xmlelement.text)[:,2:]
+        return data
 
-    for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-        bulk_viscosity_data.extend([fitData([2, 6, 10], parseToArray(xmlelement.text), filename)])
+    for ele in RootElement.findall(".//Viscosity/Correlator"):
+        viscdata = parseComponents(ele.findall(".//Component"))
+        shear_viscosity_data.extend([fitData([3, 4, 7], viscdata, filename)])
+        bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename)])
 
-    for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
-        thermalconductivity_data.extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
+    for ele in RootElement.findall(".//ThermalConductivity/Correlator"):
+        thermdata = parseComponents(ele.findall(".//Component"))
+        thermalconductivity_data.extend([fitData([2, 3, 4], thermdata, filename)])
 
-    for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
-        key = xmlelement.attrib["Species"]
-        thermaldiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
+    for ele in RootElement.findall(".//ThermalDiffusion/Correlator"):
+        key = ele.attrib["Species"]
+        thermdata = parseComponents(ele.findall(".//Component"))
+        thermaldiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], thermdata, filename)])
 
-    for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
-        key=xmlelement.attrib["Species1"]+","+xmlelement.attrib["Species2"]
-        mutualdiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
+    for ele in RootElement.findall(".//MutualDiffusion/Correlator"):
+        key=ele.attrib["Species1"]+","+ele.attrib["Species2"]
+        diffdata = parseComponents(ele.findall(".//Component"))
+        mutualdiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], diffdata, filename)])
 
 
 def output(title, correlator_data):

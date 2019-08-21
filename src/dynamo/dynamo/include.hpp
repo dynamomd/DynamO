@@ -21,7 +21,6 @@
 #include <dynamo/locals/local.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/systems/system.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/topology/topology.hpp>

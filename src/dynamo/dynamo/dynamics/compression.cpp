@@ -211,7 +211,7 @@ namespace dynamo {
 
 
   ParticleEventData 
-  DynCompression::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double d) const
+  DynCompression::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double d, const double slip) const
   {  
     updateParticle(part);
 
@@ -228,9 +228,12 @@ namespace dynamo {
     std::normal_distribution<> normal_dist;
     std::uniform_real_distribution<> uniform_dist;
 
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
-      part.getVelocity()[iDim] = normal_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
-  
+    if (slip != 1) {
+      std::normal_distribution<> norm_dist;
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
+	part.getVelocity()[iDim] = (1-slip) * norm_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass) + slip * part.getVelocity()[iDim];
+    }
+
 
     Vector vij = part.getVelocity() - vNorm * d * growthRate / (1 + growthRate * Sim->systemTime);
 

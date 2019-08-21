@@ -42,6 +42,8 @@ namespace dynamo {
       return shared_ptr<Dynamics>(new DynNewtonianMC(tmp, XML));
     else if (!XML.getAttribute("Type").getValue().compare("NewtonianMCCMap"))
       return shared_ptr<Dynamics>(new DynNewtonianMCCMap(tmp, XML));
+    else if (!XML.getAttribute("Type").getValue().compare("Viscous"))
+      return shared_ptr<Dynamics>(new DynViscous(tmp, XML));
     else
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Dynamics encountered";
@@ -368,4 +370,79 @@ namespace dynamo {
     return std::make_pair(pos + pos0, vel + vel0);
   }
 
+  void
+  Dynamics::stream(const double& dt)
+  {
+    partPecTime += dt;
+
+    //Keep the magnitude of the partPecTime bounded
+    if (++streamCount == streamFreq)
+      {
+	for (Particle& part : Sim->particles)
+	  part.getPecTime() += partPecTime;
+
+	partPecTime = 0;
+	streamCount = 0;
+      }
+  }
+
+  void
+  Dynamics::advanceUpdateParticle(Particle& part, double& dt) const
+  {
+    streamParticle(part, dt + partPecTime + part.getPecTime());
+    part.getPecTime() = - dt - partPecTime;
+  }
+
+  void
+  Dynamics::updateParticle(Particle& part) const
+  {
+    streamParticle(part, part.getPecTime() + partPecTime);
+    part.getPecTime() = -partPecTime;
+  }
+
+  bool
+  Dynamics::isUpToDate(const Particle& part) const
+  {
+    return part.getPecTime() == -partPecTime;
+  }
+  
+  void
+  Dynamics::updateAllParticles() const
+  {
+    //May as well take this opportunity to reset the streaming
+    //Note: the Replexing coordinator RELIES on this behaviour!
+    for (Particle& part : Sim->particles)
+      {
+	streamParticle(part, part.getPecTime() + partPecTime);
+	part.getPecTime() = 0;
+      }
+
+    partPecTime = 0;
+    streamCount = 0;
+  }
+
+  void
+  Dynamics::updateParticlePair(Particle& p1, Particle& p2) const
+  {
+    //This is slow but sure, other stuff like reverse streaming, and
+    //partial streaming are faster but work only for some collision
+    //detections, not compression
+
+    updateParticle(p1);
+    updateParticle(p2);
+  }
+
+  double
+  Dynamics::getParticleDelay(const Particle& part) const
+  {
+    return partPecTime + part.getPecTime();
+  }
+
+  Dynamics::rotData&
+  Dynamics::getRotData(const Particle& part)
+  { return getRotData(part.getID()); }
+
+  const Dynamics::rotData&
+  Dynamics::getRotData(const Particle& part) const
+  { return getRotData(part.getID()); }
 }

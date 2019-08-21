@@ -35,3 +35,4 @@
 #include <dynamo/outputplugins/tickerproperty/vacf.hpp>
 #include <dynamo/outputplugins/tickerproperty/PolarNematic.hpp>
 #include <dynamo/outputplugins/tickerproperty/vtk.hpp>
+#include <dynamo/outputplugins/tickerproperty/craig.hpp>

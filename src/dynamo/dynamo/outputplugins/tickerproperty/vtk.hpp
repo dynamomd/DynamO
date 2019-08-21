@@ -37,9 +37,15 @@ namespace dynamo {
     virtual void output(magnet::xml::XmlStream&);
   
   protected:
-
-    void printImage();
-    std::string getFileName(size_t idx);
+    Vector  _binWidths;
+    std::array<size_t, 3>  _binCounts;
+    std::vector<size_t> _numberField;
+    std::vector<double> _massField;
+    std::vector<Vector> _momentumField;
+    std::vector<double> _kineticEnergyField;
+    
     size_t imageCount;
+    bool _fields;
+    
   };
 }

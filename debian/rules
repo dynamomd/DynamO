@@ -8,7 +8,7 @@ build-arch: build-stamp
 build-indep: build-stamp
 build-stamp:
 	mkdir $(BUILDDIR);
-	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX=../debian/tmp/usr ..
+	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX=../debian/tmp/usr .. -DCMAKE_BUILD_TYPE="Release"
 	make -C $(BUILDDIR)
 
 # thirdly called by launchpad

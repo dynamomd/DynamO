@@ -53,6 +53,7 @@ namespace coil {
 
     _context = magnet::GL::Context::getContext();
     initGTK();
+    _initialised = true;
   }
 
   void 
@@ -331,7 +332,7 @@ namespace coil {
     _positionXEntry->set_text(boost::lexical_cast<std::string>(newposition[0]));
     _positionYEntry->set_text(boost::lexical_cast<std::string>(newposition[1]));
     _positionZEntry->set_text(boost::lexical_cast<std::string>(newposition[2]));
-    magnet::GL::Camera::setPosition(newposition);
+    magnet::GL::CameraHeadTracking::setPosition(newposition);
   }
 
   void 
@@ -364,7 +365,7 @@ namespace coil {
     try { vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());} catch(...) {}
     if (std::isnan(vec[0]))
       M_throw() << "isnan now!" << vec.toString();
-    magnet::GL::Camera::setPosition(vec);
+    magnet::GL::CameraHeadTracking::setPosition(vec);
     if (std::isnan(vec[0]))
       M_throw() << "isnan now2!" << vec.toString();
   }

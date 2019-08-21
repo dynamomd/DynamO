@@ -49,6 +49,8 @@ namespace dynamo {
 
     //Build a window, ready to display it
     _window.reset(new coil::CLGLWindow("DynamO Visualizer", tickFreq, true));
+    //Initialise the window (and its GL context)
+    _coil.getInstance().addWindow(_window);
 
     //Cannot continue setting up the coil visualiser yet, as the other
     //dynamo classes have not been initialised.
@@ -84,10 +86,7 @@ namespace dynamo {
   {
     ID = nID;
 
-    //Add all of the objects to be rendered
-    _particleData.reset(new coil::DataSet("Particles", Sim->N()));
-    _window->addRenderObj(_particleData);
-
+    //Add all of the objects to be rendered    
     for (shared_ptr<Local>& local : Sim->locals)
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
@@ -105,9 +104,6 @@ namespace dynamo {
 	  _window->_updateDataSignal.connect<CoilRenderObj, &CoilRenderObj::updateRenderData>(obj);
 	}
       }
-
-    //Initialise coil
-    _coil.getInstance().addWindow(_window);
 
     //Now initialise data
     initDataSet();
@@ -152,6 +148,10 @@ namespace dynamo {
   void
   SVisualizer::initDataSet()
   {
+    _particleData.reset(new coil::DataSet("Particles", Sim->N()));
+    _window->addRenderObj(_particleData);
+    _particleData->waitTillInitialised();
+    
     _particleData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 4);

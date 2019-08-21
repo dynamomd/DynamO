@@ -63,7 +63,7 @@ namespace magnet {
       {
 	set_events(::Gdk::KEY_PRESS_MASK | ::Gdk::EXPOSURE_MASK | ::Gdk::BUTTON_PRESS_MASK
 		   | ::Gdk::BUTTON_RELEASE_MASK | ::Gdk::POINTER_MOTION_MASK);
-	set_flags(::Gtk::CAN_FOCUS);
+	set_can_focus(true);
 
 	_transferFunction.addKnot(0.0, 1, 0, 1, 0.0);
 	_transferFunction.addKnot(0.5, 1, 0, 1, 0.5);
@@ -179,17 +179,17 @@ namespace magnet {
 		  
 		  Knot knot = *iPtr;
 		  
-		  select.get_colorsel()->set_current_color(ConvertKnotToGdk(knot));
-		  select.get_colorsel()->set_current_alpha(knot._a * G_MAXUSHORT);
-		  select.get_colorsel()->set_has_opacity_control(true);
+		  select.get_color_selection()->set_current_color(ConvertKnotToGdk(knot));
+		  select.get_color_selection()->set_current_alpha(knot._a * G_MAXUSHORT);
+		  select.get_color_selection()->set_has_opacity_control(true);
 		    
 		  switch(select.run())
 		    {
 		    case ::Gtk::RESPONSE_OK:
 		      {
 			_transferFunction
-			  .setKnot(iPtr, ConvertGdkToKnot(select.get_colorsel()->get_current_color(), 
-							  select.get_colorsel()->get_current_alpha(), 
+			  .setKnot(iPtr, ConvertGdkToKnot(select.get_color_selection()->get_current_color(), 
+							  select.get_color_selection()->get_current_alpha(), 
 							  knot._x));
 			_updatedCallback();
 			forceRedraw();
@@ -283,124 +283,107 @@ namespace magnet {
 		      -height * (allocation.get_height() - getPointSize()));
       }
 
-      bool on_expose_event(GdkEventExpose* event)
+      virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr_ref)
       {
-	// This is where we draw on the window
-	Glib::RefPtr<Gdk::Window> window = get_window();
-	if(window)
-	  {
-	    Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
-
-	    const ::Gtk::Allocation& allocation = get_allocation();
+	Cairo::RefPtr<Cairo::Context> cr = cr_ref;
 	
-	    //Scale so that x is in the range [0,1] and that y goes from 0 (bottom) to 1 (top)	
-	    if(event)
-	      {
-		// clip to the area indicated by the expose event so that we only
-		// redraw the portion of the window that needs to be redrawn
-		cr->rectangle(event->area.x, event->area.y,
-			      event->area.width, event->area.height);
-		cr->clip();
-	      }
-
-	    //Draw background colors
-	    cr->save();
+	const ::Gtk::Allocation& allocation = get_allocation();
+	//Draw background colors
+	cr->save();
+	{
+	  //First build the gradient 
+	  Cairo::RefPtr<Cairo::LinearGradient> grad
+	    = Cairo::LinearGradient::create(0.5 * getPointSize(), 0,
+					    allocation.get_width() 
+					    - 0.5 * getPointSize(), 0);
+	  for (size_t i(1); i < 256; ++i)
 	    {
-	      //First build the gradient 
-	      Cairo::RefPtr<Cairo::LinearGradient> grad
-		= Cairo::LinearGradient::create(0.5 * getPointSize(), 0,
-						allocation.get_width() 
-						- 0.5 * getPointSize(), 0);
-	      for (size_t i(1); i < 256; ++i)
-		{
-		  std::array<float,4> val = _transferFunction.getValue(i / 255.0);
+	      std::array<float,4> val = _transferFunction.getValue(i / 255.0);
 		  
-		  float color[4];
-		  magnet::color::HSVtoRGB(color, val[0], val[1], val[2], val[3]);
+	      float color[4];
+	      magnet::color::HSVtoRGB(color, val[0], val[1], val[2], val[3]);
 
-		  grad->add_color_stop_rgba(i / 255.0, color[0], color[1], color[2], color[3]);
-		}
+	      grad->add_color_stop_rgba(i / 255.0, color[0], color[1], color[2], color[3]);
+	    }
 	      
-	      cr->set_source(grad);
-	      graph_rectangle(cr, 0, 0, 1, 1);
-	      cr->fill();
-	    }
-	    cr->restore();
+	  cr->set_source(grad);
+	  graph_rectangle(cr, 0, 0, 1, 1);
+	  cr->fill();
+	}
+	cr->restore();
 
-	    //Draw Grid
-	    cr->set_source_rgba(0, 0, 0, 1);
-	    cr->set_line_width(_grid_line_width);
-	    //horizontal lines
-	    for (size_t i(0); i < 5; ++i)
-	      {
-		graph_move_to(cr, 0.0f, i / 4.0f);
-		graph_line_to(cr, 1.0f, i / 4.0f);
-		cr->stroke();
-	      }
-
-	    //Vertical lines
-	    for (size_t i(0); i < 5; ++i)
-	      {
-		graph_move_to(cr, i / 4.0f, 0.0f);
-		graph_line_to(cr, i / 4.0f, 1.0f);
-		cr->stroke();
-	      }
-
-	    { //draw the curve of the graph
-	      cr->set_source_rgba(0, 0, 0, 1);
-	      cr->set_line_width(5 * _grid_line_width);
-
-	      //Initial point
-	      graph_move_to(cr, 0, _transferFunction.getValue(0)[3]);
-	      
-	      for (size_t i(1); i < 256; ++i)
-		graph_line_to(cr, i / 255.0, magnet::clamp(_transferFunction.getValue(i / 255.0)[3], 0.0f, 1.0f));
-	  
-	      cr->stroke();
-	    }
-
-	    if (_histogram.size() == 256)
-	      { //Draw the histogram of the data set
-		cr->set_source_rgba(0.2, 0.2, 0.2, 1);
-		cr->set_line_width(2 * _grid_line_width);
-		//Initial point
-		graph_move_to(cr, 0, _histogram[0]);
-		for (size_t i(1); i < 256; ++i)
-		  graph_line_to(cr, i / 255.0, _histogram[i]);
-		cr->stroke();
-	      }
-
-	    
-	    { // draw the nodes of the graph
-	      typedef magnet::color::TransferFunction::const_iterator it;
-
-	      for (it iPtr = _transferFunction.begin(); iPtr != _transferFunction.end(); ++iPtr)
-		{
-		  cr->set_source_rgba(0, 0, 0, 1);
-		  cr->set_line_width(5 * _grid_line_width);
-		  const std::pair<double, double>& pos(to_graph_transform(iPtr->_x, iPtr->_a));
-		  cr->arc(pos.first, pos.second,  getPointSize() / 2, 0, 2 * M_PI);
-
-		  float color[4];
-		  magnet::color::HSVtoRGB<float>(color, iPtr->_h, iPtr->_s, iPtr->_v, 1);
-
-
-		  cr->set_source_rgba(color[0], color[1], color[2], 1.0);
-		  cr->fill_preserve();
-
-		  if (iPtr - _transferFunction.begin() == _selectedNode)
-		    {
-		      cr->set_source_rgba(1, 1, 1, 1); cr->stroke();
-		      cr->arc(pos.first, pos.second,  
-			      (getPointSize() + 4 * _grid_line_width) /  2, 0, 2 * M_PI);
-		      cr->set_source_rgba(0, 0, 0, 1); cr->stroke();
-		    }
-		  else
-		    { cr->set_source_rgba(0, 0, 0, 1); cr->stroke(); }
-		}
-	    }
+	//Draw Grid
+	cr->set_source_rgba(0, 0, 0, 1);
+	cr->set_line_width(_grid_line_width);
+	//horizontal lines
+	for (size_t i(0); i < 5; ++i)
+	  {
+	    graph_move_to(cr, 0.0f, i / 4.0f);
+	    graph_line_to(cr, 1.0f, i / 4.0f);
+	    cr->stroke();
 	  }
 
+	//Vertical lines
+	for (size_t i(0); i < 5; ++i)
+	  {
+	    graph_move_to(cr, i / 4.0f, 0.0f);
+	    graph_line_to(cr, i / 4.0f, 1.0f);
+	    cr->stroke();
+	  }
+
+	{ //draw the curve of the graph
+	  cr->set_source_rgba(0, 0, 0, 1);
+	  cr->set_line_width(5 * _grid_line_width);
+
+	  //Initial point
+	  graph_move_to(cr, 0, _transferFunction.getValue(0)[3]);
+	      
+	  for (size_t i(1); i < 256; ++i)
+	    graph_line_to(cr, i / 255.0, magnet::clamp(_transferFunction.getValue(i / 255.0)[3], 0.0f, 1.0f));
+	  
+	  cr->stroke();
+	}
+
+	if (_histogram.size() == 256)
+	  { //Draw the histogram of the data set
+	    cr->set_source_rgba(0.2, 0.2, 0.2, 1);
+	    cr->set_line_width(2 * _grid_line_width);
+	    //Initial point
+	    graph_move_to(cr, 0, _histogram[0]);
+	    for (size_t i(1); i < 256; ++i)
+	      graph_line_to(cr, i / 255.0, _histogram[i]);
+	    cr->stroke();
+	  }
+
+	    
+	{ // draw the nodes of the graph
+	  typedef magnet::color::TransferFunction::const_iterator it;
+
+	  for (it iPtr = _transferFunction.begin(); iPtr != _transferFunction.end(); ++iPtr)
+	    {
+	      cr->set_source_rgba(0, 0, 0, 1);
+	      cr->set_line_width(5 * _grid_line_width);
+	      const std::pair<double, double>& pos(to_graph_transform(iPtr->_x, iPtr->_a));
+	      cr->arc(pos.first, pos.second,  getPointSize() / 2, 0, 2 * M_PI);
+
+	      float color[4];
+	      magnet::color::HSVtoRGB<float>(color, iPtr->_h, iPtr->_s, iPtr->_v, 1);
+
+
+	      cr->set_source_rgba(color[0], color[1], color[2], 1.0);
+	      cr->fill_preserve();
+
+	      if (iPtr - _transferFunction.begin() == _selectedNode)
+		{
+		  cr->set_source_rgba(1, 1, 1, 1); cr->stroke();
+		  cr->arc(pos.first, pos.second,  
+			  (getPointSize() + 4 * _grid_line_width) /  2, 0, 2 * M_PI);
+		  cr->set_source_rgba(0, 0, 0, 1); cr->stroke();
+		}
+	      else
+		{ cr->set_source_rgba(0, 0, 0, 1); cr->stroke(); }
+	    }
+	}
 	return true;
       }
 

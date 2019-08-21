@@ -1,0 +1,3 @@
+[submodule "extern/stator"]
+	path = extern/stator
+	url = https://github.com/toastedcrumpets/stator.git

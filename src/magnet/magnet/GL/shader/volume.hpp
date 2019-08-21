@@ -31,7 +31,11 @@ namespace magnet {
        */
       class VolumeShader: public detail::Shader
       {
-      public:      
+      public:
+	VolumeShader() {
+	  defines("FORCE_DIRECT_INTEGRATION") = "false";
+	}
+	
 	virtual std::string initVertexShaderSource()
 	{ return STRINGIFY(
 uniform mat4 ProjectionMatrix;
@@ -69,7 +73,7 @@ uniform sampler1D IntTransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
 uniform float StepSize;
-uniform int DitherRay;
+uniform float DitherRay;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
@@ -110,10 +114,9 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
       float lightDistance = length(lightVector);
       vec3 lightDirection = lightVector * (1.0 / lightDistance);
       
-      //if the normal has a zero length, illuminate it as though it was
-      //not lit
+      //if the normal has a zero length, illuminate it as though it was fully lit
       float normal_length = length(normal);
-      normal = (normal_length == 0) ?  -lightDirection : normal / normal_length;
+      normal = (normal_length == 0) ?  lightDirection : normal / normal_length;
       
       float lightNormDot = dot(normal, lightDirection);
       
@@ -181,7 +184,7 @@ void main()
   float starting_offset = tnear; 
 
   if (DitherRay != 0)
-    starting_offset += StepSize * fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
+    starting_offset += StepSize * fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233))+DitherRay) * 43758.5453);
 
   vec3 rayPos = RayOrigin + rayDirection * starting_offset;
   
@@ -190,38 +193,40 @@ void main()
   
   //Start the sampling by initialising the ray variables. We take the
   //first sample ready to integrate to the next sample
-  vec4 first_sample = grabSample(rayPos);
-
-  float lastsamplea = first_sample.a;
-  vec4 lastTransfer = texture(IntTransferTexture, lastsamplea);
-  vec3 lastnorm = first_sample.xyz * 2.0 - vec3(1.0);
-  float lastnorm_length = length(lastnorm);
-  lastnorm = (lastnorm_length == 0) ? -rayDirection : lastnorm / lastnorm_length;
-
+  float lastsamplea = 0.0;
+  vec4 lastTransfer = texture(IntTransferTexture, 0.0);
+  
   //Make this into the ray position step vector
   rayDirection *= StepSize;
 
-  rayPos += rayDirection;
+  //Here we store the direction of the transfer function alpha. This
+  //is used to flip the gradient/normal, so that it always points
+  //outwards from increasing alpha
+  float lastSign = 1;
 
-  for (float length = tfar - tnear; length > 0.0;
+  //We only accumulate up to 0.99 alpha (the blending never reaches
+  //1).
+  for (float length = tfar - tnear; (length > 0.0) && (color.a < 0.99);
        length -= StepSize, rayPos += rayDirection)
     {
       //Grab the volume sample
       vec4 sample = grabSample(rayPos);
-      float delta = sample.a - lastsamplea;
       vec4 transfer = texture(IntTransferTexture, sample.a);
-      float deltaT = transfer.a - lastTransfer.a;
-      vec3 deltaK = transfer.rgb - lastTransfer.rgb;
+      float delta = sample.a - lastsamplea;
 
       vec4 src;
-      if (delta == 0.0)
-	{ //Special case where the integration breaks down, just use the constant val.
+      if (FORCE_DIRECT_INTEGRATION || (delta == 0.0))
+	{ //Special case where the integration breaks down, just use
+	  //the constant val.
 	  src = texture(TransferTexture, sample.a);
 	  src.a = (1.0 - exp( - StepSize * src.a));
 	}
       else
 	{
 	  /*Pre-Integrated color calc*/
+	  float deltaT = transfer.a - lastTransfer.a;
+	  vec3 deltaK = transfer.rgb - lastTransfer.rgb;
+	  lastSign = sign(deltaT);
 	  float opacity = 1.0 - exp( - deltaT * StepSize / delta);
 	  vec3 color = abs(deltaK) / (abs(deltaT) + 1.0e-10);
 	  src = vec4(color, opacity);
@@ -231,35 +236,13 @@ void main()
       lastsamplea = sample.a;
 
       ////////////Lighting calculations
-      //We perform all the calculations in the eye space, The normal
-      //from the previous step is used, as it is the normal in the
-      //direction the ray entered the volume.
-      vec3 norm = (ViewMatrix * vec4(lastnorm, 0.0)).xyz;      
+      //We perform all the calculations in the eye space.
+      vec3 norm = (ViewMatrix * vec4(lastSign*(sample.xyz * 2.0 - vec3(1.0)), 0.0)).xyz;
       src.rgb = calcLighting((ViewMatrix * vec4(rayPos,1.0)).xyz, norm, src.rgb);
-
-      //Update the lastnormal with the new normal, if it is valid
-      norm = sample.xyz * 2.0 - vec3(1.0);
-      //Test if we've got a bad normal and need to reuse the old one
-      float sqrnormlength = dot(norm,norm);
-      norm /= sqrt(sqrnormlength);
-      if (sqrnormlength >= 0.01)
-	lastnorm = norm;
 
       ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
-  
-      //We only accumulate up to 0.95 alpha (the blending never
-      //reaches 1).
-      if (color.a >= 0.95)
-  	{
-  	  //We have to renormalize the color by the alpha value (see
-  	  //below)
-  	  color.rgb /= color.a;
-  	  //Set the alpha to one to make sure the pixel is not transparent
-  	  color.a = 1.0;
-  	  break;
-  	}
     }
   /*We must renormalize the color by the alpha value. For example, if
   our ray only hits just one white voxel with a alpha of 0.5, we will have
@@ -276,6 +259,8 @@ void main()
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */
   color.rgb /= float(color.a == 0.0) + color.a;
+  if (color.a >= 0.99)
+    color.a = 1.0;
   color_out = color;
 });
 	}

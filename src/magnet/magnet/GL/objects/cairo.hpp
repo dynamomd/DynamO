@@ -39,7 +39,7 @@ namespace magnet {
         It also provides an alpha-tested magnification routine and
         corresponding shader to help fake "vectorised" bitmap
         graphics. The technique is briefly described in the paper
-        "Improved Alpha-Tested Magnification for math::Vector Textures
+        "Improved Alpha-Tested Magnification for Vector Textures
         and Special Effects," by Chris Green from Valve.
        */
       class CairoSurface
@@ -346,6 +346,9 @@ void main()
 
 	const Cairo::RefPtr<Cairo::Context>& getContext() { return _cairoContext; }
 
+	size_t getHeight() const { return _height; }
+	size_t getWidth() const { return _width; }
+	
       protected:
 
 	Texture2D _surface;

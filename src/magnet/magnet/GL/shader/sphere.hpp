@@ -107,7 +107,7 @@ void VertexEmit(in vec2 displacement)
   frag_radius = radius[0];
   vert_color = color[0];
   frag_center = gl_in[0].gl_Position.xyz;
-  vec3 position = gl_in[0].gl_Position.xyz + vec3(radius[0] * displacement, 0.0);
+  vec3 position = gl_in[0].gl_Position.xyz + vec3(radius[0] * displacement, radius[0]);
   frag_pos = position;
   gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
   EmitVertex();
@@ -126,7 +126,12 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY(
+	  return
+	    "#ifdef GL_ARB_conservative_depth\n"
+	    "#extension GL_ARB_conservative_depth : enable\n"
+	    "layout (depth_greater) out float gl_FragDepth;"
+	    "#endif\n"
+	    STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
 flat in vec4 vert_color;

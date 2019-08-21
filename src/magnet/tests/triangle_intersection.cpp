@@ -19,9 +19,6 @@ Vector random_unit_vec() {
   return vec / vec.nrm();
 }
 
-const size_t testcount = 1000;
-const double errlvl = 1e-8;
-
 std::pair<double, double> ray_wall_bounds(const Vector& relPos, const Vector& relVel, 
 				   const Vector& normal, const double dist)
 {
@@ -78,6 +75,7 @@ BOOST_AUTO_TEST_CASE(TimeToEvent_Test)
 //  auto out = ray_wall(Vector(1.5141, 0, 0), Vector(-0.92378417, 0, 0), Vector(-1, 0, 0), 0.5);
 //  std::cout << "rootpair = " << out.first << ", " << out.second << std::endl;
 //
+//  const size_t testcount = 1000;
 //  for (size_t i(0); i < testcount; ++i)
 //    {
 //      //Generate a wall somewhere
@@ -99,6 +97,7 @@ BOOST_AUTO_TEST_CASE(TimeToEvent_Test)
 //
 //      //Test the collision is detected
 //      double calc_deltat = magnet::intersection::ray_plane(position - wallpos, velocity, n, diam);
+//      const double errlvl = 1e-8;
 //      BOOST_CHECK_CLOSE(deltat, calc_deltat, errlvl);
 //    }
 }

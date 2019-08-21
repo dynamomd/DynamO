@@ -47,8 +47,11 @@ void main()
   };
 
   public:
-    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions({1,1,1}) {}
+    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions({1,1,1}), _frameCounter(0) {}
+    RVolume(stator::xml::Node);
   
+    virtual bool deletable() { return true; }
+    
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
     virtual void forwardRender(magnet::GL::FBO& fbo,
@@ -59,7 +62,7 @@ void main()
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    void loadRawFile(std::string filename, std::array<size_t, 3> dimensions, size_t bytes);
+    void loadRawFile(std::string filename, std::array<size_t, 3> dimensions, size_t bytes, Vector dims = Vector{0,0,0});
 
 #ifdef COIL_TIFFSUPPORT
     void loadTIFFFiles(std::vector<std::string> files);
@@ -74,6 +77,7 @@ void main()
 
     void loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector scale);
 
+    virtual void xml(stator::xml::Node);
   protected:
     void loadSphereTestPattern();
 
@@ -95,9 +99,12 @@ void main()
     std::unique_ptr<Gtk::VBox> _optList;
     std::unique_ptr<Gtk::Entry> _stepSize;
     std::unique_ptr<Gtk::CheckButton> _ditherRay;
+    std::unique_ptr<Gtk::CheckButton> _variableDither;
     std::unique_ptr<Gtk::CheckButton> _filterData;
+    std::unique_ptr<Gtk::CheckButton> _preintegrate;
     std::unique_ptr<magnet::gtk::TransferFunction> _transferFunction;
     GLfloat _stepSizeVal;
     Vector _dimensions;
+    size_t _frameCounter;
   };
 }
