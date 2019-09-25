@@ -47,7 +47,7 @@ namespace dynamo {
     unsigned long sampleCount;
     double sample_energy; 
     double sample_energy_bin_width;
-    std::pair<std::string, std::string> rdfpairs;
+    std::vector<std::pair<unsigned int, unsigned int>> rdfpairs;
     std::vector<std::vector<std::vector<unsigned long> > > data;
   };
 }

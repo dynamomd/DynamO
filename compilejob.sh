@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=5gb
 #SBATCH --time=6:00:00
-#SBATCH --mail-type=BEGIN,END,FAIL
+##SBATCH --mail-type=BEGIN,END,FAIL
 
 module purge
 module load compiler/gcc/8.3

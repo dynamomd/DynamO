@@ -29,8 +29,7 @@ namespace dynamo {
     length(100),
     sampleCount(0),
     sample_energy(0),
-    sample_energy_bin_width(0),
-    rdfpairs(std::make_pair("",""))
+    sample_energy_bin_width(0)
   { operator<<(XML); }
 
   void 
@@ -41,46 +40,59 @@ namespace dynamo {
         std::string pairval("");
         pairval = XML.getAttribute("rdfpairs").as<std::string>();
         std::vector<std::string> pairstrings(2);
+        std::vector<unsigned int> pairIDs;
         boost::split(pairstrings, pairval, [](char c){return c == ' ';});
-        rdfpairs = std::make_pair(pairstrings[0],pairstrings[1]);
+        for (const shared_ptr<Species>& sp : Sim->species) {
+          if (sp->getName() == pairstrings[0])
+            pairIDs.push_back(sp->getID());
+          if (sp->getName() == pairstrings[1])
+            pairIDs.push_back(sp->getID());
+          rdfpairs.push_back(std::make_pair(pairIDs[0],pairIDs[1]));
+        }
+      }
+      else {
+        for (const shared_ptr<Species>& sp1 : Sim->species)
+          for (const shared_ptr<Species>& sp2 : Sim->species)
+          {
+            rdfpairs.push_back(std::make_pair(sp1->getID(),sp2->getID()));
+          }
       }
       if (XML.hasAttribute("BinWidth"))
-	binWidth = XML.getAttribute("BinWidth").as<double>();
-
-      binWidth *= Sim->units.unitLength();
+	    binWidth = XML.getAttribute("BinWidth").as<double>();
+        binWidth *= Sim->units.unitLength();
     
       if (XML.hasAttribute("Length"))
-	length = XML.getAttribute("Length").as<size_t>();
-      else
-	{
-	  size_t mindir = 0;
-	  for (size_t iDim = 1; iDim < NDIM; ++iDim)
-	    if (Sim->primaryCellSize[iDim] > Sim->primaryCellSize[mindir])
-	      mindir = iDim;
-	
-	  //Times 2 as the max dist is half a box length
-	  //+2 for rounding truncation and for a zero bin       
-	  length = 2 + static_cast<size_t>(Sim->primaryCellSize[mindir] / (2 * binWidth));
-	}
+	    length = XML.getAttribute("Length").as<size_t>();
+      else {
+        size_t mindir = 0;
+        for (size_t iDim = 1; iDim < NDIM; ++iDim)
+          if (Sim->primaryCellSize[iDim] > Sim->primaryCellSize[mindir])
+            mindir = iDim;
+      
+        //Times 2 as the max dist is half a box length
+        //+2 for rounding truncation and for a zero bin       
+        length = 2 + static_cast<size_t>(Sim->primaryCellSize[mindir] / (2 * binWidth));
+      }
 
-      if (XML.hasAttribute("SampleEnergy"))
-	{
-	  sample_energy = XML.getAttribute("SampleEnergy").as<double>() 
-	    * Sim->units.unitEnergy();
-	  sample_energy_bin_width = 1 / Sim->units.unitEnergy();
-
-	  if (XML.hasAttribute("SampleEnergyWidth"))
-	    sample_energy_bin_width = XML.getAttribute("SampleEnergyWidth").as<double>() * Sim->units.unitEnergy();
-	}
+      if (XML.hasAttribute("SampleEnergy")) {
+        sample_energy = XML.getAttribute("SampleEnergy").as<double>() 
+          * Sim->units.unitEnergy();
+        sample_energy_bin_width = 1 / Sim->units.unitEnergy();
+      
+        if (XML.hasAttribute("SampleEnergyWidth"))
+          sample_energy_bin_width = XML.getAttribute("SampleEnergyWidth").as<double>() * Sim->units.unitEnergy();
+      }
       
       dout << "BinWidth = " << binWidth / Sim->units.unitLength()
 	   << "\nLength = " << length
-       << "\nrdfpairs = " << std::get<0>(rdfpairs) << ", " << std::get<1>(rdfpairs) << std::endl;
+       << "\nrdfpairs = ";
+       for (std::pair<unsigned int, unsigned int> pairI : rdfpairs){
+         dout << std::get<0>(pairI) << ", " << std::get<1>(pairI) << std::endl;
+       }
     }
-    catch (std::exception& excep)
-      {
-	M_throw() << "Error while parsing output plugin options\n" << excep.what();
-      }
+    catch (std::exception& excep) {
+	  M_throw() << "Error while parsing output plugin options\n" << excep.what();
+    }
   }
 
   void 
@@ -120,18 +132,19 @@ namespace dynamo {
   
     for (const shared_ptr<Species>& sp1 : Sim->species)
       for (const shared_ptr<Species>& sp2 : Sim->species)
+        for (std::pair<unsigned int, unsigned int> pairI : rdfpairs)
         {
-         if (sp1->getName() == std::get<0>(rdfpairs) && sp2->getName() == std::get<1>(rdfpairs))
-         {
-	for (const size_t& p1 : *sp1->getRange())
-	  for (const size_t& p2 : *sp2->getRange())
-	    {
-	      Vector  rij = Sim->particles[p1].getPosition() - Sim->particles[p2].getPosition();
-	      Sim->BCs->applyBC(rij);
-	      const size_t i = static_cast<size_t>(rij.nrm() / binWidth + 0.5);
-	      if (i < length) ++data[sp1->getID()][sp2->getID()][i];
-	    }
-        }
+          if (sp1->getID() == std::get<0>(pairI) && sp2->getID() == std::get<1>(pairI))
+          {
+            for (const size_t& p1 : *sp1->getRange())
+           	for (const size_t& p2 : *sp2->getRange())
+           	{
+           	  Vector  rij = Sim->particles[p1].getPosition() - Sim->particles[p2].getPosition();
+           	  Sim->BCs->applyBC(rij);
+           	  const size_t i = static_cast<size_t>(rij.nrm() / binWidth + 0.5);
+           	  if (i < length) ++data[sp1->getID()][sp2->getID()][i];
+           	}
+          }
         }
   }
 
@@ -165,31 +178,32 @@ namespace dynamo {
   
     for (const shared_ptr<Species>& sp1 : Sim->species)
       for (const shared_ptr<Species>& sp2 : Sim->species)
-      {
-        if (sp1->getName() == std::get<0>(rdfpairs) && sp2->getName() == std::get<1>(rdfpairs))
+        for (std::pair<unsigned int, unsigned int> pairI : rdfpairs)
         {
-	const double density = (sp2->getCount() - (sp1 == sp2)) / Sim->getSimVolume();
-	const size_t originsTaken = sampleCount * sp1->getCount();
+          if (sp1->getID() == std::get<0>(pairI) && sp2->getID() == std::get<1>(pairI))
+          {
+	        const double density = (sp2->getCount() - (sp1 == sp2)) / Sim->getSimVolume();
+	        const size_t originsTaken = sampleCount * sp1->getCount();
 
-	XML << magnet::xml::tag("Species")
-	    << magnet::xml::attr("Name1")
-	    << sp1->getName()
-	    << magnet::xml::attr("Name2")
-	    << sp2->getName()
-	    << magnet::xml::attr("Samples") << originsTaken
-	    << magnet::xml::chardata();
+	        XML << magnet::xml::tag("Species")
+	            << magnet::xml::attr("Name1")
+	            << sp1->getName()
+	            << magnet::xml::attr("Name2")
+	            << sp2->getName()
+	            << magnet::xml::attr("Samples") << originsTaken
+	            << magnet::xml::chardata();
 
-	//Skip the zero bin
-	for (size_t i = 1; i < length; ++i)
-	  {
-	    const double radius = binWidth * i;
-	    const double volshell =  M_PI * (4.0 * binWidth * radius * radius + binWidth * binWidth * binWidth / 3.0);
-	    const double GR = static_cast<double>(data[sp1->getID()][sp2->getID()][i]) / (density * originsTaken * volshell);
-	    XML << radius / Sim->units.unitLength() << " " << GR << "\n";
-	  }
-	XML << magnet::xml::endtag("Species");
+	        //Skip the zero bin
+	        for (size_t i = 1; i < length; ++i)
+	        {
+	          const double radius = binWidth * i;
+	          const double volshell =  M_PI * (4.0 * binWidth * radius * radius + binWidth * binWidth * binWidth / 3.0);
+	          const double GR = static_cast<double>(data[sp1->getID()][sp2->getID()][i]) / (density * originsTaken * volshell);
+	          XML << radius / Sim->units.unitLength() << " " << GR << "\n";
+	        }
+	        XML << magnet::xml::endtag("Species");
+        }
       }
-  }
     XML << magnet::xml::endtag("RadialDistribution");
   }
 }
