@@ -46,6 +46,7 @@ namespace dynamo
     endEventCount(100000),
     eventPrintInterval(50000),
     nextPrintEvent(0),
+    _force_unwrapped(false),
     primaryCellSize({1,1,1}),
     ranGenerator(std::random_device()()),
     lastRunMFT(0.0),
@@ -426,6 +427,9 @@ namespace dynamo
   void
   Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
+    //Facilitate forced unwrapping when needed
+    applyBC = applyBC || _force_unwrapped;
+    
     namespace xml = magnet::xml;
     xml::XmlStream XML;
     XML.setFormatXML(true);

@@ -343,6 +343,11 @@ namespace dynamo
         output collision number.*/
     size_t nextPrintEvent;
 
+    /*! \brief Force the output file to have particles in unwrapped
+        coordinates. Needed for some interactions that break
+        periodicity (like SOCells).*/
+    bool _force_unwrapped;
+    
     /*! \brief Number of Particle's in the system. */
     size_t N() const { return particles.size(); }
     

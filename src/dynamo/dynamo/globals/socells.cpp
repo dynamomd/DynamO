@@ -29,6 +29,7 @@
 #include <boost/math/special_functions/pow.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 
 namespace dynamo {
   GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
@@ -86,9 +87,6 @@ namespace dynamo {
     //The following is not needed as we compensate for particle delay
     //Sim->dynamics->updateParticle(part);
 
-    //Create a fake particle which represents the cell center
-    const Particle cellParticle(cell_origins[part.getID()], Vector({0,0,0}), -1);
-
     //Vector pos = part.getPosition() - cellParticle.getPosition();
     //Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
     //if (part.getID() == 2) {
@@ -104,8 +102,11 @@ namespace dynamo {
     //  dout << "#Relative final p" << (finalP.nrm() - _cellD)/_cellD<< std::endl;
     //  dout << " cell origin " << cell_origins[part.getID()] / Sim->units.unitLength() << std::endl;
     //}
-        
-    return Event(part, Sim->dynamics->SphereSphereOutRoot(part, cellParticle, _cellD/2) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
+
+    const Vector r12 = part.getPosition() - cell_origins[part.getID()];
+    const Vector v12 = part.getVelocity();
+    
+    return Event(part, magnet::intersection::ray_sphere<true>(r12, v12, _cellD/2) - Sim->dynamics->getParticleDelay(part), GLOBAL, CELL, ID);
   }
 
   void
@@ -170,15 +171,17 @@ namespace dynamo {
       _cellD = std::cbrt(cellVolume * 6 / M_PI);
     }
 
-    if (((_cellD >= 0.5 * Sim->primaryCellSize[0])
-	|| (_cellD >= 0.5 * Sim->primaryCellSize[1])
-	|| (_cellD >= 0.5 * Sim->primaryCellSize[2]))
-	&& (std::dynamic_pointer_cast<BCPeriodic>(Sim->BCs)))
-      M_throw() << "ERROR: SOCells diameter (" << _cellD / Sim->units.unitLength() << ") is more than half the primary image size (" << Sim->primaryCellSize << "), this will break in periodic boundary conditions";
+    //We need to use unwrapped positions always to stop particles
+    //being wrapped into the primary cell and somehow out of their
+    //SOcell.
+    Sim->_force_unwrapped = true;
+    
+    if (typeid(*Sim->dynamics) != typeid(DynNewtonian))
+      M_throw() << "ERROR: SOCells requires Newtonian dynamics, its not been generalised for other dynamics yet.";
 
     for (const Particle& p : Sim->particles) {
       Vector pos = p.getPosition() - cell_origins[p.getID()];
-      Sim->BCs->applyBC(pos);
+      
       if (pos.nrm2() > _cellD * _cellD)
 	derr << "Particle " << p.getID() << " is at a distance of "
 	     << (pos).nrm() / Sim->units.unitLength()
