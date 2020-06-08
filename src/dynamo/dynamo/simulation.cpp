@@ -428,7 +428,7 @@ namespace dynamo
   Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
     //Facilitate forced unwrapping when needed
-    applyBC = applyBC || _force_unwrapped;
+    applyBC = applyBC && !_force_unwrapped;
     
     namespace xml = magnet::xml;
     xml::XmlStream XML;
