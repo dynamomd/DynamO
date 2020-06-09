@@ -133,7 +133,7 @@ namespace dynamo {
     
     Sim->dynamics->updateParticle(part);
     Vector pos = part.getPosition() - cell_origins[part.getID()];
-    Sim->BCs->applyBC(pos); //We don't apply the PBC, as 
+    //Sim->BCs->applyBC(pos); //We don't apply the PBC, as the particles are always tied to the primary image
     
     //dout << "!Particle " << part.getID() << " at " << part.getPosition() / Sim->units.unitLength() << std::endl;
     //dout << "!Cell origin " << cell_origins[part.getID()] / Sim->units.unitLength() << std::endl;
