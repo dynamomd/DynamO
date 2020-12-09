@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import os
 import xml.etree.ElementTree as ET
  
@@ -16,13 +16,13 @@ def loadXMLFile(filename):
 
 import sys
 if len(sys.argv) == 1:
-    print "dynamo2xyz CONFIG-FILE-NAME1 [CONFIG-FILE-NAME2]"
-    print " This program converts a dynamo configuration file to xyz format"
-    print " and prints it on the screen. To save this conversion, just "
-    print "redirect it to a file. For example,"
-    print "  dynamo2xyz config.out.xml.bz2 > config.xyz"
-    print "If multiple file names are given, they are stitched together,"
-    print "in order, to make an animation file."
+    print("dynamo2xyz CONFIG-FILE-NAME1 [CONFIG-FILE-NAME2]")
+    print(" This program converts a dynamo configuration file to xyz format")
+    print(" and prints it on the screen. To save this conversion, just ")
+    print("redirect it to a file. For example,")
+    print("  dynamo2xyz config.out.xml.bz2 > config.xyz")
+    print("If multiple file names are given, they are stitched together,")
+    print("in order, to make an animation file.")
     exit(1);
 
 
@@ -39,21 +39,21 @@ for filename in sys.argv[1:]:
 
     #Now check that all files have the same particle count
     if particlecount != currentparticlecount:
-        print "input file", filename, "has",currentparticlecount,"particles, but all files must have the same number of particles. The first file has",particlecount
+        print("input file", filename, "has",currentparticlecount,"particles, but all files must have the same number of particles. The first file has",particlecount)
         exit(1)
         
     #Start of the XYZ file format. We skip the optional comment line
     #line 1: number of particles
-    print particlecount
+    print(particlecount)
     #line 2: molecule name
-    print "DynamOdata"
+    print("DynamOdata")
     #line 3-onwards: atom_number x y z vx vy vz
     for particleNode in RootElement.findall('.//Pt'):
         posNode = particleNode.find('P')
         velNode = particleNode.find('V')
         #First column is the atom name/type. Note the trailing comma to prevent a newline!
-        print "H", 
+        print("H",end=" ")
         #Next three columns are the position
-        print posNode.attrib['x'], posNode.attrib['y'], posNode.attrib['z'],
+        print(posNode.attrib['x'], posNode.attrib['y'], posNode.attrib['z'], end=" ")
         #Next three columns are the velocity
-        print velNode.attrib['x'], velNode.attrib['y'], velNode.attrib['z']
+        print(velNode.attrib['x'], velNode.attrib['y'], velNode.attrib['z'])
