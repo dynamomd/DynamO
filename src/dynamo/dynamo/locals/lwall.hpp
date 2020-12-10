@@ -69,6 +69,9 @@ namespace dynamo {
     shared_ptr<Property> _e;
     bool render;
     double _sqrtT;
+    double _frequency;
+    double _amplitude;
+    double _phase_offset;
     double _slip;
   };
 }
