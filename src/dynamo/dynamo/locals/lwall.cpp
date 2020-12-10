@@ -50,7 +50,7 @@ namespace dynamo {
     ++Sim->eventCount;
     if (_amplitude > 0) {
       const double current_T = _sqrtT * _sqrtT + _amplitude * std::sin(_frequency * Sim->systemTime + _phase_offset);
-      return Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrt(current_T), _diameter->getProperty(part));
+      return Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrt(current_T), _diameter->getProperty(part), _slip);
     }
     if (_sqrtT > 0)
       return Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part), _slip);
