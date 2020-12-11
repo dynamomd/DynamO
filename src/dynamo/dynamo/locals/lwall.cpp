@@ -78,7 +78,7 @@ namespace dynamo {
       _sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
 		    * Sim->units.unitEnergy());
 
-      if (XML.hasAttribute("Amplitude") or XML.hasAttribute("Frequency") or XML.hasAttribute("Phase_Offset")) {
+      if (XML.hasAttribute("Amplitude") || XML.hasAttribute("Frequency") || XML.hasAttribute("Phase_Offset")) {
 	_amplitude = XML.getAttribute("Amplitude").as<double>() * Sim->units.unitEnergy();
 	_frequency = XML.getAttribute("Frequency").as<double>();
 	_phase_offset = XML.getAttribute("Phase_Offset").as<double>();

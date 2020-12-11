@@ -3,24 +3,24 @@ cmake_minimum_required (VERSION 3.0 FATAL_ERROR)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-      "Choose the type of build, options are: Debug Release
+    "Choose the type of build, options are: Debug Release
 RelWithDebInfo MinSizeRel."
-      FORCE)
+    FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 if(WIN32)
-add_definitions(-D_USE_MATH_DEFINES)
-add_definitions(-DNOMINMAX)
+  add_definitions(-D_USE_MATH_DEFINES)
+  add_definitions(-DNOMINMAX)
 endif()
 
 IF(DEFINED CMAKE_BUILD_TYPE)
-   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
+  SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
 Release RelWithDebInfo MinSizeRel.")
 ELSE()
-   SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build,
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build,
 options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release
 RelWithDebInfo MinSizeRel.")
 ENDIF()
@@ -144,9 +144,9 @@ endif()
 ######################################################################
 ##########  Boost support
 ######################################################################
-#if(WIN32)
-set (Boost_USE_STATIC_LIBS ON)
-#endif()
+if(WIN32)
+  set (Boost_USE_STATIC_LIBS ON)
+endif()
 find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem system unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
@@ -157,11 +157,11 @@ link_directories(${Boost_LIBRARY_DIRS})
 ######################################################################
 find_package(Threads REQUIRED)
 if(CMAKE_USE_PTHREADS_INIT)
-   message(STATUS "Adding -pthread as a compile argument")
+  message(STATUS "Adding -pthread as a compile argument")
   add_compile_options(-pthread)
 endif()
 if(CMAKE_THREAD_LIBS_INIT)
-   message(STATUS "Adding ${CMAKE_THREAD_LIBS_INIT} as a linker argument")
+  message(STATUS "Adding ${CMAKE_THREAD_LIBS_INIT} as a linker argument")
   link_libraries(${CMAKE_THREAD_LIBS_INIT})
 endif()
 
@@ -221,12 +221,12 @@ find_path(CAIROMM_INCLUDE_PATH "cairomm.h" PATH_SUFFIXES "cairomm" "cairomm-1.0/
 find_path(CAIROMM_CONFIG_PATH "cairommconfig.h" PATHS "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}" "/usr/lib64/${CMAKE_LIBRARY_ARCHITECTURE}" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm" "cairomm-1.0/include" "lib/cairomm-1.0/include")
 
 if(${CAIROMM_INCLUDE_PATH} STREQUAL "CAIROMM_INCLUDE_PATH-NOTFOUND" OR ${CAIROMM_CONFIG_PATH} STREQUAL "CAIROMM_CONFIG_PATH-NOTFOUND")
-   message("-- Cairomm headers not found - visualiser will not be built")
-   unset(CAIROMM_INCLUDE_PATH CACHE)
-   unset(CAIROMM_CONFIG_PATH CACHE)
-   set(VISUALIZER_SUPPORT FALSE)
+  message("-- Cairomm headers not found - visualiser will not be built")
+  unset(CAIROMM_INCLUDE_PATH CACHE)
+  unset(CAIROMM_CONFIG_PATH CACHE)
+  set(VISUALIZER_SUPPORT FALSE)
 else()
-   message("-- Cairomm headers found")
+  message("-- Cairomm headers found")
 endif()
 
 if(VISUALIZER_SUPPORT)
