@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #   dynamo:- Event driven molecular dynamics simulator 
 #   http://www.dynamomd.org
 #   Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
@@ -47,21 +47,21 @@ parser.add_option("-v", "--view-fit", action="store_true", default=False,
 (options, datafiles) = parser.parse_args()
 
 #Sort out the data file option
-if len(datafiles) is 0:
-    print "Need to supply at least one input file!"
+if len(datafiles) == 0:
+    print("Need to supply at least one input file!")
     import sys
     sys.exit()
 
 def parseToArray(text):
     data = []
     for line in text.strip().split("\n"):
-        dataline = map(float, line.split())
+        dataline = list(map(float, line.split()))
         if (len(dataline) > 1) and (dataline[0] >= options.starttime) and (dataline[0] <= options.cutofftime):
             data.append(dataline)
     return np.array(data)
 
 def avg(data):
-    if len(data) is 0:
+    if len(data) == 0:
         raise ArithmeticError("Can only find the average of a list with non-zero length")
     return sum(data) / (len(data))
 
@@ -71,7 +71,7 @@ def stddev(data):
 
 def fitData(datacolumns, data, filename):
     import numpy as np
-    from itertools import izip
+    # from itertools import izip
     xvalues = [line[0] for line in data]
     yvalues = [avg([line[column] for column in datacolumns]) for line in data]
     yerrvalues = [math.sqrt(stddev([line[column] for column in datacolumns])) for line in data]
@@ -93,7 +93,7 @@ thermaldiffusion_data = {}
 mutualdiffusion_data = {}
 for filename in datafiles:
     if not os.path.exists(filename):
-        print "Could not find the passed datafile! ("+filename+")"
+        print("Could not find the passed datafile! ("+filename+")")
         import sys
         sys.exit()
 
@@ -136,7 +136,7 @@ def output(title, correlator_data):
     stddevslope = math.sqrt(stddev([data[0] for data in correlator_data]))
     avgintercept = avg([data[1] for data in correlator_data])
     avgR2 = avg([data[2] for data in correlator_data])
-    print title, avgslope, "+-", stddevslope, "<R>^2=", avgR2
+    print(title, avgslope, "+-", stddevslope, "<R>^2=", avgR2)
     #Plotting output
     minx=1e300
     maxx=0
@@ -145,7 +145,7 @@ def output(title, correlator_data):
         plt.title("$"+title+str(avgslope)+"$ $R^2="+str(avgR2)+"$")
         for data in correlator_data:
             minx = min(min(data[3]), minx)
-            maxx = max(max(data[3], maxx))
+            maxx = max(max(data[3]), maxx)
             plt.errorbar(data[3], data[4], yerr=data[5], fmt='x', label=data[-1])
         plt.plot([minx, maxx], [minx * avgslope + avgintercept, maxx * avgslope + avgintercept])
         plt.legend()
