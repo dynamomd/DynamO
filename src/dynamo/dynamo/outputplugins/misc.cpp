@@ -272,7 +272,14 @@ namespace dynamo {
   OPMisc::eventUpdate(const Event& eevent, const NEventData& NDat)
   {
     stream(eevent._dt);
-    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent._type)];
+    auto type = eevent._type;
+
+    if ((NDat.L1partChanges.size() == 1) && (NDat.L2partChanges.size() == 0))
+      type = NDat.L1partChanges[0].getType();
+    if ((NDat.L1partChanges.size() == 0) && (NDat.L2partChanges.size() == 1))
+      type = NDat.L2partChanges[0].getType();
+    
+    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), type)];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
 
     Vector thermalDel({0,0,0});

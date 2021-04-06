@@ -31,7 +31,7 @@ namespace dynamo {
     NEventData&  operator+=(const ParticleEventData& p) { L1partChanges.push_back(p); return *this; }
     NEventData&  operator+=(const PairEventData& p) { L2partChanges.push_back(p); return *this; }
 
-    std::list<ParticleEventData> L1partChanges;
-    std::list<PairEventData> L2partChanges;
+    std::vector<ParticleEventData> L1partChanges;
+    std::vector<PairEventData> L2partChanges;
   };
 }
