@@ -191,6 +191,7 @@ endif()
 # Visualiser support
 ######################################################################
 INCLUDE (CheckIncludeFiles)
+set(OpenGL_GL_PREFERENCE "LEGACY")
 find_package(OpenGL)
 find_package(GLUT)
 find_package(GLEW)
@@ -362,8 +363,6 @@ if(PYTHONINTERP_FOUND)
 else()
   message(WARNING "Python 2.7 not found, cannot install all DynamO tools.")
 endif()
-
-
 
 
 # unit tests

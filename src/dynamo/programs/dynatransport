@@ -41,27 +41,31 @@ parser.add_option("-s", "--start-time", dest="starttime",
                   help="The amount of TIME to discard data at the start of the correlator.", 
                   type="float", default=0, metavar="TIME")
 
+parser.add_option("-S", "--singular", action="store_true", default=False,
+                  dest="singular", help="Only include the singular/collisional contributions to the correlators")
+
+
 parser.add_option("-v", "--view-fit", action="store_true", default=False,
                   dest="plot", help="View the fits of the correlators")
 
 (options, datafiles) = parser.parse_args()
 
 #Sort out the data file option
-if len(datafiles) is 0:
-    print "Need to supply at least one input file!"
+if len(datafiles) == 0:
+    print("Need to supply at least one input file!")
     import sys
     sys.exit()
 
 def parseToArray(text):
     data = []
     for line in text.strip().split("\n"):
-        dataline = map(float, line.split())
-        if (len(dataline) > 1) and (dataline[0] >= options.starttime) and (dataline[0] <= options.cutofftime):
+        dataline = list(map(float, line.split()))
+        if (len(dataline) > 1):
             data.append(dataline)
     return np.array(data)
 
 def avg(data):
-    if len(data) is 0:
+    if len(data) == 0:
         raise ArithmeticError("Can only find the average of a list with non-zero length")
     return sum(data) / (len(data))
 
@@ -69,12 +73,39 @@ def stddev(data):
     average = avg(data)
     return avg([(item - average)**2 for item in data])
 
-def fitData(datacolumns, data, filename):
+def fitData(datacolumns, full_data, filename, autoremove_quad=False, quadterm=0, offset=0):
     import numpy as np
-    from itertools import izip
+
+    #Filter the region to fit to
+    data = [line for line in full_data if (line[0] >= options.starttime) and (line[0] <= options.cutofftime)]
+    
+    quadratic_terms = [np.poly1d([quadterm, -offset, 0])]*len(datacolumns)
+    if autoremove_quad:
+        #Fit quadratics to the whole dataset to guess the curvature
+        
+        # This just takes the last data point and assumes its the quadratic
+        xmax = full_data[-1][0]
+        quadratic_terms = [np.poly1d([full_data[-1][column] / xmax / xmax, -offset, 0]) for column in datacolumns]
+
+        #from numpy.polynomial import Polynomial
+        #quadratic_terms=[]
+        #for col in datacolumns:
+        #    fit = np.polyfit([row[0] for row in data], [row[col] for row in data], 2)
+        #    curve = np.poly1d([fit[0], -offset,0])
+        #    quadratic_terms.append(curve)
+        
+    #Collect the x values
     xvalues = [line[0] for line in data]
-    yvalues = [avg([line[column] for column in datacolumns]) for line in data]
-    yerrvalues = [math.sqrt(stddev([line[column] for column in datacolumns])) for line in data]
+
+    #Get all the y values, and remove the linear offset and the quadratic term
+    ys = [[line[column] - q(line[0]) for column, q in zip(datacolumns, quadratic_terms)] for line in data]
+    #print(ys)
+    #Now average the final correlator
+    yvalues = [avg(y) for y in ys]
+    
+    #And calculate the deviation
+    yerrvalues = [math.sqrt(stddev(y)) for y in ys]
+
     fitdata = np.polyfit(xvalues, yvalues, 1, full=True)
     slope = fitdata[0][0]
     intercept = fitdata[0][1]
@@ -93,7 +124,7 @@ thermaldiffusion_data = {}
 mutualdiffusion_data = {}
 for filename in datafiles:
     if not os.path.exists(filename):
-        print "Could not find the passed datafile! ("+filename+")"
+        print("Could not find the passed datafile! ("+filename+")")
         import sys
         sys.exit()
 
@@ -105,16 +136,33 @@ for filename in datafiles:
     def parseComponents(matches):
         data = None
         for xmlelement in matches:
+            if options.singular and xmlelement.attrib['type'] != 'II':
+                continue
             if data is None:
                 data = parseToArray(xmlelement.text)
             else:
                 data[:,2:] = data[:,2:] + parseToArray(xmlelement.text)[:,2:]
         return data
 
+    pressure = float(RootElement.find(".//Pressure").attrib['Avg'])
+    image = RootElement.find(".//PrimaryImageSimulationSize")
+    x = float(image.attrib['x'])
+    y = float(image.attrib['y'])
+    z = float(image.attrib['z'])
+    V = x * y * x
+    N = int(RootElement.find(".//ParticleCount").attrib['val'])
+    RT = float(RootElement.find(".//Temperature").attrib['Mean'])
+
+    p_excess = pressure - (N/V) * RT
+    
     for ele in RootElement.findall(".//Viscosity/Correlator"):
         viscdata = parseComponents(ele.findall(".//Component"))
-        shear_viscosity_data.extend([fitData([3, 4, 7], viscdata, filename)])
-        bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename)])
+        shear_viscosity = fitData([3, 4, 7], viscdata, filename)
+        shear_viscosity_data.extend([shear_viscosity])
+        shear_visc, intercept, R2, xvalues, yvalues, yerrvalues, filename = shear_viscosity
+        
+        #bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, quadterm=p_excess**2 * V / 2, offset=-(4.0/3.0) * shear_visc)])
+        bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=True, offset=(4.0/3.0) * shear_visc)])
 
     for ele in RootElement.findall(".//ThermalConductivity/Correlator"):
         thermdata = parseComponents(ele.findall(".//Component"))
@@ -136,20 +184,21 @@ def output(title, correlator_data):
     stddevslope = math.sqrt(stddev([data[0] for data in correlator_data]))
     avgintercept = avg([data[1] for data in correlator_data])
     avgR2 = avg([data[2] for data in correlator_data])
-    print title, avgslope, "+-", stddevslope, "<R>^2=", avgR2
+    print(title, avgslope, "+-", stddevslope, "<R>^2=", avgR2)
     #Plotting output
     minx=1e300
     maxx=0
     if (options.plot):
         import matplotlib.pyplot as plt
         plt.title("$"+title+str(avgslope)+"$ $R^2="+str(avgR2)+"$")
-        for data in correlator_data:
-            minx = min(min(data[3]), minx)
-            maxx = max(max(data[3], maxx))
-            plt.errorbar(data[3], data[4], yerr=data[5], fmt='x', label=data[-1])
+        for slope, intercept, R2, xvalues, yvalues, yerrvalues, filename in correlator_data:
+            minx = min(min(xvalues), minx)
+            maxx = max(max(xvalues), maxx)
+            plt.errorbar(xvalues, yvalues, yerr=yerrvalues, fmt='x', label=filename)
         plt.plot([minx, maxx], [minx * avgslope + avgintercept, maxx * avgslope + avgintercept])
         plt.legend()
         plt.show()
+    return avgslope
 
 output("ShearViscosityL_{\\eta,\\eta}=", shear_viscosity_data)
 output("BulkViscosityL_{\\kappa,\\kappa}=", bulk_viscosity_data)
