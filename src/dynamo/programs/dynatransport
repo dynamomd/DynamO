@@ -41,8 +41,8 @@ parser.add_option("-s", "--start-time", dest="starttime",
                   help="The amount of TIME to discard data at the start of the correlator.", 
                   type="float", default=0, metavar="TIME")
 
-parser.add_option("-S", "--singular", action="store_true", default=False,
-                  dest="singular", help="Only include the singular/collisional contributions to the correlators")
+parser.add_option("-t", "--term", dest="term", type="int", default=0,
+                   help="Return the (0) full correlator, (1) the free-streaming/continuous self correlation CC, (2) the free-streaming/continuous and interaction cross correlation CI, (3) the interaction and free-streaming cross correlation IC, (4) the interaction self correlation II")
 
 
 parser.add_option("-v", "--view-fit", action="store_true", default=False,
@@ -136,8 +136,23 @@ for filename in datafiles:
     def parseComponents(matches):
         data = None
         for xmlelement in matches:
-            if options.singular and xmlelement.attrib['type'] != 'II':
-                continue
+            if options.term != 0:
+                if options.term == 1:
+                    if xmlelement.attrib['type'] != 'CC':
+                        continue
+                elif options.term == 2:
+                    if xmlelement.attrib['type'] != 'CI':
+                        continue
+                elif options.term == 3:
+                    if xmlelement.attrib['type'] != 'IC':
+                        continue
+                elif options.term == 4:
+                    if xmlelement.attrib['type'] != 'II':
+                        continue
+                else:
+                    print(repr(options.term))
+                    raise Exception("Bad value for the --term option")
+            
             if data is None:
                 data = parseToArray(xmlelement.text)
             else:
@@ -162,7 +177,7 @@ for filename in datafiles:
         shear_visc, intercept, R2, xvalues, yvalues, yerrvalues, filename = shear_viscosity
         
         #bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, quadterm=p_excess**2 * V / 2, offset=-(4.0/3.0) * shear_visc)])
-        bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=True, offset=(4.0/3.0) * shear_visc)])
+        bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, offset=0)])
 
     for ele in RootElement.findall(".//ThermalConductivity/Correlator"):
         thermdata = parseComponents(ele.findall(".//Component"))

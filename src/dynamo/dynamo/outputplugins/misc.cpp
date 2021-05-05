@@ -31,7 +31,8 @@ namespace dynamo {
     _dualEvents(0),
     _singleEvents(0),
     _virtualEvents(0),
-    _reverseEvents(0)
+    _reverseEvents(0),
+    _lateInitComplete(false)
   {}
 
   void
@@ -271,6 +272,15 @@ namespace dynamo {
   void
   OPMisc::eventUpdate(const Event& eevent, const NEventData& NDat)
   {
+    //if ((!_lateInitComplete) && (Sim->eventCount > 100 * Sim->N())) {
+    //  _lateInitComplete = true;
+    //  const auto avgPk = _kineticP.mean();
+    //  dout << "## Reinit using Pk(0,0)=" << avgPk(0,0) << std::endl; 
+    //  const auto avgPc = collisionalP / (Sim->systemTime - eevent._dt);
+    //  dout << "## Reinit using Pc(0,0)=" << avgPc(0,0) << std::endl; 
+    //  _viscosity.resize(_viscosity.getSampleTime(), 10, 2, avgPk, avgPk, avgPc, avgPc);
+    //}
+    
     stream(eevent._dt);
     auto type = eevent._type;
 

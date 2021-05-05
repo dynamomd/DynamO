@@ -100,5 +100,8 @@ namespace dynamo {
     double _systemMass;
 
     Matrix collisionalP;
+
+    /*! \brief Flag to note when the late init is complete. */
+    bool _lateInitComplete;
   };
 }

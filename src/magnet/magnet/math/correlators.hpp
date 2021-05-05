@@ -56,13 +56,17 @@ namespace magnet {
     template<class T>
     class Correlator
     {
+      bool _removeAvg;
+      T _avg_1;
+      T _avg_2;
     public:
       /* \brief Create a Correlator with a given length (i.e., maximum
 	 value of \f$j\f$ calculable for \f$f_{1,2}(j)\f$
 	 
 	 \param length The maximum length of the correlator.
        */
-      Correlator(size_t length): _length(length) { clear(); }
+      Correlator(size_t length, bool removeAverage=true): _removeAvg(removeAverage), _avg_1(), _avg_2(), _length(length)
+      { clear(); }
 
       /*! \brief Add a new pair of \f$\Delta W^{(1)}\f$ and \f$\Delta
           W^{(2)}\f$ values to the correlator
@@ -71,8 +75,14 @@ namespace magnet {
 	  \param W2 \f$\Delta W^{(2)}\f$
        */
       void push(const T& W1, const T& W2)
-      { 
-	_sample_history.push_front(std::pair<T, T>(W1, W2));
+      {
+	_avg_1 += W1;
+	_avg_2 += W2;
+	
+	if (_removeAvg)
+	  _sample_history.push_front(std::pair<T, T>(W1 - _avg_1 / (_count+1), W2 - _avg_2 / (_count+1)));
+	else
+	  _sample_history.push_front(std::pair<T, T>(W1, W2));
 	pass(); 
       }
 
@@ -162,7 +172,11 @@ namespace magnet {
       Correlator<T> ci;
       Correlator<T> ic;
       Correlator<T> ii;
-      
+      T _W1_c_offset;
+      T _W2_c_offset;
+      T _W1_i_offset;
+      T _W2_i_offset;
+	
     public:
       /*! \brief Constructor allowing the setting of the sample_time
           and the length of correlator.
@@ -176,8 +190,12 @@ namespace magnet {
 
 	  \sa Correlator
        */
-      TimeCorrelator(double sample_time, size_t length):
+      TimeCorrelator(double sample_time, size_t length, T W1_c_offset, T W2_c_offset, T W1_i_offset, T W2_i_offset):
 	cc(length), ci(length), ic(length), ii(length),
+	_W1_c_offset(W1_c_offset * sample_time),
+	_W2_c_offset(W2_c_offset * sample_time),
+	_W1_i_offset(W1_i_offset * sample_time),
+	_W2_i_offset(W2_i_offset * sample_time),
 	_sample_time(sample_time)
       {
 	if ((sample_time <= 0) || (length == 0))
@@ -220,10 +238,11 @@ namespace magnet {
 	    
 	    _continuous_sums += _freestream_values * deltat;
 
-	    cc.push(_continuous_sums[0], _continuous_sums[1]);
-	    ci.push(_continuous_sums[0], _impulse_sums[1]);
-	    ic.push(_impulse_sums[0],    _continuous_sums[1]);
-	    ii.push(_impulse_sums[0],    _impulse_sums[1]);
+	    
+	    cc.push(_continuous_sums[0] - _W1_c_offset, _continuous_sums[1] - _W2_c_offset);
+	    ci.push(_continuous_sums[0] - _W1_c_offset, _impulse_sums[1] - _W2_i_offset);
+	    ic.push(_impulse_sums[0] - _W1_i_offset, _continuous_sums[1] - _W2_c_offset);
+	    ii.push(_impulse_sums[0] - _W1_i_offset, _impulse_sums[1] - _W2_i_offset);
 
 	    _continuous_sums = _impulse_sums = NVector<T,2>({0,0});
 	    _current_time = 0;
@@ -296,6 +315,9 @@ namespace magnet {
       typedef TimeCorrelator<T> Correlator;
       typedef std::vector<Correlator> Container;
     public:
+      
+      double getSampleTime() const { return _sample_time; }
+      
       /*! \brief Resets the TimeCorrelator before data collection.
 	
 	\param sample_time See \ref TimeCorrelator for this parameter.
@@ -306,7 +328,7 @@ namespace magnet {
 	the correlators grow. By default, the correlators double in
 	sample_time whenever a new one is added.
        */
-      void resize(double sample_time, size_t length, size_t scaling = 2)
+      void resize(double sample_time, size_t length, size_t scaling = 2, T W1_c_offset = T(), T W2_c_offset = T(), T W1_i_offset = T(), T W2_i_offset = T())
       {
 	if ((sample_time <= 0) || (length == 0))
 	  M_throw() << "LogarithmicTimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
@@ -315,7 +337,13 @@ namespace magnet {
 	_sample_time = sample_time;
 	_length = length;
 	_scaling = scaling;
+
+	_W1_c_offset = W1_c_offset;
+	_W2_c_offset = W2_c_offset;
+	_W1_i_offset = W1_i_offset;
+	_W2_i_offset = W2_i_offset;
 	clear();
+	
       }
 
       void clear()
@@ -363,7 +391,8 @@ namespace magnet {
 	while ((_current_time + dt) >= _sample_time)
 	  {
 	    //Add a new correlator
-	    _correlators.push_back(Correlator(_sample_time, _length));
+	    _correlators.push_back(Correlator(_sample_time, _length, _W1_c_offset, _W2_c_offset, _W1_i_offset, _W2_i_offset));
+	    
 	    _sample_time *= _scaling;
 	    
 	    //Pretend the correlator has actually been here all along, gathering impulse data
@@ -454,6 +483,11 @@ namespace magnet {
       std::pair<T,T> _freestream_sum;
       
       Container _correlators;
+
+      T _W1_c_offset;
+      T _W2_c_offset;
+      T _W1_i_offset;
+      T _W2_i_offset;
     };
   }
 }
