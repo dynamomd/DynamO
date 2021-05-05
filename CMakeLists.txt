@@ -38,7 +38,7 @@ include(CTest)
 include(SystemInformation)
 include(GetGitRevisionDescription)
 
-find_package(PythonInterp 2.7)
+find_package(Python3 COMPONENTS Interpreter NumPy)
 
 git_describe(GIT_RESULT --match initial-commit)
 message(STATUS "Git description is ${GIT_RESULT}")
@@ -56,8 +56,8 @@ set(CPACK_PACKAGE_CONTACT "Marcus Bannerman <support@dynamomd.org>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Event-driven particle simulation sofware")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/description.txt)
 set(CPACK_PACKAGE_DESCRIPTION "This package includes the DynamO executables and scripts. DynamO is an event driven simulator capable of performing molecular and granular dynamics simulations")
-if(PYTHONINTERP_FOUND)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS " python")
+if(Python3_FOUND)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS " python3")
 endif()
 set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}${PACKAGE_SUFFIX})
 set(CPACK_DEBIAN_PACKAGE_SECTION "science")
@@ -349,11 +349,11 @@ if(VISUALIZER_SUPPORT)
 endif()
 
 # scripts
-if(PYTHONINTERP_FOUND)
-  find_package(NumPy)
-  if(NUMPY_FOUND)
+if(Python3_FOUND)
+  if(Python3_NumPy_FOUND)
     install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport DESTINATION bin)
     install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarmsd      DESTINATION bin)
+    message(STATUS "Python NumPy found, installing dynatransport, dynamaprmsd, and dynarmsd")
   else()
     message(WARNING "Python NumPy library not found, disabling install of dynatransport, dynamaprmsd, and dynarmsd")
   endif()
@@ -361,7 +361,7 @@ if(PYTHONINTERP_FOUND)
   install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynamo2xyz    DESTINATION bin)
   install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynamaprmsd   DESTINATION bin)
 else()
-  message(WARNING "Python 2.7 not found, cannot install all DynamO tools.")
+  message(WARNING "Python 3 not found, cannot install all DynamO tools.")
 endif()
 
 
@@ -387,29 +387,30 @@ dynamo_test(thermalisedwalls_test)
 dynamo_test(event_sorters_test)
 
 
-if(PYTHONINTERP_FOUND)
+if(Python3_Interpreter_FOUND)
   add_test(NAME dynamo_replica_exchange
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/replex_test.py
     --dynarun=$<TARGET_FILE:dynarun>
     --dynamod=$<TARGET_FILE:dynamod>
     --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
 
   add_test(NAME dynamo_multicanonical_cmap
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/multicanonical_cmap_test.py
     --dynarun=$<TARGET_FILE:dynarun>
     --dynamod=$<TARGET_FILE:dynamod>
     --dynahist_rw=$<TARGET_FILE:dynahist_rw>)
-  if(NUMPY_FOUND)
+  
+  if(Python3_NumPy_FOUND)
     add_test(NAME dynamo_dynatransport
-      COMMAND ${PYTHON_EXECUTABLE}
+      COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/dynatransport_test.py
       --dynarun=$<TARGET_FILE:dynarun>
       --dynamod=$<TARGET_FILE:dynamod>
       --dynahist_rw=$<TARGET_FILE:dynahist_rw>
       --dynatransport=${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynatransport
-      --python=${PYTHON_EXECUTABLE}
+      --python=${Python3_EXECUTABLE}
       )
   endif()
 endif()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #   dynamo:- Event driven molecular dynamics simulator 
 #   http://www.dynamomd.org
 #   Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
@@ -29,7 +29,7 @@ try:
     options, args = getopt.gnu_getopt(sys.argv[1:], shortargs, longargs)
 except getopt.GetoptError as err:
     # print help information and exit:
-    print str(err) # will print something like "option -a not recognized"
+    print(str(err)) # will print something like "option -a not recognized"
     sys.exit(2)
 
 dynarun_cmd="NOT SET"
@@ -56,7 +56,7 @@ for name,exe in [("dynahist_rw", dynahist_rw_cmd), ("dynamod", dynamod_cmd), ("d
         
 import subprocess
 cmd=[dynamod_cmd, "-m0", "-d0.5", "-oc.xml"]
-print " ".join(cmd)
+print(" ".join(cmd))
 if run:
     subprocess.call(cmd)
 
@@ -72,8 +72,8 @@ if run:
 
 cmd=[python_cmd, dynatransport_cmd, "o.xml", "-c1.0", "-s0.3"]
 out = subprocess.check_output(cmd)
-visc=float(out.split("\n")[0].split()[1])
-thermal=float(out.split("\n")[2].split()[1])
+visc=float(out.decode().split("\n")[0].split()[1])
+thermal=float(out.decode().split("\n")[2].split()[1])
 
 def isclose(a,b,tol):
     return (abs(a-b) <= abs(tol*a)) or (abs(a-b) <= abs(tol*b))

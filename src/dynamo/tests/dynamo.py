@@ -46,8 +46,8 @@ basicDoc = ET.fromstring('<?xml version="1.0"?>'\
 def addParticle(doc, pos, vel):
     pdata = doc.find('./ParticleData')
     Pt = ET.SubElement(pdata, 'Pt')
-    pos = map(str, pos)
-    vel = map(str, vel)
+    pos = list(map(str, pos))
+    vel = list(map(str, vel))
     P = ET.SubElement(Pt, 'P', {'x':pos[0], 'y':pos[1], 'z':pos[2]})
     V = ET.SubElement(Pt, 'V', {'x':vel[0], 'y':vel[1], 'z':vel[2]})
 

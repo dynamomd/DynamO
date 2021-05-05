@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #   dynamo:- Event driven molecular dynamics simulator 
 #   http://www.dynamomd.org
 #   Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
@@ -41,7 +41,7 @@ try:
     options, args = getopt.gnu_getopt(sys.argv[1:], shortargs, longargs)
 except getopt.GetoptError as err:
     # print help information and exit:
-    print str(err) # will print something like "option -a not recognized"
+    print(str(err)) # will print something like "option -a not recognized"
     sys.exit(2)
 
 dynarun_cmd="NOT SET"
@@ -67,20 +67,20 @@ import subprocess
 Temperatures=[1.0, 2.0, 5.0, 10.0]
 for i,T in enumerate(Temperatures):
     cmd=[dynamod_cmd, "-m2", "-T"+str(T), "-oc"+str(i)+".xml"]
-    print " ".join(cmd)
+    print(" ".join(cmd))
     if run:
         subprocess.call(cmd)
 
 ###### EQUILIBRATION
 cmd=[dynarun_cmd, "--engine=2", "-oc%ID.xml", "--out-data-file=o%ID.xml", "-N4", "-i"+str(swap_time), "-f"+str(e_finish_time)]+["c"+str(i)+".xml" for i in range(len(Temperatures))]
-print " ".join(cmd)
+print(" ".join(cmd))
 if run:
     subprocess.call(cmd)
 
 
 ###### PRODUCTION
 cmd=[dynarun_cmd, "--engine=2", "-oc%ID.xml", "--out-data-file=o%ID.xml", "-N4", "-i"+str(swap_time), "-LIntEnergyHist", "-f"+str(p_finish_time)]+["c"+str(i)+".xml" for i in range(len(Temperatures))]
-print " ".join(cmd)
+print(" ".join(cmd))
 if run:
     subprocess.call(cmd)
 
@@ -110,24 +110,24 @@ for i,T in enumerate(Temperatures):
     measured_T=float(xmldoc.getroot().find(".//Temperature").attrib["Mean"])
     if not dynamo.isclose(measured_T, T, 4e-2):
         error_count = error_count + 1
-        print "Simulation Temperature is different to what is expected:"+str(measured_T)+"!="+str(T)
+        print("Simulation Temperature is different to what is expected:"+str(measured_T)+"!="+str(T))
     
     simtime=float(xmldoc.getroot().find(".//Duration").attrib["Time"])
     expected_simtime = swap_time * replex_calls * math.sqrt(min(Temperatures)/T)
     if not dynamo.isclose(simtime, expected_simtime, 1e-4):
         error_count = error_count + 1
-        print "Simulation duration is different to what is expected:"+str(simtime)+"!="+str(expected_simtime)
+        print("Simulation duration is different to what is expected:"+str(simtime)+"!="+str(expected_simtime))
 
     measured_Cv=float(xmldoc.getroot().find(".//ResidualHeatCapacity").attrib["Value"])
     expected_Cv=expectedCvs[T]
 
     if not dynamo.isclose(measured_Cv, expected_Cv, 0.1):
         error_count = error_count + 1
-        print "Simulation heat capacity is different to what is expected:"+str(measured_Cv)+"!="+str(expected_Cv)
+        print("Simulation heat capacity is different to what is expected:"+str(measured_Cv)+"!="+str(expected_Cv))
 
 ###### dynahist_rw VALIDATION
 cmd=[dynahist_rw_cmd]+["o"+str(i)+".xml" for i in range(len(Temperatures))]
-print " ".join(cmd)
+print(" ".join(cmd))
 if run:
     subprocess.call(cmd)
 
@@ -139,7 +139,7 @@ for line,ref in zip(open('logZ.out', 'r'), [0, -37.1325363028306097, -50.8797611
     else:
         if not dynamo.isclose(logZval, ref, 1e-2):
             error_count = error_count + 1
-            print "Calculated logZ value is incorrect:"+str(logZval)+"!="+str(ref)
+            print("Calculated logZ value is incorrect:"+str(logZval)+"!="+str(ref))
 
 
 def interpolate(yin, xin, xout):
@@ -160,15 +160,15 @@ def interpolate(yin, xin, xout):
   
   return (xout - x0) / (x1 - x0) * (y1 - y0) + y0  
 
-Cvdata=[map(float, line.split()) for line in open("Cv.out")]
+Cvdata=[list(map(float, line.split())) for line in open("Cv.out")]
 
 for T in expectedCvs:
     measuredCv = interpolate([data[1] for data in Cvdata],  [data[0] for data in Cvdata], T)
     expectedCv = expectedCvs[T]
     if not dynamo.isclose(measuredCv, expectedCv, 1e-1):
         error_count = error_count + 1
-        print "Histogram reweighted Cv value is incorrect:"+str(measuredCv)+"!="+str(expectedCv)
+        print("Histogram reweighted Cv value is incorrect:"+str(measuredCv)+"!="+str(expectedCv))
 
-print "Total errors:", error_count
-print "Only reporting a fatal error if there are multiple errors (one failures is \"normal\")"
+print("Total errors:", error_count)
+print("Only reporting a fatal error if there are multiple errors (one failures is \"normal\")")
 sys.exit(error_count > 1)

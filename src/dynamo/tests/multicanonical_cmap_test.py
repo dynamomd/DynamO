@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #   dynamo:- Event driven molecular dynamics simulator 
 #   http://www.dynamomd.org
 #   Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
@@ -34,7 +34,7 @@ try:
     options, args = getopt.gnu_getopt(sys.argv[1:], shortargs, longargs)
 except getopt.GetoptError as err:
     # print help information and exit:
-    print str(err) # will print something like "option -a not recognized"
+    print(str(err)) # will print something like "option -a not recognized"
     sys.exit(2)
 
 dynarun_cmd="NOT SET"
@@ -84,7 +84,7 @@ open('test.xml', 'w').write(dynamo.prettyprint(doc))
 import subprocess
 
 cmd=[dynarun_cmd, "test.xml", '-c1000000' ,'--out-data-file=output.xml']
-print " ".join(cmd)
+print(" ".join(cmd))
 subprocess.call(cmd)
 
 output = ET.parse('output.xml')
@@ -99,7 +99,7 @@ def sphereVol(r):
 Z = sphereVol(0.5) * math.exp(0.75 / kT - W)
 Z += (sphereVol(1.0) - sphereVol(0.5)) * math.exp(0.5 / kT - W)
 
-print Z
+print(Z)
 
 E = -0.75 * sphereVol(0.5) * math.exp(0.75 / kT - W) - 0.5 * (sphereVol(1.0) - sphereVol(0.5)) * math.exp(0.5 / kT - W)
 E /= Z
@@ -113,5 +113,5 @@ if float(datatag.attrib['Min']) != -0.75:
 if float(datatag.attrib['Max']) != -0.5:
     error_count +=1
     
-print "Total errors:", error_count
+print("Total errors:", error_count)
 sys.exit(error_count > 0)
