@@ -1,22 +1,29 @@
 sudo: required
 language: cpp
-dist: trusty
+dist: focal
 
 matrix:
   include:
     - compiler: gcc
       os: linux
       env:
-        - COMPILER=g++-5
-        - COMPILER_PACKAGE=g++-5
-        - COMPILER_NAME=gcc-5
+        - COMPILER=g++-9
+        - COMPILER_PACKAGE=g++-9
+        - COMPILER_NAME=gcc-9
     - compiler: gcc
       os: linux
       addons:
       env:
-        - COMPILER=g++-6
-        - COMPILER_PACKAGE=g++-6
-        - COMPILER_NAME=gcc-6
+        - COMPILER=g++-10
+        - COMPILER_PACKAGE=g++-10
+        - COMPILER_NAME=gcc-10
+    - compiler: gcc
+      os: linux
+      addons:
+      env:
+        - COMPILER=g++-11
+        - COMPILER_PACKAGE=g++-11
+        - COMPILER_NAME=gcc-11
     - compiler: clang
       os: linux
       compiler: clang
@@ -35,13 +42,13 @@ install:
   - "export CXX=$COMPILER"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get update -q; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install -y --force-yes libboost-all-dev libbz2-dev cmake cmake-data python-numpy $COMPILER_PACKAGE; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install -y --force-yes libboost-all-dev libbz2-dev cmake cmake-data python3-numpy $COMPILER_PACKAGE; fi"
 
 script:
   - "mkdir build"
   - "cd build"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 -DPACKAGE_SUFFIX=-OSX-amd64-${COMPILER_NAME}; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=Release -DPACKAGE_SUFFIX=-ubuntu14.04-amd64-${COMPILER_NAME}; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then cmake .. -DCMAKE_PREFIX_PATH=$INSTPRF -DCMAKE_BUILD_TYPE=Release -DPACKAGE_SUFFIX=-ubuntu20.04-amd64-${COMPILER_NAME}; fi"
   - "cmake --build . --config Release -- -j2"
   - "cpack --verbose -G ZIP"
   - "cpack --verbose"
