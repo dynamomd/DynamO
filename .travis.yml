@@ -17,20 +17,20 @@ matrix:
         - COMPILER=g++-10
         - COMPILER_PACKAGE=g++-10
         - COMPILER_NAME=gcc-10
-    - compiler: gcc
-      os: linux
-      addons:
-      env:
-        - COMPILER=g++-11
-        - COMPILER_PACKAGE=g++-11
-        - COMPILER_NAME=gcc-11
     - compiler: clang
       os: linux
       compiler: clang
       env:
-        - COMPILER=clang++
-        - COMPILER_PACKAGE=clang
-        - COMPILER_NAME=clang
+        - COMPILER=clang++-10
+        - COMPILER_PACKAGE=clang-10
+        - COMPILER_NAME=clang-10
+    - compiler: clang
+      os: linux
+      compiler: clang
+      env:
+        - COMPILER=clang++-11
+        - COMPILER_PACKAGE=clang-11
+        - COMPILER_NAME=clang-11
     - os: osx
       compiler: clang
       env:
