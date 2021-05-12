@@ -92,6 +92,8 @@ namespace dynamo {
     magnet::math::TimeAveragedProperty<Matrix> _kineticP;
     magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
     magnet::math::LogarithmicTimeCorrelator<Matrix> _viscosity;
+    magnet::math::LogarithmicTimeCorrelator<double> _isoVisc;
+    magnet::math::LogarithmicTimeCorrelator<Vector> _crossVisc;
     std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _thermalDiffusion;
     std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _mutualDiffusion;
     std::vector<double> _internalEnergy;

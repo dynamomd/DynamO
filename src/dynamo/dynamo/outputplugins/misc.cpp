@@ -60,6 +60,9 @@ namespace dynamo {
 
     _thermalConductivity.clear();
     _viscosity.clear();
+    _isoVisc.clear();
+    _crossVisc.clear();
+
     for (auto& correlator : _thermalDiffusion)
       correlator.clear();
     for (auto& correlator : _mutualDiffusion)
@@ -105,6 +108,31 @@ namespace dynamo {
   double 
   OPMisc::getMeanSqrUConfigurational() const
   { return _internalE.meanSqr(); }
+
+  void outputCorrelator(magnet::xml::XmlStream& XML, const bool i1, const bool i2, const double inv_units, const double time_units, magnet::math::LogarithmicTimeCorrelator<double>& corr) {
+    std::string t = "CC";
+    if (i1) t[0] = 'I';
+    if (i2) t[1] = 'I';
+
+    using namespace magnet::xml;
+    
+    XML	<< tag("Component") << attr("type") << t
+	<< chardata();
+    {
+      std::vector<magnet::math::LogarithmicTimeCorrelator<double>::Data>
+	data = corr.getAveragedCorrelator(i1, i2);
+            
+      XML << "0 0 0\n";
+      for (size_t i(0); i < data.size(); ++i) {
+	XML << data[i].time / time_units << " "
+	    << data[i].sample_count << " "
+	    << data[i].value * inv_units << " "
+	    << "\n";
+      }
+    }
+
+    XML << endtag("Component");
+  }
 
   void outputCorrelator(magnet::xml::XmlStream& XML, const bool i1, const bool i2, const double inv_units, const double time_units, magnet::math::LogarithmicTimeCorrelator<Vector>& corr) {
     std::string t = "CC";
@@ -245,6 +273,21 @@ namespace dynamo {
     _viscosity.resize(correlator_dt, 10);
     _viscosity.setFreeStreamValue(kineticP);
     
+    _isoVisc.resize(correlator_dt, 10);
+    double isoViscFS(0);
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      isoViscFS += kineticP(iDim, iDim);
+    _isoVisc.setFreeStreamValue(isoViscFS / 3);
+    
+    _crossVisc.resize(correlator_dt, 10);
+    Vector crossViscFS1({0, 0, 0});
+    Vector crossViscFS2({0, 0, 0});
+    for (size_t iDim(0); iDim < NDIM; ++iDim) {
+      crossViscFS1[iDim] = kineticP(iDim, iDim);
+      crossViscFS2[iDim] = kineticP((iDim+1) % NDIM, (iDim+1) % NDIM);
+    }
+    _crossVisc.setFreeStreamValue(crossViscFS1, crossViscFS2);
+
     _thermalDiffusion.resize(Sim->species.size());
     _mutualDiffusion.resize(Sim->species.size() * Sim->species.size());
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
@@ -365,8 +408,24 @@ namespace dynamo {
 	  + mass2 * (Dyadic(part2.getVelocity(), part2.getVelocity())
 		     - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()));
 
-	_viscosity.addImpulse(magnet::math::Dyadic(PDat.rij, delP));
+	const auto visc_imp = magnet::math::Dyadic(PDat.rij, delP);
+	_viscosity.addImpulse(visc_imp);
 
+
+	double isoVisc_imp(0);
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  isoVisc_imp += visc_imp(iDim, iDim);
+	_isoVisc.addImpulse(isoVisc_imp / 3);
+    
+	Vector crossVisc_imp1({0, 0, 0});
+	Vector crossVisc_imp2({0, 0, 0});
+	for (size_t iDim(0); iDim < NDIM; ++iDim) {
+	  crossVisc_imp1[iDim] = visc_imp(iDim, iDim);
+	  crossVisc_imp2[iDim] = visc_imp((iDim+1) % NDIM, (iDim+1) % NDIM);
+	}
+	_crossVisc.addImpulse(crossVisc_imp1, crossVisc_imp2);
+	
+	
 	_speciesMomenta[sp1.getID()] += delP;
 	_speciesMomenta[sp2.getID()] -= delP;
 
@@ -384,8 +443,24 @@ namespace dynamo {
     _thermalConductivity.setFreeStreamValue
       (_thermalConductivity.getFreeStreamValue() + thermalDel);
 
-    _viscosity.setFreeStreamValue(_kineticP.current());
+    const auto kineticP = _kineticP.current();
+    
+    _viscosity.setFreeStreamValue(kineticP);
 
+    double isoViscFS(0);
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      isoViscFS += kineticP(iDim, iDim);
+    _isoVisc.setFreeStreamValue(isoViscFS / 3);
+    
+    Vector crossViscFS1({0, 0, 0});
+    Vector crossViscFS2({0, 0, 0});
+    for (size_t iDim(0); iDim < NDIM; ++iDim) {
+      crossViscFS1[iDim] = kineticP(iDim, iDim);
+      crossViscFS2[iDim] = kineticP((iDim+1) % NDIM, (iDim+1) % NDIM);
+    }
+    _crossVisc.setFreeStreamValue(crossViscFS1, crossViscFS2);
+
+    
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
       {
 	_thermalDiffusion[spid1]
@@ -409,6 +484,8 @@ namespace dynamo {
     _sysMomentum.stream(dt);
     _thermalConductivity.freeStream(dt);
     _viscosity.freeStream(dt);
+    _isoVisc.freeStream(dt);
+    _crossVisc.freeStream(dt);
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
       {
 	_thermalDiffusion[spid1].freeStream(dt);
@@ -613,8 +690,24 @@ namespace dynamo {
       }
       
       XML << endtag("Correlator") << endtag("Viscosity")
-	  << tag("ThermalDiffusion");
+	  << tag("IsoViscosity") << tag("Correlator");
 
+      {
+	const double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
+	outputCorrelator(XML, inv_units, Sim->units.unitTime(), _isoVisc);
+      }
+      
+      XML << endtag("Correlator") << endtag("IsoViscosity")
+	  << tag("CrossViscosity") << tag("Correlator");
+
+      {
+	const double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
+	outputCorrelator(XML, inv_units, Sim->units.unitTime(), _crossVisc);
+      }
+      
+      XML << endtag("Correlator") << endtag("CrossViscosity")
+	  << tag("ThermalDiffusion");
+      
       for (size_t i(0); i < Sim->species.size(); ++i)
 	{
 	  XML << tag("Correlator")

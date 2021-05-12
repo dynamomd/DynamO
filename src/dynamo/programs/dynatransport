@@ -119,6 +119,9 @@ def fitData(datacolumns, full_data, filename, autoremove_quad=False, quadterm=0,
 
 shear_viscosity_data = []
 bulk_viscosity_data = []
+iso_viscosity_data = []
+cross_viscosity_data = []
+
 thermalconductivity_data = []
 thermaldiffusion_data = {}
 mutualdiffusion_data = {}
@@ -178,7 +181,15 @@ for filename in datafiles:
         
         #bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, quadterm=p_excess**2 * V / 2, offset=-(4.0/3.0) * shear_visc)])
         bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, offset=0)])
-
+        
+    for ele in RootElement.findall(".//IsoViscosity/Correlator"):
+        viscdata = parseComponents(ele.findall(".//Component"))
+        iso_viscosity_data.extend([fitData([2], viscdata, filename, autoremove_quad=False, offset=0)])
+ 
+    for ele in RootElement.findall(".//CrossViscosity/Correlator"):
+        viscdata = parseComponents(ele.findall(".//Component"))
+        cross_viscosity_data.extend([fitData([2, 3, 4], viscdata, filename, autoremove_quad=False, offset=0)])
+       
     for ele in RootElement.findall(".//ThermalConductivity/Correlator"):
         thermdata = parseComponents(ele.findall(".//Component"))
         thermalconductivity_data.extend([fitData([2, 3, 4], thermdata, filename)])
@@ -215,8 +226,10 @@ def output(title, correlator_data):
         plt.show()
     return avgslope
 
-output("ShearViscosityL_{\\eta,\\eta}=", shear_viscosity_data)
-output("BulkViscosityL_{\\kappa,\\kappa}=", bulk_viscosity_data)
+output("ShearViscosityL_{xyxy}=", shear_viscosity_data)
+output("BulkViscosityL_{xxxx}=", bulk_viscosity_data)
+output("IsoViscosityL_{Tr}=", iso_viscosity_data)
+output("CrossViscosityL_{xxyy}=", cross_viscosity_data)
 output("ThermalConductivityL_{\\lambda,\\lambda}=", thermalconductivity_data)
 
 for species, data in thermaldiffusion_data.items():
