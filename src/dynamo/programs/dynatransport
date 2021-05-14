@@ -118,8 +118,8 @@ def fitData(datacolumns, full_data, filename, autoremove_quad=False, quadterm=0,
     return slope, intercept, R2, xvalues, yvalues, yerrvalues, filename
 
 shear_viscosity_data = []
+longitudinal_viscosity_data = []
 bulk_viscosity_data = []
-iso_viscosity_data = []
 cross_viscosity_data = []
 
 thermalconductivity_data = []
@@ -179,12 +179,12 @@ for filename in datafiles:
         shear_viscosity_data.extend([shear_viscosity])
         shear_visc, intercept, R2, xvalues, yvalues, yerrvalues, filename = shear_viscosity
         
-        #bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, quadterm=p_excess**2 * V / 2, offset=-(4.0/3.0) * shear_visc)])
-        bulk_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, offset=0)])
+        #longitudinal_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, quadterm=p_excess**2 * V / 2, offset=-(4.0/3.0) * shear_visc)])
+        longitudinal_viscosity_data.extend([fitData([2, 6, 10], viscdata, filename, autoremove_quad=False, offset=0)])
         
-    for ele in RootElement.findall(".//IsoViscosity/Correlator"):
+    for ele in RootElement.findall(".//BulkViscosity/Correlator"):
         viscdata = parseComponents(ele.findall(".//Component"))
-        iso_viscosity_data.extend([fitData([2], viscdata, filename, autoremove_quad=False, offset=0)])
+        bulk_viscosity_data.extend([fitData([2], viscdata, filename, autoremove_quad=False, offset=0)])
  
     for ele in RootElement.findall(".//CrossViscosity/Correlator"):
         viscdata = parseComponents(ele.findall(".//Component"))
@@ -227,8 +227,8 @@ def output(title, correlator_data):
     return avgslope
 
 output("ShearViscosityL_{xyxy}=", shear_viscosity_data)
-output("BulkViscosityL_{xxxx}=", bulk_viscosity_data)
-output("IsoViscosityL_{Tr}=", iso_viscosity_data)
+output("LongitudinalViscosityL_{xxxx}=", longitudinal_viscosity_data)
+output("BulkViscosityL_{Tr}=", bulk_viscosity_data)
 output("CrossViscosityL_{xxyy}=", cross_viscosity_data)
 output("ThermalConductivityL_{\\lambda,\\lambda}=", thermalconductivity_data)
 

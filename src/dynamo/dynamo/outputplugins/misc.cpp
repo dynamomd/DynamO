@@ -60,7 +60,7 @@ namespace dynamo {
 
     _thermalConductivity.clear();
     _viscosity.clear();
-    _isoVisc.clear();
+    _bulkVisc.clear();
     _crossVisc.clear();
 
     for (auto& correlator : _thermalDiffusion)
@@ -273,11 +273,11 @@ namespace dynamo {
     _viscosity.resize(correlator_dt, 10);
     _viscosity.setFreeStreamValue(kineticP);
     
-    _isoVisc.resize(correlator_dt, 10);
+    _bulkVisc.resize(correlator_dt, 10);
     double isoViscFS(0);
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       isoViscFS += kineticP(iDim, iDim);
-    _isoVisc.setFreeStreamValue(isoViscFS / 3);
+    _bulkVisc.setFreeStreamValue(isoViscFS / 3);
     
     _crossVisc.resize(correlator_dt, 10);
     Vector crossViscFS1({0, 0, 0});
@@ -415,7 +415,7 @@ namespace dynamo {
 	double isoVisc_imp(0);
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  isoVisc_imp += visc_imp(iDim, iDim);
-	_isoVisc.addImpulse(isoVisc_imp / 3);
+	_bulkVisc.addImpulse(isoVisc_imp / 3);
     
 	Vector crossVisc_imp1({0, 0, 0});
 	Vector crossVisc_imp2({0, 0, 0});
@@ -450,7 +450,7 @@ namespace dynamo {
     double isoViscFS(0);
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       isoViscFS += kineticP(iDim, iDim);
-    _isoVisc.setFreeStreamValue(isoViscFS / 3);
+    _bulkVisc.setFreeStreamValue(isoViscFS / 3);
     
     Vector crossViscFS1({0, 0, 0});
     Vector crossViscFS2({0, 0, 0});
@@ -484,7 +484,7 @@ namespace dynamo {
     _sysMomentum.stream(dt);
     _thermalConductivity.freeStream(dt);
     _viscosity.freeStream(dt);
-    _isoVisc.freeStream(dt);
+    _bulkVisc.freeStream(dt);
     _crossVisc.freeStream(dt);
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
       {
@@ -690,14 +690,14 @@ namespace dynamo {
       }
       
       XML << endtag("Correlator") << endtag("Viscosity")
-	  << tag("IsoViscosity") << tag("Correlator");
+	  << tag("BulkViscosity") << tag("Correlator");
 
       {
 	const double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
-	outputCorrelator(XML, inv_units, Sim->units.unitTime(), _isoVisc);
+	outputCorrelator(XML, inv_units, Sim->units.unitTime(), _bulkVisc);
       }
       
-      XML << endtag("Correlator") << endtag("IsoViscosity")
+      XML << endtag("Correlator") << endtag("BulkViscosity")
 	  << tag("CrossViscosity") << tag("Correlator");
 
       {
