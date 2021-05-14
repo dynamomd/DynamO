@@ -173,7 +173,7 @@ namespace magnet {
       Correlator<T> ci;
       Correlator<T> ic;
       Correlator<T> ii;
-      
+      bool _removeAverage;
     public:
       /*! \brief Constructor allowing the setting of the sample_time
           and the length of correlator.
@@ -187,8 +187,8 @@ namespace magnet {
 
 	  \sa Correlator
        */
-      TimeCorrelator(double sample_time, size_t length):
-	cc(length), ci(length), ic(length), ii(length),
+      TimeCorrelator(double sample_time, size_t length, bool removeAverage):
+	cc(length, removeAverage), ci(length, removeAverage), ic(length, removeAverage), ii(length, removeAverage),
 	_sample_time(sample_time)
       {
 	if ((sample_time <= 0) || (length == 0))
@@ -307,6 +307,7 @@ namespace magnet {
       typedef TimeCorrelator<T> Correlator;
       typedef std::vector<Correlator> Container;
     public:
+      bool _removeAverage;
       
       double getSampleTime() const { return _sample_time; }
       
@@ -320,12 +321,13 @@ namespace magnet {
 	the correlators grow. By default, the correlators double in
 	sample_time whenever a new one is added.
        */
-      void resize(double sample_time, size_t length, size_t scaling = 2)
+      void resize(double sample_time, size_t length, size_t scaling = 2, bool removeAverage = false)
       {
 	if ((sample_time <= 0) || (length == 0))
 	  M_throw() << "LogarithmicTimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
 		    << ", length=" << length;
-	
+
+	_removeAverage = removeAverage;
 	_sample_time = sample_time;
 	_length = length;
 	_scaling = scaling;
@@ -377,7 +379,7 @@ namespace magnet {
 	while ((_current_time + dt) >= _sample_time)
 	  {
 	    //Add a new correlator
-	    _correlators.push_back(Correlator(_sample_time, _length));
+	    _correlators.push_back(Correlator(_sample_time, _length, _removeAverage));
 	    _sample_time *= _scaling;
 	    
 	    //Pretend the correlator has actually been here all along, gathering impulse data

@@ -267,19 +267,19 @@ namespace dynamo {
     if (correlator_dt == 0.0)
       correlator_dt = 1.0 / sqrt(getCurrentkT());
 
-    _thermalConductivity.resize(correlator_dt, 10);
+    _thermalConductivity.resize(correlator_dt, 10, 2, false);
     _thermalConductivity.setFreeStreamValue(thermalConductivityFS);
 
-    _viscosity.resize(correlator_dt, 10);
+    _viscosity.resize(correlator_dt, 10, 2, true);
     _viscosity.setFreeStreamValue(kineticP);
     
-    _bulkVisc.resize(correlator_dt, 10);
+    _bulkVisc.resize(correlator_dt, 10, 2, true);
     double isoViscFS(0);
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       isoViscFS += kineticP(iDim, iDim);
     _bulkVisc.setFreeStreamValue(isoViscFS / 3);
     
-    _crossVisc.resize(correlator_dt, 10);
+    _crossVisc.resize(correlator_dt, 10, 2, true);
     Vector crossViscFS1({0, 0, 0});
     Vector crossViscFS2({0, 0, 0});
     for (size_t iDim(0); iDim < NDIM; ++iDim) {
@@ -292,12 +292,12 @@ namespace dynamo {
     _mutualDiffusion.resize(Sim->species.size() * Sim->species.size());
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
       {
-	_thermalDiffusion[spid1].resize(correlator_dt, 10);
+	_thermalDiffusion[spid1].resize(correlator_dt, 10, 2, false);
 	_thermalDiffusion[spid1].setFreeStreamValue(thermalConductivityFS, _speciesMomenta[spid1] - (_speciesMasses[spid1] / _systemMass) * _sysMomentum.current());
 	
 	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
 	  {
-	    _mutualDiffusion[spid1 * Sim->species.size() + spid2].resize(correlator_dt, 10);
+	    _mutualDiffusion[spid1 * Sim->species.size() + spid2].resize(correlator_dt, 10, 2, false);
 	    _mutualDiffusion[spid1 * Sim->species.size() + spid2].setFreeStreamValue
 	      (_speciesMomenta[spid1] - (_speciesMasses[spid1] / _systemMass) * _sysMomentum.current(),
 	       _speciesMomenta[spid2] - (_speciesMasses[spid2] / _systemMass) * _sysMomentum.current());
