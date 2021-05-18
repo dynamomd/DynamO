@@ -242,7 +242,7 @@ namespace dynamo {
 
     for (const Particle& part : Sim->particles)
       {
-	const Species& sp = *(Sim->species(part));
+	const Species& sp = *(Sim->species[part]);
 	const double mass = sp.getMass(part.getID());
 	if (std::isinf(mass)) continue;
 	kineticP += mass * Dyadic(part.getVelocity(), part.getVelocity());
@@ -340,7 +340,7 @@ namespace dynamo {
       {
 
 	const Particle& part = Sim->particles[PDat.getParticleID()];
-	const Species& species = *Sim->species(part);
+	const Species& species = *Sim->species[part];
 	const double mass = species.getMass(part.getID());
 	const double deltaKE = species.getParticleKineticEnergy(part) - PDat.getOldKE();
 	

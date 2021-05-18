@@ -48,6 +48,8 @@ namespace dynamo {
   public:    
     typedef std::pair<double, double> value_type;
 
+    virtual ~Potential() {}
+    
     /*! \brief Accessor to give a value_type containing the
         discontinuity location and energy change.
 

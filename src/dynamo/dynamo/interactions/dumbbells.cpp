@@ -214,8 +214,8 @@ namespace dynamo {
       {
       case CORE:
 	{
-	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species(p1));
-	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species(p2));
+	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
+	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
 
 	  if (!sp1 || !sp2)
 	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
@@ -266,7 +266,7 @@ namespace dynamo {
 	  //If no particles satisfy the collision condition, its a
 	  //numerical error so just return a virtual event
 	  if (fcurrent == std::numeric_limits<float>::infinity())
-	    return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	    return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 
 	  ++Sim->eventCount;
 
@@ -303,15 +303,15 @@ namespace dynamo {
       case NBHOOD_IN:
 	{
 	  ICapture::add(p1, p2);
-	  return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	  return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
-	  return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	  return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	}
       case VIRTUAL:
-	  return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	  return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
       default:
 	M_throw() << "Unknown collision type";
       }

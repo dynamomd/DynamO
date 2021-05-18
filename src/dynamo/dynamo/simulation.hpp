@@ -114,7 +114,10 @@ namespace dynamo
     */
     struct SpeciesContainer: public Container<Species>
     {
-      const shared_ptr<Species>& operator()(const Particle&) const;
+      using Container<Species>::operator[];
+      
+      const shared_ptr<Species>& operator[](const Particle&) const;
+      shared_ptr<Species>& operator[](const Particle&) ;
     };
 
   public:

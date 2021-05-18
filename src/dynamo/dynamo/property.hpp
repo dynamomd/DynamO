@@ -43,6 +43,8 @@ namespace dynamo {
 
     inline Property(Units units): _units(units) {}
 
+    virtual ~Property() {}
+    
     //! Fetch the value of this property for a particle with a certain ID
     inline virtual const double getProperty(size_t ID) const 
     { M_throw() << "Unimplemented"; }

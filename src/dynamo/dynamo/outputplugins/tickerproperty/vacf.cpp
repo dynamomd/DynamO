@@ -91,7 +91,8 @@ namespace dynamo {
 	  
 	  for (const size_t& ID : *range)
 	    {
-	      double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
+	      const auto& p = Sim->particles[ID];
+	      double mass = (Sim->species[p])->getMass(ID);
 	      COMvelocity += velHistory[ID][0] * mass;
 	      molMass += mass;
 	    }
@@ -114,6 +115,7 @@ namespace dynamo {
   OPVACF::output(magnet::xml::XmlStream &XML)
   {
     XML << magnet::xml::tag("VACF")
+	<< magnet::xml::attr("ticks") << ticksTaken
 	<< magnet::xml::tag("Particles");
   
     const double dt = dynamic_cast<const SysTicker&>(*Sim->systems["SystemTicker"]).getPeriod() / Sim->units.unitTime();

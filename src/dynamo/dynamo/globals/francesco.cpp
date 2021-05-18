@@ -83,14 +83,14 @@ namespace dynamo {
 
   Event 
   GFrancesco::getEvent(const Particle& part) const {
-    return Event(part, _eventTimes[part] - Sim->systemTime, GLOBAL, GAUSSIAN, ID);
+    return Event(part, _eventTimes[part.getID()] - Sim->systemTime, GLOBAL, GAUSSIAN, ID);
   }
 
   void 
   GFrancesco::runEvent(Particle& part, const double)
   {
-    const double dt = _eventTimes[part] - Sim->systemTime;
-    _eventTimes[part] = std::numeric_limits<float>::infinity();
+    const double dt = _eventTimes[part.getID()] - Sim->systemTime;
+    _eventTimes[part.getID()] = std::numeric_limits<float>::infinity();
     Event iEvent(part, dt, GLOBAL, GAUSSIAN, ID);
     
     Sim->systemTime += dt;
@@ -98,7 +98,7 @@ namespace dynamo {
     Sim->stream(dt);
 
     Sim->dynamics->updateParticle(part);
-    NEventData EDat(ParticleEventData(part, *Sim->species(part), GAUSSIAN));
+    NEventData EDat(ParticleEventData(part, *Sim->species[part], GAUSSIAN));
     
     //Kill the rotational motion
     Sim->dynamics->getRotData(part).angularVelocity = Vector{0,0,0};

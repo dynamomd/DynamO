@@ -96,12 +96,12 @@ namespace dynamo {
       {
       case NBHOOD_IN:
 	ICapture::add(p1, p2);
-	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
       case NBHOOD_OUT:
 	ICapture::remove(p1, p2);
-	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
       case VIRTUAL:
-	return PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
+	return PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
       default:
 	M_throw() << "Unknown collision type";
       }

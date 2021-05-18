@@ -147,7 +147,7 @@ namespace dynamo {
       _source(source),
       _type(type)
     {}
-      
+    
     inline bool operator< (const Event& o) const throw()
     { return _dt < o._dt; }
 

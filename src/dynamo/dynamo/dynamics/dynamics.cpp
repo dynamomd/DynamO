@@ -59,7 +59,7 @@ namespace dynamo {
       {
 	double sumEnergy(0.0);
 	for (const Particle& part : Sim->particles)
-	  sumEnergy += Sim->species(part)->getScalarMomentOfInertia(part.getID())
+	  sumEnergy += Sim->species[part]->getScalarMomentOfInertia(part.getID())
 	  * orientationData[part.getID()].angularVelocity.nrm2();
       
 	//Check if any of the species are overridden
@@ -196,7 +196,7 @@ namespace dynamo {
     double sumEnergy(0);
 
     for (const Particle& part : Sim->particles)
-      sumEnergy += Sim->species(part)->getParticleKineticEnergy(part);
+      sumEnergy += Sim->species[part]->getParticleKineticEnergy(part);
 
     return sumEnergy;
   }
@@ -211,7 +211,7 @@ namespace dynamo {
 	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
 	for (Particle& part : Sim->particles)
 	  {
-	    const double mass = Sim->species(part)->getMass(part.getID());
+	    const double mass = Sim->species[part]->getMass(part.getID());
 	    if (!std::isinf(mass))
 	      part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor + bc.getStreamVelocity(part));
 	  }
@@ -219,7 +219,7 @@ namespace dynamo {
     else
       for (Particle& part : Sim->particles)
 	{
-	  const double mass = Sim->species(part)->getMass(part.getID());
+	  const double mass = Sim->species[part]->getMass(part.getID());
 	  if (!std::isinf(mass))
 	    part.getVelocity() *= scalefactor;
 	}
@@ -227,7 +227,7 @@ namespace dynamo {
     if (hasOrientationData())
       for (Particle& part : Sim->particles)
 	{
-	  const double I = Sim->species(part)->getScalarMomentOfInertia(part.getID());
+	  const double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
 	  if (!std::isinf(I))
 	    orientationData[part.getID()].angularVelocity *= scalefactor;
 	}
@@ -310,7 +310,7 @@ namespace dynamo {
 	
 	//Ensure the initial angular velocity is perpendicular to the
 	//director
-	double I = Sim->species(Sim->particles[i])->getScalarMomentOfInertia(i);
+	double I = Sim->species[Sim->particles[i]]->getScalarMomentOfInertia(i);
 	
 	if (std::isinf(I))
 	  orientationData[i].angularVelocity = Vector{0,0,0};
@@ -350,7 +350,7 @@ namespace dynamo {
     for (size_t ID : particles)
       {
 	const Particle& part = Sim->particles[ID];
-	double mass = Sim->species(part)->getMass(ID);
+	double mass = Sim->species[part]->getMass(ID);
 
 	//Take everything relative to the first particle's position to
 	//minimise issues with PBC wrapping the particles.

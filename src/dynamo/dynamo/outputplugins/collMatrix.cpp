@@ -83,7 +83,7 @@ namespace dynamo {
     size_t initialsum(0);
   
     typedef std::pair<eventKey,size_t> npair;
-    for (const npair& n : initialCounter)
+    for (const auto& n : initialCounter)
       initialsum += n.second;
   
     for (const locPair& ele : counters)
@@ -112,7 +112,7 @@ namespace dynamo {
   
     typedef std::pair<eventKey, std::pair<size_t, double> > mappair;
   
-    for (const mappair& mp1 : totmap)
+    for (const auto& mp1 : totmap)
       XML << magnet::xml::tag("TotCount")
 	  << magnet::xml::attr("Name") << getName(mp1.first.first, Sim)
 	  << magnet::xml::attr("Event") << mp1.first.second

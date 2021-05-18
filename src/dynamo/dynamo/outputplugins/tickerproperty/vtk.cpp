@@ -180,7 +180,7 @@ namespace dynamo {
 	    factor *= _binCounts[iDim];
 	  }
 
-	const double mass = Sim->species(p)->getMass(p.getID());
+	const double mass = Sim->species[p]->getMass(p.getID());
 	++_numberField[cellID];
 	_massField[cellID] += mass;
 	_momentumField[cellID] += mass * velocity;

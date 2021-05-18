@@ -33,7 +33,7 @@ namespace magnet {
 	  _texType(texType)
 	{}
 
-	inline ~TextureBasic() { deinit(); }
+	virtual  ~TextureBasic() { deinit(); }
 
 	/*! \brief Allocates the OpenGL texture handle. */
 	inline void init()
@@ -45,6 +45,7 @@ namespace magnet {
 	}
 
       public:
+	
 	/*! \brief Releases the OpenGL texture resources. */
 	inline void deinit()
 	{

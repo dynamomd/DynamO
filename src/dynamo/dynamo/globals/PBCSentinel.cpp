@@ -71,7 +71,7 @@ namespace dynamo {
   
     Sim->stream(iEvent._dt);
 
-    NEventData EDat(ParticleEventData(part, *Sim->species(part), VIRTUAL));
+    NEventData EDat(ParticleEventData(part, *Sim->species[part], VIRTUAL));
 
     Sim->_sigParticleUpdate(EDat);
 

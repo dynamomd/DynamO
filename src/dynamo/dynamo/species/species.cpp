@@ -37,4 +37,9 @@ namespace dynamo {
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of species encountered";
   }
+
+  double
+  Species::getParticleKineticEnergy(const Particle& p) const {
+    return getParticleKineticEnergy(p.getID()); 
+  }
 }

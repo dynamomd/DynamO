@@ -52,6 +52,7 @@ namespace dynamo {
     static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::Simulation*, size_t);
 
     virtual double getParticleKineticEnergy(size_t ID) const = 0;
+    double getParticleKineticEnergy(const Particle&) const;
 
     virtual double getDOF() const = 0;
     

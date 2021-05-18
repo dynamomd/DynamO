@@ -88,10 +88,10 @@ namespace dynamo {
     Vector pos(part.getPosition()), vel(part.getVelocity());
     Sim->BCs->applyBC(pos, vel);
     double potEnergyChange = 0.5 * (double(_volumeData[newCellIndex]) - double(_volumeData[oldCellIndex]));
-    double arg =  vel[cellDirection] * vel[cellDirection] - 2 * potEnergyChange / Sim->species(part)->getMass(part);
+    double arg =  vel[cellDirection] * vel[cellDirection] - 2 * potEnergyChange / Sim->species[part]->getMass(part);
     if (arg > 0)
       {
-	EDat = ParticleEventData(part, *Sim->species(part), WALL);
+	EDat = ParticleEventData(part, *Sim->species[part], WALL);
 	part.getVelocity()[cellDirection] *= std::sqrt(arg) / std::abs(part.getVelocity()[cellDirection]);
 	_cellData.moveTo(oldCellIndex, newCellIndex, part.getID());
       }

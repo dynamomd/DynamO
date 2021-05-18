@@ -68,7 +68,7 @@ namespace dynamo {
     Particle& part(Sim->particles[*(range->begin()+step)]);
 
     Sim->dynamics->updateParticle(part);
-    ParticleEventData eventdata(part, *Sim->species(part), GAUSSIAN);
+    ParticleEventData eventdata(part, *Sim->species[part], GAUSSIAN);
 
     //Locate surrounding particles, and calculate the average direction
     size_t n = 0;

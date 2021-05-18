@@ -58,7 +58,7 @@ namespace magnet {
 	_queue_mutex.unlock();
       }
 
-      ~TaskQueue()
+      virtual ~TaskQueue()
       {
 	std::lock_guard<std::mutex> lock(_queue_mutex);    
 	_waitingFunctors = std::queue<std::function<void()> >();

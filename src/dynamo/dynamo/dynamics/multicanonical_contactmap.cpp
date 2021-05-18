@@ -126,7 +126,7 @@ namespace dynamo {
 
     updateParticlePair(particle1, particle2);  
 
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event._type);
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], event._type);
     
     Sim->BCs->applyBC(retVal.rij,retVal.vijold);
   

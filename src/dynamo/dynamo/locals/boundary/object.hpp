@@ -40,6 +40,8 @@ namespace dynamo {
     
     class Object : public dynamo::SimBase {
     public:
+      virtual ~Object() {}
+      
       Object(Simulation* const SD, const std::string aName, const BoundaryOscillationData& data);
 
       virtual bool validateState(const Particle& part, bool textoutput) const = 0;

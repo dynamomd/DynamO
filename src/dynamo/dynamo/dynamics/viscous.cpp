@@ -57,7 +57,7 @@ namespace dynamo {
   void
   DynViscous::streamParticle(Particle &particle, const double &dt) const
   {
-    const double m = Sim->species(particle)->getMass(particle.getID());
+    const double m = Sim->species[particle]->getMass(particle.getID());
 
     particle.getPosition()
       += - _g * dt / (_gamma * m)
@@ -80,8 +80,8 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
     const Vector X = r12;
-    const double m1 = Sim->species(p1)->getMass(p1.getID());
-    const double m2 = Sim->species(p2)->getMass(p2.getID());
+    const double m1 = Sim->species[p1]->getMass(p1.getID());
+    const double m2 = Sim->species[p2]->getMass(p2.getID());
     const Vector V = (p1.getVelocity() / m1) - (p2.getVelocity() / m2);
 
     if (m1!=m2)
@@ -111,7 +111,7 @@ namespace dynamo {
     Particle& particle1 = Sim->particles[event._particle1ID];
     Particle& particle2 = Sim->particles[event._particle2ID];
     updateParticlePair(particle1, particle2);  
-    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
 
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
 

@@ -64,7 +64,7 @@ namespace dynamo {
             }
             numberOfSpecies = 0;
             for (const Particle& p : Sim->particles) {
-                  int n = Sim->species(p)->getID();
+                  int n = Sim->species[p]->getID();
                   if (n > numberOfSpecies) {
                         numberOfSpecies = n;
                   }
@@ -88,11 +88,11 @@ namespace dynamo {
                   Sim->BCs->applyBC(pos);
                   size_t binNumber = floor((0.5 + pos[X] / Sim->primaryCellSize[X]) * nBins);
                   densities[binNumber] += 1.0;
-                  temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
+                  temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species[p]->getMass(p.getID()));
                   if (numberOfSpecies >= 2) {
-                        int species = Sim->species(p)->getID();
+                        int species = Sim->species[p]->getID();
                         speciesDensities[species][binNumber] += 1.0;
-                        speciesTemperatures[species][binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
+                        speciesTemperatures[species][binNumber] += getTemperature(p.getVelocity(), Sim->species[p]->getMass(p.getID()));
                   }
             }
       }
@@ -123,13 +123,13 @@ namespace dynamo {
 
             // GUF
             //for (const Particle& p : Sim->particles) {
-                  //guf.push_back(Sim->species(p)->isSpecies(p));
-                  //guf.push_back(Sim->species(p)->getCount());
+                  //guf.push_back(Sim->species[p]->isSpecies(p));
+                  //guf.push_back(Sim->species[p]->getCount());
                   //guf.push_back(numberOfSpecies);
-                  //guf.push_back(Sim->species(p)->getID());
+                  //guf.push_back(Sim->species[p]->getID());
                   //guf.push_back(speciesTemperatures.size());
-                  //guf.push_back(getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID())));
-                  //temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species(p)->getMass(p.getID()));
+                  //guf.push_back(getTemperature(p.getVelocity(), Sim->species[p]->getMass(p.getID())));
+                  //temperatures[binNumber] += getTemperature(p.getVelocity(), Sim->species[p]->getMass(p.getID()));
             //}
 
             XML << magnet::xml::tag("Profiles")

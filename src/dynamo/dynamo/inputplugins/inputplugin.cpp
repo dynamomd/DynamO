@@ -78,8 +78,8 @@ namespace dynamo {
     double totmass = 0.0;
     for (const Particle& part : Sim->particles)  
       {
-	totmass += Sim->species(part)->getMass(part);
-	com += part.getPosition() * Sim->species(part)->getMass(part);
+	totmass += Sim->species[part]->getMass(part);
+	com += part.getPosition() * Sim->species[part]->getMass(part);
       }
     com /= totmass;
   

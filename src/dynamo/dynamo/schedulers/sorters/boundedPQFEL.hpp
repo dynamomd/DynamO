@@ -171,7 +171,7 @@ namespace dynamo {
       size_t i;
       if ((dt == -std::numeric_limits<float>::infinity()) || (box < currentIndex))
         i = currentIndex; //Negative time events are placed in the current tree
-      else if (scale * dt > std::numeric_limits<size_t>::max())
+      else if (scale * dt > double(std::numeric_limits<size_t>::max()))
 	i = std::numeric_limits<size_t>::max(); //Put this in the overflow list
       else
 	i = static_cast<size_t>(box); //You can use this as usual

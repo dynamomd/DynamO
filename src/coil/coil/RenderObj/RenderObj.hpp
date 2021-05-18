@@ -50,6 +50,8 @@ namespace coil {
       PICKING = 1 << 2 //!< This is an object picking pass.
     };
 
+    virtual ~RenderObj() {}
+    
     /*! \brief Default constructor which just sets the name of the
       object.
     */

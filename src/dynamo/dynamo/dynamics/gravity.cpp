@@ -111,7 +111,7 @@ namespace dynamo {
     for (const size_t ID : p1)
       {
 	const Particle& part = Sim->particles[ID];       
-	double mass = Sim->species(part)->getMass(ID);
+	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel1sum += mass;
@@ -125,7 +125,7 @@ namespace dynamo {
     for (const size_t ID : p2)
       {
 	const Particle& part = Sim->particles[ID];       
-	double mass = Sim->species(part)->getMass(ID);
+	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel2sum += mass;
@@ -173,7 +173,7 @@ namespace dynamo {
     for (const size_t ID : p1)
       {
 	const Particle& part = Sim->particles[ID];       
-	double mass = Sim->species(part)->getMass(ID);
+	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel1sum += mass;
@@ -187,7 +187,7 @@ namespace dynamo {
     for (const size_t ID : p2)
       {
 	const Particle& part = Sim->particles[ID];       
-	double mass = Sim->species(part)->getMass(ID);
+	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel2sum += mass;
@@ -594,7 +594,7 @@ namespace dynamo {
   {
     updateParticle(part);
 
-    const Species& species = *Sim->species(part);
+    const Species& species = *Sim->species[part];
     NEventData retval(ParticleEventData(part, species, VIRTUAL));
 
     Vector pos(part.getPosition()), vel(part.getVelocity());

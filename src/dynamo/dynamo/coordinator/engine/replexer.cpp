@@ -550,7 +550,7 @@ namespace dynamo {
 	    double seconds_remaining_double = duration * (1 / fractionComplete - 1);
 	    size_t seconds_remaining = seconds_remaining_double;
 
-	    if (seconds_remaining_double < std::numeric_limits<size_t>::max())
+	    if (seconds_remaining < std::numeric_limits<size_t>::max())
 	      {
 		size_t ETA_hours = seconds_remaining / 3600;
 		size_t ETA_mins = (seconds_remaining / 60) % 60;

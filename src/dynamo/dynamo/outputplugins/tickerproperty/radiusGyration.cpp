@@ -92,7 +92,7 @@ namespace dynamo {
     molGyrationDat retVal;
     retVal.MassCentre = Vector{0,0,0};
 
-    double totmass = Sim->species(Sim->particles[*(range->begin())])->getMass(*(range->begin()));
+    double totmass = Sim->species[Sim->particles[*(range->begin())]]->getMass(*(range->begin()));
     //Walk along the chain
     Vector origin_position = Vector{0,0,0};
     Matrix inertiaTensor;
@@ -104,7 +104,7 @@ namespace dynamo {
 
 	const Vector unfolded_pos = currRelPos + origin_position;
 
-	const double mass = Sim->species(Sim->particles[*iPtr])->getMass(*iPtr);
+	const double mass = Sim->species[Sim->particles[*iPtr]]->getMass(*iPtr);
 
 	retVal.MassCentre += origin_position * mass;
 	inertiaTensor += mass * ((unfolded_pos * unfolded_pos) * Matrix::identity() - Dyadic(unfolded_pos, unfolded_pos));

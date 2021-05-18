@@ -132,7 +132,7 @@ namespace dynamo {
     for (const size_t& id1 : *ids)
       nblistCallback(part, id1);
   
-    ParticleEventData EDat(part, *Sim->species(part), iEvent._type);
+    ParticleEventData EDat(part, *Sim->species[part], iEvent._type);
     
     std::normal_distribution<> norm_dist;
     Vector newVel{norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator)};
