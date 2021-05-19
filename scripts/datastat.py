@@ -1,5 +1,8 @@
 import uncertainties, pandas, math, numpy
 
+def roundSF(val, sf):
+    return float('{:.{p}g}'.format(val, p=sf))
+
 class WeightedFloat():
     '''This class implements weighted arithmetic means along with an
     estimate of the standard error for the mean
