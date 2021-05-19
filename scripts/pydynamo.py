@@ -490,7 +490,7 @@ class SimManager:
                 parent_task = new_task
                 task_count += 1
 
-        print("Running", tot_states, "as ", task_count, "simulation tasks in parallel with", self.processes,"processes")
+        print("Running", tot_states, "state points as ", task_count, "simulation tasks in parallel with", self.processes, "processes")
         
         with progress_bars.ProgressBar(sys.stdout) as progress:
             progress.update(0)
