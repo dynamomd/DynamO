@@ -257,15 +257,30 @@ def worker(state, workdir, idx, outputplugins, particle_equil_events, particle_r
                     return
                 outputfile = os.path.join(workdir, str(counter)+'.config.xml.bz2')
                 datafile = os.path.join(workdir, str(counter)+'.data.xml.bz2')
-                if not os.path.isfile(outputfile) or not validate_configfile(outputfile) or not os.path.isfile(datafile) or not validate_outputfile(datafile):
+                dotherun = False
+                if (not os.path.isfile(outputfile)):
+                    print("output config file for run "+str(counter)+" "+outputfile+" is missing, doing the run", file=logfile)
+                    dotherun = True
+                elif (not validate_configfile(outputfile)):
+                    print("output config file for run "+str(counter)+" "+outputfile+" is corrupted, doing the run", file=logfile)
+                    dotherun = True
+                elif (not os.path.isfile(datafile)):
+                    print("output data file for run "+str(counter)+" "+datafile+" is missing, doing the run", file=logfile)
+                    dotherun = True
+                elif (not validate_outputfile(datafile)):
+                    print("output data file for run "+str(counter)+" "+datafile+" is corrupted, doing the run", file=logfile)
+                    dotherun = True
+
+                if dotherun:
                     check_call(["dynarun", inputfile, '-o', outputfile, '-c', str(N * particle_run_events_block_size), "--out-data-file", datafile]+outputplugins, stdout=logfile, stderr=logfile)
                     curr_particle_events += particle_run_events_block_size
                     counter += 1
                 else:
-                    print("Found existing run, skipping", file=logfile)
                     of = OutputFile(datafile)
+                    events_per_N_run = of.events() / of.N()
+                    curr_particle_events += events_per_N_run
+                    print("Found existing config and data for run "+str(counter)+" with "+str(events_per_N_run)+"N events, skipping", file=logfile)
                     counter += 1
-                    curr_particle_events += of.events() / of.N()
         
                 #Process the output data now
             print("\n", file=logfile)
@@ -274,10 +289,8 @@ def worker(state, workdir, idx, outputplugins, particle_equil_events, particle_r
             print("################################", file=logfile)
             print("Events ",curr_particle_events, "/", particle_run_events, "\n", file=logfile, flush=True)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError('Failed while running setup worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
+        raise RuntimeError('Failed while running worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
         
-def wrapped_worker(args):
-    return worker(*args)
     
 import shutil
 
@@ -430,44 +443,89 @@ class SimManager:
             print(" ",statevar, "∈", list(map(print_to_14sf, statevals)))
 
         tot_states, states = self.iterate_state(self.statevars)
-        tasks = []
 
-        #Here we create tasks, and increase the run events block wise
-        #to make sure that ALL state points complete their first
-        #blocks before going on to the next block.
-        run_events = 0
-        while run_events < particle_run_events:
-            run_events = min(run_events + particle_run_events_block_size, particle_run_events)
-            for state, workdir, idx in states:
-                tasks.append((state, workdir, idx, self.output_plugins, particle_equil_events, run_events, particle_run_events_block_size, setup_worker))
-
-        if self.processes == 1:
-            print("Running",tot_states, " as", len(tasks), "simulation tasks serially", flush=True)
-        else:
-            print("Running", tot_states, "as ", len(tasks), "simulation tasks in parallel with", self.processes,"processes")
-        task_count = len(tasks)
+        running_tasks = []
+        tasks_completed = 0
+        tasks_failed = 0
+        task_count = 0
         errors = []
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            if self.processes == 1:
-                progress.update(0)
-                for i, args in enumerate(tasks):
-                    worker(*args)
-                    progress.update(i / task_count)
-            else:
-                pool = Pool(processes=self.processes)
-                progress.update(0)
-                import traceback
-                rs = pool.map_async(wrapped_worker, tasks, chunksize=1,
-                                    error_callback=lambda e: errors.append(e))
-                pool.close()
-                while not rs.ready():
-                    progress.update((task_count - rs._number_left) / task_count)
-                    time.sleep(0.5)
-                progress.update(1)
-                pool.close()
-                pool.join()
+        pool = Pool(processes=self.processes)
+        
+        print("Building task tree...")
+        class Task:
+            def __init__(self, workertuple):
+                self._workertuple = workertuple
+                self._next_tasks = []
 
+            def is_done(self):
+                return self._result.ready()
+
+            def is_successful(self):
+                return self._result.successful()
+            
+            def start(self):
+                self._result = pool.apply_async(worker, args=self._workertuple)
+                
+            def to_follow(self, task):
+                self._next_tasks.append(task)
+
+            def next_tasks(self):
+                return self._next_tasks
+
+            def failed(self):
+                return 1 + sum([task.failed() for task in self._next_tasks])
+        
+        #We break up tasks into blocks of events
+        for state, workdir, idx in states:
+            #First we
+            run_events = 0
+            parent_task = None
+            while run_events < particle_run_events:
+                run_events += particle_run_events_block_size
+                new_task = Task((state, workdir, idx, self.output_plugins, particle_equil_events, run_events, particle_run_events_block_size, setup_worker))
+                if parent_task is None:
+                    running_tasks.append(new_task)
+                else:
+                    parent_task.to_follow(new_task)
+                parent_task = new_task
+                task_count += 1
+
+        print("Running", tot_states, "as ", task_count, "simulation tasks in parallel with", self.processes,"processes")
+        
+        with progress_bars.ProgressBar(sys.stdout) as progress:
+            progress.update(0)
+
+            for task in running_tasks:
+                task.start()
+            
+            while len(running_tasks) > 0:
+                still_running = []
+                for task in running_tasks:
+                    if not task.is_done():
+                        still_running.append(task)
+                    else:
+                        if task.is_successful():
+                            tasks_completed += 1
+                            for nxttask in task.next_tasks():
+                                nxttask.start()
+                                still_running.append(nxttask)
+                        else:
+                            tasks_completed += task.failed()
+                            try:
+                                task._result.get()
+                            except Exception as e:
+                                errors.append(e)
+                
+                running_tasks = still_running
+                progress.update(tasks_completed / task_count)
+                time.sleep(0.5)
+                
+        print("Terminating and joining threads...")
+        pool.close()
+        pool.join()
+        
         if len(errors) > 0:
+            import traceback
             print("\nERROR: Found",len(errors),"exceptions while processing")
             print(''.join(traceback.format_exception(etype=type(errors[0]), value=errors[0], tb=errors[0].__traceback__)))
             f=open("error.log", 'w')
