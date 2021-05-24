@@ -534,7 +534,7 @@ class SimManager:
             print('Remaining errors written to "error.log"')
             raise RuntimeError("Parallel execution failed")
 
-    def fetch_data(self, only_current_statevars=True):
+    def fetch_data(self, particle_equil_events, only_current_statevars=False):
         output_dirs = os.listdir(self.workdir)
 
         import collections
@@ -550,7 +550,7 @@ class SimManager:
         with progress_bars.ProgressBar(sys.stdout) as progress:
             n = len(output_dirs)
             for i, output_dir in enumerate(output_dirs):
-                progress.update(i/n)
+                progress.update(i / n)
                 output_dir = os.path.join(self.workdir, output_dir)
                 if os.path.isdir(output_dir):
                     configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
@@ -567,24 +567,49 @@ class SimManager:
                             if val not in self.statevars_dict[statevar]:
                                 continue
                 
-                    outputfiles = glob.glob(os.path.join(output_dir, "*.data.xml.bz2"))
-
                     dataout = state_data[state]
                     if "NEventsTot" not in dataout:
                         dataout["NEventsTot"] = 0
                     if "tTotal" not in dataout:
                         dataout["tTotal"] = 0
-                    for outputfilename in outputfiles:
-                        if outputfilename.endswith("0.data.xml.bz2"):
-                            continue
-                        outputfile = OutputFile(outputfilename)
-                        dataout["NEventsTot"] += outputfile.events()
-                        dataout["tTotal"] += outputfile.t()
-                        for prop in self.outputs:
-                            if prop not in dataout:
-                                dataout[prop] = OutputFile.output_props[prop].init()
-                            dataout[prop] += OutputFile.output_props[prop].result(outputfile)
-                        #print(state[0][1], OutputFile.output_props[prop].value(outputfile))
+
+                    counter = 0
+                    executed_events = 0
+                    while True:
+                        try:
+                            outputfilename = os.path.join(output_dir, str(counter)+'.config.xml.bz2')
+                            datafilename = os.path.join(output_dir, str(counter)+'.data.xml.bz2')
+                            counter += 1
+                            
+                            if (not os.path.isfile(outputfilename)) or (not os.path.isfile(datafilename)):
+                                break
+                            
+                            #if (not validate_configfile(outputfilename)) or (not validate_outputfile(datafilename)):
+                            #    break
+                            
+                            outputfile = OutputFile(datafilename)
+                            run_events = outputfile.events()
+                            N = outputfile.N()
+                            
+                            if executed_events < particle_equil_events * N:
+                                #If we weren't passed the equil_events
+                                #before starting this sim, then
+                                #discard the run as equilibration
+                                executed_events += run_events
+                                continue
+                            
+                            #This counts just the "production" events and time
+                            dataout["NEventsTot"] += outputfile.events()
+                            dataout["tTotal"] += outputfile.t()
+                            
+                            for prop in self.outputs:
+                                if prop not in dataout:
+                                    dataout[prop] = OutputFile.output_props[prop].init()
+                                dataout[prop] += OutputFile.output_props[prop].result(outputfile)
+                            #print(state[0][1], OutputFile.output_props[prop].value(outputfile))
+                        except Exception as e:
+                            print("Processing", output_dir, " gave exception", e)
+                            break
 
             for statevars, data in state_data.items():
                 for prop in data:
