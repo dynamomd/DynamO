@@ -15,11 +15,12 @@ densities = set(list(numpy.arange(0.1, 0.9, 0.1))+list(numpy.arange(0.8,0.95,0.0
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
 Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+
 statevars = [
     ("N", list(map(lambda x: x**2, [12, 50, 100]))),
     ('ndensity', densities),
     ("Rso", Rso),
-    ("InitState", ["SC"]),
+    ("InitState", ["SC", "hexagonal"]),
 ]
 
 def setup_worker( config, #The name of the config file to generate.
@@ -29,13 +30,7 @@ def setup_worker( config, #The name of the config file to generate.
 ):
     from subprocess import check_call
     
-    unitcellN = {
-        "FCC":4,
-        "BCC":2,
-        "SC":1,
-    }
-    
-    Ncells_unrounded = (state['N'] / unitcellN[state['InitState']]) ** (1.0 / d)
+    Ncells_unrounded = state['N'] ** (1.0 / d)
     Ncells = int(round(Ncells_unrounded))
     if abs(Ncells - Ncells_unrounded) > 0.1:
         raise RuntimeError("Could not make "+str(state['N'])+" particles in an "+state['InitState']+" packing")
@@ -61,6 +56,16 @@ def setup_worker( config, #The name of the config file to generate.
         XMLSOCells.attrib['Diameter'] = str(2 * state['Rso'])
         xml.save(config)
 
+    if state['InitState'] == "hexagonal":
+        xml = pydynamo.ConfigFile(config)
+        particles = xml.tree.findall(".//Pt")
+        dx = (float(particles[1].find('P').attrib['x']) - float(particles[0].find('P').attrib['x'])) / 2
+        for idx,pt in enumerate(particles):
+            if ((idx // Ncells) % 2) == 1:
+                p = pt.find('P')
+                p.attrib['x']  = repr(float(p.attrib['x']) + dx)
+        xml.save(config)
+        
 
 ################################################################
 ###          CREATE A SIMULATION MANAGER
