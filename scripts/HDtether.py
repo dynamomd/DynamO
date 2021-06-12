@@ -9,15 +9,17 @@ import math
 ################################################################
 #This is the list of state variables and their ranges
 
-densities = set(list(numpy.arange(0.1, 1.4, 0.1))+list(numpy.arange(0.8,1.05,0.01)))
+d=2
+
+densities = set(list(numpy.arange(0.1, 0.9, 0.1))+list(numpy.arange(0.8,0.95,0.01)))
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
 Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
 statevars = [
-    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
+    ("N", list(map(lambda x: x**2, [12, 50, 100]))),
     ('ndensity', densities),
     ("Rso", Rso),
-    ("InitState", ["FCC"]),
+    ("InitState", ["SC"]),
 ]
 
 def setup_worker( config, #The name of the config file to generate.
@@ -26,43 +28,19 @@ def setup_worker( config, #The name of the config file to generate.
                   particle_equil_events, # How many events will be run per particle to equilibrate the config. Useful if in setup you also need to equilibrate an intermediate configuration.
 ):
     from subprocess import check_call
-
-    #Here we work out how many unit cells to make the system out of for various packings
-    if 'InitState' not in state:
-        state['InitState'] = "FCC"
     
     unitcellN = {
         "FCC":4,
         "BCC":2,
         "SC":1,
     }
-    Ncells_unrounded = (state['N'] / unitcellN[state['InitState']]) ** (1.0 / 3.0)
+    
+    Ncells_unrounded = (state['N'] / unitcellN[state['InitState']]) ** (1.0 / d)
     Ncells = int(round(Ncells_unrounded))
     if abs(Ncells - Ncells_unrounded) > 0.1:
         raise RuntimeError("Could not make "+str(state['N'])+" particles in an "+state['InitState']+" packing")
 
-    # Here, for tethered systems, we do not simulate state points if
-    # its going to be boring and "ideal". I only have worked out the
-    # spacing expression for FCC, so all other crystals will just be
-    # run regardless
-    if ("Rso" in state) and (state['Rso'] != float('inf')) and (state['InitState'] == "FCC"):
-        minR = max(0, (2**(2.5)*state['ndensity'])**(-1/3.0) - 0.5)
-        #phiT= state['ndensity'] * (4/3) * math.pi * minR**3
-        #minRho = max(0, (2**(1/6.0)-(6*state['ndensity']*(4/3)*minR**3)**(1/3))**3)
-        if state['Rso'] <= minR:
-            raise pydynamo.SkipThisPoint()
-
-    # This check is halting systems deep in the solid region, which should not be done!
-    #
-    #
-    ### Again, for tethered systems in FCC lattices we do not simulate
-    ### much beyond a multiple of the minimum tether radius.
-    ##if ("Rso" in state) and (state['ndensity'] >= 1.0) and (state['InitState'] == "FCC"):
-    ##    minR = max(0, (2**(2.5)*state['ndensity'])**(-1/3.0) - 0.5)
-    ##    if state['Rso'] >= 10*minR:
-    ##        raise pydynamo.SkipThisPoint()
-        
-    check_call(('dynamod -T 1.0 -o '+config+' -m 0'+' -d ' + repr(state['ndensity'])+' -C'+str(Ncells)).split(), stdout=logfile, stderr=logfile)
+    check_call(('dynamod -m 0 -z 1 --rectangular-box --zero-vel 2  --i1 2 -T 1.0 -o '+config+' -d ' + repr(state['ndensity'])+' -x '+str(Ncells)+' -y '+str(Ncells)).split(), stdout=logfile, stderr=logfile)
 
     if ('Rso' in state) and (state['Rso'] != float('inf')) and (state["InitState"] == "Liquid"):
         print("\n", file=logfile)
@@ -87,7 +65,7 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
-mgr = pydynamo.SimManager("HSTetherNVTWD", #Which subdirectory to work in
+mgr = pydynamo.SimManager("HDTetherWD", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", "NeventsSO", "VACF"], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
@@ -102,10 +80,10 @@ mgr = pydynamo.SimManager("HSTetherNVTWD", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

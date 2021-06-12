@@ -84,7 +84,7 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
-mgr = pydynamo.SimManager("HSTetherWD", #Which subdirectory to work in
+mgr = pydynamo.SimManager("HSTetherNVEWD", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", "NeventsSO", "VACF"], # Output properties
                           restarts=3, #How many restarts (new initial configurations) should be done per state point

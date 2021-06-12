@@ -497,7 +497,8 @@ class SimManager:
 
             for task in running_tasks:
                 task.start()
-            
+
+            ok = True
             while len(running_tasks) > 0:
                 still_running = []
                 for task in running_tasks:
@@ -506,20 +507,23 @@ class SimManager:
                     else:
                         if task.is_successful():
                             tasks_completed += 1
-                            for nxttask in task.next_tasks():
-                                nxttask.start()
-                                still_running.append(nxttask)
+                            if ok:
+                                for nxttask in task.next_tasks():
+                                    nxttask.start()
+                                    still_running.append(nxttask)
                         else:
                             tasks_completed += task.failed()
+                            ok = False
                             try:
                                 task._result.get()
                             except Exception as e:
+                                print("\n ERROR: Found error ", e, "\n")
                                 errors.append(e)
                 
                 running_tasks = still_running
                 progress.update(tasks_completed / task_count)
                 time.sleep(0.5)
-                
+
         print("Terminating and joining threads...")
         pool.close()
         pool.join()
