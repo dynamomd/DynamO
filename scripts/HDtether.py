@@ -44,9 +44,15 @@ def setup_worker( config, #The name of the config file to generate.
         print("################################\n", file=logfile, flush=True)
         check_call(["dynarun", "--unwrapped", config, '-o', config, '-c', str(state['N'] * particle_equil_events), "--out-data-file", "data.liqequil.xml.bz2"], stdout=logfile, stderr=logfile)
     
-    #Add the SO Cells global interaction (if needed)
+    xml = pydynamo.ConfigFile(config)
+
+    #Set thermostats to 2D
+    for system in xml.tree.findall(".//System"):
+        if system.attrib['Type'] == "Andersen":
+            system.attrib['Dimensions'] = "2"
+
     if ('Rso' in state) and (state['Rso'] != float('inf')):
-        xml = pydynamo.ConfigFile(config)
+        #Add the SO Cells global interaction (if needed)
         XMLGlobals = xml.tree.find(".//Globals")
         XMLSOCells = ET.SubElement(XMLGlobals, 'Global')
         XMLSOCells.attrib['Name'] = "SOCells" #Name can be anything
@@ -54,17 +60,15 @@ def setup_worker( config, #The name of the config file to generate.
         XMLSOCellsRange = ET.SubElement(XMLSOCells, 'Range')
         XMLSOCellsRange.attrib["Type"] = "All"
         XMLSOCells.attrib['Diameter'] = str(2 * state['Rso'])
-        xml.save(config)
 
     if state['InitState'] == "hexagonal":
-        xml = pydynamo.ConfigFile(config)
         particles = xml.tree.findall(".//Pt")
         dx = (float(particles[1].find('P').attrib['x']) - float(particles[0].find('P').attrib['x'])) / 2
         for idx,pt in enumerate(particles):
             if ((idx // Ncells) % 2) == 1:
                 p = pt.find('P')
                 p.attrib['x']  = repr(float(p.attrib['x']) + dx)
-        xml.save(config)
+    xml.save(config)
         
 
 ################################################################
