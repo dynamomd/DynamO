@@ -15,7 +15,7 @@ densities = set(list(numpy.arange(0.1, 0.9, 0.1))+list(numpy.arange(0.8,0.95,0.0
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
 Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
-
+Rso = [float('inf')] + Rso
 statevars = [
     ("N", list(map(lambda x: x**2, [12, 50, 100]))),
     ('ndensity', densities),
@@ -85,10 +85,10 @@ mgr = pydynamo.SimManager("HDTetherWD", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
