@@ -9,24 +9,24 @@ import math
 ################################################################
 #This is the list of state variables and their ranges
 
-#densities = set(list(numpy.arange(0.1, 0.9, 0.1))+list(numpy.arange(0.8,0.95,0.01)))
-#densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
-#densities.sort()
-#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02)))) + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(2.0, 5.0, 0.25))))
-#Rso = [float('inf')] + Rso
-#statevars = [
-#    ("N", list(map(lambda x: x**2, [12, 50, 100]))),
-#    ('ndensity', densities),
-#    ("Rso", Rso),
-#    ("InitState", ["SC", "hexagonal", "real_hexagonal"]),
-#]
-
+densities = set(list(numpy.arange(0.1, 0.9, 0.1))+list(numpy.arange(0.8,1.14,0.01)))
+densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities.sort()
+Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02)))) + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(2.0, 5.0, 0.25))))
+Rso = [float('inf')] + Rso
 statevars = [
-    ("N", [2 * 10 * 10]),
-    ('ndensity', [0.5, 1.0]),
-    ("Rso", [1.0, float('inf')]),
-    ("InitState", ["real_hexagonal"]),
+    ("N", list(map(lambda x: x**2, [12, 50, 100]))),
+    ('ndensity', densities),
+    ("Rso", Rso),
+    ("InitState", ["real_hexagonal"]), #"SC", "hexagonal", 
 ]
+
+#statevars = [
+#    ("N", [2 * 10 * 10]),
+#    ('ndensity', [0.5, 1.0]),
+#    ("Rso", [1.0, float('inf')]),
+#    ("InitState", ["real_hexagonal"]),
+#]
 
 def setup_worker( config, #The name of the config file to generate.
                   state, #A dictionary of state variables to use
