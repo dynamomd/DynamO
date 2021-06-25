@@ -98,6 +98,7 @@ def setup_worker( config, #The name of the config file to generate.
     
 
     if ('Rso' in state) and (state['Rso'] != float('inf')):
+        xml = pydynamo.ConfigFile(config)
         #Add the SO Cells global interaction (if needed)
         XMLGlobals = xml.tree.find(".//Globals")
         XMLSOCells = ET.SubElement(XMLGlobals, 'Global')
@@ -106,6 +107,7 @@ def setup_worker( config, #The name of the config file to generate.
         XMLSOCellsRange = ET.SubElement(XMLSOCells, 'Range')
         XMLSOCellsRange.attrib["Type"] = "All"
         XMLSOCells.attrib['Diameter'] = str(2 * state['Rso'])
+        xml.save(config)
 
         
 
@@ -127,10 +129,10 @@ mgr = pydynamo.SimManager("HDTetherWD", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
