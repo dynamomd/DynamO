@@ -113,7 +113,7 @@ class ConfigFile(XMLFile):
         return self.N() / self.V()
     
     def __getitem__(self, key):
-        return ConfigFile.config_props[key][0], ConfigFile.config_props[key][1](self)
+        return ConfigFile.config_props[key]['recalc'](self)
     
     def __str__(self):
         return "ConfigFile("+self._filename+")"
@@ -309,6 +309,11 @@ class SimManager:
             raise RuntimeError("Could not find dynamod executable.")
 
         self.output_plugins = set()
+
+        #Make a sample state, using just the first set of variables,
+        #to figure out what set AND generated state variables.
+        _, test_state = self.iterate_state([(statevar, vals[0:1]) for statevar, vals in self.statevars])
+        test_state = test_state[0][0]
         
         for output in self.outputs:
             # Check output is defined
@@ -317,7 +322,7 @@ class SimManager:
             
             # Check the outputs have all the required statevars
             for dep_statevar in OutputFile.output_props[output]._dep_statevars:
-                if dep_statevar not in self.statevars_dict:
+                if dep_statevar not in test_state:
                     raise RuntimeError('The "'+output+'" output requires the "'+dep_statevar+'" state variable, but its missing!')
 
             # Add any dependent outputs
@@ -366,8 +371,8 @@ class SimManager:
                     XMLconfig = ConfigFile(configs[0])
                     newstate = oldstate
                     for statevar,staterange in self.statevars:
-                        can_regen, regen_val = XMLconfig[statevar]
-
+                        can_regen = ConfigFile.config_props[statevar]['recalculable']
+                        regen_val = XMLconfig[statevar]
                         # If we can regenerate the state from the
                         # config file, then do that to verify the
                         # state value. If not, then only replace the
@@ -398,6 +403,12 @@ class SimManager:
         retval = []
         for i, stateval in enumerate(itertools.product(*statevals)):
             state = [(var, conv_to_14sf(val)) for var, val in zip(statevar, stateval)]
+
+            #For each state variable, calculate any derived state as needed
+            for statevar,val in state:
+                if 'gen_state' in ConfigFile.config_props[statevar]:
+                    state = ConfigFile.config_props[statevar]['gen_state'](state)
+            
             for idx in range(self.restarts):
                 retval.append((dict(state), self.getstatedir(state, idx), idx))
         return tot_states, retval
@@ -637,16 +648,37 @@ class SimManager:
 # ###############################################
 # #          Definition of state vars           #
 # ###############################################
-ConfigFile.config_props["N"] = (True, lambda config: config.N())
-ConfigFile.config_props["ndensity"] = (True, lambda config: conv_to_14sf(config.n()))
-ConfigFile.config_props["InitState"] = (False, lambda config: "FCC")
+ConfigFile.config_props["N"] = {'recalculable':True, 'recalc': lambda config: config.N()}
+ConfigFile.config_props["ndensity"] = {'recalculable':True, 'recalc': lambda config: conv_to_14sf(config.n())}
+ConfigFile.config_props["InitState"] = {'recalculable':False, 'recalc': lambda config: "FCC"}
+#
 def Rso_config(XMLconfig):
     tag = XMLconfig.tree.find('.//Global[@Type="SOCells"]')
     if tag is None:
         return float('inf')
     else:
-        return conv_to_14sf(float(tag.attrib['Diameter']) / 2)
-ConfigFile.config_props["Rso"] = (True, Rso_config)
+        return conv_to_14sf(float(tag.attrib['Diameter']) / 2)    
+ConfigFile.config_props["Rso"] = {'recalculable':True, 'recalc':Rso_config}
+#
+def PhiT_config(XMLconfig):
+    Rso = Rso_config(XMLconfig)
+    if Rso == float('inf'):
+        return float('inf')
+    density = XMLconfig.n()
+    phiT = density * math.pi * (4.0/3.0) * (Rso**3)
+    return conv_to_14sf(phiT)
+def PhiT_gen(state):
+    dictstate = dict(state)
+    density = dictstate["ndensity"]
+    phiT = dictstate["PhiT"]
+    Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
+    if 'Rso' in dictstate:
+        if dictstate['Rso'] != conv_to_14sf(Rso):
+            raise RuntimeError("State contains conflicting Rso and PhiT")
+    else:
+        state.append(('Rso', conv_to_14sf(Rso)))
+    return state
+ConfigFile.config_props["PhiT"] = {'recalculable':True, 'recalc':PhiT_config, 'gen_state':PhiT_gen}
 
 
 class OutputProperty:

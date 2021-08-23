@@ -13,10 +13,17 @@ densities = set(list(numpy.arange(0.1, 1.4, 0.1))+list(numpy.arange(0.8,1.05,0.0
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
 Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+#statevars = [
+#    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
+#    ('ndensity', densities),
+#    ("Rso", Rso),
+#    ("InitState", ["FCC"]),
+#]
+
 statevars = [
-    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
-    ('ndensity', densities),
-    ("Rso", Rso),
+    ("N", list(map(lambda x: 4*x**3, [5]))),
+    ('ndensity', [0.5]),
+    ("PhiT", [0.5]),
     ("InitState", ["FCC"]),
 ]
 
@@ -91,7 +98,7 @@ mgr = pydynamo.SimManager("HSTetherNVTWD", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", "NeventsSO", "VACF"], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
-                          processes=None, #None is automatically use all processors
+                          processes=1, #None is automatically use all processors
 )
 
 ################################################################
@@ -102,10 +109,10 @@ mgr = pydynamo.SimManager("HSTetherNVTWD", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
