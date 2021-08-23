@@ -405,10 +405,13 @@ class SimManager:
             state = [(var, conv_to_14sf(val)) for var, val in zip(statevar, stateval)]
 
             #For each state variable, calculate any derived state as needed
-            for statevar,val in state:
-                if 'gen_state' in ConfigFile.config_props[statevar]:
-                    state = ConfigFile.config_props[statevar]['gen_state'](state)
+            newstate = state[:]
             
+            for svar,sval in state:
+                if 'gen_state' in ConfigFile.config_props[svar]:
+                    newstate = ConfigFile.config_props[svar]['gen_state'](newstate)
+            
+            state = newstate
             for idx in range(self.restarts):
                 retval.append((dict(state), self.getstatedir(state, idx), idx))
         return tot_states, retval

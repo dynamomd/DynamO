@@ -12,20 +12,16 @@ import math
 densities = set(list(numpy.arange(0.1, 1.4, 0.1))+list(numpy.arange(0.8,1.05,0.01)))
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
-Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
-#statevars = [
-#    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
-#    ('ndensity', densities),
-#    ("Rso", Rso),
-#    ("InitState", ["FCC"]),
-#]
-
+#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+phi_T = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.1, 2.0, 0.1))))
 statevars = [
-    ("N", list(map(lambda x: 4*x**3, [5]))),
-    ('ndensity', [0.5]),
-    ("PhiT", [0.5]),
+    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
+    ('ndensity', densities),
+    #("Rso", Rso),
+    ("PhiT", phi_T),
     ("InitState", ["FCC"]),
 ]
+
 
 def setup_worker( config, #The name of the config file to generate.
                   state, #A dictionary of state variables to use
@@ -94,7 +90,7 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
-mgr = pydynamo.SimManager("HSTetherNVTWD", #Which subdirectory to work in
+mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", "NeventsSO", "VACF"], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
