@@ -386,8 +386,11 @@ class SimManager:
                     newstatelist = [(statevar, newstate[statevar]) for statevar,staterange in self.statevars]
                     newpath = self.getnextstatedir(newstatelist, oldpath=oldpath)
 
-                    if oldpath != newpath or newstate != oldstate:
+                    if oldpath != newpath:
                         shutil.move(oldpath, newpath)
+                    if  newstate != oldstate:
+                        pickle.dump(newstate, open(os.path.join(newpath, "state.pkl"), 'wb'))
+
 
     def iterate_state(self, statevars):
         # Loop over all permutations of the state variables
@@ -654,6 +657,7 @@ class SimManager:
 ConfigFile.config_props["N"] = {'recalculable':True, 'recalc': lambda config: config.N()}
 ConfigFile.config_props["ndensity"] = {'recalculable':True, 'recalc': lambda config: conv_to_14sf(config.n())}
 ConfigFile.config_props["InitState"] = {'recalculable':False, 'recalc': lambda config: "FCC"}
+ConfigFile.config_props["Lambda"] = {'recalculable':False, 'recalc': lambda config: 1.5}
 #
 def Rso_config(XMLconfig):
     tag = XMLconfig.tree.find('.//Global[@Type="SOCells"]')
@@ -682,6 +686,14 @@ def PhiT_gen(state):
         state.append(('Rso', conv_to_14sf(Rso)))
     return state
 ConfigFile.config_props["PhiT"] = {'recalculable':True, 'recalc':PhiT_config, 'gen_state':PhiT_gen}
+
+def kT_config(XMLconfig):
+    tag = XMLconfig.tree.find('.//System[@Name="Thermostat"]')
+    if tag is None:
+        return float('inf')
+    else:
+        return conv_to_14sf(float(tag.attrib['Temperature']))
+ConfigFile.config_props["kT"] = {'recalculable':True, 'recalc':kT_config}
 
 
 class OutputProperty:

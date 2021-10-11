@@ -9,16 +9,15 @@ import math
 ################################################################
 #This is the list of state variables and their ranges
 
-densities = set(list(numpy.arange(0.1, 1.4, 0.1))+list(numpy.arange(0.8,1.05,0.01)))
-densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
-densities.sort()
-#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
-phi_T = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))
+densities = list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.05, 1.4, 0.1)))))
+phi_T =     list(set(map(lambda x : datastat.roundSF(x, 3), [0.005, 0.01, 0.02, 0.03, 0.04]+list(numpy.arange(0.05, 3.0, 0.05)))))
 statevars = [
-    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
+    ("N", list(map(lambda x: 4*x**3, [10]))), #15
     ('ndensity', densities),
     #("Rso", Rso),
     ("PhiT", phi_T),
+    ("Lambda", [1.5, 2.0]),
+    ("kT", [1.2, 2.5]),
     ("InitState", ["FCC"]),
 ]
 
@@ -48,8 +47,10 @@ def setup_worker( config, #The name of the config file to generate.
     # its going to be boring and "ideal". I only have worked out the
     # spacing expression for FCC, so all other crystals will just be
     # run regardless
+
     if ("Rso" in state) and (state['Rso'] != float('inf')) and (state['InitState'] == "FCC"):
-        minR = max(0, (2**(2.5)*state['ndensity'])**(-1/3.0) - 0.5)
+        effrho = state['ndensity']*(state['Lambda']**3)
+        minR = max(0, (2**(2.5)*effrho)**(-1/3.0) - 0.5)
         #phiT= state['ndensity'] * (4/3) * math.pi * minR**3
         #minRho = max(0, (2**(1/6.0)-(6*state['ndensity']*(4/3)*minR**3)**(1/3))**3)
         if state['Rso'] <= minR:
@@ -64,8 +65,12 @@ def setup_worker( config, #The name of the config file to generate.
     ##    minR = max(0, (2**(2.5)*state['ndensity'])**(-1/3.0) - 0.5)
     ##    if state['Rso'] >= 10*minR:
     ##        raise pydynamo.SkipThisPoint()
+
+    kTadd = ''
+    if 'kT' in state:
+        kTadd = '-T '+repr(state['kT'])
         
-    check_call(('dynamod -T 1.0 -o '+config+' -m 0'+' -d ' + repr(state['ndensity'])+' -C'+str(Ncells)).split(), stdout=logfile, stderr=logfile)
+    check_call(('dynamod '+kTadd+' -o '+config+' -m 1'+' -d ' + repr(state['ndensity'])+' -C'+str(Ncells)+' --f1 '+repr(state['Lambda'])).split(), stdout=logfile, stderr=logfile)
 
     if ('Rso' in state) and (state['Rso'] != float('inf')) and (state["InitState"] == "Liquid"):
         print("\n", file=logfile)
@@ -90,7 +95,7 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
-mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
+mgr = pydynamo.SimManager("SWTether", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", "NeventsSO", "VACF"], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
@@ -100,7 +105,7 @@ mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
 ################################################################
 ###          REORGANISE ANY EXISTING SIMULATIONS
 ################################################################
-#mgr.reorg_dirs()
+mgr.reorg_dirs()
 
 ################################################################
 ###          RUN SOME SIMULATIONS
