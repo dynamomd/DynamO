@@ -369,7 +369,7 @@ class SimManager:
                         continue                
                     oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
                     XMLconfig = ConfigFile(configs[0])
-                    newstate = oldstate
+                    newstate = oldstate.copy()
                     for statevar,staterange in self.statevars:
                         can_regen = ConfigFile.config_props[statevar]['recalculable']
                         regen_val = XMLconfig[statevar]
@@ -382,7 +382,7 @@ class SimManager:
                             newstate[statevar] = regen_val
                         elif statevar not in newstate:
                             newstate[statevar] = regen_val
-                        
+                    
                     newstatelist = [(statevar, newstate[statevar]) for statevar,staterange in self.statevars]
                     newpath = self.getnextstatedir(newstatelist, oldpath=oldpath)
 
@@ -390,8 +390,7 @@ class SimManager:
                         shutil.move(oldpath, newpath)
                     if  newstate != oldstate:
                         pickle.dump(newstate, open(os.path.join(newpath, "state.pkl"), 'wb'))
-
-
+                    
     def iterate_state(self, statevars):
         # Loop over all permutations of the state variables
         statevar, statevals = zip(*statevars)
