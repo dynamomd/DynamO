@@ -97,7 +97,7 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 mgr = pydynamo.SimManager("SWTether", #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", "NeventsSO", "VACF"], # Output properties
+                          ["p", "NeventsSO", "VACF", 'cv', 'u'], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
 )
@@ -105,15 +105,15 @@ mgr = pydynamo.SimManager("SWTether", #Which subdirectory to work in
 ################################################################
 ###          REORGANISE ANY EXISTING SIMULATIONS
 ################################################################
-mgr.reorg_dirs()
+#mgr.reorg_dirs()
 
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

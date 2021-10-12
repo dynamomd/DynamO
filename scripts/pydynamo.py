@@ -796,6 +796,8 @@ class TransportProperty(OutputProperty):
 
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
+OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
+OutputFile.output_props["u"] = SingleAttrib('UConfigurational', 'Mean', [], [], [], div_by_N=True, missing_val=None)
 OutputFile.output_props["T"] = SingleAttrib('Temperature', 'Mean', [], [], [], missing_val=None)
 OutputFile.output_props["density"] = SingleAttrib('Density', 'val', [], [], [], missing_val=None)
 OutputFile.output_props["MSD"] = SingleAttrib('MSD/Species', 'diffusionCoeff', [], [], ['-LMSD'], missing_val=None, skip_missing=True)
