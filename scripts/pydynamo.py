@@ -677,12 +677,20 @@ def PhiT_gen(state):
     dictstate = dict(state)
     density = dictstate["ndensity"]
     phiT = dictstate["PhiT"]
-    Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
-    if 'Rso' in dictstate:
-        if dictstate['Rso'] != conv_to_14sf(Rso):
-            raise RuntimeError("State contains conflicting Rso and PhiT")
+    if phiT == float('inf'):
+        Rso = float('inf')
+        if 'Rso' in dictstate:
+            if dictstate['Rso'] != float('inf'):
+                raise RuntimeError("State contains conflicting Rso and PhiT")
+        else:
+            state.append(('Rso', float('inf')))
     else:
-        state.append(('Rso', conv_to_14sf(Rso)))
+        Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
+        if 'Rso' in dictstate:
+            if dictstate['Rso'] != conv_to_14sf(Rso):
+                raise RuntimeError("State contains conflicting Rso and PhiT")
+        else:
+            state.append(('Rso',conv_to_14sf(Rso)))
     return state
 ConfigFile.config_props["PhiT"] = {'recalculable':True, 'recalc':PhiT_config, 'gen_state':PhiT_gen}
 

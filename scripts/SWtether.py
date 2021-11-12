@@ -10,7 +10,7 @@ import math
 #This is the list of state variables and their ranges
 
 densities = list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.05, 1.4, 0.1)))))
-phi_T =     list(set(map(lambda x : datastat.roundSF(x, 3), [0.005, 0.01, 0.02, 0.03, 0.04]+list(numpy.arange(0.05, 3.0, 0.05)))))
+phi_T =     [float('inf')] + list(set(map(lambda x : datastat.roundSF(x, 3), [0.001, 0.005, 0.01, 0.02, 0.03, 0.04]+list(numpy.arange(0.05, 3.0, 0.05)))))
 statevars = [
     ("N", list(map(lambda x: 4*x**3, [10]))), #15
     ('ndensity', densities),
@@ -110,10 +110,10 @@ mgr = pydynamo.SimManager("SWTether", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
