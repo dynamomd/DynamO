@@ -9,11 +9,20 @@ import math
 ################################################################
 #This is the list of state variables and their ranges
 
+#Old SWTether runs
 densities = list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.05, 1.4, 0.1)))))
 phi_T =     [float('inf')] + list(set(map(lambda x : datastat.roundSF(x, 3), [0.001, 0.005, 0.01, 0.02, 0.03, 0.04]+list(numpy.arange(0.05, 3.0, 0.05)))))
 
+
+#New SWTether2 runs, isotherm
 phi_T = [float('inf')]
 densities = list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.3, 0.01)))))
+kT=[1.0]
+
+#New SWTether2 runs, isochor
+phi_T = [float('inf')]
+densities = [1.29]
+kT=list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.00, 0.01)))))
 
 statevars = [
     ("N", list(map(lambda x: 4*x**3, [10]))), #15
@@ -21,7 +30,7 @@ statevars = [
     #("Rso", Rso),
     ("PhiT", phi_T),
     ("Lambda", [2.0]),
-    ("kT", [1.0]),
+    ("kT", kT),
     ("InitState", ["FCC"]),
 ]
 
@@ -114,10 +123,10 @@ mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
