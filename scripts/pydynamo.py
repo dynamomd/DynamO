@@ -297,7 +297,8 @@ import shutil
 class SimManager:
     def __init__(self, workdir, statevars, outputs, restarts=1, processes=None):
         self.workdir = workdir
-        self.statevars = statevars
+        #Make sure the state vars are in ascending order
+        self.statevars = [(key, sorted(value)) for key, value in statevars]
         self.statevars_dict = dict(statevars)
         self.restarts = restarts
         self.outputs = set(outputs)
