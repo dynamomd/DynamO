@@ -310,8 +310,12 @@ def perdir(args):
     #Old versions of pydynamo stored the state as a dict, but we need
     #a hashable type (i.e., tuple)
     if isinstance(state, dict):
-        state = tuple((statevar, statedict[statevar]) for statevar in manager.used_statevariables)
-    
+        state = tuple(sorted([(statevar, statedict[statevar]) for statevar in manager.used_statevariables]))
+
+    #Filter to only the set states (if enabled)
+    if manager.only_current_statevars and state not in manager.states:
+        return {}
+        
     counter = 0
     executed_events = 0
 
@@ -632,8 +636,7 @@ class SimManager:
             raise RuntimeError("Parallel execution failed")
 
     def fetch_data(self, particle_equil_events, only_current_statevars = False):
-        if only_current_statevars:
-            raise RuntimeError("Only_current_statevars Not implemented!")
+        self.only_current_statevars = only_current_statevars
         
         output_dirs = os.listdir(self.workdir)
         print("Fetching data...")
@@ -649,7 +652,9 @@ class SimManager:
         #So we run the per data dir operation, then reduce everything
         state_data = {}
         with alive_progress.alive_bar(n) as progress:
+            #This is a parallel loop, returning items as they finish in arbitrary order
             for result in pool.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
+                #Here we process the returned data from a single directory
                 for state, data in result.items():
                     if state not in state_data:
                         state_data[state] = data

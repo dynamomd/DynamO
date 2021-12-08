@@ -89,6 +89,25 @@ statevars = [
     ]
 ]
 
+
+# G(r) sampled states
+densities = set(list(numpy.arange(0.1, 1.4, 0.05))) # +list(numpy.arange(0.8,1.05,0.01))
+densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities.sort()
+#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.9, 2.0, 0.1))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+#phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+statevars = [
+    [
+        ("N", list(map(lambda x: 4*x**3, [15]))),
+        ('ndensity', densities),
+        #("Rso", Rso),
+        ("PhiT", phi_T),
+        ("InitState", ["FCC"]),
+    ]
+]
+
+
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
@@ -115,5 +134,5 @@ mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
 ################################################################
 ###          GET THE DATA
 ################################################################
-data = mgr.fetch_data(1000) #This is a pandas dataframe with columns for
+data = mgr.fetch_data(1000, only_current_statevars=True) #This is a pandas dataframe with columns for
                         #the state variables AND any output values
