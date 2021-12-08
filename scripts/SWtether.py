@@ -106,7 +106,7 @@ statevars = [
 ################################################################
 mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", "NeventsSO", "VACF", 'cv', 'u'], # Output properties
+                          ["p", "NeventsSO", "VACF", 'cv', 'u', 'RadialDist'], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
 )

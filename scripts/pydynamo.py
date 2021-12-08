@@ -13,9 +13,9 @@ point.
 # Include everything "standard" in here. Try to keep external
 # dependencies only imported when they are used, so this can be
 # easilly deployed on a cluster.
-import os, glob, progress_bars, sys, time, math, subprocess, bz2
+import os, glob, sys, time, math, subprocess, bz2, alive_progress
 
-from multiprocessing import Pool, TimeoutError, cpu_count
+from multiprocessing import Pool, cpu_count
 
 #import xml.etree.cElementTree as ET
 
@@ -100,8 +100,8 @@ class ConfigFile(XMLFile):
 
     # Primary image volume
     def V(self):
-        V = self.tree.find('.//SimulationSize')
-        return float(V.attrib['x']) * float(V.attrib['y']) * float(V.attrib['z'])
+        dims = self.image_dimensions()
+        return dims[0] * dims[1] * dims[2]
 
     # number density
     def n(self):
@@ -134,7 +134,25 @@ class ConfigFile(XMLFile):
             data[idx] = math.sqrt((p-t).dot(p-t))
         return np.histogramdd(data, bins=11)
 
+    def image_dimensions(self):
+        V = self.tree.find('.//SimulationSize')
+        return [float(V.attrib['x']), float(V.attrib['y']), float(V.attrib['z'])]
+    
+    def to_freud(self):
+        import freud
+        N = self.N()
+        frame = np.zeros((N, 3), dtype=np.float32)
+        box = self.image_dimensions()
+
+        particles = self.tree.findall('.//Pt/P')
         
+        for idx, particle in enumerate(particles):
+            frame[idx, 0] = np.float32(particle.attrib['x'])
+            frame[idx, 1] = np.float32(particle.attrib['y'])
+            frame[idx, 2] = np.float32(particle.attrib['z'])
+        
+        return freud.box.Box(*box), frame
+    
     config_props = {}
 
 # A XMLFile/ElementTree but specialised for DynamO output files
@@ -276,6 +294,61 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
     except subprocess.CalledProcessError as e:
         raise RuntimeError('Failed while running worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
         
+def perdir(args):
+    output_dir, particle_equil_events, manager = args
+    output_dir = os.path.join(manager.workdir, output_dir)
+    if not os.path.isdir(output_dir):
+        return {}
+    
+    configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
+    if len(configs) == 0:
+        return {}
+    
+    state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
+    statedict = dict(state)
+    
+    counter = 0
+    executed_events = 0
+
+    dataout = {}
+    while True:
+        if True:
+        #try:
+            configfilename = os.path.join(output_dir, str(counter)+'.config.xml.bz2')
+            datafilename = os.path.join(output_dir, str(counter)+'.data.xml.bz2')
+            counter += 1
+            
+            if (not os.path.isfile(configfilename)) or (not os.path.isfile(datafilename)):
+                break
+            
+            outputfile = OutputFile(datafilename)
+            run_events = outputfile.events()
+            N = outputfile.N()
+            
+            if executed_events < particle_equil_events * N:
+                executed_events += run_events
+                continue
+            
+            if "NEventsTot" not in dataout:
+                dataout["NEventsTot"] = 0
+            dataout["NEventsTot"] += outputfile.events()
+                
+            if "tTotal" not in dataout:
+                dataout["tTotal"] = 0
+            dataout["tTotal"] += outputfile.t()
+                            
+            for prop in manager.outputs:
+                outputplugin = OutputFile.output_props[prop]
+                result = outputplugin.result(state, outputfile, configfilename, counter, manager, output_dir)
+                if result != None:
+                    if prop not in dataout:
+                        dataout[prop] = outputplugin.init()
+                    dataout[prop] += result
+        #except Exception as e:
+        #    print("Processing", output_dir, " gave exception", e)
+        #    #raise
+    return {state: dataout}
+
     
 import shutil
 
@@ -359,14 +432,14 @@ class SimManager:
     def reorg_dirs(self):
         entries = os.listdir(self.workdir)
         print("Reorganising existing data directories...")
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            n = len(entries)
+        n = len(entries)
+        with alive_progress.alive_bar(n, manual=True) as progress:
             for i,entry in enumerate(entries):
-                progress.update(i / n)
                 oldpath = os.path.join(self.workdir, entry)
                 if os.path.isdir(oldpath):
                     configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
                     if len(configs) == 0:
+                        progress(i/n)
                         continue                
                     oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
                     oldstate = dict(oldstate)
@@ -392,6 +465,7 @@ class SimManager:
                         shutil.move(oldpath, newpath)
                     if  newstate != oldstate:
                         pickle.dump(newstate.items(), open(os.path.join(newpath, "state.pkl"), 'wb'))
+                progress(i/n)
                     
     def iterate_state(self, statevars):
         # Loop over all permutations of the state variables. We use a
@@ -508,9 +582,7 @@ class SimManager:
 
         print("Running", len(self.states) * self.restarts, "state points as ", task_count, "simulation tasks in parallel with", self.processes, "processes")
 
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            progress.update(0)
-
+        with alive_progress.alive_bar(task_count, manual=True) as progress:
             for task in running_tasks:
                 task.start()
 
@@ -537,7 +609,7 @@ class SimManager:
                                 errors.append(e)
                 
                 running_tasks = still_running
-                progress.update(tasks_completed / task_count)
+                progress(tasks_completed / task_count)
                 time.sleep(0.5)
 
         print("Terminating and joining threads...")
@@ -554,86 +626,37 @@ class SimManager:
             print('Remaining errors written to "error.log"')
             raise RuntimeError("Parallel execution failed")
 
-    def map_data(self, callback, particle_equil_events, only_current_statevars):
+    def fetch_data(self, particle_equil_events, only_current_statevars = False):
+        if only_current_statevars:
+            raise RuntimeError("Only_current_statevars Not implemented!")
+        
         output_dirs = os.listdir(self.workdir)
         print("Fetching data...")
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            n = len(output_dirs)
-            for i, output_dir in enumerate(output_dirs):
-                progress.update(i / n)
-                output_dir = os.path.join(self.workdir, output_dir)
-                if os.path.isdir(output_dir):
-                    configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
-                    if len(configs) == 0:
-                        continue
-                    state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
-                    statedict = dict(state)
-                
-                    # Check the config is part of the running statevars
-                    if only_current_statevars:
-                        for statevar, val in statedict.items():
-                            if val not in self.statevars_dict[statevar]:
-                                continue
-                
-                    counter = 0
-                    executed_events = 0
-                    while True:
-                        try:
-                            configfilename = os.path.join(output_dir, str(counter)+'.config.xml.bz2')
-                            datafilename = os.path.join(output_dir, str(counter)+'.data.xml.bz2')
-                            counter += 1
-                            
-                            if (not os.path.isfile(configfilename)) or (not os.path.isfile(datafilename)):
-                                break
-                            
-                            #if (not validate_configfile(configfilename)) or (not validate_outputfile(datafilename)):
-                            #    break
-                            
-                            outputfile = OutputFile(datafilename)
-                            run_events = outputfile.events()
-                            N = outputfile.N()
-                            
-                            if executed_events < particle_equil_events * N:
-                                #If we weren't passed the equil_events
-                                #before starting this sim, then
-                                #discard the run as equilibration
-                                executed_events += run_events
-                                continue
-                            
-                            callback(state, configfilename, outputfile, counter, output_dir)
-                        except Exception as e:
-                            print("Processing", output_dir, " gave exception")
-                            raise
-        
-    def fetch_data(self, particle_equil_events, only_current_statevars=False):
+        n = len(output_dirs)
+
+        pool = Pool(processes=self.processes)
+
         import collections
         #We store the extracted data in a dict of dicts. The first
         #dict is for the state, the second for the property.
-        state_data = collections.defaultdict(dict)
+        state_data = collections.defaultdict(dict)        
 
-        #The worker that collects the data from each run
-        def output_map_fun(state, configfilename, outputfile, counter, output_dir):
-            dataout = state_data[state]
-            if "NEventsTot" not in dataout:
-                dataout["NEventsTot"] = 0
-            dataout["NEventsTot"] += outputfile.events()
-                
-            if "tTotal" not in dataout:
-                dataout["tTotal"] = 0
-            dataout["tTotal"] += outputfile.t()
-                            
-            for prop in self.outputs:
-                outputplugin = OutputFile.output_props[prop]
-                result = outputplugin.result(state, outputfile, configfilename, counter, self, output_dir)
-                if result != None:
-                    if prop not in dataout:
-                        dataout[prop] = outputplugin.init()
-                    dataout[prop] += result
-
-
-        #Now call the worker on the output files to process the data
-        self.map_data(output_map_fun, particle_equil_events, only_current_statevars)
-
+        #So we run the per data dir operation, then reduce everything
+        state_data = {}
+        with alive_progress.alive_bar(n) as progress:
+            for result in pool.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
+                for state, data in result.items():
+                    if state not in state_data:
+                        state_data[state] = data
+                    else:
+                        target = state_data[state]
+                        for key, value in data.items():
+                            if key not in target:
+                                target[key] = value
+                            else:
+                                target[key] += value
+                progress()
+        
         #We now prep the data for processing, we convert our
         #WeightedFloat's to ufloats as pandas supports that natively.
         for statevars, data in state_data.items():
@@ -787,8 +810,6 @@ def parseToArray(text):
 class VACFOutputProperty(OutputProperty):
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LVACF'])
-        self.output_in_main_dataframe = False
-        self.output = None
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         restart_idx = output_dir.split('_')[-1]
@@ -800,6 +821,33 @@ class VACFOutputProperty(OutputProperty):
         for tag in outputfile.tree.findall('.//VACF/Topology/Structure'):
             pickle.dump(parseToArray(tag.text), open(filename_root + '/topology_'+tag.attrib['Name']+'.pkl', 'wb'))
         return None
+
+class RadialDistOutputProperty(OutputProperty):
+    def __init__(self):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        #This ending is not used, we only want one output for speed.
+        #restart_idx = output_dir.split('_')[-1]
+        #+ "/run_" + restart_idx + '_' + str(counter)
+        filename_root = manager.workdir+'_RadialDist/' + manager.statename(state, var_separator='/')
+
+        if os.path.isdir(filename_root):
+            return None
+
+        os.makedirs(filename_root, exist_ok=True)
+        
+        logfile = open(os.path.join(filename_root, 'run.log'), 'a')
+        from subprocess import check_call
+        check_call(["dynarun", configfilename, '-o', os.path.join(filename_root, 'RadDist.config.xml.bz2'), '-c', '0', "--out-data-file", os.path.join(filename_root, 'RadDist.out.xml.bz2'), '-LRadialDistribution'], stdout=logfile, stderr=logfile)
+        
+        of = OutputFile('RadDist.out.tmp.xml.bz2')
+        for tag in of.tree.findall('.//RadialDistribution/Species'):
+            A = tag.attrib['Name1']
+            B = tag.attrib['Name2']
+            output_pkl = filename_root + '/species_'+A+'_'+B+'.pkl'
+            pickle.dump(parseToArray(tag.text), open(output_pkl, 'wb'))
+        return None
     
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
@@ -808,7 +856,6 @@ OutputFile.output_props["u"] = SingleAttrib('UConfigurational', 'Mean', [], [], 
 OutputFile.output_props["T"] = SingleAttrib('Temperature', 'Mean', [], [], [], missing_val=None)
 OutputFile.output_props["density"] = SingleAttrib('Density', 'val', [], [], [], missing_val=None)
 OutputFile.output_props["MSD"] = SingleAttrib('MSD/Species', 'diffusionCoeff', [], [], ['-LMSD'], missing_val=None, skip_missing=True)
-OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="SOCells"]', # Outputfile tag name
                                                     'Count', # Outputfile tag attribute name
                                                     ["Rso"], # Required state variable
@@ -817,6 +864,8 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
                                                     div_by_N=True, # Divide the count by N
                                                     div_by_t=True, # Also divide by t
                                                     missing_val=0) # If counter is missing, return 0
+OutputFile.output_props["VACF"] = VACFOutputProperty()
+OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
 
 if __name__ == "__main__":
     pass
