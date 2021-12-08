@@ -306,6 +306,11 @@ def perdir(args):
     
     state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
     statedict = dict(state)
+
+    #Old versions of pydynamo stored the state as a dict, but we need
+    #a hashable type (i.e., tuple)
+    if isinstance(state, dict):
+        state = tuple((statevar, statedict[statevar]) for statevar in manager.used_statevariables)
     
     counter = 0
     executed_events = 0

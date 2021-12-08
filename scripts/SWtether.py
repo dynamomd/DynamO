@@ -131,19 +131,3 @@ mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
 #AND any output values. It also generates pkl files, some for
 #different properties.
 data = mgr.fetch_data(1000) 
-
-                            
-#import matplotlib.pyplot as plt
-#
-#plt.errorbar(density_slice["Rso"], list(map(lambda x: x.nominal_value, density_slice["NeventsSO"])), yerr=list(map(lambda x: x.std_dev, density_slice["NeventsSO"])), fmt='x')
-#plt.plot(density_slice["Rso"], 3 / density_slice["Rso"]/math.sqrt(2*math.pi))
-#plt.show()
-
-#density_slice.plot(x="Rso", y="NeventsSO")
-
-# pydynamo also has some nice functions that propogate uncertainty
-# through operations like numerical integration
-#from datastat import simpson_integrate
-#integral_of_NeventsSO = simpson_integrate(density_slice['Rso'].values[:-1], density_slice['NeventsSO'].values[:-1])
-#print(integral_of_NeventsSO)
-# The [:-1] is needed to integrate the reversed function
