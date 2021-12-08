@@ -602,8 +602,8 @@ class SimManager:
                             
                             callback(state, configfilename, outputfile, counter, output_dir)
                         except Exception as e:
-                            print("Processing", output_dir, " gave exception", e)
-                            break
+                            print("Processing", output_dir, " gave exception")
+                            raise
         
     def fetch_data(self, particle_equil_events, only_current_statevars=False):
         import collections
@@ -624,19 +624,12 @@ class SimManager:
                             
             for prop in self.outputs:
                 outputplugin = OutputFile.output_props[prop]
-                if outputplugin.output_in_main_dataframe:
+                result = outputplugin.result(state, outputfile, configfilename, counter, self, output_dir)
+                if result != None:
                     if prop not in dataout:
                         dataout[prop] = outputplugin.init()
-                    dataout[prop] += outputplugin.result(outputfile)
-                else:
-                    outputplugin.process(state, outputfile, configfilename, counter, self, output_dir)
+                    dataout[prop] += result
 
-
-        #Open up files for output in the plugins that need it
-        for prop in self.outputs:
-            outputplugin = OutputFile.output_props[prop]
-            if not outputplugin.output_in_main_dataframe:
-                outputplugin.init(self.workdir)
 
         #Now call the worker on the output files to process the data
         self.map_data(output_map_fun, particle_equil_events, only_current_statevars)
@@ -664,13 +657,6 @@ class SimManager:
         import pickle
         pickle.dump(df, open(self.workdir+".pkl", 'wb'))
 
-        #Finally, we finalise write out of data from plugins that have
-        #been collecting it internally.
-        for prop in self.outputs:
-            outputplugin = OutputFile.output_props[prop]
-            if not outputplugin.output_in_main_dataframe:
-                outputplugin.close()
-        
         return df
 
 # ###############################################
@@ -730,8 +716,13 @@ class OutputProperty:
         self._dep_statevars = dependent_statevars
         self._dep_outputs = dependent_outputs
         self._dep_outputplugins = dependent_outputplugins
-        self.output_in_main_dataframe = True
-        
+
+    def init(self):
+        return None
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        return None
+    
 class SingleAttrib(OutputProperty):
     def __init__(self, tag, attrib, dependent_statevars, dependent_outputs, dependent_outputplugins, time_weighted=True, div_by_N=False, div_by_t=False, missing_val = 0, skip_missing=False):
         OutputProperty.__init__(self, dependent_statevars, dependent_outputs, dependent_outputplugins)
@@ -782,7 +773,7 @@ class SingleAttrib(OutputProperty):
         else:
             return float(outputfile.tree.find('.//Duration').attrib['Events'])
 
-    def result(self, outputfile):
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         return WeightedFloat(self.value(outputfile), self.weight(outputfile))
 
 def parseToArray(text):
@@ -799,23 +790,17 @@ class VACFOutputProperty(OutputProperty):
         self.output_in_main_dataframe = False
         self.output = None
 
-    def init(self, workdir):
-        pass
-
-    def close(self):
-        pass
-
-    
-    def process(self, state, outputfile, configfilename, counter, manager, output_dir):
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         restart_idx = output_dir.split('_')[-1]
         filename_root = manager.workdir+'_VACF/' + manager.statename(state, var_separator='/') + "/run_" + restart_idx + '_' + str(counter)
-        os.makedirs(filename_root)
+        os.makedirs(filename_root, exist_ok=True)
         for tag in outputfile.tree.findall('.//VACF/Particles/Species'):
             pickle.dump(parseToArray(tag.text), open(filename_root + '/species_'+tag.attrib['Name']+'.pkl', 'wb'))
         
         for tag in outputfile.tree.findall('.//VACF/Topology/Structure'):
             pickle.dump(parseToArray(tag.text), open(filename_root + '/topology_'+tag.attrib['Name']+'.pkl', 'wb'))
-
+        return None
+    
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
 OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
