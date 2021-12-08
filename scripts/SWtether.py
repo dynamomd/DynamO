@@ -4,37 +4,6 @@ from pydynamo import ET
 
 import math
 
-################################################################
-###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
-################################################################
-#This is the list of state variables and their ranges
-
-#Old SWTether runs
-densities = list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.05, 1.4, 0.1)))))
-phi_T =     [float('inf')] + list(set(map(lambda x : datastat.roundSF(x, 3), [0.001, 0.005, 0.01, 0.02, 0.03, 0.04]+list(numpy.arange(0.05, 3.0, 0.05)))))
-
-
-#New SWTether2 runs, isotherm
-phi_T = [float('inf')]
-densities = list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.3, 0.01)))))
-kT=[1.0]
-
-#New SWTether2 runs, isochor
-phi_T = [float('inf')]
-densities = [1.29]
-kT=list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.00, 0.01)))))
-
-statevars = [
-    ("N", list(map(lambda x: 4*x**3, [10]))), #15
-    ('ndensity', densities),
-    #("Rso", Rso),
-    ("PhiT", phi_T),
-    ("Lambda", [2.0]),
-    ("kT", kT),
-    ("InitState", ["FCC"]),
-]
-
-
 def setup_worker( config, #The name of the config file to generate.
                   state, #A dictionary of state variables to use
                   logfile, #File handle where to write progress/logging output
@@ -43,6 +12,7 @@ def setup_worker( config, #The name of the config file to generate.
     from subprocess import check_call
 
     #Here we work out how many unit cells to make the system out of for various packings
+    state = dict(state)
     if 'InitState' not in state:
         state['InitState'] = "FCC"
     
@@ -106,6 +76,32 @@ def setup_worker( config, #The name of the config file to generate.
 
 
 ################################################################
+###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
+################################################################
+#This is the list of state variables and their ranges
+
+prefix="SWTether2"
+
+statevars = [
+    [ #Sweep 
+        ("Lambda", [2]),
+        ("InitState", ["FCC"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
+        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 3.1, 0.1)))))),
+    ],
+    [ #Isochore
+        ("Lambda", [2]),
+        ("InitState", ["FCC"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+        ('ndensity', [1.3]),
+        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
+    ],
+]
+        
+################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
 mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
@@ -131,15 +127,12 @@ mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
 ################################################################
 ###          GET THE DATA
 ################################################################
-data = mgr.fetch_data(1000) #This is a pandas dataframe with columns for
-                        #the state variables AND any output values
+#This creates a pandas dataframe with columns for the state variables
+#AND any output values. It also generates pkl files, some for
+#different properties.
+data = mgr.fetch_data(1000) 
 
-# You can just write it out as a spreadsheet
-#data.to_csv("output.csv")
-# Or pickle it for later processing
-import pickle
-pickle.dump(data, open("tether.pkl", 'wb'))
-
+                            
 #import matplotlib.pyplot as plt
 #
 #plt.errorbar(density_slice["Rso"], list(map(lambda x: x.nominal_value, density_slice["NeventsSO"])), yerr=list(map(lambda x: x.std_dev, density_slice["NeventsSO"])), fmt='x')
