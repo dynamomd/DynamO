@@ -95,11 +95,11 @@ densities = set(list(numpy.arange(0.1, 1.4, 0.05))) # +list(numpy.arange(0.8,1.0
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
 #Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
-phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.9, 2.0, 0.1))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.1, 2.0, 0.1))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 #phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 statevars = [
     [
-        ("N", list(map(lambda x: 4*x**3, [15]))),
+        ("N", list(map(lambda x: 4*x**3, [5]))),
         ('ndensity', densities),
         #("Rso", Rso),
         ("PhiT", phi_T),
@@ -113,9 +113,9 @@ statevars = [
 ################################################################
 mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", "NeventsSO", "VACF", "RadialDist"], # Output properties
+                          ["p", "NeventsSO", "FCCOrder"], #"VACF", "RadialDist" # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
-                          processes=None, #None is automatically use all processors
+                          processes=None #None is automatically use all processors
 )
 
 ################################################################

@@ -143,7 +143,7 @@ class ConfigFile(XMLFile):
         N = self.N()
         frame = np.zeros((N, 3), dtype=np.float32)
         box = self.image_dimensions()
-
+        box = freud.box.Box(Lx = box[0], Ly = box[1], Lz = box[2])
         particles = self.tree.findall('.//Pt/P')
         
         for idx, particle in enumerate(particles):
@@ -151,7 +151,7 @@ class ConfigFile(XMLFile):
             frame[idx, 1] = np.float32(particle.attrib['y'])
             frame[idx, 2] = np.float32(particle.attrib['z'])
         
-        return freud.box.Box(*box), frame
+        return box, frame
     
     config_props = {}
 
@@ -858,6 +858,24 @@ class RadialDistOutputProperty(OutputProperty):
             output_pkl = filename_root + '/species_'+A+'_'+B+'.pkl'
             pickle.dump(parseToArray(tag.text), open(output_pkl, 'wb'))
         return None
+
+class OrderParameterProperty(OutputProperty):
+    def __init__(self, L):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+        self.L = L
+
+    def init(self):
+        return WeightedFloat()
+    
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        import freud
+        configfile = ConfigFile(configfilename)
+        box, points = configfile.to_freud()
+        ql = freud.order.Steinhardt(self.L, average=True) #L=12 is for FCC
+        ql.compute((box, points), neighbors={"num_neighbors": self.L})
+        ql_value = ql.particle_order
+        return WeightedFloat(np.mean(ql_value), 1)
+
     
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
@@ -876,6 +894,7 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
                                                     missing_val=0) # If counter is missing, return 0
 OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
+OutputFile.output_props["FCCOrder"] = OrderParameterProperty(12)
 
 if __name__ == "__main__":
     pass
