@@ -95,7 +95,7 @@ densities = set(list(numpy.arange(0.1, 1.4, 0.05))) # +list(numpy.arange(0.8,1.0
 densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
 densities.sort()
 #Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
-phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.1, 2.0, 0.1))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 0.1, 0.01))+ list(numpy.arange(0.1, 2.0, 0.1))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 #phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 statevars = [
     [
@@ -121,7 +121,7 @@ mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
 ################################################################
 ###          REORGANISE ANY EXISTING SIMULATIONS
 ################################################################
-#mgr.reorg_dirs()
+mgr.reorg_dirs()
 
 ################################################################
 ###          RUN SOME SIMULATIONS
@@ -134,5 +134,5 @@ mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
 ################################################################
 ###          GET THE DATA
 ################################################################
-data = mgr.fetch_data(1000, only_current_statevars=True) #This is a pandas dataframe with columns for
+data = mgr.fetch_data(1000, only_current_statevars=False) #This is a pandas dataframe with columns for
                         #the state variables AND any output values

@@ -47,8 +47,7 @@ def print_to_14sf(f):
     """Utility function to print a variable to 14 significant figures"""
     if isinstance(f, str):
         return f
-    return '{:g}'.format(float('{:.{p}g}'.format(f, p=14)))
-
+    return '{:.{p}g}'.format(f, p=14)
 
 def conv_to_14sf(f):
     if isinstance(f, float):
@@ -305,12 +304,7 @@ def perdir(args):
         return {}
     
     state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
-    statedict = dict(state)
-
-    #Old versions of pydynamo stored the state as a dict, but we need
-    #a hashable type (i.e., tuple)
-    if isinstance(state, dict):
-        state = tuple(sorted([(statevar, statedict[statevar]) for statevar in manager.used_statevariables]))
+    statedict, state = make_state(state)
 
     #Filter to only the set states (if enabled)
     if manager.only_current_statevars and state not in manager.states:
@@ -358,8 +352,45 @@ def perdir(args):
         #    #raise
     return {state: dataout}
 
+def make_state(state):
+    #Convert anything (list, tuple, dict) to a state dictionary
+    statedict = dict(state)
+    #Then make a tuple of tuples (so its hashable) and sort so the order is indifferent to user choice
+    return statedict, tuple(sorted([(statevar, statedict[statevar]) for statevar in statedict]))    
     
 import shutil
+
+        
+def reorg_dir_worker(args):
+    entry, manager = args
+    oldpath = os.path.join(manager.workdir, entry)
+    if os.path.isdir(oldpath):
+        configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
+        if len(configs) == 0:
+            return []
+        oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
+        oldstatedict, oldstate = make_state(oldstate)
+
+        XMLconfig = ConfigFile(configs[0])
+        newstate = oldstatedict.copy()
+        for statevar in manager.used_statevariables:
+            can_regen = ConfigFile.config_props[statevar]['recalculable']
+            regen_val = XMLconfig[statevar]
+            # If we can regenerate the state from the
+            # config file, then do that to verify the
+            # state value. If not, then only replace the
+            # state value if it is missing from the old
+            # state.
+            if can_regen or (statevar not in newstate):
+                newstate[statevar] = regen_val
+
+        newstatedict, newstate = make_state(newstate)
+        if  newstate != oldstate:
+            #print("Would rewrite oldstate ", repr(oldstate), "to", repr(newstate))
+            pickle.dump(newstate, open(os.path.join(oldpath, "state.pkl"), 'wb'))
+        
+        return [(oldpath, newstate)]
+    return []
 
 class SimManager:
     def __init__(self, workdir, statevars, outputs, restarts=1, processes=None):
@@ -437,45 +468,26 @@ class SimManager:
             if not os.path.isdir(newpath) and not os.path.isfile(newpath):
                 return newpath            
             idx += 1
-    
+            
     def reorg_dirs(self):
         entries = os.listdir(self.workdir)
         print("Reorganising existing data directories...")
         n = len(entries)
-        with alive_progress.alive_bar(n, manual=True) as progress:
-            for i,entry in enumerate(entries):
-                oldpath = os.path.join(self.workdir, entry)
-                if os.path.isdir(oldpath):
-                    configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
-                    if len(configs) == 0:
-                        progress(i/n)
-                        continue                
-                    oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
-                    oldstate = dict(oldstate)
-                    XMLconfig = ConfigFile(configs[0])
-                    newstate = oldstate.copy()
-                    for statevar in self.used_statevariables:
-                        can_regen = ConfigFile.config_props[statevar]['recalculable']
-                        regen_val = XMLconfig[statevar]
-                        # If we can regenerate the state from the
-                        # config file, then do that to verify the
-                        # state value. If not, then only replace the
-                        # state value if it is missing from the old
-                        # state.
-                        if can_regen:
-                            newstate[statevar] = regen_val
-                        elif statevar not in newstate:
-                            newstate[statevar] = regen_val
-                    
-                    newstatelist = [(statevar, newstate[statevar]) for statevar in self.statevariables]
-                    newpath = self.getnextstatedir(newstatelist, oldpath=oldpath)
-
+        
+        pool = Pool(processes=self.processes)
+        with alive_progress.alive_bar(n) as progress:
+            #This is a parallel loop, returning items as they finish in arbitrary order
+            for actions in pool.imap_unordered(reorg_dir_worker, [(d, self) for d in entries], chunksize=10):
+                #We do the actual moving here. We only want one thread
+                #doing the moving as it must check what directories
+                #already exist to figure out the new name. This is
+                #hard to do in parallel
+                for oldpath, newstate in actions:
+                    newpath = self.getnextstatedir(newstate, oldpath=oldpath)
                     if oldpath != newpath:
                         shutil.move(oldpath, newpath)
-                    if  newstate != oldstate:
-                        pickle.dump(newstate.items(), open(os.path.join(newpath, "state.pkl"), 'wb'))
-                progress(i/n)
-                    
+                progress()
+        
     def iterate_state(self, statevars):
         # Loop over all permutations of the state variables. We use a
         # set to automatically remove repeats, especially as we're
@@ -495,7 +507,8 @@ class SimManager:
                 for svar,sval in list(state.items()): #We slice to make sure modifying the original doesn't derail the loop
                     if 'gen_state' in ConfigFile.config_props[svar]:
                         state = ConfigFile.config_props[svar]['gen_state'](state)
-                states.add(tuple(sorted(state.items())))
+                _, state = make_state(state)
+                states.add(state)
         return states
 
     def get_run_files(self, workdir, min_events, max_events=None):
@@ -678,6 +691,12 @@ class SimManager:
         import pandas
         df = pandas.DataFrame([{**dict(state), **output} for state, output in state_data.items()])
 
+        
+        #If there's no data, then there's no columns so the next
+        #bit fails. Avoid that
+        if len(df) == 0:
+            return df
+        
         #Here, we're just adjusting the column order to follow what was given by the user.
         cols = list(df.columns.values)
         for statevar in self.used_statevariables:
@@ -860,6 +879,7 @@ class RadialDistOutputProperty(OutputProperty):
         return None
 
 class OrderParameterProperty(OutputProperty):
+    '''See here https://freud.readthedocs.io/en/stable/modules/order.html#freud.order.Steinhardt'''
     def __init__(self, L):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
         self.L = L
@@ -871,11 +891,14 @@ class OrderParameterProperty(OutputProperty):
         import freud
         configfile = ConfigFile(configfilename)
         box, points = configfile.to_freud()
-        ql = freud.order.Steinhardt(self.L, average=True) #L=12 is for FCC
+
+        #Steinhardt for FCC
+        ql = freud.order.Steinhardt(self.L)
         ql.compute((box, points), neighbors={"num_neighbors": self.L})
         ql_value = ql.particle_order
+        
         return WeightedFloat(np.mean(ql_value), 1)
-
+    
     
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
@@ -894,7 +917,7 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
                                                     missing_val=0) # If counter is missing, return 0
 OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
-OutputFile.output_props["FCCOrder"] = OrderParameterProperty(12)
+OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
 
 if __name__ == "__main__":
     pass
