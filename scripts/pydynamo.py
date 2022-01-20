@@ -8,19 +8,14 @@ variables have changed/increased/etc, continuing the simulations if
 they were aborted or the parameters were changed, as well as
 calculating error estimates for the properties obtained at each state
 point.
-
-This file uses python's multiprocessing package, so you cannot use
-this library in interactive mode unless you pass processes=1 to the
-SimManager.run() method.
-
 """
 
 # Include everything "standard" in here. Try to keep external
 # dependencies only imported when they are used, so this can be
 # easilly deployed on a cluster.
-import os, glob, progress_bars, sys, time, math, subprocess, bz2
+import os, glob, sys, time, math, subprocess, bz2, alive_progress
 
-from multiprocessing import Pool, TimeoutError, cpu_count
+from multiprocessing import Pool, cpu_count
 
 #import xml.etree.cElementTree as ET
 
@@ -52,8 +47,7 @@ def print_to_14sf(f):
     """Utility function to print a variable to 14 significant figures"""
     if isinstance(f, str):
         return f
-    return '{:g}'.format(float('{:.{p}g}'.format(f, p=14)))
-
+    return '{:.{p}g}'.format(f, p=14)
 
 def conv_to_14sf(f):
     if isinstance(f, float):
@@ -105,8 +99,8 @@ class ConfigFile(XMLFile):
 
     # Primary image volume
     def V(self):
-        V = self.tree.find('.//SimulationSize')
-        return float(V.attrib['x']) * float(V.attrib['y']) * float(V.attrib['z'])
+        dims = self.image_dimensions()
+        return dims[0] * dims[1] * dims[2]
 
     # number density
     def n(self):
@@ -139,18 +133,26 @@ class ConfigFile(XMLFile):
             data[idx] = math.sqrt((p-t).dot(p-t))
         return np.histogramdd(data, bins=11)
 
+    def image_dimensions(self):
+        V = self.tree.find('.//SimulationSize')
+        return [float(V.attrib['x']), float(V.attrib['y']), float(V.attrib['z'])]
+    
+    def to_freud(self):
+        import freud
+        N = self.N()
+        frame = np.zeros((N, 3), dtype=np.float32)
+        box = self.image_dimensions()
+        box = freud.box.Box(Lx = box[0], Ly = box[1], Lz = box[2])
+        particles = self.tree.findall('.//Pt/P')
         
+        for idx, particle in enumerate(particles):
+            frame[idx, 0] = np.float32(particle.attrib['x'])
+            frame[idx, 1] = np.float32(particle.attrib['y'])
+            frame[idx, 2] = np.float32(particle.attrib['z'])
+        
+        return box, frame
+    
     config_props = {}
-
-def statename(statevars):
-    output = ""
-    for statevar, stateval in statevars:
-        if isinstance(stateval,float):
-            stateval = print_to_14sf(stateval)
-        else:
-            stateval = str(stateval)
-        output = output + statevar + "_" + stateval + "_"
-    return output[:-1]
 
 # A XMLFile/ElementTree but specialised for DynamO output files
 class OutputFile(XMLFile):
@@ -190,7 +192,7 @@ def validate_configfile(filename):
     
 import pickle as pickle
 #This function actually sets up and runs the simulations and is run in parallel
-def worker(state, workdir, idx, outputplugins, particle_equil_events, particle_run_events, particle_run_events_block_size, setup_worker):
+def worker(state, workdir, outputplugins, particle_equil_events, particle_run_events, particle_run_events_block_size, setup_worker):
     try:
         if True:
             if not os.path.isdir(workdir):
@@ -291,29 +293,130 @@ def worker(state, workdir, idx, outputplugins, particle_equil_events, particle_r
     except subprocess.CalledProcessError as e:
         raise RuntimeError('Failed while running worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
         
+def perdir(args):
+    output_dir, particle_equil_events, manager = args
+    output_dir = os.path.join(manager.workdir, output_dir)
+    if not os.path.isdir(output_dir):
+        return {}
+    
+    configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
+    if len(configs) == 0:
+        return {}
+    
+    state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
+    statedict, state = make_state(state)
+
+    #Filter to only the set states (if enabled)
+    if manager.only_current_statevars and state not in manager.states:
+        return {}
+        
+    counter = 0
+    executed_events = 0
+
+    dataout = {}
+    while True:
+        if True:
+        #try:
+            configfilename = os.path.join(output_dir, str(counter)+'.config.xml.bz2')
+            datafilename = os.path.join(output_dir, str(counter)+'.data.xml.bz2')
+            counter += 1
+            
+            if (not os.path.isfile(configfilename)) or (not os.path.isfile(datafilename)):
+                break
+            
+            outputfile = OutputFile(datafilename)
+            run_events = outputfile.events()
+            N = outputfile.N()
+            
+            if executed_events < particle_equil_events * N:
+                executed_events += run_events
+                continue
+            
+            if "NEventsTot" not in dataout:
+                dataout["NEventsTot"] = 0
+            dataout["NEventsTot"] += outputfile.events()
+                
+            if "tTotal" not in dataout:
+                dataout["tTotal"] = 0
+            dataout["tTotal"] += outputfile.t()
+                            
+            for prop in manager.outputs:
+                outputplugin = OutputFile.output_props[prop]
+                result = outputplugin.result(state, outputfile, configfilename, counter, manager, output_dir)
+                if result != None:
+                    if prop not in dataout:
+                        dataout[prop] = outputplugin.init()
+                    dataout[prop] += result
+        #except Exception as e:
+        #    print("Processing", output_dir, " gave exception", e)
+        #    #raise
+    return {state: dataout}
+
+def make_state(state):
+    #Convert anything (list, tuple, dict) to a state dictionary
+    statedict = dict(state)
+    #Then make a tuple of tuples (so its hashable) and sort so the order is indifferent to user choice
+    return statedict, tuple(sorted([(statevar, statedict[statevar]) for statevar in statedict]))    
     
 import shutil
 
+        
+def reorg_dir_worker(args):
+    entry, manager = args
+    oldpath = os.path.join(manager.workdir, entry)
+    if os.path.isdir(oldpath):
+        configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
+        if len(configs) == 0:
+            return []
+        oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
+        oldstatedict, oldstate = make_state(oldstate)
+
+        XMLconfig = ConfigFile(configs[0])
+        newstate = oldstatedict.copy()
+        for statevar in manager.used_statevariables:
+            can_regen = ConfigFile.config_props[statevar]['recalculable']
+            regen_val = XMLconfig[statevar]
+            # If we can regenerate the state from the
+            # config file, then do that to verify the
+            # state value. If not, then only replace the
+            # state value if it is missing from the old
+            # state.
+            if can_regen or (statevar not in newstate):
+                newstate[statevar] = regen_val
+
+        newstatedict, newstate = make_state(newstate)
+        if  newstate != oldstate:
+            #print("Would rewrite oldstate ", repr(oldstate), "to", repr(newstate))
+            pickle.dump(newstate, open(os.path.join(oldpath, "state.pkl"), 'wb'))
+        
+        return [(oldpath, newstate)]
+    return []
+
 class SimManager:
     def __init__(self, workdir, statevars, outputs, restarts=1, processes=None):
-        self.workdir = workdir
-        self.statevars = statevars
-        self.statevars_dict = dict(statevars)
-        self.restarts = restarts
-        self.outputs = set(outputs)
-        
         if not shutil.which("dynamod"):
             raise RuntimeError("Could not find dynamod executable.")
 
         if not shutil.which("dynarun"):
             raise RuntimeError("Could not find dynamod executable.")
 
+        self.restarts = restarts
+        self.outputs = set(outputs)
+        self.workdir = workdir
         self.output_plugins = set()
 
-        #Make a sample state, using just the first set of variables,
-        #to figure out what set AND generated state variables.
-        _, test_state = self.iterate_state([(statevar, vals[0:1]) for statevar, vals in self.statevars])
-        test_state = test_state[0][0]
+        if len(statevars) == 0:
+            raise RuntimeError("We need some state variables to work on")
+        
+        #Make sure the state vars are in ascending order for easy output to screen
+        self.statevars = [[(key, sorted(value)) for key, value in sweep] for sweep in statevars]
+       
+        #Now create all states for iteration. We need to do this now,
+        #as we need to get the generated state variables too.
+        self.states = self.iterate_state(self.statevars)
+
+        #We need a list of the state variables used 
+        self.used_statevariables = list(map(lambda x : x[0], next(iter(self.states))))
         
         for output in self.outputs:
             # Check output is defined
@@ -322,14 +425,13 @@ class SimManager:
             
             # Check the outputs have all the required statevars
             for dep_statevar in OutputFile.output_props[output]._dep_statevars:
-                if dep_statevar not in test_state:
-                    raise RuntimeError('The "'+output+'" output requires the "'+dep_statevar+'" state variable, but its missing!')
-
+                if dep_statevar not in self.used_statevariables:
+                    raise RuntimeError('The "'+output+'" output requires the "'+dep_statevar+'" state variable, but its missing from state vars')
+            
             # Add any dependent outputs
             for dep_output in OutputFile.output_props[output]._dep_outputs:
                 self.outputs.add(dep_output)
-
-
+        
             #Collect what output plugins are needed
             for dep_outputplugin in OutputFile.output_props[output]._dep_outputplugins:
                 self.output_plugins.add(dep_outputplugin)
@@ -343,8 +445,20 @@ class SimManager:
             self.processes = cpu_count()
 
     def getstatedir(self, state, idx):
-        return os.path.join(self.workdir, statename(state) + "_" + str(idx))
-        
+        return os.path.join(self.workdir, self.statename(state) + "_" + str(idx))
+    
+    def statename(self, state, var_separator='_'):
+        output = ""
+        #When building the name, we make sure state vars are ordered.
+        statedict = dict(state)
+        for statevar, stateval in [(statevar, statedict[statevar]) for statevar in self.used_statevariables]:
+            if isinstance(stateval,float):
+                stateval = print_to_14sf(stateval)
+            else:
+                stateval = str(stateval)
+            output = output + statevar + "_" + stateval + var_separator
+        return output[:-1]
+    
     def getnextstatedir(self, state, oldpath = None):
         idx = 0
         while True:
@@ -354,69 +468,48 @@ class SimManager:
             if not os.path.isdir(newpath) and not os.path.isfile(newpath):
                 return newpath            
             idx += 1
-    
+            
     def reorg_dirs(self):
         entries = os.listdir(self.workdir)
         print("Reorganising existing data directories...")
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            n = len(entries)
-            for i,entry in enumerate(entries):
-                progress.update(i / n)
-                oldpath = os.path.join(self.workdir, entry)
-                if os.path.isdir(oldpath):
-                    configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
-                    if len(configs) == 0:
-                        continue                
-                    oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
-                    XMLconfig = ConfigFile(configs[0])
-                    newstate = oldstate.copy()
-                    for statevar,staterange in self.statevars:
-                        can_regen = ConfigFile.config_props[statevar]['recalculable']
-                        regen_val = XMLconfig[statevar]
-                        # If we can regenerate the state from the
-                        # config file, then do that to verify the
-                        # state value. If not, then only replace the
-                        # state value if it is missing from the old
-                        # state.
-                        if can_regen:
-                            newstate[statevar] = regen_val
-                        elif statevar not in newstate:
-                            newstate[statevar] = regen_val
-                    
-                    newstatelist = [(statevar, newstate[statevar]) for statevar,staterange in self.statevars]
-                    newpath = self.getnextstatedir(newstatelist, oldpath=oldpath)
-
+        n = len(entries)
+        
+        pool = Pool(processes=self.processes)
+        with alive_progress.alive_bar(n) as progress:
+            #This is a parallel loop, returning items as they finish in arbitrary order
+            for actions in pool.imap_unordered(reorg_dir_worker, [(d, self) for d in entries], chunksize=10):
+                #We do the actual moving here. We only want one thread
+                #doing the moving as it must check what directories
+                #already exist to figure out the new name. This is
+                #hard to do in parallel
+                for oldpath, newstate in actions:
+                    newpath = self.getnextstatedir(newstate, oldpath=oldpath)
                     if oldpath != newpath:
                         shutil.move(oldpath, newpath)
-                    if  newstate != oldstate:
-                        pickle.dump(newstate, open(os.path.join(newpath, "state.pkl"), 'wb'))
-                    
+                progress()
+        
     def iterate_state(self, statevars):
-        # Loop over all permutations of the state variables
-        statevar, statevals = zip(*statevars)
+        # Loop over all permutations of the state variables. We use a
+        # set to automatically remove repeats, especially as we're
+        # running these states in parallel.
+        states = set()
+        
         import itertools
-        states = itertools.product(*statevals)
+        for sweep in statevars:
+            sweep_states = 1
+            #Make a list of state variables, and a list of their values
+            statevar, statevals = zip(*sweep)
 
-        # As itertools.product doesn't support len() we need to figure out the total number of states ourselves
-        tot_states = self.restarts
-        for s in statevals:
-            tot_states = tot_states * len(s)
-            
-        retval = []
-        for i, stateval in enumerate(itertools.product(*statevals)):
-            state = [(var, conv_to_14sf(val)) for var, val in zip(statevar, stateval)]
-
-            #For each state variable, calculate any derived state as needed
-            newstate = state[:]
-            
-            for svar,sval in state:
-                if 'gen_state' in ConfigFile.config_props[svar]:
-                    newstate = ConfigFile.config_props[svar]['gen_state'](newstate)
-            
-            state = newstate
-            for idx in range(self.restarts):
-                retval.append((dict(state), self.getstatedir(state, idx), idx))
-        return tot_states, retval
+            #Then combine all permutations of the state values 
+            for stateval in itertools.product(*statevals):
+                #Use the values to build something that can be used as a dictionary
+                state = {var: conv_to_14sf(val) for var, val in zip(statevar, stateval)}
+                for svar,sval in list(state.items()): #We slice to make sure modifying the original doesn't derail the loop
+                    if 'gen_state' in ConfigFile.config_props[svar]:
+                        state = ConfigFile.config_props[svar]['gen_state'](state)
+                _, state = make_state(state)
+                states.add(state)
+        return states
 
     def get_run_files(self, workdir, min_events, max_events=None):
         if max_events is None:
@@ -454,11 +547,13 @@ class SimManager:
             
                         
     def run(self, setup_worker, particle_equil_events, particle_run_events, particle_run_events_block_size):            
-        print("Generating simulation tasks for the following ranges")
-        for statevar, statevals in self.statevars:
-            print(" ",statevar, "∈", list(map(print_to_14sf, statevals)))
+        print("Generating simulation tasks for the following sweeps")
+        for idx, sweep in enumerate(self.statevars):
+            print(" Sweep", idx)
+            for statevar, statevals in sweep:
+                print("  ",statevar, "∈", list(map(print_to_14sf, statevals)))
 
-        tot_states, states = self.iterate_state(self.statevars)
+        tot_states = len(self.states)
 
         running_tasks = []
         tasks_completed = 0
@@ -492,25 +587,24 @@ class SimManager:
                 return 1 + sum([task.failed() for task in self._next_tasks])
         
         #We break up tasks into blocks of events
-        for state, workdir, idx in states:
-            #First we
-            run_events = 0
-            parent_task = None
-            while run_events < particle_run_events:
-                run_events += particle_run_events_block_size
-                new_task = Task((state, workdir, idx, self.output_plugins, particle_equil_events, run_events, particle_run_events_block_size, setup_worker))
-                if parent_task is None:
-                    running_tasks.append(new_task)
-                else:
-                    parent_task.to_follow(new_task)
-                parent_task = new_task
-                task_count += 1
+        for state in self.states:
+            for idx in range(self.restarts):
+                workdir = self.getstatedir(state, idx)
+                run_events = 0
+                parent_task = None
+                while run_events < particle_run_events:
+                    run_events += particle_run_events_block_size
+                    new_task = Task((state, workdir, self.output_plugins, particle_equil_events, run_events, particle_run_events_block_size, setup_worker))
+                    if parent_task is None:
+                        running_tasks.append(new_task)
+                    else:
+                        parent_task.to_follow(new_task)
+                    parent_task = new_task
+                    task_count += 1
 
-        print("Running", tot_states, "state points as ", task_count, "simulation tasks in parallel with", self.processes, "processes")
-        
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            progress.update(0)
+        print("Running", len(self.states) * self.restarts, "state points as ", task_count, "simulation tasks in parallel with", self.processes, "processes")
 
+        with alive_progress.alive_bar(task_count, manual=True) as progress:
             for task in running_tasks:
                 task.start()
 
@@ -537,7 +631,7 @@ class SimManager:
                                 errors.append(e)
                 
                 running_tasks = still_running
-                progress.update(tasks_completed / task_count)
+                progress(tasks_completed / task_count)
                 time.sleep(0.5)
 
         print("Terminating and joining threads...")
@@ -554,100 +648,67 @@ class SimManager:
             print('Remaining errors written to "error.log"')
             raise RuntimeError("Parallel execution failed")
 
-    def fetch_data(self, particle_equil_events, only_current_statevars=False):
+    def fetch_data(self, particle_equil_events, only_current_statevars = False):
+        self.only_current_statevars = only_current_statevars
+        
         output_dirs = os.listdir(self.workdir)
+        print("Fetching data...")
+        n = len(output_dirs)
+
+        pool = Pool(processes=self.processes)
 
         import collections
         #We store the extracted data in a dict of dicts. The first
         #dict is for the state, the second for the property.
-        state_data = collections.defaultdict(dict)
+        state_data = collections.defaultdict(dict)        
 
-        #As we want to look up by the state, we need a hashable type
-        #holding the state. This means we need to fix an order in
-        #which the state vars will be used as a key. So we just grab an order once and reuse it
+        #So we run the per data dir operation, then reduce everything
+        state_data = {}
+        with alive_progress.alive_bar(n) as progress:
+            #This is a parallel loop, returning items as they finish in arbitrary order
+            for result in pool.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
+                #Here we process the returned data from a single directory
+                for state, data in result.items():
+                    if state not in state_data:
+                        state_data[state] = data
+                    else:
+                        target = state_data[state]
+                        for key, value in data.items():
+                            if key not in target:
+                                target[key] = value
+                            else:
+                                target[key] += value
+                progress()
+        
+        #We now prep the data for processing, we convert our
+        #WeightedFloat's to ufloats as pandas supports that natively.
+        for statevars, data in state_data.items():
+            for prop in data:
+                if isinstance(data[prop], WeightedFloat):
+                    data[prop] = data[prop].ufloat()
 
-        print("Fetching data...")
-        with progress_bars.ProgressBar(sys.stdout) as progress:
-            n = len(output_dirs)
-            for i, output_dir in enumerate(output_dirs):
-                progress.update(i / n)
-                output_dir = os.path.join(self.workdir, output_dir)
-                if os.path.isdir(output_dir):
-                    configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
-                    if len(configs) == 0:
-                        continue
-                    statedict = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
-                
-                    #XMLconfig = ConfigFile(configs[0])
-                    state = tuple((statevar, statedict[statevar]) for statevar,staterange in self.statevars)
-                
-                    # Check the config is part of the running statevars
-                    if only_current_statevars:
-                        for statevar, val in statedict.items():
-                            if val not in self.statevars_dict[statevar]:
-                                continue
-                
-                    dataout = state_data[state]
-                    if "NEventsTot" not in dataout:
-                        dataout["NEventsTot"] = 0
-                    if "tTotal" not in dataout:
-                        dataout["tTotal"] = 0
-
-                    counter = 0
-                    executed_events = 0
-                    while True:
-                        try:
-                            outputfilename = os.path.join(output_dir, str(counter)+'.config.xml.bz2')
-                            datafilename = os.path.join(output_dir, str(counter)+'.data.xml.bz2')
-                            counter += 1
-                            
-                            if (not os.path.isfile(outputfilename)) or (not os.path.isfile(datafilename)):
-                                break
-                            
-                            #if (not validate_configfile(outputfilename)) or (not validate_outputfile(datafilename)):
-                            #    break
-                            
-                            outputfile = OutputFile(datafilename)
-                            run_events = outputfile.events()
-                            N = outputfile.N()
-                            
-                            if executed_events < particle_equil_events * N:
-                                #If we weren't passed the equil_events
-                                #before starting this sim, then
-                                #discard the run as equilibration
-                                executed_events += run_events
-                                continue
-                            
-                            #This counts just the "production" events and time
-                            dataout["NEventsTot"] += outputfile.events()
-                            dataout["tTotal"] += outputfile.t()
-                            
-                            for prop in self.outputs:
-                                if prop not in dataout:
-                                    dataout[prop] = OutputFile.output_props[prop].init()
-                                dataout[prop] += OutputFile.output_props[prop].result(outputfile)
-                            #print(state[0][1], OutputFile.output_props[prop].value(outputfile))
-                        except Exception as e:
-                            print("Processing", output_dir, " gave exception", e)
-                            break
-
-            for statevars, data in state_data.items():
-                for prop in data:
-                    if isinstance(data[prop], WeightedFloat):
-                        data[prop] = data[prop].ufloat()
-                
+        #Here we create the dataframe
         import pandas
         df = pandas.DataFrame([{**dict(state), **output} for state, output in state_data.items()])
 
-        # Don't continue processing if there was no data to process
-        if df.empty:
+        
+        #If there's no data, then there's no columns so the next
+        #bit fails. Avoid that
+        if len(df) == 0:
             return df
         
+        #Here, we're just adjusting the column order to follow what was given by the user.
         cols = list(df.columns.values)
-        for statevar, staterange in self.statevars:
+        for statevar in self.used_statevariables:
             cols.remove(statevar)
-        df = df[[statevar for statevar, staterange in self.statevars]+cols]
-        df = df.sort_values(by=[statevar for statevar, staterange in self.statevars])
+        df = df[[statevar for statevar in self.used_statevariables]+cols]
+        #Now we sort items by the state variables in the order given.
+        df = df.sort_values(by=[statevar for statevar in self.used_statevariables])
+
+        #Now we write out the data
+        import pickle
+        pickle.dump(df, open(self.workdir+".pkl", 'wb'))
+
         return df
 
 # ###############################################
@@ -674,23 +735,22 @@ def PhiT_config(XMLconfig):
     phiT = density * math.pi * (4.0/3.0) * (Rso**3)
     return conv_to_14sf(phiT)
 def PhiT_gen(state):
-    dictstate = dict(state)
-    density = dictstate["ndensity"]
-    phiT = dictstate["PhiT"]
+    density = state["ndensity"]
+    phiT = state["PhiT"]
     if phiT == float('inf'):
         Rso = float('inf')
-        if 'Rso' in dictstate:
-            if dictstate['Rso'] != float('inf'):
+        if 'Rso' in state:
+            if state['Rso'] != float('inf'):
                 raise RuntimeError("State contains conflicting Rso and PhiT")
         else:
-            state.append(('Rso', float('inf')))
+            state['Rso'] = float('inf')
     else:
         Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
-        if 'Rso' in dictstate:
-            if dictstate['Rso'] != conv_to_14sf(Rso):
+        if 'Rso' in state:
+            if state['Rso'] != conv_to_14sf(Rso):
                 raise RuntimeError("State contains conflicting Rso and PhiT")
         else:
-            state.append(('Rso',conv_to_14sf(Rso)))
+            state['Rso'] = conv_to_14sf(Rso)
     return state
 ConfigFile.config_props["PhiT"] = {'recalculable':True, 'recalc':PhiT_config, 'gen_state':PhiT_gen}
 
@@ -708,7 +768,13 @@ class OutputProperty:
         self._dep_statevars = dependent_statevars
         self._dep_outputs = dependent_outputs
         self._dep_outputplugins = dependent_outputplugins
-        
+
+    def init(self):
+        return None
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        return None
+    
 class SingleAttrib(OutputProperty):
     def __init__(self, tag, attrib, dependent_statevars, dependent_outputs, dependent_outputplugins, time_weighted=True, div_by_N=False, div_by_t=False, missing_val = 0, skip_missing=False):
         OutputProperty.__init__(self, dependent_statevars, dependent_outputs, dependent_outputplugins)
@@ -759,7 +825,7 @@ class SingleAttrib(OutputProperty):
         else:
             return float(outputfile.tree.find('.//Duration').attrib['Events'])
 
-    def result(self, outputfile):
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         return WeightedFloat(self.value(outputfile), self.weight(outputfile))
 
 def parseToArray(text):
@@ -769,39 +835,71 @@ def parseToArray(text):
         if len(row_data) > 0:
             data.append(row_data)
     return np.array(data)
-    
+
 class VACFOutputProperty(OutputProperty):
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LVACF'])
 
-    def init(self):
-        return []
-        
-    def result(self, outputfile):
-        result = {}
-        result['weight'] = int(outputfile.tree.find('.//VACF').attrib['ticks'])
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        restart_idx = output_dir.split('_')[-1]
+        filename_root = manager.workdir+'_VACF/' + manager.statename(state, var_separator='/') + "/run_" + restart_idx + '_' + str(counter)
+        os.makedirs(filename_root, exist_ok=True)
         for tag in outputfile.tree.findall('.//VACF/Particles/Species'):
-            result['Species:'+tag.attrib['Name']] = parseToArray(tag.text)
+            pickle.dump(parseToArray(tag.text), open(filename_root + '/species_'+tag.attrib['Name']+'.pkl', 'wb'))
+        
         for tag in outputfile.tree.findall('.//VACF/Topology/Structure'):
-            result['Topology:'+tag.attrib['Name']] = parseToArray(tag.text)
-        return [result]
+            pickle.dump(parseToArray(tag.text), open(filename_root + '/topology_'+tag.attrib['Name']+'.pkl', 'wb'))
+        return None
 
-class TransportProperty(OutputProperty):
+class RadialDistOutputProperty(OutputProperty):
     def __init__(self):
-        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LMisc'])
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        #This ending is not used, we only want one output for speed.
+        #restart_idx = output_dir.split('_')[-1]
+        #+ "/run_" + restart_idx + '_' + str(counter)
+        filename_root = manager.workdir+'_RadialDist/' + manager.statename(state, var_separator='/')
+
+        if os.path.isdir(filename_root):
+            return None
+
+        os.makedirs(filename_root, exist_ok=True)
+        
+        logfile = open(os.path.join(filename_root, 'run.log'), 'a')
+        from subprocess import check_call
+        check_call(["dynarun", configfilename, '-o', os.path.join(filename_root, 'RadDist.config.xml.bz2'), '-c', '0', "--out-data-file", os.path.join(filename_root, 'RadDist.out.xml.bz2'), '-LRadialDistribution'], stdout=logfile, stderr=logfile)
+        
+        of = OutputFile('RadDist.out.tmp.xml.bz2')
+        for tag in of.tree.findall('.//RadialDistribution/Species'):
+            A = tag.attrib['Name1']
+            B = tag.attrib['Name2']
+            output_pkl = filename_root + '/species_'+A+'_'+B+'.pkl'
+            pickle.dump(parseToArray(tag.text), open(output_pkl, 'wb'))
+        return None
+
+class OrderParameterProperty(OutputProperty):
+    '''See here https://freud.readthedocs.io/en/stable/modules/order.html#freud.order.Steinhardt'''
+    def __init__(self, L):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+        self.L = L
 
     def init(self):
-        return []
-        
-    def result(self, outputfile):
-        result = {}
-        for tag in outputfile.tree.findall('.//VACF/Particles/Species'):
-            result['Species:'+tag.attrib['Name']] = parseToArray(tag.text)
-        for tag in outputfile.tree.findall('.//VACF/Topology/Structure'):
-            result['Topology:'+tag.attrib['Name']] = parseToArray(tag.text)
-        return [result]
+        return WeightedFloat()
     
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        import freud
+        configfile = ConfigFile(configfilename)
+        box, points = configfile.to_freud()
 
+        #Steinhardt for FCC
+        ql = freud.order.Steinhardt(self.L)
+        ql.compute((box, points), neighbors={"num_neighbors": self.L})
+        ql_value = ql.particle_order
+        
+        return WeightedFloat(np.mean(ql_value), 1)
+    
+    
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
 OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
@@ -809,7 +907,6 @@ OutputFile.output_props["u"] = SingleAttrib('UConfigurational', 'Mean', [], [], 
 OutputFile.output_props["T"] = SingleAttrib('Temperature', 'Mean', [], [], [], missing_val=None)
 OutputFile.output_props["density"] = SingleAttrib('Density', 'val', [], [], [], missing_val=None)
 OutputFile.output_props["MSD"] = SingleAttrib('MSD/Species', 'diffusionCoeff', [], [], ['-LMSD'], missing_val=None, skip_missing=True)
-OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="SOCells"]', # Outputfile tag name
                                                     'Count', # Outputfile tag attribute name
                                                     ["Rso"], # Required state variable
@@ -818,6 +915,9 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
                                                     div_by_N=True, # Divide the count by N
                                                     div_by_t=True, # Also divide by t
                                                     missing_val=0) # If counter is missing, return 0
+OutputFile.output_props["VACF"] = VACFOutputProperty()
+OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
+OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
 
 if __name__ == "__main__":
     pass

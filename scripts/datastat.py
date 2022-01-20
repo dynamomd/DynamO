@@ -1,7 +1,10 @@
-import uncertainties, pandas, math, numpy
+import uncertainties, pandas, math, numpy, sys
 
-def roundSF(val, sf):
-    return float('{:.{p}g}'.format(val, p=sf))
+def roundSF(x, n):
+    """Return 'x' rounded to 'n' significant digits."""
+    y=abs(x)
+    if y <= sys.float_info.min: return 0.0
+    return round( x, int( n-math.ceil(math.log10(y)) ) )
 
 class WeightedFloat():
     '''This class implements weighted arithmetic means along with an

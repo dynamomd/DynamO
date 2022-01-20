@@ -4,26 +4,6 @@ from pydynamo import ET
 
 import math
 
-################################################################
-###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
-################################################################
-#This is the list of state variables and their ranges
-
-densities = set(list(numpy.arange(0.1, 1.4, 0.01))) # +list(numpy.arange(0.8,1.05,0.01))
-densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
-densities.sort()
-#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
-phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.9, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-#phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-statevars = [
-    ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
-    ('ndensity', densities),
-    #("Rso", Rso),
-    ("PhiT", phi_T),
-    ("InitState", ["FCC"]),
-]
-
-
 def setup_worker( config, #The name of the config file to generate.
                   state, #A dictionary of state variables to use
                   logfile, #File handle where to write progress/logging output
@@ -88,52 +68,71 @@ def setup_worker( config, #The name of the config file to generate.
         xml.save(config)
 
 
+        ################################################################
+###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
+################################################################
+#This is the list of state variables and their ranges
+
+densities = set(list(numpy.arange(0.1, 1.4, 0.01))) # +list(numpy.arange(0.8,1.05,0.01))
+densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities.sort()
+#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.9, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+#phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+statevars = [
+    [
+        ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
+        ('ndensity', densities),
+        #("Rso", Rso),
+        ("PhiT", phi_T),
+        ("InitState", ["FCC"]),
+    ]
+]
+
+
+# G(r) sampled states
+densities = set(list(numpy.arange(0.1, 1.4, 0.05))) # +list(numpy.arange(0.8,1.05,0.01))
+densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities.sort()
+#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 0.1, 0.01))+ list(numpy.arange(0.1, 2.0, 0.1))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+#phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+statevars = [
+    [
+        ("N", list(map(lambda x: 4*x**3, [5]))),
+        ('ndensity', densities),
+        #("Rso", Rso),
+        ("PhiT", phi_T),
+        ("InitState", ["FCC"]),
+    ]
+]
+
+
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
 mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", "NeventsSO", "VACF"], # Output properties
+                          ["p", "NeventsSO", "FCCOrder"], #"VACF", "RadialDist" # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
-                          processes=None, #None is automatically use all processors
+                          processes=None #None is automatically use all processors
 )
 
 ################################################################
 ###          REORGANISE ANY EXISTING SIMULATIONS
 ################################################################
-#mgr.reorg_dirs()
+mgr.reorg_dirs()
 
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
 ################################################################
-data = mgr.fetch_data(1000) #This is a pandas dataframe with columns for
+data = mgr.fetch_data(1000, only_current_statevars=False) #This is a pandas dataframe with columns for
                         #the state variables AND any output values
-
-# You can just write it out as a spreadsheet
-#data.to_csv("output.csv")
-# Or pickle it for later processing
-import pickle
-pickle.dump(data, open("tether.pkl", 'wb'))
-
-#import matplotlib.pyplot as plt
-#
-#plt.errorbar(density_slice["Rso"], list(map(lambda x: x.nominal_value, density_slice["NeventsSO"])), yerr=list(map(lambda x: x.std_dev, density_slice["NeventsSO"])), fmt='x')
-#plt.plot(density_slice["Rso"], 3 / density_slice["Rso"]/math.sqrt(2*math.pi))
-#plt.show()
-
-#density_slice.plot(x="Rso", y="NeventsSO")
-
-# pydynamo also has some nice functions that propogate uncertainty
-# through operations like numerical integration
-#from datastat import simpson_integrate
-#integral_of_NeventsSO = simpson_integrate(density_slice['Rso'].values[:-1], density_slice['NeventsSO'].values[:-1])
-#print(integral_of_NeventsSO)
-# The [:-1] is needed to integrate the reversed function
