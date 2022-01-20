@@ -39,6 +39,7 @@ typedef GLXContext ContextKey;
 #include <magnet/GL/detail/typesafe_get.hpp>
 #include <magnet/GL/detail/error_check.hpp>
 #include <magnet/thread/taskQueue.hpp>
+#include <magnet/arg_share.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/GL/matrix.hpp>
 #include <memory>
@@ -87,6 +88,22 @@ namespace magnet {
        */
       typedef std::shared_ptr<Context> ContextPtr;
 
+      /*! \brief Setup of glut */
+      inline static void setupGlut() {
+	glutInit(&magnet::ArgShare::getInstance().getArgc(), 
+		 magnet::ArgShare::getInstance().getArgv());
+  
+	glutInitContextVersion(3, 2);
+	glutInitContextProfile(GLUT_CORE_PROFILE);
+#ifdef MAGNET_DEBUG
+	glutInitContextFlags(GLUT_DEBUG);
+#endif
+	glutInitDisplayMode(GLUT_RGBA);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(0, 0);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+      }
+      
       /*! \brief Method to fetch the current OpenGL context.
        
         This function is used to make sure that whenever the context

@@ -590,14 +590,7 @@ namespace coil {
     std::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
     _renderObjsTree._renderObjects.push_back(consoleObj);
 
-    glutInitContextVersion(3, 2);
-    glutInitContextProfile(GLUT_CORE_PROFILE);
-#ifdef MAGNET_DEBUG
-    glutInitContextFlags(GLUT_DEBUG);
-#endif
-    glutInitDisplayMode(GLUT_RGBA);
-    glutInitWindowSize(800, 600);
-    glutInitWindowPosition(0, 0);
+    magnet::GL::Context::setupGlut();
 
     CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
 
