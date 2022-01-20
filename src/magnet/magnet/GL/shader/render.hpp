@@ -42,7 +42,7 @@ layout (location = 3) in vec4 iOrigin;
 layout (location = 4) in vec4 iOrientation;
 layout (location = 5) in vec4 iScale;
 
-flat out vec4 color;
+smooth out vec4 color;
 smooth out vec3 normal;
 smooth out vec3 position;
 
@@ -70,7 +70,7 @@ void main()
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
-flat in vec4 color;
+smooth in vec4 color;
 smooth in vec3 normal;
 smooth in vec3 position;
 

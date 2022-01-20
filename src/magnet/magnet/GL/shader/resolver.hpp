@@ -35,7 +35,6 @@ namespace magnet {
 layout (location = 0) out vec4 outTex;
 uniform sampler2DMS inTex;
 uniform int sample;
-uniform mat4 ProjectionMatrix;
 
 void main()
 {

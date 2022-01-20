@@ -152,12 +152,12 @@ int main(int argc, char *argv[])
   _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
   _renderShader["ViewMatrix"] = _camera.getViewMatrix();
   _colBuff.attachToColor();
-  _posBuff.getContext()->cleanupAttributeArrays();
   _normBuff.attachToNormal();
   _posBuff.attachToVertex();
   _elementBuff.drawElements(magnet::GL::element_type::TRIANGLES);
   _renderShader.detach();
   _camera._Gbuffer.detach();
+  _glContext->cleanupAttributeArrays();
 
   //Now we have buffers with all the information in them. They are unfortunately, anti-aliased buffers by default, so we need to "resolve" them into normal textures.
 	  std::shared_ptr<magnet::GL::Texture2D> resolveTexture_color(new magnet::GL::Texture2D);
@@ -180,7 +180,6 @@ int main(int argc, char *argv[])
     _camera._Gbuffer.getColorTexture(0)->bind(0);
     _resolverShader["inTex"] = 0;
     _resolverShader["sample"] = GLint(0);
-    _resolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _resolverShader.invoke();
     _resolverShader.detach();
     _resolveTarget.detach();
@@ -192,7 +191,6 @@ int main(int argc, char *argv[])
     _camera._Gbuffer.getColorTexture(2)->bind(0);
     _resolverShader["inTex"] = 0;
     _resolverShader["sample"] = GLint(0);
-    _resolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _resolverShader.invoke();
     _resolverShader.detach();
     _resolveTarget.detach();
@@ -211,6 +209,12 @@ int main(int argc, char *argv[])
         size_t idx =  comp + 4 * ( x + _camera.getWidth() * y);
         png_pixels[idx] = uint8_t(pixels[idx] * 255);
       }
+
+    for (size_t x(0); x < _camera.getWidth(); ++x)
+     for (size_t y(0); y < _camera.getHeight(); ++y)
+      if (pixels[4* _camera.getWidth() * y + 4 * x + 3] != 0)
+        std::cout << x << "," << y << " <" << pixels[4* _camera.getWidth() * y + 4 * x + 0] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 1] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 2] << ">\n";
+
     magnet::image::writePNGFile("color.png", png_pixels, _camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
   }
 
@@ -221,7 +225,8 @@ int main(int argc, char *argv[])
 
     for (size_t x(0); x < _camera.getWidth(); ++x)
      for (size_t y(0); y < _camera.getHeight(); ++y)
-      std::cout << x << "," << y << " <" << pixels[4* _camera.getWidth() * y + 4 * x + 0] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 1] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 2] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 3] << ">\n";
+      if (pixels[4* _camera.getWidth() * y + 4 * x + 3] != 0)
+        std::cout << x << "," << y << " <" << pixels[4* _camera.getWidth() * y + 4 * x + 0] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 1] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 2] << ">\n";
   }
 
   /* Delete our opengl context, destroy our window, and shutdown SDL */
