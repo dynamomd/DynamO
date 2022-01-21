@@ -151,10 +151,13 @@ int main(int argc, char *argv[])
   _renderShader.attach();
   _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
   _renderShader["ViewMatrix"] = _camera.getViewMatrix();
+
+  //Here is the drawing of things, do this for each "object"
   _colBuff.attachToColor();
   _normBuff.attachToNormal();
   _posBuff.attachToVertex();
   _elementBuff.drawElements(magnet::GL::element_type::TRIANGLES);
+
   _renderShader.detach();
   _camera._Gbuffer.detach();
   _glContext->cleanupAttributeArrays();
@@ -210,11 +213,12 @@ int main(int argc, char *argv[])
         png_pixels[idx] = uint8_t(pixels[idx] * 255);
       }
 
+    /*
     for (size_t x(0); x < _camera.getWidth(); ++x)
      for (size_t y(0); y < _camera.getHeight(); ++y)
       if (pixels[4* _camera.getWidth() * y + 4 * x + 3] != 0)
         std::cout << x << "," << y << " <" << pixels[4* _camera.getWidth() * y + 4 * x + 0] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 1] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 2] << ">\n";
-
+    */
     magnet::image::writePNGFile("color.png", png_pixels, _camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
   }
 
@@ -225,8 +229,12 @@ int main(int argc, char *argv[])
 
     for (size_t x(0); x < _camera.getWidth(); ++x)
      for (size_t y(0); y < _camera.getHeight(); ++y)
-      if (pixels[4* _camera.getWidth() * y + 4 * x + 3] != 0)
+      if (pixels[4* _camera.getWidth() * y + 4 * x + 3] != 0) {
+        for (size_t i(0); i < 3; ++i)
+          pixels[4* _camera.getWidth() * y + 4 * x + i] += _camera.getPosition()[i];
         std::cout << x << "," << y << " <" << pixels[4* _camera.getWidth() * y + 4 * x + 0] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 1] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 2] << ">\n";
+      }
+        
   }
 
   /* Delete our opengl context, destroy our window, and shutdown SDL */
