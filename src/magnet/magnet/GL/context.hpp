@@ -18,7 +18,6 @@
 
 //Here we have the correct order of GL includes
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #ifdef _WIN32
 # include <windows.h>
@@ -46,6 +45,7 @@ typedef GLXContext ContextKey;
 #include <set>
 #include <map>
 #include <iostream>
+#include <thread>
 
 namespace magnet {
   namespace GL {
@@ -87,22 +87,6 @@ namespace magnet {
          reference to a context.
        */
       typedef std::shared_ptr<Context> ContextPtr;
-
-      /*! \brief Setup of glut */
-      inline static void setupGlut() {
-	glutInit(&magnet::ArgShare::getInstance().getArgc(), 
-		 magnet::ArgShare::getInstance().getArgv());
-  
-	glutInitContextVersion(3, 2);
-	glutInitContextProfile(GLUT_CORE_PROFILE);
-#ifdef MAGNET_DEBUG
-	glutInitContextFlags(GLUT_DEBUG);
-#endif
-	glutInitDisplayMode(GLUT_RGBA);
-	glutInitWindowSize(800, 600);
-	glutInitWindowPosition(0, 0);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-      }
       
       /*! \brief Method to fetch the current OpenGL context.
        
@@ -363,20 +347,20 @@ namespace magnet {
 
       /*! \brief Swaps the front and back buffers.
        
-        This command performs a glutSwapBuffers() and then executes
-        any tasks left in the OpenGL task list. These tasks might have
-        arisen from host program communication or some other
-        asynchronous communication.
+        This command should be run after a glutSwapBuffers() (or
+        whatever finishes display) as it executes any tasks left in
+        the OpenGL task list. These tasks might have arisen from host
+        program communication or some other asynchronous
+        communication.
        */
       inline void swapBuffers()
       {
-	glutSwapBuffers();
 	detail::errorCheck();
 	_glTasks.drainQueue();
 	++_frameCounter;
       }
 
-      /*! \brief Add a task to be performed after the next \ref swapBuffers.
+      /*! \brief Add a task to be performed after the next \ref swapBuffers().
        
         This function is used to allow other threads to instruct the
         OpenGL render thread to perform some task. This is usually
@@ -677,13 +661,18 @@ namespace magnet {
       }
 #endif
 
+      std::thread::id _gl_thread_id;
+      
       /*! \brief Initializes the OpenGL context and state tracking.
        */
       inline void init()
       {
 	_frameCounter = 0;
 	_context = getCurrentContextKey();
+	_gl_thread_id = std::this_thread::get_id();
 	std::cout << "GL-Context " << _context << ": Created a new OpenGL context" << std::endl;	
+
+	
 	//////////Capability testing /////////////////////////////
 
 	//Check for errors before running glew

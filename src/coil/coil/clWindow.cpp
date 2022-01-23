@@ -26,6 +26,7 @@
 #include <magnet/image/bitmap.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <gtkmm/volumebutton.h>
+#include <GL/freeglut.h>
 #include <stator/xml.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
@@ -590,7 +591,18 @@ namespace coil {
     std::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
     _renderObjsTree._renderObjects.push_back(consoleObj);
 
-    magnet::GL::Context::setupGlut();
+    glutInit(&magnet::ArgShare::getInstance().getArgc(), 
+	     magnet::ArgShare::getInstance().getArgv());
+  
+    glutInitContextVersion(3, 2);
+    glutInitContextProfile(GLUT_CORE_PROFILE);
+#ifdef MAGNET_DEBUG
+    glutInitContextFlags(GLUT_DEBUG);
+#endif
+    glutInitDisplayMode(GLUT_RGBA);
+    glutInitWindowSize(800, 600);
+    glutInitWindowPosition(0, 0);
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
     CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
 
@@ -854,6 +866,7 @@ namespace coil {
     //Reset the eye position
     _camera.setEyeLocation(oldHeadPosition);
 
+    glutSwapBuffers();
     getGLContext()->swapBuffers();
 
     //Check if we're recording and then check that if we're
