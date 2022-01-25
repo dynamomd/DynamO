@@ -168,7 +168,7 @@ namespace coil {
   {    
     if (!_context) M_throw() << "Cannot add glyphs before the Dataset is initialised";
    
-    std::shared_ptr<Glyphs> glyph(new Glyphs(_comboPointSet->get_active_text(), *this));
+    std::shared_ptr<Glyphs> glyph(new Glyphs(_context, _comboPointSet->get_active_text(), *this));
     _children.push_back(glyph); 
     _children.back()->init(_systemQueue);
 
@@ -259,7 +259,7 @@ namespace coil {
       _comboPointSet->insert(-1, pointset.first);
     _comboPointSet->set_active(0);
 
-    std::shared_ptr<Glyphs> glyph(new Glyphs(name, *this));
+    std::shared_ptr<Glyphs> glyph(new Glyphs(_context, name, *this));
     _children.push_back(glyph); 
     _children.back()->init(_systemQueue);
     

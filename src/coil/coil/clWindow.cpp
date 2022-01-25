@@ -57,17 +57,23 @@ namespace {
 }
 
 namespace coil {
-  CLGLWindow::CLGLWindow(std::string title,
-			 double updateIntervalValue,
-			 bool dynamo
-			 ):
+  CLGLWindow::CLGLWindow(
+      magnet::GL::Context::ContextPtr context,
+      std::string title,
+			double updateIntervalValue,
+			bool dynamo
+		):
+    _context(context),
+    _shadowbuffer(context),
     _selectedObjectID(0),
+    _cairo_screen(context),
     _systemQueue(new magnet::thread::TaskQueue),
     _updateIntervalValue(updateIntervalValue),
     _mouseState(DEFAULT),
     windowTitle(title),
     _frameCounter(0),
     _updateCounter(0),
+    _camera(context),
     _mouseSensitivity(0.3),
     _moveSensitivity(0.01),
     _specialKeys(0),
@@ -325,9 +331,8 @@ namespace coil {
 
     ///////////////////////Render Pipeline//////////////////////////////////
     {
-      size_t maxsamples 
-	= std::min(magnet::GL::detail::glGet<GL_MAX_COLOR_TEXTURE_SAMPLES>(),
-		   magnet::GL::detail::glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
+      size_t maxsamples = std::min(_context->template glGet<GL_MAX_COLOR_TEXTURE_SAMPLES>(),
+		   _context->template glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
       _aasamples.reset(new Gtk::ComboBoxText);
       for (size_t samples = maxsamples; samples > 0; samples /= 2)
 	_aasamples->insert(0, boost::lexical_cast<std::string>(samples));
@@ -582,13 +587,13 @@ namespace coil {
     const Vector look_at = Vector{0, 0, 0};
     const Vector up = Vector{0,1,0};
     {
-      std::shared_ptr<RLight> light(new RLight("Light", Vector{1, 1, 1}, look_at, 0.1f, 300.0f, up, _camera.getRenderScale(), 0.2));
+      std::shared_ptr<RLight> light(new RLight(_context, "Light", Vector{1, 1, 1}, look_at, 0.1f, 300.0f, up, _camera.getRenderScale(), 0.2));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
     _consoleID = _renderObjsTree._renderObjects.size();
     std::array<GLfloat, 3> textcolor  = {{0.5, 0.5, 0.5}};
-    std::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
+    std::shared_ptr<RenderObj> consoleObj(new Console(_context, textcolor)); 
     _renderObjsTree._renderObjects.push_back(consoleObj);
 
     glutInit(&magnet::ArgShare::getInstance().getArgc(), 
@@ -633,7 +638,7 @@ namespace coil {
     
     {
       //Build depth buffer
-      std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D());
+      std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D(_context));
       //We don't force GL_DEPTH_COMPONENT24 as it is likely you get
       //the best precision anyway
       depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);//SIZE MUST BE THE SAME FOR THE LIGHTS
@@ -646,7 +651,7 @@ namespace coil {
       depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
       
       //Build color texture
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D());
+      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D(_context));
       colorTexture->init(1024, 1024, GL_RG32F);//SIZE MUST BE THE SAME FOR THE LIGHTS
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1785,7 +1790,7 @@ namespace coil {
 	
 	
 	if (volumedialog->run() == Gtk::RESPONSE_OK){
-	  std::shared_ptr<coil::RVolume> voldata(new coil::RVolume(filename_only));
+	  std::shared_ptr<coil::RVolume> voldata(new coil::RVolume(_context, filename_only));
 	  addRenderObj(voldata);
 	  
 	  size_t data_size;
@@ -2019,7 +2024,7 @@ namespace coil {
   void
   CLGLWindow::addLightCallback()
   {
-    std::shared_ptr<RLight> light(new RLight("Light", Vector{0, 1, 0} * 50 / _camera.getRenderScale(), Vector{0, 0, 0}, 0.1f, 300.0f, Vector{0,1,0}, _camera.getRenderScale()));
+    std::shared_ptr<RLight> light(new RLight(_context, "Light", Vector{0, 1, 0} * 50 / _camera.getRenderScale(), Vector{0, 0, 0}, 0.1f, 300.0f, Vector{0,1,0}, _camera.getRenderScale()));
     _renderObjsTree._renderObjects.push_back(light);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();
@@ -2028,7 +2033,7 @@ namespace coil {
   void
   CLGLWindow::addFunctionCallback()
   {
-    std::shared_ptr<RSurface> function(new RSurface("Function"));
+    std::shared_ptr<RSurface> function(new RSurface(_context, "Function"));
     _renderObjsTree._renderObjects.push_back(function);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();

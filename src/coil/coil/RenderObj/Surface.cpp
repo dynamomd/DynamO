@@ -26,10 +26,10 @@ namespace coil {
   RSurface::getIcon()
   { return coil::images::Function_Icon(); }
 
-  RSurface::RSurface(std::string name,
+  RSurface::RSurface(magnet::GL::Context::ContextPtr context, std::string name,
 		     size_t N, Vector origin, Vector axis1,
 		     Vector axis2, Vector axis3):
-    RTriangles(name),
+    RTriangles(context, name),
     _N(N),
     _origin(origin),
     _axis1(axis1),

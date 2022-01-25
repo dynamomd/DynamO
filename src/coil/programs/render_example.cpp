@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
   //Make a camera for rendering (contains everything for the render)
   //Set the near and far rendering distances (can't be zero and inf for numerical reasons!)
-  magnet::GL::CameraHeadTracking _camera(0.3f, 300.0f);
+  magnet::GL::CameraHeadTracking _camera(_glContext, 0.3f, 300.0f);
   //Set the camera resolution and number of anti-aliasing samples
   _camera.resize(200, 200, 1);
 
@@ -163,17 +163,17 @@ int main(int argc, char *argv[])
   _glContext->cleanupAttributeArrays();
 
   //Now we have buffers with all the information in them. They are unfortunately, anti-aliased buffers by default, so we need to "resolve" them into normal textures.
-	  std::shared_ptr<magnet::GL::Texture2D> resolveTexture_color(new magnet::GL::Texture2D);
+	  std::shared_ptr<magnet::GL::Texture2D> resolveTexture_color(new magnet::GL::Texture2D(_glContext));
 	  resolveTexture_color->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
 	  resolveTexture_color->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	  resolveTexture_color->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	  std::shared_ptr<magnet::GL::Texture2D> resolveTexture_pos(new magnet::GL::Texture2D);
+	  std::shared_ptr<magnet::GL::Texture2D> resolveTexture_pos(new magnet::GL::Texture2D(_glContext));
 	  resolveTexture_pos->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
 	  resolveTexture_pos->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	  resolveTexture_pos->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    magnet::GL::FBO _resolveTarget;
+    magnet::GL::FBO _resolveTarget(_glContext);
     _resolveTarget.init();
 
     //The color buffer
@@ -234,7 +234,6 @@ int main(int argc, char *argv[])
           pixels[4* _camera.getWidth() * y + 4 * x + i] += _camera.getPosition()[i];
         std::cout << x << "," << y << " <" << pixels[4* _camera.getWidth() * y + 4 * x + 0] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 1] <<  "," << pixels[4* _camera.getWidth() * y + 4 * x + 2] << ">\n";
       }
-        
   }
 
   /* Delete our opengl context, destroy our window, and shutdown SDL */

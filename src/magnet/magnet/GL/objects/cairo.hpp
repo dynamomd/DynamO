@@ -152,7 +152,8 @@ void main()
 #undef STRINGIFY
 	
       public:
-	CairoSurface():
+	CairoSurface(Context::ContextPtr context):
+	  _surface(context),
 	  _width(0), _height(0), _alpha_testing(0) {}
 	
 	//! \brief Destructor

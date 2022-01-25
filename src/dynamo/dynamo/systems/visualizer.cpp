@@ -49,6 +49,7 @@ namespace dynamo {
 
     //Build a window, ready to display it
     _window.reset(new coil::CLGLWindow("DynamO Visualizer", tickFreq, true));
+    
     //Initialise the window (and its GL context)
     _coil.getInstance().addWindow(_window);
 

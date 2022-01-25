@@ -58,14 +58,14 @@ namespace magnet {
 	 */
 	class ShaderUniformValue
 	{
+	  Context::ContextPtr _context;
+	  GLint _uniformHandle;
+	  boost::any _data;
+
 	  friend class Shader;
-	  /*! \brief Set the uniform handle corresponding to this class.
-	   
-	    Only the Shader is allowed to update this value.
-	   */
-	  inline void setHandle(GLint uniformHandle) { _uniformHandle = uniformHandle; }
+
 	public:	 
-	  inline ShaderUniformValue(): _uniformHandle(-1) {}
+	  inline ShaderUniformValue(Context::ContextPtr context, GLint uniformHandle): _context(context), _uniformHandle(uniformHandle) {}
 
 	  /*! \brief Test the current value of the uniform.*/
 	  template<class T>
@@ -131,7 +131,7 @@ namespace magnet {
 		  for (size_t j(0); j < 4; ++j)
 		    val[i + 4 * j] = M(i,j);
 		glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); 
-		GL::detail::errorCheck(); 
+		_context->errorCheck(); 
 	      }
 	  }
 	
@@ -144,7 +144,7 @@ namespace magnet {
 		  for (size_t j(0); j < 3; ++j)
 		    val[i + 3 * j] = M(i,j);
 		glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); 
-		GL::detail::errorCheck(); 
+		_context->errorCheck(); 
 	      }
 	  }
 
@@ -185,7 +185,7 @@ namespace magnet {
 	      case 4: glUniform4fv(_uniformHandle, count, val); break;
 	      default: M_throw() << "Invalid uniform width";
 	      }
-	    GL::detail::errorCheck(); 
+	    _context->errorCheck(); 
 	  }
 
 	  inline void uniform(size_t width, size_t count, const GLint* val)
@@ -198,7 +198,7 @@ namespace magnet {
 	      case 4: glUniform4iv(_uniformHandle, count, val); break;
 	      default: M_throw() << "Invalid uniform width";
 	      }
-	    GL::detail::errorCheck(); 
+	    _context->errorCheck(); 
 	  }
 
 	  /*! \brief Returns true if (val != current value), and
@@ -224,9 +224,6 @@ namespace magnet {
 	    _data = boost::any(val);
 	    return true;
 	  }
-
-	  GLint _uniformHandle;
-	  boost::any _data;
 	};
 
 	/*! \brief An object to store the values of defines.
@@ -325,7 +322,7 @@ namespace magnet {
 	    if (_built)
 	      {
 		glDeleteProgram(_programHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 	      }
 
 	    _uniformCache.clear();
@@ -357,7 +354,7 @@ namespace magnet {
 	    _context->_shaderStack.push_back(this);
 
 	    glUseProgramObjectARB(_programHandle);
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 	  }
 
 	  inline void detach()
@@ -374,7 +371,7 @@ namespace magnet {
 	      glUseProgramObjectARB(0);
 	    else
 	      glUseProgramObjectARB(_context->_shaderStack.back()->_programHandle);
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 	  }
 
 	  /*! \brief Used to set and retrieve values of \ref Shader
@@ -423,14 +420,15 @@ namespace magnet {
 #endif
 
 	    GLint uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 #ifdef MAGNET_DEBUG
 	    if (uniformHandle == -1)
 	      std::cerr << "\nMAGNET WARNING: Uniform " << uniformName 
 			<< " not found in this shader, returning dummy uniform\n";
-#endif	      
-	    _uniformCache[uniformName].setHandle(uniformHandle);
-	    return _uniformCache[uniformName];
+#endif	
+
+	    auto result = _uniformCache.emplace(std::piecewise_construct, std::make_tuple(uniformName), std::make_tuple(_context, uniformHandle));
+	    return result.first->second;
 	  }
 
 	  /*! \brief Used to set and retrieve values of \ref Shader
@@ -465,7 +463,7 @@ namespace magnet {
 	    GLint result;
 
 	    _programHandle = glCreateProgramObjectARB();
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 
 	    std::string defines = genDefines();
 	    
@@ -473,16 +471,16 @@ namespace magnet {
 	    if (!_vertexShaderCode.empty())
 	      {
 		GLhandleARB _vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		if (!_vertexShaderHandle)
 		  M_throw() << "Failed to create vertex shader handle";
 		const GLcharARB* src[2] = {defines.c_str(), _vertexShaderCode.c_str()};
 		glShaderSourceARB(_vertexShaderHandle, 2, src, NULL);	 
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glCompileShaderARB(_vertexShaderHandle);	  
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glGetObjectParameterivARB(_vertexShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		if (!result)
 		  M_throw() << "Vertex shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_vertexShaderHandle)
@@ -491,27 +489,27 @@ namespace magnet {
 			    << "\n";
 
 		glAttachObjectARB(_programHandle,_vertexShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glDeleteShader(_vertexShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 	      }
 
 	    //Fragment shader
 	    if (!_fragmentShaderCode.empty())
 	      {	
 		GLhandleARB _fragmentShaderHandle = glCreateShaderObjectARB(GL_FRAGMENT_SHADER);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 
 		if (!_fragmentShaderHandle)
 		  M_throw() << "Failed to create fragment shader handle";
 
 		const GLcharARB* src[2] = {defines.c_str(), _fragmentShaderCode.c_str()};
 		glShaderSourceARB(_fragmentShaderHandle, 2, src, NULL);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glCompileShaderARB(_fragmentShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glGetObjectParameterivARB(_fragmentShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		if (!result)
 		  M_throw() << "Fragment shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_fragmentShaderHandle)
@@ -520,35 +518,35 @@ namespace magnet {
 			    << "\n";
 
 		glAttachObjectARB(_programHandle,_fragmentShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glDeleteShader(_fragmentShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 	      }
 
 	    //Geometry shader
 	    if (!(_geometryShaderCode.empty()))
 	      {
 #ifdef MAGNET_DEBUG
-		if (((magnet::GL::detail::glGet<GL_MAJOR_VERSION>() < 3)
-		     || ((magnet::GL::detail::glGet<GL_MAJOR_VERSION>() == 3)
-			 && (magnet::GL::detail::glGet<GL_MINOR_VERSION>() < 2)))
+		if (((_context->glGet<GL_MAJOR_VERSION>() < 3)
+		     || ((_context->glGet<GL_MAJOR_VERSION>() == 3)
+			 && (_context->glGet<GL_MINOR_VERSION>() < 2)))
 		    && !_context->testExtension("GL_EXT_geometry_shader4"))
 		  M_throw() << "Geometry shaders are not supported by your OpenGL driver."
 			    << "\n Shader source:\n" << _geometryShaderCode;
 #endif
 
 		GLhandleARB _geometryShaderHandle = glCreateShaderObjectARB(GL_GEOMETRY_SHADER_EXT);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 
 		if (!_geometryShaderHandle)
 		  M_throw() << "Failed to create geometry shader handle";
 		const GLcharARB* src[2] = {defines.c_str(), _geometryShaderCode.c_str()};
 		glShaderSourceARB(_geometryShaderHandle, 2, src, NULL);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glCompileShaderARB(_geometryShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glGetObjectParameterivARB(_geometryShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		if (!result)
 		  M_throw() << "Geometry shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_geometryShaderHandle)
@@ -557,9 +555,9 @@ namespace magnet {
 			    << "\n";
 
 		glAttachObjectARB(_programHandle, _geometryShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 		glDeleteShader(_geometryShaderHandle);
-		GL::detail::errorCheck();
+		_context->errorCheck();
 	      }
 	    
 	    if (!_tfVaryings.empty())
@@ -582,7 +580,7 @@ namespace magnet {
 			<< getShaderBuildlog(_programHandle);
 	    
 	    //Check for any other errors
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 
 	    //Done, now the inheriting shader should grab the
 	    //locations of its uniforms
@@ -685,12 +683,12 @@ namespace magnet {
 	  {
 	    GLint errorLoglength;
 	    glGetObjectParameterivARB(shaderHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &errorLoglength);
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 	    char* buffer = new char[errorLoglength];
 	  
 	    GLsizei actualErrorLogLength;
 	    glGetInfoLogARB(shaderHandle, errorLoglength, &actualErrorLogLength, buffer);
-	    GL::detail::errorCheck();
+	    _context->errorCheck();
 
 	    std::string retval(buffer, buffer + actualErrorLogLength);
 	    delete[] buffer;
