@@ -228,7 +228,6 @@ namespace coil {
      */
     Gtk::TreeModel::iterator _iter;
     RenderObjectsGtkTreeView* _view;
-    magnet::GL::Context::ContextPtr _context;
     std::unique_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
     std::vector<std::shared_ptr<DataSetChild> > _children;

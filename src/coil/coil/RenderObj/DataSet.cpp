@@ -281,7 +281,6 @@ namespace coil {
     _attrtreestore.reset();
     for (auto& child : _children) child->deinit();
     for (auto& attribute :_attributes) attribute.second->deinit();
-    _context.reset();
     RenderObj::deinit();
   }
   
