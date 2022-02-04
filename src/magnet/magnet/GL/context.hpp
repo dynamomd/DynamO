@@ -495,7 +495,7 @@ namespace magnet
         program communication or some other asynchronous
         communication.
        */
-      inline void swapBuffers()
+      inline void tick()
       {
         errorCheck();
         _glTasks.drainQueue();

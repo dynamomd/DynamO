@@ -515,7 +515,7 @@ namespace coil {
     _preintTransferFuncTexture(context),    
     _frameCounter(0)
   {
-    auto data_size_node = xml.getNode("DataSize");
+    //auto data_size_node = xml.getNode("DataSize");
     _stepSizeVal = xml.getAttribute("stepsize").as<double>();
     auto dimensions_node = xml.getNode("Dimensions");
     _dimensions[0] = dimensions_node.getAttribute("x").as<double>();

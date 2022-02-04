@@ -65,7 +65,6 @@ namespace coil {
     for (auto& child : _children) child->init(systemQueue);
     
     //We don't initialise the attributes, as they're initialised on access
-    _context = magnet::GL::Context::getContext();
 
     _initialised = true;
   }

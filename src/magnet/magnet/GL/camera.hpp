@@ -30,7 +30,46 @@ namespace magnet
 	{
 		class Camera
 		{
+		protected:
 			Context::ContextPtr _context;
+
+		public:
+			FBO _renderTarget;
+			FBO _Gbuffer;
+			FBO _hdrBuffer;
+			FBO _luminanceBuffer1;
+			FBO _luminanceBuffer2;
+			FBO _blurTarget1;
+			FBO _blurTarget2;
+			FBO _filterTarget1;
+			FBO _filterTarget2;
+
+			bool _bloomLighting = true;
+			//The bloom compression sets how rapidly the bloom effect scales up to full brightness.
+			//Low values cause faster ramp up, and high values cause a softer glow.
+			GLfloat _bloomCompression = 0.01;
+			//The bloom cutoff sets the level of scaled luminance at which light parts of the screen are considered for inclusion in the bloom.
+			//Large values will disable the bloom effect.
+			GLfloat _bloomCutoff = 1.0;
+			//Bloom saturation controls at what factor of luminance should the bloom reach full intensity.
+			//This factor is only important in highly bloomed scenes.
+			//The bloom compression controls the shape of the curve up to this cutoff
+			GLfloat _bloomSaturation = 4;
+			// The Scene Key sets how bright the average luminance of a scene should map to middle gray on the display.
+			// The scene key for an average outdoor photograph on photographic paper is 0.18, however a snow scene might have a much higher key (0.7) or a night scene a much lower key (0.1).
+			GLfloat _sceneKey = 0.18;
+
+			//Background color for the render
+		    std::array<GLfloat, 3> _backColor = {1.0, 1.0, 1.0};
+
+		protected:
+			size_t _height, _width, _samples;
+			//! \brief Distance to the near clipping plane, in cm.
+			GLfloat _zNearDist;
+			//! \brief Distance to the far clipping plane, in cm.
+			GLfloat _zFarDist;
+
+
 
 		public:
 			inline Camera(Context::ContextPtr context, GLfloat zNearDist = 0.3f,
@@ -46,6 +85,7 @@ namespace magnet
 													   _filterTarget2(context),
 													   _height(1),
 													   _width(1),
+													   _samples(1),
 													   _zNearDist(zNearDist),
 													   _zFarDist(zFarDist)
 			{
@@ -56,17 +96,6 @@ namespace magnet
 			virtual GLMatrix getViewMatrix() const = 0;
 			virtual GLMatrix getProjectionMatrix() const = 0;
 			virtual void setUp(math::Vector newup, math::Vector axis = math::Vector{0, 0, 0}) = 0;
-
-			FBO _renderTarget;
-			FBO _Gbuffer;
-
-			FBO _hdrBuffer;
-			FBO _luminanceBuffer1;
-			FBO _luminanceBuffer2;
-			FBO _blurTarget1;
-			FBO _blurTarget2;
-			FBO _filterTarget1;
-			FBO _filterTarget2;
 
 			virtual FBO &getResolveBuffer()
 			{
@@ -94,18 +123,19 @@ namespace magnet
 				deinit();
 				_width = width;
 				_height = height;
+				_samples = samples;
 
 				{
-					std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_context, samples));
+					std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_context, _samples));
 					colorTexture->init(width, height, GL_RGBA16F_ARB);
 
-					std::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(_context, samples));
+					std::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(_context, _samples));
 					normalTexture->init(width, height, GL_RGBA16F_ARB);
 
-					std::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(_context, samples));
+					std::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(_context, _samples));
 					posTexture->init(width, height, GL_RGBA16F_ARB);
 
-					std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(_context, samples));
+					std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(_context, _samples));
 					depthTexture->init(width, height, GL_DEPTH_COMPONENT);
 
 					_Gbuffer.deinit();
@@ -274,6 +304,9 @@ namespace magnet
 			//! \brief Get the width of the screen, in pixels.
 			inline const size_t &getWidth() const { return _width; }
 
+			//! \brief Get the width of the screen, in pixels.
+			inline const size_t &getSamples() const { return _samples; }
+
 			/*! \brief Used to convert world positions to screen coordinates (pixels).
 	
 	This returns y coordinates in the format that cairo and other
@@ -343,13 +376,6 @@ namespace magnet
 				vec /= vec.nrm();
 				return vec;
 			}
-
-		protected:
-			size_t _height, _width;
-			//! \brief Distance to the near clipping plane, in cm.
-			GLfloat _zNearDist;
-			//! \brief Distance to the far clipping plane, in cm.
-			GLfloat _zFarDist;
 		};
 
 		/*! \brief An object to track the camera state.

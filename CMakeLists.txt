@@ -315,6 +315,7 @@ endif()
 
 ### Coil
 # configuration
+set(VISUALIZER_SUPPORT FALSE)
 if(VISUALIZER_SUPPORT)
   message(STATUS "Visualiser dependencies satisfied.")
   

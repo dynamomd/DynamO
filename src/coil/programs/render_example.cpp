@@ -16,38 +16,15 @@
 */
 
 #include <magnet/arg_share.hpp>
-#include <magnet/GL/context.hpp>
+#include <magnet/GL/SDL.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shader/resolver.hpp>
+#include <magnet/GL/pipeline.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/image/PNG.hpp>
 #include <iostream>
 
-#include <SDL2/SDL.h>
-
-/* A simple function that prints a message, the error code returned by SDL,
- * and quits the application */
-void sdldie(const char *msg)
-{
-  printf("%s: %s\n", msg, SDL_GetError());
-  SDL_Quit();
-  exit(1);
-}
-
-void checkSDLError(int line = -1)
-{
-#ifndef NDEBUG
-  const char *error = SDL_GetError();
-  if (*error != '\0')
-  {
-    printf("SDL Error: %s\n", error);
-    if (line != -1)
-      printf(" + line: %i\n", line);
-    SDL_ClearError();
-  }
-#endif
-}
 
 using namespace std;
 
@@ -55,41 +32,13 @@ int main(int argc, char *argv[])
 {
   //Setup the GL context
   magnet::ArgShare::getInstance().setArgs(argc, argv);
-
-  ////////////////////////////////////////////////////////
-  /////     SDL/PLATFORM SPECIFIC CODE  //////////////////
-  ////////////////////////////////////////////////////////
-
-
-  SDL_Window *mainwindow;    /* Our window handle */
-  SDL_GLContext maincontext; /* Our opengl context handle */
-
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)     /* Initialize SDL's Video subsystem */
-    sdldie("Unable to initialize SDL"); /* Or die on error */
-
-  /* Request opengl 3.2 context.
-     * SDL doesn't have the ability to choose which profile at this time of writing,
-     * but it should default to the core profile */
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-
-  /* Create our window centered at 512x512 resolution */
-  mainwindow = SDL_CreateWindow("COIL Render Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                512, 512, SDL_WINDOW_OPENGL /*| SDL_WINDOW_SHOWN */);
-  if (!mainwindow) /* Die if creation failed */
-    sdldie("Unable to create window");
-
-  checkSDLError(__LINE__);
-
-  /* Create our opengl context and attach it to our window */
-  maincontext = SDL_GL_CreateContext(mainwindow);
-  checkSDLError(__LINE__);
-
   ////////////////////////////////////////////////////////
   /////     COIL SPECIFIC CODE  //////////////////////////
   ////////////////////////////////////////////////////////
-
-  auto _glContext = magnet::GL::Context::getContext();
+  magnet::GL::SDL::Engine _sdl;
+  _sdl.init("Coil render example");
+  _sdl.tick();
+  auto _glContext  = _sdl.getContext();
 
   //Make a camera for rendering (contains everything for the render)
   //Set the near and far rendering distances (can't be zero and inf for numerical reasons!)
@@ -236,9 +185,8 @@ int main(int argc, char *argv[])
       }
   }
 
-  /* Delete our opengl context, destroy our window, and shutdown SDL */
-  SDL_GL_DeleteContext(maincontext);
-  SDL_DestroyWindow(mainwindow);
-  SDL_Quit();
+  _sdl.deinit();
+
   return 0;
+
 }

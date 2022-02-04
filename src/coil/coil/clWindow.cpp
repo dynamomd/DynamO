@@ -872,7 +872,7 @@ namespace coil {
     _camera.setEyeLocation(oldHeadPosition);
 
     glutSwapBuffers();
-    getGLContext()->swapBuffers();
+    getGLContext()->tick();
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available
