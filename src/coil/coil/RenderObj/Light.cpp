@@ -34,7 +34,6 @@ namespace coil {
   {
     _sphereShader.deinit();
     _glposition.deinit();
-    _context.reset();
   }
   
   void 
@@ -51,7 +50,6 @@ namespace coil {
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position, 3);
 
-    _context = magnet::GL::Context::getContext();
     initGTK();
     _initialised = true;
   }
@@ -83,21 +81,21 @@ namespace coil {
     GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position, 3);
-    _context->cleanupAttributeArrays();
+    RenderObj::_context->cleanupAttributeArrays();
 
     if (mode == RenderObj::PICKING)
-      _context->setAttribute(Context::vertexColorAttrIndex,
+      RenderObj::_context->setAttribute(Context::vertexColorAttrIndex,
 			     (offset % 256) / 255.0,
 			     ((offset / 256) % 256) / 255.0,
 			     (((offset / 256) / 256) % 256) / 255.0,
 			     ((((offset / 256) / 256) / 256) % 256) / 255.0);
     else
       {
-	_context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1], _color[2], 1);
+	RenderObj::_context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1], _color[2], 1);
 	
-	if (_context->testExtension("GL_ARB_sample_shading"))
+	if (RenderObj::_context->testExtension("GL_ARB_sample_shading"))
 	  {
-	    _context->setSampleShading(true);
+	    RenderObj::_context->setSampleShading(true);
 	    glMinSampleShadingARB(1.0);
 	  }
       }
@@ -108,8 +106,8 @@ namespace coil {
     _glposition.drawArray(magnet::GL::element_type::POINTS);
     _sphereShader.detach();
     
-    if ((mode == RenderObj::PICKING) && _context->testExtension("GL_ARB_sample_shading"))
-      _context->setSampleShading(false);
+    if ((mode == RenderObj::PICKING) && RenderObj::_context->testExtension("GL_ARB_sample_shading"))
+      RenderObj::_context->setSampleShading(false);
   }
 
   void

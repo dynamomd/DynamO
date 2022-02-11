@@ -25,53 +25,53 @@
 #include <memory>
 #include <array>
 
-namespace coil {
+namespace coil
+{
   class RLight : public RenderObj, public magnet::GL::CameraHeadTracking
   {
   public:
-    RLight(std::string name, magnet::math::Vector position, magnet::math::Vector lookAtPoint,
-	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector{0,1,0},
-	   GLfloat simLength = 25.0f, GLfloat size = 0.2):
-      RenderObj(name),
-      CameraHeadTracking(position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0,0,20}),
-      _intensity(1.0),
-      _specularExponent(32),
-      _specularFactor(1),
-      _maxvariance(0.1),
-      _bleedreduction(0.2),
-      _size(size)
+    RLight(magnet::GL::Context::ContextPtr context, std::string name, magnet::math::Vector position, magnet::math::Vector lookAtPoint,
+           GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector{0, 1, 0},
+           GLfloat simLength = 25.0f, GLfloat size = 0.2) : RenderObj(context, name),
+                                                            CameraHeadTracking(context, position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector{0, 0, 20}),
+                                                            _intensity(1.0),
+                                                            _specularExponent(32),
+                                                            _specularFactor(1),
+                                                            _maxvariance(0.1),
+                                                            _bleedreduction(0.2),
+                                                            _size(size)
     {
       std::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;
       _shadowCasting = false;
     }
-  
-    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue);
     virtual void deinit();
 
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
+    virtual void glRender(const magnet::GL::Camera &cam, RenderMode mode, const uint32_t offset);
 
-    virtual void interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo);
+    virtual void interfaceRender(const magnet::GL::Camera &camera, magnet::GL::objects::CairoSurface &cairo);
 
-    virtual void showControls(Gtk::ScrolledWindow* win);
+    virtual void showControls(Gtk::ScrolledWindow *win);
 
     void setIntensity(double);
     float getIntensity() const { return _intensity; }
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
     float getMaxVariance() const { return _maxvariance; }
-    float getBleedReduction() const { return _bleedreduction; }    
+    float getBleedReduction() const { return _bleedreduction; }
 
     virtual bool deletable() { return true; }
 
     virtual void dragCallback(Vector cursorPos, uint32_t objID);
 
-    const std::array<GLfloat, 3>& getColor() const { return _color; }
-    std::array<GLfloat, 3> getLightColor() const 
-    { 
+    const std::array<GLfloat, 3> &getColor() const { return _color; }
+    std::array<GLfloat, 3> getLightColor() const
+    {
       std::array<GLfloat, 3> retval = {{_color[0] * _intensity,
-					     _color[1] * _intensity,
-					     _color[2] * _intensity}};
+                                        _color[1] * _intensity,
+                                        _color[2] * _intensity}};
       return retval;
     }
 
@@ -88,28 +88,28 @@ namespace coil {
     */
     inline magnet::GL::GLMatrix getShadowTextureMatrix()
     {
-      return magnet::GL::translate(magnet::math::Vector{0.5, 0.5, 0.5})
-	* magnet::GL::scale(magnet::math::Vector{0.5, 0.5, 0.5})
-	* getProjectionMatrix()
-	* getViewMatrix();
+      return magnet::GL::translate(magnet::math::Vector{0.5, 0.5, 0.5}) * magnet::GL::scale(magnet::math::Vector{0.5, 0.5, 0.5}) * getProjectionMatrix() * getViewMatrix();
     }
-    
+
     /*! \brief Returns a projected light position.
      */
-    magnet::math::Vector getEyespacePosition(const magnet::GL::Camera& camera) const
+    magnet::math::Vector getEyespacePosition(const magnet::GL::Camera &camera) const
     {
       magnet::math::Vector vec = getPosition();
       magnet::math::NVector<GLfloat, 4> lightPos = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2]), 1.0f}};
-      magnet::math::NVector<GLfloat, 4> lightPos_eyespace
-	= camera.getViewMatrix() * lightPos;
+      magnet::math::NVector<GLfloat, 4> lightPos_eyespace = camera.getViewMatrix() * lightPos;
       return magnet::math::Vector{lightPos_eyespace[0], lightPos_eyespace[1], lightPos_eyespace[2]};
     }
 
     virtual uint32_t pickableObjectCount()
-    { return visible(); }
+    {
+      return visible();
+    }
 
     virtual std::string getCursorText(uint32_t objID)
-    { return _name; }
+    {
+      return _name;
+    }
 
     virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
@@ -134,7 +134,7 @@ namespace coil {
     std::unique_ptr<Gtk::Entry> _specularFactorEntry;
     std::unique_ptr<Gtk::Entry> _positionXEntry;
     std::unique_ptr<Gtk::Entry> _positionYEntry;
-    std::unique_ptr<Gtk::Entry> _positionZEntry;    
+    std::unique_ptr<Gtk::Entry> _positionZEntry;
     std::unique_ptr<Gtk::Entry> _sizeEntry;
 
     std::unique_ptr<Gtk::Entry> _maxvarianceEntry;
@@ -147,6 +147,5 @@ namespace coil {
 
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::Buffer<GLfloat> _glposition;
-    magnet::GL::Context::ContextPtr _context;
   };
 }

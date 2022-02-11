@@ -33,8 +33,8 @@ namespace coil {
   public:
     struct end {};
     
-    inline Console(std::array<GLfloat, 3> color):
-      RenderObj("Console")
+    inline Console(magnet::GL::Context::ContextPtr context, std::array<GLfloat, 3> color):
+      RenderObj(context, "Console")
     {}
     
     void interfaceRender(const magnet::GL::Camera& cam, magnet::GL::objects::CairoSurface& cairo);

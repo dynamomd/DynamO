@@ -17,8 +17,10 @@
 #pragma once
 #include <magnet/GL/context.hpp>
 
-namespace magnet {
-  namespace GL {
+namespace magnet
+{
+  namespace GL
+  {
     /*! \brief An OpenGL buffer object.
      
       This class is used to represent vertex/element/normal buffer
@@ -37,14 +39,15 @@ namespace magnet {
     class Buffer
     {
     public:
-      inline Buffer(): 
-	_size(0),
-	_components(0)
+      inline Buffer() : _size(0),
+                        _components(0)
 #ifdef MAGNET_CLGL
-	, _cl_handle_init(false), 
-	_cl_buffer_acquired(0)
+                        ,
+                        _cl_handle_init(false),
+                        _cl_buffer_acquired(0)
 #endif
-      {}
+      {
+      }
 
       inline ~Buffer() { deinit(); }
 
@@ -59,8 +62,10 @@ namespace magnet {
         \param usage The expected host memory access pattern, used to
         optimise performance.
        */
-      inline void init(const std::vector<T>& data, size_t components, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
-      { init(data.size(), components, &data[0], usage); }
+      inline void init(const std::vector<T> &data, size_t components, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
+      {
+        init(data.size(), components, &data[0], usage);
+      }
 
       /*! \brief Initialises the Buffer object.
        
@@ -79,78 +84,79 @@ namespace magnet {
         \param ptr A pointer to data to fill the buffer with. If it
         is set to NULL, no data is loaded.
        */
-      inline void init(size_t size, size_t components, const T* ptr = NULL,  buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
+      inline void init(size_t size, size_t components, const T *ptr = NULL, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
       {
-	if (size == 0)
-	  M_throw() << "Cannot initialise GL::Buffer with 0 data!";
-	
-	if (size % components)
-	  M_throw() << "Can't initialise buffer without a whole number of elements.";
+        if (size == 0)
+          M_throw() << "Cannot initialise GL::Buffer with 0 data!";
 
-	_components = components;
+        if (size % components)
+          M_throw() << "Can't initialise buffer without a whole number of elements.";
 
-	//On the first initialisation
-	if (empty())
-	  {
-	    _context = Context::getContext();
-	    glGenBuffersARB(1, &_buffer);	
-	  }
+        _components = components;
 
-	_size = size;
-	bind(buffer_targets::ARRAY);
-	glBufferData(buffer_targets::ARRAY, _size * sizeof(T), ptr, usage);
+        //On the first initialisation
+        if (empty())
+        {
+          _context = Context::getContext();
+          glGenBuffersARB(1, &_buffer);
+        }
+
+        _size = size;
+        bind(buffer_targets::ARRAY);
+        glBufferData(buffer_targets::ARRAY, _size * sizeof(T), ptr, usage);
       }
 
       //! \brief Attach the Buffer to a OpenGL target
-      inline void bind(buffer_targets::Enum target) const 
+      inline void bind(buffer_targets::Enum target) const
       {
-	glBindBufferARB(target, _buffer);	
+        glBindBufferARB(target, _buffer);
       }
 
       //! \brief Map a buffer onto the host device memory space;
-      inline T* map()
+      inline T *map()
       {
-	bind(buffer_targets::ARRAY);
-	GLvoid* ptr = glMapBuffer(buffer_targets::ARRAY, GL_READ_WRITE);
-	if (ptr == NULL) M_throw() << "Failed to map buffer, NULL returned";
-	return static_cast<T*>(ptr);
+        bind(buffer_targets::ARRAY);
+        GLvoid *ptr = glMapBuffer(buffer_targets::ARRAY, GL_READ_WRITE);
+        if (ptr == NULL)
+          M_throw() << "Failed to map buffer, NULL returned";
+        return static_cast<T *>(ptr);
       }
 
       //! \brief Map a buffer onto the host device memory space
-      inline const T* map() const
+      inline const T *map() const
       {
-	bind(buffer_targets::ARRAY);
-	GLvoid* ptr = glMapBuffer(buffer_targets::ARRAY, GL_READ_ONLY);
-	if (ptr == NULL) M_throw() << "Failed to map buffer, NULL returned";
-	return static_cast<const T*>(ptr);
+        bind(buffer_targets::ARRAY);
+        GLvoid *ptr = glMapBuffer(buffer_targets::ARRAY, GL_READ_ONLY);
+        if (ptr == NULL)
+          M_throw() << "Failed to map buffer, NULL returned";
+        return static_cast<const T *>(ptr);
       }
 
       //! \brief Releases a previous \ref map() call.
       inline void unmap() const
       {
-	bind(buffer_targets::ARRAY);
-	glUnmapBuffer(buffer_targets::ARRAY);
+        bind(buffer_targets::ARRAY);
+        glUnmapBuffer(buffer_targets::ARRAY);
       }
 
       /*! \brief Destroys any OpenGL resources associated with this
         object.
        */
-      inline void deinit() 
+      inline void deinit()
       {
 #ifdef MAGNET_CLGL
-# ifdef MAGNET_DEBUG
-	if (_cl_buffer_acquired)
-	  M_throw() << "Deinitialising a buffer which is acquired by the OpenCL system!";
-# endif
-	_cl_handle = ::cl::BufferGL();
-	_cl_handle_init = false;
+#ifdef MAGNET_DEBUG
+        if (_cl_buffer_acquired)
+          M_throw() << "Deinitialising a buffer which is acquired by the OpenCL system!";
 #endif
-	if (_size)
-	  glDeleteBuffersARB(1, &_buffer);
-	_context.reset();
-	_size = 0;
+        _cl_handle = ::cl::BufferGL();
+        _cl_handle_init = false;
+#endif
+        if (_size)
+          glDeleteBuffersARB(1, &_buffer);
+        _size = 0;
       }
-      
+
       //! \brief Test if the buffer has been allocated.
       inline bool empty() const { return !_size; }
 
@@ -165,99 +171,121 @@ namespace magnet {
 
       /*! \brief Returns the underlying OpenGL handle for the
        * buffer */
-      inline GLuint getGLObject() const { initTest(); return _buffer; }
+      inline GLuint getGLObject() const
+      {
+        initTest();
+        return _buffer;
+      }
 
       /*! \brief Returns the OpenGL context this buffer lives in.
        */
-      inline const Context::ContextPtr& getContext() const { initTest(); return _context; }
+      inline const Context::ContextPtr &getContext() const
+      {
+        initTest();
+        return _context;
+      }
 
       /*! \brief Draw all the elements in the current buffer.
        */
       inline void drawElements(element_type::Enum type)
-      { 
-	initTest();
-	bind(buffer_targets::ELEMENT_ARRAY);
-	glDrawElements(type, size(), detail::c_type_to_gl_enum<T>::val, 0);
+      {
+        initTest();
+        bind(buffer_targets::ELEMENT_ARRAY);
+        glDrawElements(type, size(), detail::c_type_to_gl_enum<T>::val, 0);
       }
 
       /*! \brief Draw all the elements in the current buffer multiple
         times using instancing.
        */
       inline void drawInstancedElements(element_type::Enum type, size_t instances)
-      { 
-	initTest();
-	bind(buffer_targets::ELEMENT_ARRAY);
-	if (GLEW_EXT_draw_instanced)
-	  glDrawElementsInstancedEXT(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
-	else if (GLEW_ARB_draw_instanced)
-	  glDrawElementsInstancedEXT(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
-	else
-	  M_throw() << "Cannot perform instanced drawing, GL_ARB_draw_instanced/GL_EXT_draw_instanced extensions are missing.";
+      {
+        initTest();
+        bind(buffer_targets::ELEMENT_ARRAY);
+        if (GLEW_EXT_draw_instanced)
+          glDrawElementsInstancedEXT(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
+        else if (GLEW_ARB_draw_instanced)
+          glDrawElementsInstancedEXT(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
+        else
+          M_throw() << "Cannot perform instanced drawing, GL_ARB_draw_instanced/GL_EXT_draw_instanced extensions are missing.";
       }
 
       /*! \brief Draw all vertices in this array, without using
         indexing.
        */
       inline void drawArray(element_type::Enum type)
-      { 
-	attachToVertex();
-	glDrawArrays(type, 0, size() / _components);
+      {
+        attachToVertex();
+        glDrawArrays(type, 0, size() / _components);
       }
 
       /*! \brief Attaches the buffer to the vertex pointer of the GL
         state.
        */
-      inline void attachToVertex() 
-      { attachToAttribute(Context::vertexPositionAttrIndex); }
+      inline void attachToVertex()
+      {
+        attachToAttribute(Context::vertexPositionAttrIndex);
+      }
 
       /*! \brief Attaches the buffer to the color pointer of the GL
         state.
       */
-      inline void attachToColor() 
-      { attachToAttribute(Context::vertexColorAttrIndex, 0, true); }
+      inline void attachToColor()
+      {
+        attachToAttribute(Context::vertexColorAttrIndex, 0, true);
+      }
 
       /*! \brief Attaches the buffer to the normal pointer of the GL
         state.
        */
       inline void attachToNormal()
-      { attachToAttribute(Context::vertexNormalAttrIndex); }
+      {
+        attachToAttribute(Context::vertexNormalAttrIndex);
+      }
 
       /*! \brief Attaches the buffer to the instance origin pointer of the GL
         state.
        */
       inline void attachToInstanceOrigin()
-      { attachToAttribute(Context::instanceOriginAttrIndex, 1); }
+      {
+        attachToAttribute(Context::instanceOriginAttrIndex, 1);
+      }
 
       /*! \brief Attaches the buffer to the instance orientation pointer of the GL
         state.
        */
       inline void attachToInstanceOrientation()
-      { attachToAttribute(Context::instanceOrientationAttrIndex, 1); }
+      {
+        attachToAttribute(Context::instanceOrientationAttrIndex, 1);
+      }
 
       /*! \brief Attaches the buffer to the instance orientation pointer of the GL
         state.
        */
       inline void attachToInstanceScale()
-      { attachToAttribute(Context::instanceScaleAttrIndex, 1); }
+      {
+        attachToAttribute(Context::instanceScaleAttrIndex, 1);
+      }
 
       /*! \brief Attaches the buffer to the texture coordinate pointer
         of the GL state.
        */
       inline void attachToTexCoords()
-      { attachToAttribute(Context::vertexTexCoordAttrIndex, 0); }
+      {
+        attachToAttribute(Context::vertexTexCoordAttrIndex, 0);
+      }
 
       /*! \brief Attaches the buffer to a vertex attribute pointer
         state.
        */
       inline void attachToAttribute(size_t attrnum, size_t divisor = 0, bool normalise = false)
       {
-	initTest();
-	bind(buffer_targets::ARRAY);	
-	glVertexAttribPointer(attrnum, _components, detail::c_type_to_gl_enum<T>::val,
-			      (normalise ? GL_TRUE : GL_FALSE), _components * sizeof(T), 0);
+        initTest();
+        bind(buffer_targets::ARRAY);
+        glVertexAttribPointer(attrnum, _components, detail::c_type_to_gl_enum<T>::val,
+                              (normalise ? GL_TRUE : GL_FALSE), _components * sizeof(T), 0);
 
-	_context->setAttributeDivisor(attrnum, divisor);
-	_context->enableAttributeArray(attrnum);
+        _context->setAttributeDivisor(attrnum, divisor);
+        _context->enableAttributeArray(attrnum);
       }
 
 #ifdef MAGNET_CLGL
@@ -268,25 +296,25 @@ namespace magnet {
         releaseCLObject()! before the next GL render using this
         buffer!
        */
-      inline const ::cl::BufferGL& acquireCLObject()
-      { 
-	initTest();
-	if (!_cl_handle_init)
-	  {
-	    _cl_handle_init = true;
-	    _cl_handle = ::cl::BufferGL(_context->getCLContext(), 
-					CL_MEM_READ_WRITE, 
-					getGLObject());
-	  }
+      inline const ::cl::BufferGL &acquireCLObject()
+      {
+        initTest();
+        if (!_cl_handle_init)
+        {
+          _cl_handle_init = true;
+          _cl_handle = ::cl::BufferGL(_context->getCLContext(),
+                                      CL_MEM_READ_WRITE,
+                                      getGLObject());
+        }
 
-	if ((++_cl_buffer_acquired) == 1)
-	  {					
-	    std::vector<cl::Memory> buffers;
-	    buffers.push_back(_cl_handle);
-	    _context->getCLCommandQueue().enqueueAcquireGLObjects(&buffers);
-	  }
+        if ((++_cl_buffer_acquired) == 1)
+        {
+          std::vector<cl::Memory> buffers;
+          buffers.push_back(_cl_handle);
+          _context->getCLCommandQueue().enqueueAcquireGLObjects(&buffers);
+        }
 
-	return _cl_handle; 
+        return _cl_handle;
       }
 
       /*! \brief Releases the OpenCL representation of this GL buffer.
@@ -296,27 +324,31 @@ namespace magnet {
         acquireCLObject() calls.
        */
       inline void releaseCLObject()
-      { 
-	initTest(); 
+      {
+        initTest();
 #ifdef MAGNET_DEBUG
-	if (!_cl_handle_init)
-	  M_throw() << "Cannot release CL Object, its not initialised!";
-	if (_cl_buffer_acquired == 0)
-	  M_throw() << "Trying to release an already released object!";
+        if (!_cl_handle_init)
+          M_throw() << "Cannot release CL Object, its not initialised!";
+        if (_cl_buffer_acquired == 0)
+          M_throw() << "Trying to release an already released object!";
 #endif
-	if (--_cl_buffer_acquired == 0)
-	  {
-	    std::vector<cl::Memory> buffers;
-	    buffers.push_back(_cl_handle);
-	    _context->getCLCommandQueue().enqueueReleaseGLObjects(&buffers);
-	  }
+        if (--_cl_buffer_acquired == 0)
+        {
+          std::vector<cl::Memory> buffers;
+          buffers.push_back(_cl_handle);
+          _context->getCLCommandQueue().enqueueReleaseGLObjects(&buffers);
+        }
       }
 #endif
-      
+
     protected:
       /*! \brief Guard function to test if the buffer is initialised.
        */
-      inline void initTest() const { if (empty()) M_throw() << "Buffer is not initialized!"; }
+      inline void initTest() const
+      {
+        if (empty())
+          M_throw() << "Buffer is not initialized!";
+      }
 
       size_t _size;
       size_t _components;

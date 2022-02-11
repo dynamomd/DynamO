@@ -113,7 +113,7 @@ void main()
       };
 
   public:
-    Glyphs(std::string pointsName, DataSet& ds);
+    Glyphs(magnet::GL::Context::ContextPtr context, std::string pointsName, DataSet& ds);
 
     inline ~Glyphs() { deinit(); }
 

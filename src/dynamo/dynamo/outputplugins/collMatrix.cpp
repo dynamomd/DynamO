@@ -82,7 +82,6 @@ namespace dynamo {
   
     size_t initialsum(0);
   
-    typedef std::pair<eventKey,size_t> npair;
     for (const auto& n : initialCounter)
       initialsum += n.second;
   
@@ -109,8 +108,6 @@ namespace dynamo {
   
     XML << magnet::xml::endtag("TransitionMatrix")
 	<< magnet::xml::tag("Totals");
-  
-    typedef std::pair<eventKey, std::pair<size_t, double> > mappair;
   
     for (const auto& mp1 : totmap)
       XML << magnet::xml::tag("TotCount")

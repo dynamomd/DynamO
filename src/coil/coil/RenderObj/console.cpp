@@ -20,6 +20,7 @@
 #include <magnet/clamp.hpp>
 #include <magnet/GL/objects/cairo.hpp>
 #include <magnet/GL/objects/primitives/grid.hpp>
+#include <GL/freeglut.h>
 
 namespace coil {
   void 

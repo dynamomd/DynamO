@@ -48,8 +48,9 @@ namespace magnet {
 namespace coil {
   class CLGLWindow : public CoilWindow
   {
+     magnet::GL::Context::ContextPtr _context;
   public:
-    CLGLWindow(std::string title, double updateIntervalValue, bool dynamo = false);
+    CLGLWindow(magnet::GL::Context::ContextPtr context, std::string title, double updateIntervalValue, bool dynamo = false);
 
     ~CLGLWindow();
   

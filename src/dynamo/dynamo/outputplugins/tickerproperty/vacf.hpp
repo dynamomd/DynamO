@@ -45,6 +45,5 @@ namespace dynamo {
     size_t length;
     size_t currCorrLength;
     size_t ticksTaken;
-    bool notReady;
   };
 }

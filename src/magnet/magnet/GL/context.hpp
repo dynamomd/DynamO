@@ -18,38 +18,93 @@
 
 //Here we have the correct order of GL includes
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #ifdef _WIN32
-# include <windows.h>
+#include <windows.h>
 typedef HGLRC ContextKey;
 #else
-# include <GL/glx.h>
+#include <GL/glx.h>
 typedef GLXContext ContextKey;
 #endif
 
-
 #ifdef MAGNET_CLGL
-# define __CL_ENABLE_EXCEPTIONS
-# include <CL/cl.hpp>
+#define __CL_ENABLE_EXCEPTIONS
+#include <CL/cl.hpp>
 #endif
 
 #include <magnet/GL/detail/traits.hpp>
 #include <magnet/GL/detail/enums.hpp>
-#include <magnet/GL/detail/typesafe_get.hpp>
 #include <magnet/GL/detail/error_check.hpp>
 #include <magnet/thread/taskQueue.hpp>
+#include <magnet/arg_share.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/GL/matrix.hpp>
 #include <memory>
 #include <set>
 #include <map>
 #include <iostream>
+#include <thread>
 
-namespace magnet {
-  namespace GL {
-    namespace shader { namespace detail { class Shader; } }
-    template<class T> class Buffer;
+namespace magnet
+{
+  namespace GL
+  {
+
+    namespace detail
+    {
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
+
+      template <GLenum val>
+      struct glget_enum_to_type
+      {
+      };
+
+#define GL_GET_ENUM_TYPE_TRAIT_FACTORY(F)   \
+  F(GL_VIEWPORT, GLint, 4)                  \
+  F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)        \
+  F(GL_MAX_COLOR_ATTACHMENTS_EXT, GLint, 1) \
+  F(GL_MAJOR_VERSION, GLint, 1)             \
+  F(GL_MINOR_VERSION, GLint, 1)             \
+  F(GL_MAX_DRAW_BUFFERS, GLint, 1)          \
+  F(GL_NUM_EXTENSIONS, GLint, 1)            \
+  F(GL_MAX_SAMPLES, GLint, 1)               \
+  F(GL_MAX_COLOR_TEXTURE_SAMPLES, GLint, 1) \
+  F(GL_MAX_DEPTH_TEXTURE_SAMPLES, GLint, 1)
+
+      template <size_t width, class T>
+      struct return_type
+      {
+        typedef std::array<T, width> Type;
+      };
+      template <class T>
+      struct return_type<1, T>
+      {
+        typedef T Type;
+      };
+
+#define GL_GET_TO_C_TYPE(GL_ENUM_VAL, C_TYPE, WIDTH)     \
+  template <>                                            \
+  struct glget_enum_to_type<GL_ENUM_VAL>                 \
+  {                                                      \
+    typedef C_TYPE Type;                                 \
+    typedef return_type<WIDTH, C_TYPE>::Type ReturnType; \
+  };
+
+      GL_GET_ENUM_TYPE_TRAIT_FACTORY(GL_GET_TO_C_TYPE)
+#undef GL_ENUM_TO_C_TYPE
+#undef GL_GET_ENUM_TYPE_TRAIT_FACTORY
+#endif
+    }
+
+    namespace shader
+    {
+      namespace detail
+      {
+        class Shader;
+      }
+    }
+    template <class T>
+    class Buffer;
 
     /*! \brief Class representing an OpenGL context (and its
       associated OpenCL context if required).
@@ -67,21 +122,88 @@ namespace magnet {
     {
     protected:
       /** @name Platform specific code. */
-      /**@{*/      
+      /**@{*/
       inline static ContextKey getCurrentContextKey()
       {
 #ifdef _WIN32
-	ContextKey key = wglGetCurrentContext();
+        ContextKey key = wglGetCurrentContext();
 #else
-	ContextKey key = glXGetCurrentContext();
+        ContextKey key = glXGetCurrentContext();
 #endif
-	detail::errorCheck();
-	if (!key) M_throw() << "Not in a valid GLX context";
-	return key; 
+        bare_error_check();
+        if (!key)
+          M_throw() << "Not in a valid GLX context";
+        return key;
       }
       /**@}*/
 
     public:
+      inline static void bare_error_check() {
+        GLenum errcode = glGetError();
+        switch (errcode)
+        {
+        case GL_NO_ERROR:
+          return;
+        case GL_INVALID_ENUM:
+          M_throw() << "glGetError() returned GL_INVALID_ENUM";
+        case GL_INVALID_VALUE:
+          M_throw() << "glGetError() returned GL_INVALID_VALUE";
+        case GL_INVALID_OPERATION:
+          M_throw() << "glGetError() returned GL_INVALID_OPERATION";
+        case GL_OUT_OF_MEMORY:
+          M_throw() << "glGetError() returned GL_OUT_OF_MEMORY";
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+          M_throw() << "glGetError() returned GL_INVALID_FRAMEBUFFER_OPERATION";
+        default:
+          M_throw() << "glGetError() returned " << errcode;
+        }
+      }
+
+      inline void errorCheck() const
+      {
+#ifdef MAGNET_DEBUG
+        if (_gl_thread_id != std::this_thread::get_id())
+          M_throw() << "Not in the GL thread!";
+
+        bare_error_check();
+#endif
+      }
+
+      inline void glGetWorker(GLenum val, GLboolean *ptr)
+      {
+        glGetBooleanv(val, ptr);
+        errorCheck();
+      }
+
+      inline void glGetWorker(GLenum val, GLdouble *ptr)
+      {
+        glGetDoublev(val, ptr);
+        errorCheck();
+      }
+
+      inline void glGetWorker(GLenum val, GLfloat *ptr)
+      {
+        glGetFloatv(val, ptr);
+        errorCheck();
+      }
+
+      inline void glGetWorker(GLenum val, GLint *ptr)
+      {
+        glGetIntegerv(val, ptr);
+        errorCheck();
+      }
+
+      /*! \brief A type safe glGet command, to fetch parameters of the
+        current OpenGL state.
+       */
+      template <GLenum ENUM>
+      typename detail::glget_enum_to_type<ENUM>::ReturnType glGet()
+      {
+        typename detail::glget_enum_to_type<ENUM>::ReturnType retval;
+        glGetWorker(ENUM, reinterpret_cast<typename detail::glget_enum_to_type<ENUM>::Type *>(&retval));
+        return retval;
+      }
+
       /*!\brief The reference counting type to use for a holding a
          reference to a context.
        */
@@ -94,54 +216,56 @@ namespace magnet {
        */
       inline static ContextPtr getContext()
       {
-	typedef std::map<ContextKey, ContextPtr> ContextStoreType; 
-	static ContextStoreType contexts;
+        typedef std::map<ContextKey, ContextPtr> ContextStoreType;
+        static ContextStoreType contexts;
 
-	ContextKey key = getCurrentContextKey();
+        ContextKey key = getCurrentContextKey();
 
-	ContextStoreType::iterator ctxPtr = contexts.find(key);
-	if (ctxPtr == contexts.end())
-	  {
-	    contexts[key].reset(new Context);
-	    contexts[key]->init();
-	  }
-	  
-	return contexts[key];
+        ContextStoreType::iterator ctxPtr = contexts.find(key);
+        if (ctxPtr == contexts.end())
+        {
+          contexts[key].reset(new Context);
+          contexts[key]->init();
+        }
+
+        return contexts[key];
       }
-      
+
       /** @name Vertex attribute array interface. */
       /**@{*/
       /*! \brief Enables a vertex attribute array index. */
       inline void enableAttributeArray(GLuint attrnum)
       {
-	if (attrnum >= _vertexAttributeState.size())
-	  M_throw() << "Attribute index out of range";
-	if (_vertexAttributeState[attrnum].active) return;
-	glEnableVertexAttribArray(attrnum);
-	detail::errorCheck();
-	_vertexAttributeState[attrnum].active = true;
+        if (attrnum >= _vertexAttributeState.size())
+          M_throw() << "Attribute index out of range";
+        if (_vertexAttributeState[attrnum].active)
+          return;
+        glEnableVertexAttribArray(attrnum);
+        errorCheck();
+        _vertexAttributeState[attrnum].active = true;
       }
 
       /*! \brief Disables a vertex attribute array index. */
       inline void disableAttributeArray(GLuint attrnum)
       {
-	if (attrnum >= _vertexAttributeState.size())
-	  M_throw() << "Attribute index out of range";
-	if (!(_vertexAttributeState[attrnum].active)) return;
-	glDisableVertexAttribArray(attrnum);
-	detail::errorCheck();
-	_vertexAttributeState[attrnum].active = false;
+        if (attrnum >= _vertexAttributeState.size())
+          M_throw() << "Attribute index out of range";
+        if (!(_vertexAttributeState[attrnum].active))
+          return;
+        glDisableVertexAttribArray(attrnum);
+        errorCheck();
+        _vertexAttributeState[attrnum].active = false;
       }
 
       /*! \brief Disable all active vertex attribute arrays. */
       inline void cleanupAttributeArrays()
       {
-	resetInstanceTransform();
-	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
-	  {
-	    disableAttributeArray(i);
-	    detail::errorCheck();
-	  }
+        resetInstanceTransform();
+        for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
+        {
+          disableAttributeArray(i);
+          errorCheck();
+        }
       }
 
       /*! \brief Sets the value of a vertex attribute, if no attribute
@@ -151,30 +275,31 @@ namespace magnet {
        */
       inline void setAttribute(GLuint idx, GLfloat x = 0, GLfloat y = 0, GLfloat z = 0, GLfloat w = 0)
       {
-	if (idx >= _vertexAttributeState.size())
-	  M_throw() << "Attribute index out of range";
+        if (idx >= _vertexAttributeState.size())
+          M_throw() << "Attribute index out of range";
 
-	if (idx == 0)
-	  M_throw() << "Cannot set the value of the 0th vertex attribute.";
+        if (idx == 0)
+          M_throw() << "Cannot set the value of the 0th vertex attribute.";
 
-	std::array<GLfloat, 4> newval = {{x,y,z,w}};
+        std::array<GLfloat, 4> newval = {{x, y, z, w}};
 
 #ifdef MAGNET_DEBUG
-	std::array<GLfloat, 4> oldval;
-	glGetVertexAttribfv(idx, GL_CURRENT_VERTEX_ATTRIB, &oldval[0]);
-	detail::errorCheck();
+        std::array<GLfloat, 4> oldval;
+        glGetVertexAttribfv(idx, GL_CURRENT_VERTEX_ATTRIB, &oldval[0]);
+        errorCheck();
 
-	if (oldval != _vertexAttributeState[idx].current_value)
-	  M_throw() << "Vertex attribute state changed without using the GL context!";
+        if (oldval != _vertexAttributeState[idx].current_value)
+          M_throw() << "Vertex attribute state changed without using the GL context!";
 #endif
 
-	if (newval == _vertexAttributeState[idx].current_value) return;
-	_vertexAttributeState[idx].current_value = newval;
+        if (newval == _vertexAttributeState[idx].current_value)
+          return;
+        _vertexAttributeState[idx].current_value = newval;
 
-	glVertexAttrib4f(idx, newval[0], newval[1], newval[2], newval[3]);
-	detail::errorCheck();
+        glVertexAttrib4f(idx, newval[0], newval[1], newval[2], newval[3]);
+        errorCheck();
       }
-      
+
       /*! \brief Sets the divisor of a vertex attribute.
        
         The divisor is used in instancing to set the rate at which
@@ -182,13 +307,14 @@ namespace magnet {
        */
       inline void setAttributeDivisor(GLuint idx, GLuint divisor)
       {
-	if (idx >= _vertexAttributeState.size())
-	  M_throw() << "Attribute index out of range";
+        if (idx >= _vertexAttributeState.size())
+          M_throw() << "Attribute index out of range";
 
-	if (divisor == _vertexAttributeState[idx].divisor) return;
-	_vertexAttributeState[idx].divisor = divisor;
-	glVertexAttribDivisorARB(idx, divisor);
-	detail::errorCheck();
+        if (divisor == _vertexAttributeState[idx].divisor)
+          return;
+        _vertexAttributeState[idx].divisor = divisor;
+        glVertexAttribDivisorARB(idx, divisor);
+        errorCheck();
       }
 
       /*! \brief The index of the automatically-indexed position
@@ -248,8 +374,10 @@ namespace magnet {
         This uses the \ref vertexColorAttrIndex value for the index of
         the color attribute.
        */
-      inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1) 
-      { setAttribute(vertexColorAttrIndex, r, g, b, a); }
+      inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1)
+      {
+        setAttribute(vertexColorAttrIndex, r, g, b, a);
+      }
 
       /*! \brief Convenience function to set the instance rotation.
        
@@ -259,11 +387,11 @@ namespace magnet {
         \param angle The rotation angle in radians.
         \param axis The rotation axis.
        */
-      inline void rotation(GLfloat angle, math::Vector axis) 
+      inline void rotation(GLfloat angle, math::Vector axis)
       {
-	GLfloat s = std::sin(angle / 2);
-	GLfloat c = std::cos(angle / 2);
-	setAttribute(instanceOrientationAttrIndex, axis[0] * s, axis[1] * s, axis[2] * s, c); 
+        GLfloat s = std::sin(angle / 2);
+        GLfloat c = std::cos(angle / 2);
+        setAttribute(instanceOrientationAttrIndex, axis[0] * s, axis[1] * s, axis[2] * s, c);
       }
 
       /*! \brief Resets the vertex attributes used in instancing to
@@ -271,9 +399,9 @@ namespace magnet {
        */
       inline void resetInstanceTransform()
       {
-	setAttribute(instanceOriginAttrIndex, 0, 0, 0, 0);
-	setAttribute(instanceOrientationAttrIndex, 0, 0, 0, 1);
-	setAttribute(instanceScaleAttrIndex, 1, 1, 1, 1);
+        setAttribute(instanceOriginAttrIndex, 0, 0, 0, 0);
+        setAttribute(instanceOrientationAttrIndex, 0, 0, 0, 1);
+        setAttribute(instanceScaleAttrIndex, 1, 1, 1, 1);
       }
       /**@}*/
 
@@ -281,20 +409,32 @@ namespace magnet {
       /** @name The OpenCL-OpenGL interface. */
       /**@{*/
       //! \brief Fetch the OpenCL platform for this OpenGL context.
-      inline const cl::Platform& getCLPlatform() 
-      { initCL(); return _clplatform; }
+      inline const cl::Platform &getCLPlatform()
+      {
+        initCL();
+        return _clplatform;
+      }
 
       //! \brief Fetch the OpenCL context for this OpenGL context.
-      inline const cl::Context& getCLContext() 
-      { initCL(); return _clcontext; }
+      inline const cl::Context &getCLContext()
+      {
+        initCL();
+        return _clcontext;
+      }
 
       //! \brief Fetch the OpenCL device for this OpenGL context.
-      inline const cl::Device& getCLDevice() 
-      { initCL(); return _cldevice; }
+      inline const cl::Device &getCLDevice()
+      {
+        initCL();
+        return _cldevice;
+      }
 
       //! \brief Fetch the OpenCL command queue for this OpenGL context.
-      inline const cl::CommandQueue& getCLCommandQueue() 
-      { initCL(); return _clcommandQ; }
+      inline const cl::CommandQueue &getCLCommandQueue()
+      {
+        initCL();
+        return _clcommandQ;
+      }
       /**@}*/
 #endif
 
@@ -304,14 +444,14 @@ namespace magnet {
         Shader classes \ref Shader::attach() and \ref Shader::detach()
         functions.
        */
-      inline shader::detail::Shader& getAttachedShader()
+      inline shader::detail::Shader &getAttachedShader()
       {
-	if (_shaderStack.empty())
-	  M_throw() << "No shader attached to the GL context!";
+        if (_shaderStack.empty())
+          M_throw() << "No shader attached to the GL context!";
 
-	return *_shaderStack.back();
+        return *_shaderStack.back();
       }
-      
+
       /*! \brief Sets the current viewport.
        
         \param x The coordinate of the leftmost pixel in the viewport.
@@ -321,45 +461,48 @@ namespace magnet {
        */
       inline void setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
       {
-	std::array<GLint, 4> val = {{x, y, width, height}};
-	setViewport(val);
+        std::array<GLint, 4> val = {{x, y, width, height}};
+        setViewport(val);
       }
 
       /*! \brief Sets the viewport using the passed viewport state.
        */
-      inline void setViewport(const std::array<GLint, 4>& val)
+      inline void setViewport(const std::array<GLint, 4> &val)
       {
-	if (val == _viewPortState) return;
+        if (val == _viewPortState)
+          return;
 
-	_viewPortState = val;
-	glViewport(_viewPortState[0], _viewPortState[1], _viewPortState[2], _viewPortState[3]);
-	detail::errorCheck();
+        _viewPortState = val;
+        glViewport(_viewPortState[0], _viewPortState[1], _viewPortState[2], _viewPortState[3]);
+        errorCheck();
       }
-      
+
       /*! \brief Returns the current viewport state.
        
         The returned array contains, in order, the leftmost pixel, the
         lowest pixel, the width and the height of the viewport.
        */
-      inline const std::array<GLint, 4>& getViewport() const
-      { return _viewPortState; }
+      inline const std::array<GLint, 4> &getViewport() const
+      {
+        return _viewPortState;
+      }
 
       /*! \brief Swaps the front and back buffers.
        
-        This command performs a glutSwapBuffers() and then executes
-        any tasks left in the OpenGL task list. These tasks might have
-        arisen from host program communication or some other
-        asynchronous communication.
+        This command should be run after a glutSwapBuffers() (or
+        whatever finishes display) as it executes any tasks left in
+        the OpenGL task list. These tasks might have arisen from host
+        program communication or some other asynchronous
+        communication.
        */
-      inline void swapBuffers()
+      inline void tick()
       {
-	glutSwapBuffers();
-	detail::errorCheck();
-	_glTasks.drainQueue();
-	++_frameCounter;
+        errorCheck();
+        _glTasks.drainQueue();
+        ++_frameCounter;
       }
 
-      /*! \brief Add a task to be performed after the next \ref swapBuffers.
+      /*! \brief Add a task to be performed after the next \ref swapBuffers().
        
         This function is used to allow other threads to instruct the
         OpenGL render thread to perform some task. This is usually
@@ -367,7 +510,9 @@ namespace magnet {
         for rendering.
        */
       inline void queueTask(std::function<void()> threadfunc)
-      { _glTasks.queueTask(threadfunc); }
+      {
+        _glTasks.queueTask(threadfunc);
+      }
 
       /*! \brief The total number of \ref swapBuffers() calls.
 	
@@ -375,20 +520,22 @@ namespace magnet {
 	drawn to the screen, assuming \ref swapBuffers() is used to
 	paint the back buffer to the screen.
        */
-      inline size_t getFrameCount() const 
-      { return _frameCounter; }
+      inline size_t getFrameCount() const
+      {
+        return _frameCounter;
+      }
 
       bool testExtension(std::string extension)
       {
-	if (_extensions.empty())
-	  {
-	    detail::errorCheck();
-	    size_t numExtensions = detail::glGet<GL_NUM_EXTENSIONS>();
-	    for (size_t i(0); i < numExtensions; ++i)
-	      _extensions.insert(std::string(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i))));
-	  }
+        if (_extensions.empty())
+        {
+          errorCheck();
+          size_t numExtensions = glGet<GL_NUM_EXTENSIONS>();
+          for (size_t i(0); i < numExtensions; ++i)
+            _extensions.insert(std::string(reinterpret_cast<const char *>(glGetStringi(GL_EXTENSIONS, i))));
+        }
 
-	return _extensions.find(extension) != _extensions.end();
+        return _extensions.find(extension) != _extensions.end();
       }
 
       inline void setBlend(bool newstate) { testAndSetState(newstate, _blend, GL_BLEND); }
@@ -397,30 +544,35 @@ namespace magnet {
       inline void setCullFace(bool newstate) { testAndSetState(newstate, _cullFace, GL_CULL_FACE); }
 
 #ifndef GL_SAMPLE_SHADING
-# define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
+#define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
 #endif
-      inline void setSampleShading(bool newstate) { testAndSetState(newstate, _sampleShading, GL_SAMPLE_SHADING); }
+      inline void setSampleShading(bool newstate)
+      {
+        testAndSetState(newstate, _sampleShading, GL_SAMPLE_SHADING);
+      }
 
-      void bindDefaultVAO() {
-	glBindVertexArray(_dummyVAO);
-	detail::errorCheck();
+      void bindDefaultVAO()
+      {
+        glBindVertexArray(_dummyVAO);
+        errorCheck();
       }
 
     protected:
-      inline void testAndSetState(const bool newstate, bool& oldstate, const GLenum cap)
+      inline void testAndSetState(const bool newstate, bool &oldstate, const GLenum cap)
       {
 #ifdef MAGNET_DEBUG
-	if (glIsEnabled(cap) != oldstate)
-	  M_throw() << "Something is altering the GL state outside of Magnet!";
+        if (glIsEnabled(cap) != oldstate)
+          M_throw() << "Something is altering the GL state outside of Magnet!";
 #endif
 
-	if (newstate==oldstate) return;
+        if (newstate == oldstate)
+          return;
 
-	if (newstate) 
-	  glEnable(cap);
-	else 
-	  glDisable(cap);
-	oldstate = newstate;
+        if (newstate)
+          glEnable(cap);
+        else
+          glDisable(cap);
+        oldstate = newstate;
       }
 
       /*! \brief State tracking variable for blending */
@@ -429,7 +581,6 @@ namespace magnet {
       bool _depthTest;
       bool _cullFace;
       bool _sampleShading;
-
 
       /*! \brief A dummy vertex array object (VAO).
 	
@@ -462,7 +613,7 @@ namespace magnet {
 
       /*! \brief The stack of bound shaders.
        */
-      std::vector<shader::detail::Shader*> _shaderStack;
+      std::vector<shader::detail::Shader *> _shaderStack;
 
       /*! \brief A cache of the current OpenGL viewport state.
        */
@@ -481,11 +632,12 @@ namespace magnet {
        */
       inline void initCL()
       {
-	if (_clInitialised) return;
-	_clInitialised = true;
+        if (_clInitialised)
+          return;
+        _clInitialised = true;
 
-	initOpenCLContext();
-	_clcommandQ = cl::CommandQueue(_clcontext, _cldevice);
+        initOpenCLContext();
+        _clcommandQ = cl::CommandQueue(_clcontext, _cldevice);
       }
 
       /*! \brief Initializes an OpenCL context, platform and device
@@ -493,12 +645,14 @@ namespace magnet {
        */
       inline void initOpenCLContext()
       {
-	std::cout << "GL-Context " << _context << ": Creating an OpenCL GPU context" << std::endl;	
-	if (initOpenCLContextType(CL_DEVICE_TYPE_GPU)) return;
-	std::cout << "GL-Context " << _context << ": Failed to create OpenCL GPU context, trying all devices for OpenCL context" << std::endl;
-	if (initOpenCLContextType(CL_DEVICE_TYPE_ALL)) return;
+        std::cout << "GL-Context " << _context << ": Creating an OpenCL GPU context" << std::endl;
+        if (initOpenCLContextType(CL_DEVICE_TYPE_GPU))
+          return;
+        std::cout << "GL-Context " << _context << ": Failed to create OpenCL GPU context, trying all devices for OpenCL context" << std::endl;
+        if (initOpenCLContextType(CL_DEVICE_TYPE_ALL))
+          return;
 
-	M_throw() << "Failed to create an OpenCL context from the OpenGL context!";
+        M_throw() << "Failed to create an OpenCL context from the OpenGL context!";
       }
 
       /*! \brief Attempts to Initializes an OpenCL context given a
@@ -509,42 +663,47 @@ namespace magnet {
        */
       inline bool initOpenCLContextType(cl_device_type devType)
       {
-	std::vector<cl::Platform> platforms;
+        std::vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
-	
-	//Now cycle through the platforms trying to get a context with a GPU
-	for (auto& platform : platforms)
-	  {
-	    std::cout << "GL-Context " << _context << ":   Trying OpenCL platform - " 
-		      << platform.getInfo<CL_PLATFORM_VENDOR>() 
-		      << " - " << platform.getInfo<CL_PLATFORM_NAME>()
-		      << " - " << platform.getInfo<CL_PLATFORM_VERSION>()
-		      << std::endl;	
 
-	    std::vector<cl::Device> devices;
-	    try {
-	      platform.getDevices(devType, &devices);
-	    } catch (...)
-	      { continue; }
-    
-	    for (auto& device : devices)
-	      {
-		std::cout << "GL-Context " << _context << ":     Trying  Device - " 
-			  << device.getInfo<CL_DEVICE_NAME>() 
-			  << " - " << device.getInfo<CL_DRIVER_VERSION>() 
-			  << std::endl;	
-		if (!getCLGLContext(platform, device)) continue;
+        //Now cycle through the platforms trying to get a context with a GPU
+        for (auto &platform : platforms)
+        {
+          std::cout << "GL-Context " << _context << ":   Trying OpenCL platform - "
+                    << platform.getInfo<CL_PLATFORM_VENDOR>()
+                    << " - " << platform.getInfo<CL_PLATFORM_NAME>()
+                    << " - " << platform.getInfo<CL_PLATFORM_VERSION>()
+                    << std::endl;
 
-		std::cout << "GL-Context " << _context << ": Success" << std::endl;
-		
-		//Success! now set the platform+device and return!
-		_clplatform = platform;
-		_cldevice = device;
-		return true;
-	      }
-	  }
+          std::vector<cl::Device> devices;
+          try
+          {
+            platform.getDevices(devType, &devices);
+          }
+          catch (...)
+          {
+            continue;
+          }
 
-	return false;
+          for (auto &device : devices)
+          {
+            std::cout << "GL-Context " << _context << ":     Trying  Device - "
+                      << device.getInfo<CL_DEVICE_NAME>()
+                      << " - " << device.getInfo<CL_DRIVER_VERSION>()
+                      << std::endl;
+            if (!getCLGLContext(platform, device))
+              continue;
+
+            std::cout << "GL-Context " << _context << ": Success" << std::endl;
+
+            //Success! now set the platform+device and return!
+            _clplatform = platform;
+            _cldevice = device;
+            return true;
+          }
+        }
+
+        return false;
       }
 
       /*! \fn bool getCLGLContext(cl::Platform clplatform, cl::Device dev)
@@ -567,164 +726,190 @@ namespace magnet {
       inline bool getCLGLContext(cl::Platform clplatform, cl::Device dev)
       {
 #ifdef _WIN32
-	cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, (cl_context_properties) clplatform(),
-					  CL_GLX_DISPLAY_KHR, (cl_context_properties) glXGetCurrentDisplay(),
-					  CL_GL_CONTEXT_KHR, (cl_context_properties) _context, 0};
+        cl_context_properties cpsGL[] = {CL_CONTEXT_PLATFORM, (cl_context_properties)clplatform(),
+                                         CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+                                         CL_GL_CONTEXT_KHR, (cl_context_properties)_context, 0};
 #else
-	cl_context_properties cpsGL[] = { CL_CONTEXT_PLATFORM, (cl_context_properties) clplatform(),
-					  CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
-					  CL_GL_CONTEXT_KHR, (cl_context_properties) _context, 0};
+        cl_context_properties cpsGL[] = {CL_CONTEXT_PLATFORM, (cl_context_properties)clplatform(),
+                                         CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
+                                         CL_GL_CONTEXT_KHR, (cl_context_properties)_context, 0};
 #endif
-	
-	std::vector<cl::Device> devlist;
-	devlist.push_back(dev);
-	
-	//create the OpenCL context 
-	try {
-	  _clcontext = cl::Context(devlist, cpsGL);
-	} catch(...)
-	  //If we fail, it's probably because it's not the correct
-	  //device for the GL context
-	  { return false; }
-	
-	return true;
+
+        std::vector<cl::Device> devlist;
+        devlist.push_back(dev);
+
+        //create the OpenCL context
+        try
+        {
+          _clcontext = cl::Context(devlist, cpsGL);
+        }
+        catch (...)
+        //If we fail, it's probably because it's not the correct
+        //device for the GL context
+        {
+          return false;
+        }
+
+        return true;
       }
 #endif
 
 #ifdef MAGNET_DEBUG
       static void DebugCallback(unsigned int source, unsigned int type,
-				unsigned int id, unsigned int severity,
-				int length, const char* message, const void* userParam)
+                                unsigned int id, unsigned int severity,
+                                int length, const char *message, const void *userParam)
       {
-	std::cerr << "GLError: Source=";
-	switch (source)
-	  {
-	  case GL_DEBUG_SOURCE_API_ARB:
-	    std::cerr << "OpenGL"; break;
-	  case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
-	    std::cerr << "Window System"; break;
-	  case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
-	    std::cerr << "Shader Compiler"; break;
-	  case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
-	    std::cerr << "Third Party"; break;
-	  case GL_DEBUG_SOURCE_APPLICATION_ARB:
-	    std::cerr << "Application"; break;
-	  case GL_DEBUG_SOURCE_OTHER_ARB:
-	    std::cerr << "Other"; break;
-	  default:
-	    std::cerr << "Unknown(" << source << ")"; break;
-	  }
-	
-	std::cerr << ", Type=";
+        std::cerr << "GLError: Source=";
+        switch (source)
+        {
+        case GL_DEBUG_SOURCE_API_ARB:
+          std::cerr << "OpenGL";
+          break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+          std::cerr << "Window System";
+          break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+          std::cerr << "Shader Compiler";
+          break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+          std::cerr << "Third Party";
+          break;
+        case GL_DEBUG_SOURCE_APPLICATION_ARB:
+          std::cerr << "Application";
+          break;
+        case GL_DEBUG_SOURCE_OTHER_ARB:
+          std::cerr << "Other";
+          break;
+        default:
+          std::cerr << "Unknown(" << source << ")";
+          break;
+        }
 
-	switch (type)
-	  {
-	  case GL_DEBUG_TYPE_ERROR_ARB:
-	    std::cerr << "Error"; break;
-	  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
-	    std::cerr << "Deprecated behavior"; break;
-	  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
-	    std::cerr << "Undefined behavior"; break;
-	  case GL_DEBUG_TYPE_PORTABILITY_ARB:
-	    std::cerr << "Portability"; break;
-	  case GL_DEBUG_TYPE_PERFORMANCE_ARB:
-	    std::cerr << "Performance"; break;
-	  case GL_DEBUG_TYPE_OTHER_ARB:
-	    std::cerr << "Other"; break;
-	  default:
-	    std::cerr << "Unknown(" << type << ")"; break;
-	  }
+        std::cerr << ", Type=";
 
-	std::cerr << ", Severity=";
+        switch (type)
+        {
+        case GL_DEBUG_TYPE_ERROR_ARB:
+          std::cerr << "Error";
+          break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+          std::cerr << "Deprecated behavior";
+          break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+          std::cerr << "Undefined behavior";
+          break;
+        case GL_DEBUG_TYPE_PORTABILITY_ARB:
+          std::cerr << "Portability";
+          break;
+        case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+          std::cerr << "Performance";
+          break;
+        case GL_DEBUG_TYPE_OTHER_ARB:
+          std::cerr << "Other";
+          break;
+        default:
+          std::cerr << "Unknown(" << type << ")";
+          break;
+        }
 
-	switch (severity)
-	  {
-	  case GL_DEBUG_SEVERITY_HIGH_ARB:
-	    std::cerr << "High"; break;
-	  case GL_DEBUG_SEVERITY_MEDIUM_ARB:
-	    std::cerr << "Medium"; break;
-	  case GL_DEBUG_SEVERITY_LOW_ARB:
-	    std::cerr << "Low"; break;
-	  default:
-	    std::cerr << "Unknown(" << severity; break;
-	  }
+        std::cerr << ", Severity=";
 
-	std::cerr << ", ID=" << id << ", Message=\"";
-	if (length == -1)
-	  std::cerr << message;
-	else
-	  std::cerr << std::string(message, message + length);
-	  
-	std::cerr << "\"\n";
-	std::cerr << "Stack trace:" << magnet::stacktrace() << "\n";
+        switch (severity)
+        {
+        case GL_DEBUG_SEVERITY_HIGH_ARB:
+          std::cerr << "High";
+          break;
+        case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+          std::cerr << "Medium";
+          break;
+        case GL_DEBUG_SEVERITY_LOW_ARB:
+          std::cerr << "Low";
+          break;
+        default:
+          std::cerr << "Unknown(" << severity;
+          break;
+        }
+
+        std::cerr << ", ID=" << id << ", Message=\"";
+        if (length == -1)
+          std::cerr << message;
+        else
+          std::cerr << std::string(message, message + length);
+
+        std::cerr << "\"\n";
+        std::cerr << "Stack trace:" << magnet::stacktrace() << "\n";
       }
 #endif
+
+      std::thread::id _gl_thread_id;
 
       /*! \brief Initializes the OpenGL context and state tracking.
        */
       inline void init()
       {
-	_frameCounter = 0;
-	_context = getCurrentContextKey();
-	std::cout << "GL-Context " << _context << ": Created a new OpenGL context" << std::endl;	
-	//////////Capability testing /////////////////////////////
+        _frameCounter = 0;
+        _context = getCurrentContextKey();
+        _gl_thread_id = std::this_thread::get_id();
+        std::cout << "GL-Context " << _context << ": Created in thread " << _gl_thread_id << std::endl;
 
-	//Check for errors before running glew
-	detail::errorCheck();
-	//We must set this true as glew uses deprecated code
-	//(glGetString) for testing for extensions
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	  M_throw() << "GL-Context " << _context << "Failed to initialise GLEW!";
-	//Suppress GL errors generated by glew, by fetching and
-	//discarding the last GL error;
-	glGetError();
+        //////////Capability testing /////////////////////////////
 
-	std::cout << "GL-Context " << _context 
-		  << ": OpenGL version " 
-		  << detail::glGet<GL_MAJOR_VERSION>() << "."
-		  << detail::glGet<GL_MINOR_VERSION>() << std::endl;	
+        //Check for errors before running glew
+        errorCheck();
+        //We must set this true as glew uses deprecated code
+        //(glGetString) for testing for extensions
+        glewExperimental = GL_TRUE;
+        if (glewInit() != GLEW_OK)
+          M_throw() << "GL-Context " << _context << "Failed to initialise GLEW!";
+        //Suppress GL errors generated by glew, by fetching and
+        //discarding the last GL error;
+        glGetError();
+
+        std::cout << "GL-Context " << _context
+                  << ": OpenGL version "
+                  << glGet<GL_MAJOR_VERSION>() << "."
+                  << glGet<GL_MINOR_VERSION>() << std::endl;
 #ifdef MAGNET_DEBUG
-	if (testExtension("GL_ARB_debug_output"))
-	  {
-	    glDebugMessageCallbackARB(&Context::DebugCallback, NULL);
-	    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-	  }
+        if (testExtension("GL_ARB_debug_output"))
+        {
+          glDebugMessageCallbackARB(&Context::DebugCallback, NULL);
+          glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+        }
 #endif
-	///////Variable initialisation ///////////////////////////
-	_viewPortState = detail::glGet<GL_VIEWPORT>();
+        ///////Variable initialisation ///////////////////////////
+        _viewPortState = glGet<GL_VIEWPORT>();
 
-	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
-	for (GLuint i(1); i < _vertexAttributeState.size(); ++i)
-	  {
-	    glVertexAttrib4f(i, 0,0,0,1);
-	    detail::errorCheck();
-	  }	  
+        _vertexAttributeState.resize(glGet<GL_MAX_VERTEX_ATTRIBS>());
+        for (GLuint i(1); i < _vertexAttributeState.size(); ++i)
+        {
+          glVertexAttrib4f(i, 0, 0, 0, 1);
+          errorCheck();
+        }
 
-	color(0,1,1,1);
-	resetInstanceTransform();
+        color(0, 1, 1, 1);
+        resetInstanceTransform();
 
-	//Bind the dummy VAO object (so hacky)
-	glGenVertexArrays(1, &_dummyVAO);
-	detail::errorCheck();
-	glBindVertexArray(_dummyVAO);
-	detail::errorCheck();
+        //Bind the dummy VAO object (so hacky)
+        glGenVertexArrays(1, &_dummyVAO);
+        errorCheck();
+        glBindVertexArray(_dummyVAO);
+        errorCheck();
       }
 
       /////////////////////////////////////////////////////
 
       //! \brief Only allow \ref getContext() to instantiate Context objects.
-      Context(): 
-	_blend(false),
-	_alphaTest(false),
-	_depthTest(false),
-	_cullFace(false),
-	_sampleShading(false)
+      Context() : _blend(false),
+                  _alphaTest(false),
+                  _depthTest(false),
+                  _cullFace(false),
+                  _sampleShading(false)
 #ifdef MAGNET_CLGL
-	,
-	_clInitialised(false)
+                  ,
+                  _clInitialised(false)
 #endif
-      {}
+      {
+      }
 
       //! \brief The system-dependent handle to the GL context.
       ContextKey _context;
@@ -734,17 +919,16 @@ namespace magnet {
        */
       struct VertexAttrState
       {
-	VertexAttrState(): 
-	  active(false),
-	  divisor(0)
-	{
-	  current_value[0] = current_value[1] = current_value[2] = 0; 
-	  current_value[3] = 1; 
-	}
+        VertexAttrState() : active(false),
+                            divisor(0)
+        {
+          current_value[0] = current_value[1] = current_value[2] = 0;
+          current_value[3] = 1;
+        }
 
-	bool active;
-	std::array<GLfloat, 4> current_value;
-	GLuint divisor;
+        bool active;
+        std::array<GLfloat, 4> current_value;
+        GLuint divisor;
       };
 
       /*! \brief The state of the vertex attributes */
