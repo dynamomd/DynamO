@@ -302,8 +302,12 @@ def perdir(args):
     configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
     if len(configs) == 0:
         return {}
-    
-    state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
+
+    try:
+        state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
+    except Exception as e:
+        print("Failed processing dir, error",e)
+        return {}
     statedict, state = make_state(state)
 
     #Filter to only the set states (if enabled)
@@ -368,7 +372,13 @@ def reorg_dir_worker(args):
         configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
         if len(configs) == 0:
             return []
-        oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
+
+        try:
+            oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
+        except Exception as e:
+            print("Failed processing dir, error",e)
+            return []
+        
         oldstatedict, oldstate = make_state(oldstate)
 
         XMLconfig = ConfigFile(configs[0])
