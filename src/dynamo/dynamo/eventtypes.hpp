@@ -19,6 +19,7 @@
 #include <magnet/exception.hpp>
 #include <algorithm>
 #include <ostream>
+#include <limits>
 
 namespace dynamo {
 #define ETYPE_ENUM_FACTORY(F)						\
