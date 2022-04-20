@@ -84,12 +84,12 @@ prefix="SWTether2"
 
 statevars = [
     [ #Sweep 
-        ("Lambda", [1.1, 1.5, 2]),
+        ("Lambda", [2]),#1.1, 1.5,
         ("InitState", ["FCC"]),
-        ("PhiT", list(set(list(numpy.arange(0.01, 1.0, 0.01))+list(numpy.arange(1.0, 10.0, 0.1))+list(numpy.arange(10.0, 100.0, 5))+[float('inf')]))),
-        ("N", list(map(lambda x: 4*x**3, [5]))), #5, 10, 15
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.21, 0.02)))))),
-        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.1, 1.0, 0.1)))))),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 4*x**3, [10]))), #5, 10, 15
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.4, 0.01)))))),
+        ("kT", [3.5, 4, 5, 10])#list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.1, 1.0, 0.1)))))),
     ],
 #    [ #Isochore
 #        ("Lambda", [2]),

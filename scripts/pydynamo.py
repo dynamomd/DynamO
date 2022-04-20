@@ -403,7 +403,7 @@ def reorg_dir_worker(args):
     return []
 
 class SimManager:
-    def __init__(self, workdir, statevars, outputs, restarts=1, processes=None):
+    def __init__(self, workdir, statevars=None, outputs=[], restarts=1, processes=None, states=None):
         if not shutil.which("dynamod"):
             raise RuntimeError("Could not find dynamod executable.")
 
@@ -414,17 +414,27 @@ class SimManager:
         self.outputs = set(outputs)
         self.workdir = workdir
         self.output_plugins = set()
+        self.statevars = statevars
+        self.states = states
 
-        if len(statevars) == 0:
-            raise RuntimeError("We need some state variables to work on")
-        
-        #Make sure the state vars are in ascending order for easy output to screen
-        self.statevars = [[(key, sorted(value)) for key, value in sweep] for sweep in statevars]
-       
-        #Now create all states for iteration. We need to do this now,
-        #as we need to get the generated state variables too.
-        self.states = self.iterate_state(self.statevars)
-
+        #We can specify statevars OR states, but need to calculate the states in the end
+        if self.statevars != None:
+            if states != None:
+                raise RuntimeError("Cannot specify statevars and states!")
+            
+            if len(statevars) == 0:
+                raise RuntimeError("We need some state variables to work on")
+            
+            #Make sure the state vars are in ascending order for easy output to screen
+            self.statevars = [[(key, sorted(value)) for key, value in sweep] for sweep in statevars]
+	    
+	    #Now create all states for iteration. We need to do this now,
+	    #as we need to get the generated state variables too.
+            self.states = self.iterate_state(self.statevars)
+        else:
+            if self.states == None:
+                raise RuntimeError("Need to specify either statevars OR states!")
+            self.states = set([self.make_state(state) for state in self.states])
         #We need a list of the state variables used 
         self.used_statevariables = list(map(lambda x : x[0], next(iter(self.states))))
         
@@ -557,11 +567,12 @@ class SimManager:
             
                         
     def run(self, setup_worker, particle_equil_events, particle_run_events, particle_run_events_block_size):            
-        print("Generating simulation tasks for the following sweeps")
-        for idx, sweep in enumerate(self.statevars):
-            print(" Sweep", idx)
-            for statevar, statevals in sweep:
-                print("  ",statevar, "∈", list(map(print_to_14sf, statevals)))
+        print("Generating simulation tasks")
+        if self.statevars != None:
+            for idx, sweep in enumerate(self.statevars):
+                print(" Sweep", idx)
+                for statevar, statevals in sweep:
+                    print("  ",statevar, "∈", list(map(print_to_14sf, statevals)))
 
         tot_states = len(self.states)
 
@@ -908,6 +919,48 @@ class OrderParameterProperty(OutputProperty):
         ql_value = ql.particle_order
         
         return WeightedFloat(np.mean(ql_value), 1)
+
+class addSet():
+    def __init__(self, data=[]):
+        self.data = set(data)
+
+    def __add__(self, other):
+        if isinstance(other, addSet):
+            return addSet(set.union(self.data, other.data))
+        elif isinstance(other, set):
+            return addSet(set.union(self.data, other))
+        else:
+            return addSet(set.union(self.data, set(other)))
+        return self
+
+    def __str__(self):
+        return str(self.data)
+
+    def __repr__(self):
+        return repr(self.data)
+    
+class CheckForTether(OutputProperty):
+    '''See here https://freud.readthedocs.io/en/stable/modules/order.html#freud.order.Steinhardt'''
+    def __init__(self):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+        self.fout = open('BadFiles.csv', 'w')
+        
+    def init(self):
+        return addSet()
+    
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        statedict = dict(state)
+        if 'Rso' not in statedict or (statedict['Rso'] == float('inf')):
+            return None
+        
+        XMLconfig = ConfigFile(configfilename)
+        tag = XMLconfig.tree.find('.//Global[@Type="SOCells"]')
+        
+        if tag is None:
+            print("\nMissing tethers! ", output_dir)
+            return addSet(set([output_dir]))
+        else:
+            return None
     
     
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
@@ -928,6 +981,8 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
 OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
+OutputFile.output_props["CheckForTether"] = CheckForTether()
+
 
 if __name__ == "__main__":
     pass
