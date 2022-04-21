@@ -19,15 +19,16 @@ statevars = [
     ],
 ]
 
-statevars = [
-    [
-        ("N", list(map(lambda x: x**2, [12]))),
-        ("d", [2]),
-        ('ndensity', [0.5]),
-        ("PhiT", [float('inf'), 1.0]),
-        ("InitState", ["real_hexagonal"]), #"SC", "hexagonal",
-    ],
-]
+# A single test state
+#statevars = [
+#    [
+#        ("N", list(map(lambda x: x**2, [12]))),
+#        ("d", [2]),
+#        ('ndensity', [0.5]),
+#        ("PhiT", [float('inf'), 1.0]),
+#        ("InitState", ["real_hexagonal"]), #"SC", "hexagonal",
+#    ],
+#]
 
 
 def setup_worker( config, #The name of the config file to generate.
