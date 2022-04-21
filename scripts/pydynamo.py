@@ -234,7 +234,9 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
             print("\n", file=logfile)
             print("################################", file=logfile)
             print("#      Equilibration Run       #", file=logfile)
-            print("################################\n", file=logfile, flush=True)
+            print("################################\n", file=logfile)
+
+            logfile.flush() #Need to do this as some print statements might not write before the check_call functions
             
             from subprocess import check_call
             #Only actually do the equilibration if the output data/config is missing
@@ -273,8 +275,10 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
                     print("output data file for run "+str(counter)+" "+datafile+" is corrupted, doing the run", file=logfile)
                     dotherun = True
 
+                logfile.flush() #Need to do this as some print statements might not write before the check_call functions
                 if dotherun:
                     check_call(["dynarun", inputfile, '-o', outputfile, '-c', str(N * particle_run_events_block_size), "--out-data-file", datafile]+outputplugins, stdout=logfile, stderr=logfile)
+                    logfile.flush() #Need to do this as some print statements might not write before the check_call functions
                     curr_particle_events += particle_run_events_block_size
                     counter += 1
                 else:
@@ -755,9 +759,14 @@ def PhiT_config(XMLconfig):
     density = XMLconfig.n()
     phiT = density * math.pi * (4.0/3.0) * (Rso**3)
     return conv_to_14sf(phiT)
+
 def PhiT_gen(state):
     density = state["ndensity"]
     phiT = state["PhiT"]
+    d = 3
+    if 'd' in state:
+        d = state['d']
+        
     if phiT == float('inf'):
         Rso = float('inf')
         if 'Rso' in state:
@@ -766,14 +775,19 @@ def PhiT_gen(state):
         else:
             state['Rso'] = float('inf')
     else:
-        Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
+        if d == 2:
+            Rso = (phiT / (density * math.pi)) ** (1/2.0)
+        else:
+            Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
         if 'Rso' in state:
             if state['Rso'] != conv_to_14sf(Rso):
                 raise RuntimeError("State contains conflicting Rso and PhiT")
         else:
             state['Rso'] = conv_to_14sf(Rso)
     return state
+
 ConfigFile.config_props["PhiT"] = {'recalculable':True, 'recalc':PhiT_config, 'gen_state':PhiT_gen}
+ConfigFile.config_props["d"] = {'recalculable':False, 'recalc': lambda config: 3}
 
 def kT_config(XMLconfig):
     tag = XMLconfig.tree.find('.//System[@Name="Thermostat"]')
