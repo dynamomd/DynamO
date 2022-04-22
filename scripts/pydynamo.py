@@ -615,10 +615,9 @@ class SimManager:
         for state in self.states:
             for idx in range(self.restarts):
                 workdir = self.getstatedir(state, idx)
-                run_events = 0
+                run_events = 0 # The first run is for zero run events, as this runs the equilibration.
                 parent_task = None
-                while run_events < particle_run_events:
-                    run_events += particle_run_events_block_size
+                while run_events <= particle_run_events: #Less than equal, as we need the final run to happen
                     new_task = Task((state, workdir, self.output_plugins, particle_equil_events, run_events, particle_run_events_block_size, setup_worker))
                     if parent_task is None:
                         running_tasks.append(new_task)
@@ -626,6 +625,7 @@ class SimManager:
                         parent_task.to_follow(new_task)
                     parent_task = new_task
                     task_count += 1
+                    run_events += particle_run_events_block_size
 
         print("Running", len(self.states) * self.restarts, "state points as ", task_count, "simulation tasks in parallel with", self.processes, "processes")
 
