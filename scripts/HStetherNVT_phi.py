@@ -111,9 +111,9 @@ statevars = [
 
 statevars = [
     [
-        ("N", [13500]),
-        ('ndensity', [1.1, 1.2, 1.3]),
-        ("Rso", [0.057, 0.066, 0.204, 0.348, 0.443, 1.74, 1.96]),
+        ("N", list(map(lambda x: 4*x**3, [10]))),
+        ('ndensity', [0.001]),
+        ("PhiT", list(set([float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]))),
         ("InitState", ["FCC"]),
     ]
 ]
@@ -123,7 +123,7 @@ statevars = [
 ################################################################
 mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
                           statevars=statevars, #State variables
-                          outputs=["p", "NeventsSO", "CheckForTether"], #"VACF", "RadialDist" # Output properties
+                          outputs=["p", "NeventsSO", "FCCOrder"], #"VACF", "RadialDist" # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None #None is automatically use all processors
 )

@@ -296,8 +296,25 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
             print("Events ",curr_particle_events, "/", particle_run_events, "\n", file=logfile, flush=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError('Failed while running worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
-        
-def perdir(args):
+
+
+def data_combiner(dataout, result, prop):
+    if prop not in dataout:
+        dataout[prop] = result
+        return
+    
+    if isinstance(result, dict):
+        for key in result:
+            if key in dataout[prop]:
+                dataout[prop][key] += result[key]
+            else:
+                dataout[prop][key] = result[key]
+    elif isinstance(result, set):
+        dataout[prop] = set.union(dataout[prop], result)
+    else:
+        dataout[prop] += result
+
+def data_collection_perdir(args):
     output_dir, particle_equil_events, manager = args
     output_dir = os.path.join(manager.workdir, output_dir)
     if not os.path.isdir(output_dir):
@@ -306,7 +323,6 @@ def perdir(args):
     configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
     if len(configs) == 0:
         return {}
-
     try:
         state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
     except Exception as e:
@@ -351,10 +367,11 @@ def perdir(args):
             for prop in manager.outputs:
                 outputplugin = OutputFile.output_props[prop]
                 result = outputplugin.result(state, outputfile, configfilename, counter, manager, output_dir)
-                if result != None:
-                    if prop not in dataout:
-                        dataout[prop] = outputplugin.init()
-                    dataout[prop] += result
+                
+                if result == None:
+                    continue
+                
+                data_combiner(dataout, result, prop)
         #except Exception as e:
         #    print("Processing", output_dir, " gave exception", e)
         #    #raise
@@ -691,18 +708,15 @@ class SimManager:
         state_data = {}
         with alive_progress.alive_bar(n) as progress:
             #This is a parallel loop, returning items as they finish in arbitrary order
-            for result in pool.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
+            for result in pool.imap_unordered(data_collection_perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
                 #Here we process the returned data from a single directory
                 for state, data in result.items():
+                    #Just copy the data if the state doesn't already exist
                     if state not in state_data:
                         state_data[state] = data
                     else:
-                        target = state_data[state]
-                        for key, value in data.items():
-                            if key not in target:
-                                target[key] = value
-                            else:
-                                target[key] += value
+                        for key, value in data.items():                            
+                            data_combiner(state_data[state], value, key)
                 progress()
         
         #We now prep the data for processing, we convert our
@@ -711,6 +725,10 @@ class SimManager:
             for prop in data:
                 if isinstance(data[prop], WeightedFloat):
                     data[prop] = data[prop].ufloat()
+                if isinstance(data[prop], dict):
+                    for key in data[prop]:
+                        if isinstance(data[prop][key], WeightedFloat):
+                            data[prop][key] = data[prop][key].ufloat()
 
         #Here we create the dataframe
         import pandas
@@ -804,9 +822,6 @@ class OutputProperty:
         self._dep_outputs = dependent_outputs
         self._dep_outputplugins = dependent_outputplugins
 
-    def init(self):
-        return None
-
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         return None
     
@@ -820,9 +835,6 @@ class SingleAttrib(OutputProperty):
         self._div_by_t = div_by_t
         self._missing_val = missing_val
         self._skip_missing=skip_missing
-
-    def init(self):
-        return WeightedFloat()
 
     def value(self, outputfile):
         tag = outputfile.tree.find('.//'+self._tag)
@@ -856,9 +868,9 @@ class SingleAttrib(OutputProperty):
             return 0
         
         if self._time_weighted:
-            return float(outputfile.tree.find('.//Duration').attrib['Time'])
+            return outputfile.t()
         else:
-            return float(outputfile.tree.find('.//Duration').attrib['Events'])
+            return outputfile.events()
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         return WeightedFloat(self.value(outputfile), self.weight(outputfile))
@@ -919,9 +931,6 @@ class OrderParameterProperty(OutputProperty):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
         self.L = L
 
-    def init(self):
-        return WeightedFloat()
-    
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         import freud
         configfile = ConfigFile(configfilename)
@@ -934,34 +943,11 @@ class OrderParameterProperty(OutputProperty):
         
         return WeightedFloat(np.mean(ql_value), 1)
 
-class addSet():
-    def __init__(self, data=[]):
-        self.data = set(data)
-
-    def __add__(self, other):
-        if isinstance(other, addSet):
-            return addSet(set.union(self.data, other.data))
-        elif isinstance(other, set):
-            return addSet(set.union(self.data, other))
-        else:
-            return addSet(set.union(self.data, set(other)))
-        return self
-
-    def __str__(self):
-        return str(self.data)
-
-    def __repr__(self):
-        return repr(self.data)
-    
 class CheckForTether(OutputProperty):
-    '''See here https://freud.readthedocs.io/en/stable/modules/order.html#freud.order.Steinhardt'''
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
         self.fout = open('BadFiles.csv', 'w')
         
-    def init(self):
-        return addSet()
-    
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         statedict = dict(state)
         if 'Rso' not in statedict or (statedict['Rso'] == float('inf')):
@@ -972,11 +958,21 @@ class CheckForTether(OutputProperty):
         
         if tag is None:
             print("\nMissing tethers! ", output_dir)
-            return addSet(set([output_dir]))
+            return set([output_dir])
         else:
             return None
-    
-    
+
+class EventCounters(OutputProperty):
+    def __init__(self):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        retval = dict()
+        tags = outputfile.tree.findall('.//EventCounters/Entry')
+        for tag in tags:
+            retval[tag.attrib['Event']+':'+tag.attrib['Name']] = WeightedFloat(float(tag.attrib['Count']) / outputfile.t(), outputfile.t())
+        return retval
+        
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
 OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
@@ -996,6 +992,7 @@ OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
 OutputFile.output_props["CheckForTether"] = CheckForTether()
+OutputFile.output_props["EventCounters"] = EventCounters()
 
 
 if __name__ == "__main__":
