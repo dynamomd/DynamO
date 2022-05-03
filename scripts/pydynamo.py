@@ -969,8 +969,13 @@ class EventCounters(OutputProperty):
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         retval = dict()
         tags = outputfile.tree.findall('.//EventCounters/Entry')
+        t = outputfile.t()
+        if t == 0:
+            #Prevent div-by-zero if no time is run
+            t = 1
+            #But only use this t for the division, not for the weight!
         for tag in tags:
-            retval[tag.attrib['Event']+':'+tag.attrib['Name']] = WeightedFloat(float(tag.attrib['Count']) / outputfile.t(), outputfile.t())
+            retval[tag.attrib['Event']+':'+tag.attrib['Name']] = WeightedFloat(float(tag.attrib['Count']) / t, outputfile.t())
         return retval
         
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
