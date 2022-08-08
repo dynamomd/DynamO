@@ -455,7 +455,8 @@ class SimManager:
         else:
             if self.states == None:
                 raise RuntimeError("Need to specify either statevars OR states!")
-            self.states = set([self.make_state(state) for state in self.states])
+            self.states = set([make_state(state)[1] for state in self.states])
+        
         #We need a list of the state variables used 
         self.used_statevariables = list(map(lambda x : x[0], next(iter(self.states))))
         
