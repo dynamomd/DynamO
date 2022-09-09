@@ -93,15 +93,27 @@ df['N'] = 4 * 10**3
 df = df[df['ndensity'] > 0]
 states= df.to_dict('records')
 
+
+statevars = [
+    [ #Sweep 
+        ("Lambda", [1.5]),
+        ("InitState", ["FCC"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 4*x**3, [10]))),
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.27, 0.01)))))),
+        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.7, 2.0, 0.1)))))),
+    ],
+]
+
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
 mgr = pydynamo.SimManager(workdir=prefix, #Which subdirectory to work in
-                          statevars=None, #State variables
+                          statevars=statevars, #State variables
                           outputs=["p", 'cv', 'u', 'EventCounters'], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
-                          states=states
+                          states=None
 )
 
 ################################################################
@@ -112,10 +124,10 @@ mgr = pydynamo.SimManager(workdir=prefix, #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 3000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 3000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
@@ -124,5 +136,3 @@ mgr = pydynamo.SimManager(workdir=prefix, #Which subdirectory to work in
 #AND any output values. It also generates pkl files, some for
 #different properties.
 data = mgr.fetch_data(1000)
-
-
