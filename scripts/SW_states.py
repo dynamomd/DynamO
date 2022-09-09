@@ -98,7 +98,7 @@ states= df.to_dict('records')
 ################################################################
 mgr = pydynamo.SimManager(workdir=prefix, #Which subdirectory to work in
                           statevars=None, #State variables
-                          outputs=["p", 'cv', 'u'], # Output properties
+                          outputs=["p", 'cv', 'u', 'EventCounters'], # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
                           states=states
@@ -112,10 +112,10 @@ mgr = pydynamo.SimManager(workdir=prefix, #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 3000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 3000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

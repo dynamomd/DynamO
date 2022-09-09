@@ -110,12 +110,19 @@ statevars = [
 #]
 
 statevars = [
+## The last run I did 
+#    [
+#        ("N", list(map(lambda x: 4*x**3, [10]))),
+#        ('ndensity', [0.001]),
+#        ("PhiT", list(set([float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]))),
+#        ("InitState", ["FCC"]),
+#    ]
     [
         ("N", list(map(lambda x: 4*x**3, [10]))),
-        ('ndensity', [0.001]),
-        ("PhiT", list(set([float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]))),
-        ("InitState", ["FCC"]),
-    ]
+        ('ndensity', list(map(lambda x : datastat.roundSF(x, 5), list(numpy.arange(1.0, 1.3, 0.01))))),
+        ("PhiT", [0.2, 0.3]),
+        ("InitState", ["FCC"]),        
+    ],
 ]
 
 ################################################################
@@ -136,10 +143,10 @@ mgr = pydynamo.SimManager("HSTetherNVTPhiTWD", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

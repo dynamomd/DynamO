@@ -10,11 +10,20 @@ import math
 #This is the list of state variables and their ranges
 
 statevars = [
+    #The main sweep
     [
         ("N", list(map(lambda x: x**2, [12, 50, 100]))),
         ("d", [2]),
         ('ndensity', list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.14, 0.01))))),
         ("PhiT", [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), set(list(numpy.arange(0.02, 2.0, 0.02)) + list(numpy.arange(2.0, 10, 0.1)))))),
+        ("InitState", ["real_hexagonal"]), #"SC", "hexagonal",
+    ],
+    #Extra tether points for rho 1.0 and 1.1
+    [
+        ("N", list(map(lambda x: x**2, [12, 50, 100]))),
+        ("d", [2]),
+        ('ndensity', [1.0, 1.1]),
+        ("PhiT", list(map(lambda x : datastat.roundSF(x, 3), numpy.arange(0.001, 0.1, 0.001)))),
         ("InitState", ["real_hexagonal"]), #"SC", "hexagonal",
     ],
 ]
@@ -134,22 +143,23 @@ mgr = pydynamo.SimManager("HDTetherPhi", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
 ################################################################
+#This line also saves the dataset
 data = mgr.fetch_data(1000) #This is a pandas dataframe with columns for
                         #the state variables AND any output values
 
 # You can just write it out as a spreadsheet
 #data.to_csv("output.csv")
 # Or pickle it for later processing
-import pickle
-pickle.dump(data, open("tether.pkl", 'wb'))
+#import pickle
+#pickle.dump(data, open("tether.pkl", 'wb'))
 
 #import matplotlib.pyplot as plt
 #
