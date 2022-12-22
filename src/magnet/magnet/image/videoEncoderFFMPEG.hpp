@@ -62,8 +62,10 @@ namespace magnet {
 	if (!_videoWidth || !_videoHeight) 
 	  M_throw() << "Can only encode images with a size of at least 2x2 pixels";
 
+	initialiseLibrary();
+
 	_h264 = true;
-	AVCodec* _codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+	const AVCodec* _codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!_codec) 
 	  {
 	    _h264 = false;
@@ -213,6 +215,16 @@ namespace magnet {
       size_t _frameCounter;
       size_t _fps;
       bool _h264;
+
+      struct LibavcodecInitialiser
+      { LibavcodecInitialiser() { } };
+    
+      static LibavcodecInitialiser& initialiseLibrary()
+      {
+	static LibavcodecInitialiser _avinit;
+	return _avinit;
+      }
+
     };
   }
 }

@@ -22,11 +22,11 @@ namespace coil {
   class RTriangleMesh : public RTriangles
   {
   public:
-    RTriangleMesh(magnet::GL::Context::ContextPtr context, std::string name, 
+    RTriangleMesh(std::string name, 
 		  const std::vector<GLfloat>& vertices,
 		  const std::vector<GLuint>& elements,
 		  const std::vector<GLubyte>& colours = std::vector<GLubyte>()):
-      RTriangles(context, name),
+      RTriangles(name),
       _vertices(vertices),
       _elements(elements),
       _colours(colours)

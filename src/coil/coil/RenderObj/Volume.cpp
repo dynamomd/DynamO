@@ -67,7 +67,7 @@ namespace coil {
 
     //Resize the copy FBO
     //Build depth buffer
-    std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D(_context));
+    std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
     depthTexture->init(800, 600, GL_DEPTH_COMPONENT);
     depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -275,7 +275,7 @@ namespace coil {
       {
 	_currentDepthFBO.deinit();
 	std::shared_ptr<magnet::GL::Texture2D> 
-	  depthTexture(new magnet::GL::Texture2D(_context));
+	  depthTexture(new magnet::GL::Texture2D);
 	depthTexture->init(fbo.getWidth(), fbo.getHeight(), GL_DEPTH_COMPONENT);
 	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -507,15 +507,10 @@ namespace coil {
     volnode.add_attribute("stepsize", _stepSizeVal);
   }
 
-  RVolume::RVolume(magnet::GL::Context::ContextPtr context, stator::xml::Node xml):
-    RenderObj(context, xml.getAttribute("name")), 
-    _currentDepthFBO(context),
-    _data(context),
-    _transferFuncTexture(context),
-    _preintTransferFuncTexture(context),    
-    _frameCounter(0)
+  RVolume::RVolume(stator::xml::Node xml):
+    RenderObj(xml.getAttribute("name")), _frameCounter(0)
   {
-    //auto data_size_node = xml.getNode("DataSize");
+    auto data_size_node = xml.getNode("DataSize");
     _stepSizeVal = xml.getAttribute("stepsize").as<double>();
     auto dimensions_node = xml.getNode("Dimensions");
     _dimensions[0] = dimensions_node.getAttribute("x").as<double>();

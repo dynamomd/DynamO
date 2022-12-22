@@ -32,7 +32,7 @@ namespace coil {
   class DataSetChild: public RenderObj
   {
   public:
-    inline DataSetChild(magnet::GL::Context::ContextPtr context, std::string name, DataSet& ds): RenderObj(context, name), _ds(ds) {}
+    inline DataSetChild(std::string name, DataSet& ds): RenderObj(name), _ds(ds) {}
     
     virtual bool deletable() { return true; }
 
@@ -65,8 +65,8 @@ namespace coil {
     std::map<std::string, LinkSet> _linkSets;
     
   public:
-    DataSet(magnet::GL::Context::ContextPtr context, std::string name, size_t N):
-      RenderObj(context, name), 
+    DataSet(std::string name, size_t N):
+      RenderObj(name), 
       _N(N)
     {}
     
@@ -228,6 +228,7 @@ namespace coil {
      */
     Gtk::TreeModel::iterator _iter;
     RenderObjectsGtkTreeView* _view;
+    magnet::GL::Context::ContextPtr _context;
     std::unique_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
     std::vector<std::shared_ptr<DataSetChild> > _children;

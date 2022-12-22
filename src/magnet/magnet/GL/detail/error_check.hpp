@@ -22,7 +22,23 @@
 namespace magnet {
   namespace GL {
     namespace detail {
-		
+      inline void errorCheck()
+      {
+#ifdef MAGNET_DEBUG
+	GLenum errcode = glGetError();
+	switch (errcode)
+	  {
+	  case GL_NO_ERROR: return;
+	  case GL_INVALID_ENUM: M_throw() << "glGetError() returned GL_INVALID_ENUM";
+	  case GL_INVALID_VALUE: M_throw() << "glGetError() returned GL_INVALID_VALUE";
+	  case GL_INVALID_OPERATION: M_throw() << "glGetError() returned GL_INVALID_OPERATION";
+	  case GL_OUT_OF_MEMORY: M_throw() << "glGetError() returned GL_OUT_OF_MEMORY";
+	  case GL_INVALID_FRAMEBUFFER_OPERATION: M_throw() << "glGetError() returned GL_INVALID_FRAMEBUFFER_OPERATION";
+	  default: M_throw() << "glGetError() returned " << errcode;
+	  }
+#endif       
+      }
+      
     }
   }
 }

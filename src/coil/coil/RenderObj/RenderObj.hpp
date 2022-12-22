@@ -44,8 +44,6 @@ namespace coil {
   class RenderObj
   {
   public:
-    magnet::GL::Context::ContextPtr _context;
-
     enum RenderMode {
       DEFAULT = 1 << 0, //!< The object is to render the standard data
       SHADOW = 1 << 1, //!< This is a shadow pass (for lighting calculations).
@@ -57,7 +55,7 @@ namespace coil {
     /*! \brief Default constructor which just sets the name of the
       object.
     */
-    RenderObj(magnet::GL::Context::ContextPtr context, std::string name): _context(context), _name(name), _visible(true), _shadowCasting(true), _initialised(false) {}
+    RenderObj(std::string name): _name(name), _visible(true), _shadowCasting(true), _initialised(false) {}
   
     /* \brief Initialises the object and any OpenCL, OpenGL or GTK
        resources it contains.

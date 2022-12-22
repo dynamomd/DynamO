@@ -84,21 +84,21 @@ prefix="SWTether2"
 
 statevars = [
     [ #Sweep 
-        ("Lambda", [2]),#1.1, 1.5,
+        ("Lambda", [2]),
         ("InitState", ["FCC"]),
         ("PhiT", [float('inf')]),
-        ("N", list(map(lambda x: 4*x**3, [10]))), #5, 10, 15
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.4, 0.01)))))),
-        ("kT", [3.5, 4, 5, 10])#list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.1, 1.0, 0.1)))))),
+        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
+        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 3.1, 0.1)))))),
     ],
-#    [ #Isochore
-#        ("Lambda", [2]),
-#        ("InitState", ["FCC"]),
-#        ("PhiT", [float('inf')]),
-#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', [1.3]),
-#        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
-#    ],
+    [ #Isochore
+        ("Lambda", [2]),
+        ("InitState", ["FCC"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+        ('ndensity', [1.3]),
+        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
+    ],
 ]
         
 ################################################################
@@ -119,10 +119,10 @@ mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 3000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
@@ -130,6 +130,6 @@ mgr.run(setup_worker=setup_worker,
 #This creates a pandas dataframe with columns for the state variables
 #AND any output values. It also generates pkl files, some for
 #different properties.
-data = mgr.fetch_data(1000)
+#data = mgr.fetch_data(1000)
 
 

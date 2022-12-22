@@ -26,7 +26,7 @@ namespace coil {
   class RTriangles : public RenderObj
   {
   public:
-    RTriangles(magnet::GL::Context::ContextPtr context, std::string name);
+    RTriangles(std::string name);
     ~RTriangles();
 
     virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);

@@ -21,7 +21,11 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      /*! \brief Shader that creates a depth buffer from the GBuffers. */
+      /*! \brief Deffered lighting calculation shader.
+
+	This class performs the lighting calculations for the current
+	scene.
+       */
       class DepthResolverShader: public detail::SSShader
       {
       public:
@@ -35,12 +39,12 @@ uniform mat4 ProjectionMatrix;
 
 void main()
 {
-  //Calculate the depth buffer value from the GBuffer position (resolving for various texels)
+  //Now calculate the color from the samples
   float out_depth = 1.0;
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {
       //Fetch the eye-space position
-      vec3 eye_pos = texelFetch(posTex, ivec2(gl_FragCoord.xy), sample_id).xyz;
+      vec3 eye_pos = texelFetch(posTex, ivec2(gl_FragCoord.xy), 0/*sample_id*/).xyz;
       vec4 clip_pos = ProjectionMatrix * vec4(eye_pos, 1.0);
       vec3 device_pos = clip_pos.xyz / clip_pos.w;
       

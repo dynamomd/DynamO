@@ -46,26 +46,9 @@ void main()
 #undef STRINGIFY
   };
 
-
-    magnet::GL::shader::VolumeShader _shader;
-    magnet::GL::Buffer<GLfloat> _cubeVertices;
-    magnet::GL::FBO _currentDepthFBO;
-    DepthCopyShader _depthCopyShader;
-    
-    magnet::GL::Texture3D _data;
-    magnet::GL::Texture1D _transferFuncTexture;
-    magnet::GL::Texture1D _preintTransferFuncTexture;
-
   public:
-    RVolume(magnet::GL::Context::ContextPtr context, std::string name):
-    RenderObj(context, name), 
-    _currentDepthFBO(context),
-    _data(context),
-    _transferFuncTexture(context),
-    _preintTransferFuncTexture(context),
-    _stepSizeVal(0.01), _dimensions({1,1,1}), _frameCounter(0) {}
-
-    RVolume(magnet::GL::Context::ContextPtr context, stator::xml::Node);
+    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions({1,1,1}), _frameCounter(0) {}
+    RVolume(stator::xml::Node);
   
     virtual bool deletable() { return true; }
     
@@ -102,6 +85,15 @@ void main()
     void guiUpdate();
 
     void transferFunctionUpdated();
+
+    magnet::GL::shader::VolumeShader _shader;
+    magnet::GL::Buffer<GLfloat> _cubeVertices;
+    magnet::GL::FBO _currentDepthFBO;
+    DepthCopyShader _depthCopyShader;
+    
+    magnet::GL::Texture3D _data;
+    magnet::GL::Texture1D _transferFuncTexture;
+    magnet::GL::Texture1D _preintTransferFuncTexture;
 
     //GTK gui stuff
     std::unique_ptr<Gtk::VBox> _optList;

@@ -28,10 +28,7 @@ namespace magnet {
       {
       protected:
 	/*! \brief Constructor which requires the texture type. */
-	Context::ContextPtr _context;
-
-	inline TextureBasic(GLenum texType, Context::ContextPtr context):
-	  _context(context),
+	inline TextureBasic(GLenum texType):
 	  _valid(false),
 	  _texType(texType)
 	{}
@@ -43,7 +40,7 @@ namespace magnet {
 	{
 	  if (_valid) M_throw() << "Already init()ed!";
 	  glGenTextures(1, &_handle);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	  _valid = true;
 	}
 
@@ -55,7 +52,7 @@ namespace magnet {
 	  if (_valid)
 	    {
 	      glDeleteTextures(1, &_handle);
-	      _context->errorCheck();
+	      detail::errorCheck();
 	      _valid = false;
 	    }
 	}
@@ -72,9 +69,9 @@ namespace magnet {
 	inline void bind(int unit) const
 	{
 	  glActiveTextureARB(GL_TEXTURE0 + unit);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	  glBindTexture(_texType, _handle);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	}
 
 	inline void genMipmaps()
@@ -100,7 +97,7 @@ namespace magnet {
 	{ 
 	  bind(0); 
 	  glTexParameteri(_texType, paramname, param);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	}
 
 	/*! \brief Sets a float parameter of the texture.
@@ -112,7 +109,7 @@ namespace magnet {
 	{ 
 	  bind(0); 
 	  glTexParameterf(_texType, paramname, param);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	}
 
 	/*! \brief Tests if the texture has been allocated. */
@@ -155,7 +152,7 @@ namespace magnet {
 	    }
 
 	  glGetTexImage(_texType, lvl, type, GL_FLOAT, &data[0]);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	}
 	
 	/*! \brief Copy the contents of the texture to a floating point array.
@@ -181,7 +178,7 @@ namespace magnet {
 	    }
 
 	  glGetTexImage(_texType, lvl, type, GL_UNSIGNED_BYTE, &data[0]);
-	  _context->errorCheck();
+	  detail::errorCheck();
 	}
 
 	virtual GLint getPixelCount(GLint level = 0) const = 0;
@@ -311,7 +308,7 @@ namespace magnet {
     class Texture1D: public detail::TextureBasic
     {
     public:
-      Texture1D(Context::ContextPtr context): TextureBasic(GL_TEXTURE_1D, context) {}
+      Texture1D(): TextureBasic(GL_TEXTURE_1D) {}
       
       GLint getPixelCount(GLint lvl = 0) const
       {
@@ -338,7 +335,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -361,7 +358,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage1D(_texType, level, xoffset, width,
 			pixelformat, GL_UNSIGNED_INT, &data[0]);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -384,7 +381,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage1D(_texType, level, xoffset, width,
 			pixelformat, GL_FLOAT, &data[0]);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
@@ -399,7 +396,7 @@ namespace magnet {
     class Texture2D: public detail::TextureBasic
     {
     public:
-      Texture2D(Context::ContextPtr context): TextureBasic(GL_TEXTURE_2D, context) {}
+      Texture2D(): TextureBasic(GL_TEXTURE_2D) {}
       
       GLint getPixelCount(GLint lvl = 0) const
       {
@@ -431,7 +428,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
-	_context->errorCheck();
+	detail::errorCheck();
       }
       
       /*! \brief Fills a section of the texture with the passed data
@@ -460,7 +457,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, safeType(), &data[0]);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -489,7 +486,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, GL_FLOAT, &data[0]);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
 
@@ -506,14 +503,14 @@ namespace magnet {
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, safeType(), data);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
       inline const GLint getHeight(GLint lvl = 0) const { return _height / (1 << lvl); }
     private:
       friend class Texture2DMultisampled;
-      Texture2D(GLenum type, Context::ContextPtr context): TextureBasic(type, context) {}
+      Texture2D(GLenum type): TextureBasic(type) {}
       GLint _width;
       GLint _height;
     };
@@ -524,8 +521,8 @@ namespace magnet {
     class Texture2DMultisampled: public Texture2D
     {
     public:
-      Texture2DMultisampled(Context::ContextPtr context, GLint samples = 1, bool fixedSampleLocations = false):
-	Texture2D(GL_TEXTURE_2D_MULTISAMPLE, context), 
+      Texture2DMultisampled(GLint samples = 1, bool fixedSampleLocations = false):
+	Texture2D(GL_TEXTURE_2D_MULTISAMPLE), 
 	_fixedSampleLocations(fixedSampleLocations),
 	_samples(samples)
       {}
@@ -553,7 +550,7 @@ namespace magnet {
 	
 	glTexImage2DMultisample(_texType, _samples, _internalFormat, 
 				_width, _height, _fixedSampleLocations);
-	_context->errorCheck();
+	detail::errorCheck();
       }
       
       inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
@@ -582,7 +579,7 @@ namespace magnet {
     class Texture3D: public detail::TextureBasic
     {
     public:
-      Texture3D(Context::ContextPtr context): TextureBasic(GL_TEXTURE_3D, context) {}
+      Texture3D(): TextureBasic(GL_TEXTURE_3D) {}
 
       GLint getPixelCount(GLint lvl = 0) const
       {
@@ -615,7 +612,7 @@ namespace magnet {
 		     0,//Border is off
 		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -652,7 +649,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage3D(_texType, level, xoffset, yoffset, zoffset, width, height, depth,
 			pixelformat, safeType(), &data[0]);
-	_context->errorCheck();
+	detail::errorCheck();
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }

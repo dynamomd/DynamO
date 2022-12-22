@@ -234,9 +234,7 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
             print("\n", file=logfile)
             print("################################", file=logfile)
             print("#      Equilibration Run       #", file=logfile)
-            print("################################\n", file=logfile)
-
-            logfile.flush() #Need to do this as some print statements might not write before the check_call functions
+            print("################################\n", file=logfile, flush=True)
             
             from subprocess import check_call
             #Only actually do the equilibration if the output data/config is missing
@@ -275,10 +273,8 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
                     print("output data file for run "+str(counter)+" "+datafile+" is corrupted, doing the run", file=logfile)
                     dotherun = True
 
-                logfile.flush() #Need to do this as some print statements might not write before the check_call functions
                 if dotherun:
                     check_call(["dynarun", inputfile, '-o', outputfile, '-c', str(N * particle_run_events_block_size), "--out-data-file", datafile]+outputplugins, stdout=logfile, stderr=logfile)
-                    logfile.flush() #Need to do this as some print statements might not write before the check_call functions
                     curr_particle_events += particle_run_events_block_size
                     counter += 1
                 else:
@@ -296,25 +292,8 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
             print("Events ",curr_particle_events, "/", particle_run_events, "\n", file=logfile, flush=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError('Failed while running worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
-
-
-def data_combiner(dataout, result, prop):
-    if prop not in dataout:
-        dataout[prop] = result
-        return
-    
-    if isinstance(result, dict):
-        for key in result:
-            if key in dataout[prop]:
-                dataout[prop][key] += result[key]
-            else:
-                dataout[prop][key] = result[key]
-    elif isinstance(result, set):
-        dataout[prop] = set.union(dataout[prop], result)
-    else:
-        dataout[prop] += result
-
-def data_collection_perdir(args):
+        
+def perdir(args):
     output_dir, particle_equil_events, manager = args
     output_dir = os.path.join(manager.workdir, output_dir)
     if not os.path.isdir(output_dir):
@@ -323,11 +302,8 @@ def data_collection_perdir(args):
     configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
     if len(configs) == 0:
         return {}
-    try:
-        state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
-    except Exception as e:
-        print("Failed processing dir, error",e)
-        return {}
+    
+    state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
     statedict, state = make_state(state)
 
     #Filter to only the set states (if enabled)
@@ -367,11 +343,10 @@ def data_collection_perdir(args):
             for prop in manager.outputs:
                 outputplugin = OutputFile.output_props[prop]
                 result = outputplugin.result(state, outputfile, configfilename, counter, manager, output_dir)
-                
-                if result == None:
-                    continue
-                
-                data_combiner(dataout, result, prop)
+                if result != None:
+                    if prop not in dataout:
+                        dataout[prop] = outputplugin.init()
+                    dataout[prop] += result
         #except Exception as e:
         #    print("Processing", output_dir, " gave exception", e)
         #    #raise
@@ -393,13 +368,7 @@ def reorg_dir_worker(args):
         configs = glob.glob(os.path.join(oldpath, "*.config.xml.bz2"))
         if len(configs) == 0:
             return []
-
-        try:
-            oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
-        except Exception as e:
-            print("Failed processing dir, error",e)
-            return []
-        
+        oldstate = pickle.load(open(os.path.join(oldpath, "state.pkl"), 'rb'))
         oldstatedict, oldstate = make_state(oldstate)
 
         XMLconfig = ConfigFile(configs[0])
@@ -424,7 +393,7 @@ def reorg_dir_worker(args):
     return []
 
 class SimManager:
-    def __init__(self, workdir, statevars=None, outputs=[], restarts=1, processes=None, states=None):
+    def __init__(self, workdir, statevars, outputs, restarts=1, processes=None):
         if not shutil.which("dynamod"):
             raise RuntimeError("Could not find dynamod executable.")
 
@@ -435,28 +404,17 @@ class SimManager:
         self.outputs = set(outputs)
         self.workdir = workdir
         self.output_plugins = set()
-        self.statevars = statevars
-        self.states = states
 
-        #We can specify statevars OR states, but need to calculate the states in the end
-        if self.statevars != None:
-            if states != None:
-                raise RuntimeError("Cannot specify statevars and states!")
-            
-            if len(statevars) == 0:
-                raise RuntimeError("We need some state variables to work on")
-            
-            #Make sure the state vars are in ascending order for easy output to screen
-            self.statevars = [[(key, sorted(value)) for key, value in sweep] for sweep in statevars]
-	    
-	    #Now create all states for iteration. We need to do this now,
-	    #as we need to get the generated state variables too.
-            self.states = self.iterate_state(self.statevars)
-        else:
-            if self.states == None:
-                raise RuntimeError("Need to specify either statevars OR states!")
-            self.states = set([make_state(state)[1] for state in self.states])
+        if len(statevars) == 0:
+            raise RuntimeError("We need some state variables to work on")
         
+        #Make sure the state vars are in ascending order for easy output to screen
+        self.statevars = [[(key, sorted(value)) for key, value in sweep] for sweep in statevars]
+       
+        #Now create all states for iteration. We need to do this now,
+        #as we need to get the generated state variables too.
+        self.states = self.iterate_state(self.statevars)
+
         #We need a list of the state variables used 
         self.used_statevariables = list(map(lambda x : x[0], next(iter(self.states))))
         
@@ -589,12 +547,11 @@ class SimManager:
             
                         
     def run(self, setup_worker, particle_equil_events, particle_run_events, particle_run_events_block_size):            
-        print("Generating simulation tasks")
-        if self.statevars != None:
-            for idx, sweep in enumerate(self.statevars):
-                print(" Sweep", idx)
-                for statevar, statevals in sweep:
-                    print("  ",statevar, "∈", list(map(print_to_14sf, statevals)))
+        print("Generating simulation tasks for the following sweeps")
+        for idx, sweep in enumerate(self.statevars):
+            print(" Sweep", idx)
+            for statevar, statevals in sweep:
+                print("  ",statevar, "∈", list(map(print_to_14sf, statevals)))
 
         tot_states = len(self.states)
 
@@ -633,9 +590,10 @@ class SimManager:
         for state in self.states:
             for idx in range(self.restarts):
                 workdir = self.getstatedir(state, idx)
-                run_events = 0 # The first run is for zero run events, as this runs the equilibration.
+                run_events = 0
                 parent_task = None
-                while run_events <= particle_run_events: #Less than equal, as we need the final run to happen
+                while run_events < particle_run_events:
+                    run_events += particle_run_events_block_size
                     new_task = Task((state, workdir, self.output_plugins, particle_equil_events, run_events, particle_run_events_block_size, setup_worker))
                     if parent_task is None:
                         running_tasks.append(new_task)
@@ -643,7 +601,6 @@ class SimManager:
                         parent_task.to_follow(new_task)
                     parent_task = new_task
                     task_count += 1
-                    run_events += particle_run_events_block_size
 
         print("Running", len(self.states) * self.restarts, "state points as ", task_count, "simulation tasks in parallel with", self.processes, "processes")
 
@@ -709,15 +666,18 @@ class SimManager:
         state_data = {}
         with alive_progress.alive_bar(n) as progress:
             #This is a parallel loop, returning items as they finish in arbitrary order
-            for result in pool.imap_unordered(data_collection_perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
+            for result in pool.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
                 #Here we process the returned data from a single directory
                 for state, data in result.items():
-                    #Just copy the data if the state doesn't already exist
                     if state not in state_data:
                         state_data[state] = data
                     else:
-                        for key, value in data.items():                            
-                            data_combiner(state_data[state], value, key)
+                        target = state_data[state]
+                        for key, value in data.items():
+                            if key not in target:
+                                target[key] = value
+                            else:
+                                target[key] += value
                 progress()
         
         #We now prep the data for processing, we convert our
@@ -726,10 +686,6 @@ class SimManager:
             for prop in data:
                 if isinstance(data[prop], WeightedFloat):
                     data[prop] = data[prop].ufloat()
-                if isinstance(data[prop], dict):
-                    for key in data[prop]:
-                        if isinstance(data[prop][key], WeightedFloat):
-                            data[prop][key] = data[prop][key].ufloat()
 
         #Here we create the dataframe
         import pandas
@@ -778,14 +734,9 @@ def PhiT_config(XMLconfig):
     density = XMLconfig.n()
     phiT = density * math.pi * (4.0/3.0) * (Rso**3)
     return conv_to_14sf(phiT)
-
 def PhiT_gen(state):
     density = state["ndensity"]
     phiT = state["PhiT"]
-    d = 3
-    if 'd' in state:
-        d = state['d']
-        
     if phiT == float('inf'):
         Rso = float('inf')
         if 'Rso' in state:
@@ -794,19 +745,14 @@ def PhiT_gen(state):
         else:
             state['Rso'] = float('inf')
     else:
-        if d == 2:
-            Rso = (phiT / (density * math.pi)) ** (1/2.0)
-        else:
-            Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
+        Rso = (phiT / (density * math.pi *(4.0/3.0))) ** (1/3.0)
         if 'Rso' in state:
             if state['Rso'] != conv_to_14sf(Rso):
                 raise RuntimeError("State contains conflicting Rso and PhiT")
         else:
             state['Rso'] = conv_to_14sf(Rso)
     return state
-
 ConfigFile.config_props["PhiT"] = {'recalculable':True, 'recalc':PhiT_config, 'gen_state':PhiT_gen}
-ConfigFile.config_props["d"] = {'recalculable':False, 'recalc': lambda config: 3}
 
 def kT_config(XMLconfig):
     tag = XMLconfig.tree.find('.//System[@Name="Thermostat"]')
@@ -823,6 +769,9 @@ class OutputProperty:
         self._dep_outputs = dependent_outputs
         self._dep_outputplugins = dependent_outputplugins
 
+    def init(self):
+        return None
+
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         return None
     
@@ -836,6 +785,9 @@ class SingleAttrib(OutputProperty):
         self._div_by_t = div_by_t
         self._missing_val = missing_val
         self._skip_missing=skip_missing
+
+    def init(self):
+        return WeightedFloat()
 
     def value(self, outputfile):
         tag = outputfile.tree.find('.//'+self._tag)
@@ -869,9 +821,9 @@ class SingleAttrib(OutputProperty):
             return 0
         
         if self._time_weighted:
-            return outputfile.t()
+            return float(outputfile.tree.find('.//Duration').attrib['Time'])
         else:
-            return outputfile.events()
+            return float(outputfile.tree.find('.//Duration').attrib['Events'])
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         return WeightedFloat(self.value(outputfile), self.weight(outputfile))
@@ -932,6 +884,9 @@ class OrderParameterProperty(OutputProperty):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
         self.L = L
 
+    def init(self):
+        return WeightedFloat()
+    
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         import freud
         configfile = ConfigFile(configfilename)
@@ -943,42 +898,8 @@ class OrderParameterProperty(OutputProperty):
         ql_value = ql.particle_order
         
         return WeightedFloat(np.mean(ql_value), 1)
-
-class CheckForTether(OutputProperty):
-    def __init__(self):
-        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
-        self.fout = open('BadFiles.csv', 'w')
-        
-    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        statedict = dict(state)
-        if 'Rso' not in statedict or (statedict['Rso'] == float('inf')):
-            return None
-        
-        XMLconfig = ConfigFile(configfilename)
-        tag = XMLconfig.tree.find('.//Global[@Type="SOCells"]')
-        
-        if tag is None:
-            print("\nMissing tethers! ", output_dir)
-            return set([output_dir])
-        else:
-            return None
-
-class EventCounters(OutputProperty):
-    def __init__(self):
-        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
-
-    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        retval = dict()
-        tags = outputfile.tree.findall('.//EventCounters/Entry')
-        t = outputfile.t()
-        if t == 0:
-            #Prevent div-by-zero if no time is run
-            t = 1
-            #But only use this t for the division, not for the weight!
-        for tag in tags:
-            retval[tag.attrib['Event']+':'+tag.attrib['Name']] = WeightedFloat(float(tag.attrib['Count']) / t, outputfile.t())
-        return retval
-        
+    
+    
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
 OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
@@ -997,9 +918,6 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
 OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
-OutputFile.output_props["CheckForTether"] = CheckForTether()
-OutputFile.output_props["EventCounters"] = EventCounters()
-
 
 if __name__ == "__main__":
     pass

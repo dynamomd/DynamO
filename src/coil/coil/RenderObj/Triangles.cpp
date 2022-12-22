@@ -19,8 +19,8 @@
 #include <set>
 
 namespace coil {
-  RTriangles::RTriangles(magnet::GL::Context::ContextPtr context, std::string name):
-    RenderObj(context, name),
+  RTriangles::RTriangles(std::string name):
+    RenderObj(name),
     _RenderMode(TRIANGLES),
     _triangleComponents(3)
   {}

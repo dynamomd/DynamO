@@ -25,8 +25,8 @@
 
 namespace coil {  
 
-  Glyphs::Glyphs(magnet::GL::Context::ContextPtr context, std::string pointsName, DataSet& ds):
-    DataSetChild(context, pointsName, ds), _N(0), _scale(1), _pointsName(pointsName)
+  Glyphs::Glyphs(std::string pointsName, DataSet& ds):
+    DataSetChild(pointsName, ds), _N(0), _scale(1), _pointsName(pointsName)
   {
     _initGlyphType = _ds.getPointSets()[_pointsName].glyphType;
   }
