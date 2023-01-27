@@ -80,7 +80,7 @@ namespace dynamo {
 	XML << magnet::xml::endtag("Map");
       }
     
-    for (const auto entry : _W)
+    for (const auto& entry : _W)
       {
 	XML << magnet::xml::tag("Map")
 	    << magnet::xml::attr("W") << entry.second._wval

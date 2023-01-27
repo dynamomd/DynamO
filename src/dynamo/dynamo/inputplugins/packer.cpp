@@ -1687,9 +1687,9 @@ namespace dynamo {
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 
-	  double simVol = 1.0;
-	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	    simVol *= Sim->primaryCellSize[iDim];
+	  //double simVol = 1.0;
+	  //for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  //  simVol *= Sim->primaryCellSize[iDim];
 
 	  double particleDiam = 1.0 / boxL;
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, ParticleInelas, new IDPairRangeAll(), "Bulk")));

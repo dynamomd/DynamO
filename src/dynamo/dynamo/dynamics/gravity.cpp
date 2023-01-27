@@ -168,43 +168,44 @@ namespace dynamo {
   double
   DynGravity::SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
-    double accel1sum = 0;
-    double mass1 = 0;
-    for (const size_t ID : p1)
-      {
-	const Particle& part = Sim->particles[ID];       
-	double mass = Sim->species[part]->getMass(ID);
-
-	if (part.testState(Particle::DYNAMIC))
-	  accel1sum += mass;
-
-	mass1 += mass;
-      }
-    accel1sum /= mass1;
-    
-    double accel2sum = 0;
-    double mass2 = 0;
-    for (const size_t ID : p2)
-      {
-	const Particle& part = Sim->particles[ID];       
-	double mass = Sim->species[part]->getMass(ID);
-
-	if (part.testState(Particle::DYNAMIC))
-	  accel2sum += mass;
-
-	mass2 += mass;
-      }
-    accel2sum /= mass2;
-
-    std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
-    std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
-    Vector r12 = r1data.first - r2data.first;
-    Vector v12 = r1data.second - r2data.second;
-    Sim->BCs->applyBC(r12, v12);
-
     M_throw() << "Not implemented yet";
-    //Vector a12 = g * (accel1sum - accel2sum);
-    //return magnet::intersection::parabola_inv_sphere(r12, v12, a12, d);
+//
+//    double accel1sum = 0;
+//    double mass1 = 0;
+//    for (const size_t ID : p1)
+//      {
+//	const Particle& part = Sim->particles[ID];       
+//	double mass = Sim->species[part]->getMass(ID);
+//
+//	if (part.testState(Particle::DYNAMIC))
+//	  accel1sum += mass;
+//
+//	mass1 += mass;
+//      }
+//    accel1sum /= mass1;
+//    
+//    double accel2sum = 0;
+//    double mass2 = 0;
+//    for (const size_t ID : p2)
+//      {
+//	const Particle& part = Sim->particles[ID];       
+//	double mass = Sim->species[part]->getMass(ID);
+//
+//	if (part.testState(Particle::DYNAMIC))
+//	  accel2sum += mass;
+//
+//	mass2 += mass;
+//      }
+//    accel2sum /= mass2;
+//
+//    std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
+//    std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
+//    Vector r12 = r1data.first - r2data.first;
+//    Vector v12 = r1data.second - r2data.second;
+//    Sim->BCs->applyBC(r12, v12);
+//
+//    Vector a12 = g * (accel1sum - accel2sum);
+//    return magnet::intersection::parabola_inv_sphere(r12, v12, a12, d);
   }
 
 

@@ -75,8 +75,7 @@ namespace dynamo {
 
     std::unordered_map<int, double> retval;
 
-    typedef std::pair<const int, double> lv1pair;
-    for (const lv1pair &p1 : intEnergyHist)
+    for (const auto& p1 : intEnergyHist)
       {
 	double E = p1.first * intEnergyHist.getBinWidth();
 	

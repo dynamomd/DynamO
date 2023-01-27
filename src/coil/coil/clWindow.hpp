@@ -51,7 +51,7 @@ namespace coil {
   public:
     CLGLWindow(std::string title, double updateIntervalValue, bool dynamo = false);
 
-    ~CLGLWindow();
+    virtual ~CLGLWindow();
   
     virtual void CallBackDisplayFunc();
     virtual bool CallBackIdleFunc();

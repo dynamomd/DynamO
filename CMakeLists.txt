@@ -101,9 +101,9 @@ endif()
 ######################################################################
 ### First check if the compiler supports C++11 or C++0x at all
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORT_CXX11)
+check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORT_CXX11)
 if(COMPILER_SUPPORT_CXX11)
-  add_compile_options(-std=c++11)
+  add_compile_options(-std=c++14)
 else()
   check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORT_CXX0X)
   if(COMPILER_SUPPORT_CXX0X)

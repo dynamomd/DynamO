@@ -21,3 +21,4 @@
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/dynamics/multicanonical_contactmap.hpp>
 #include <dynamo/dynamics/viscous.hpp>
+#include <dynamo/dynamics/baloon.hpp>

@@ -634,8 +634,7 @@ namespace dynamo {
 
 	<< tag("EventCounters");
   
-    typedef std::pair<CounterKey, CounterData> mappair;
-    for (const mappair& mp1 : _counters)
+    for (const auto& mp1 : _counters)
       XML << tag("Entry")
 	  << attr("Type") << getClass(mp1.first.first)
 	  << attr("Name") << getName(mp1.first.first, Sim)
@@ -756,14 +755,14 @@ namespace dynamo {
     double time_seconds_remaining = _earliest_end_time / (getSimTimePerSecond() * Sim->units.unitTime());
     size_t seconds_remaining = time_seconds_remaining;
     
-    if (time_seconds_remaining > std::numeric_limits<size_t>::max())
-      seconds_remaining = std::numeric_limits<size_t>::max();
+    if (time_seconds_remaining > double(std::numeric_limits<size_t>::max()))
+      seconds_remaining = double(std::numeric_limits<size_t>::max());
 
     if (Sim->endEventCount != std::numeric_limits<size_t>::max())
       {
 	double event_seconds_remaining = (Sim->endEventCount - Sim->eventCount) / getEventsPerSecond() + 0.5;
 	
-	if (event_seconds_remaining < std::numeric_limits<size_t>::max())
+	if (event_seconds_remaining < double(std::numeric_limits<size_t>::max()))
 	  seconds_remaining = std::min(seconds_remaining, size_t(event_seconds_remaining));
 
       }

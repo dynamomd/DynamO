@@ -18,6 +18,7 @@
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <algorithm>
+#include <random>
 
 namespace dynamo {
   struct CURandomise: public UCell
@@ -31,7 +32,9 @@ namespace dynamo {
       //Must be placed at zero for the mirroring to work correctly
       std::vector<Vector  > retval(uc->placeObjects(Vector (centre)));
     
-      std::random_shuffle(retval.begin(), retval.end());
+      std::random_device rd;
+      std::mt19937 g(rd());
+      std::shuffle(retval.begin(), retval.end(), g);
     
       return retval;    
     }

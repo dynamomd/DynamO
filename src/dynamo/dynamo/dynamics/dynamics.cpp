@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -44,6 +44,8 @@ namespace dynamo {
       return shared_ptr<Dynamics>(new DynNewtonianMCCMap(tmp, XML));
     else if (!XML.getAttribute("Type").getValue().compare("Viscous"))
       return shared_ptr<Dynamics>(new DynViscous(tmp, XML));
+    else if (!XML.getAttribute("Type").getValue().compare("Baloon"))
+      return shared_ptr<Dynamics>(new DynBaloon(tmp, XML));
     else
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Dynamics encountered";

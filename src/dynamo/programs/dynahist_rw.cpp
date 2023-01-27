@@ -335,7 +335,7 @@ void calcDensityOfStates()
     accumilator[simdat.X] += simdat.Probability;
 
   //For each X, calculate the density of states
-  for (const densOStatesPair& dat : accumilator)
+  for (const auto& dat : accumilator)
     {
       //First work out the divisor
       long double sum = 0.0;

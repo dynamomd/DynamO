@@ -60,14 +60,11 @@ namespace dynamo
     /*! \brief Hidden functor used for sorting containers of
         shared_ptr's holiding OutputPlugin classes.
      */
-    struct OutputPluginSort: std::binary_function<const shared_ptr<OutputPlugin>&, 
-						  const shared_ptr<OutputPlugin>&,
-						  bool>
+    struct OutputPluginSort
     {
-      bool operator()(const shared_ptr<OutputPlugin>& lhs, 
-		      const shared_ptr<OutputPlugin>& rhs)
+      bool operator()(const shared_ptr<OutputPlugin>& lhs, const shared_ptr<OutputPlugin>& rhs)
       {
-	return (*lhs) < (*rhs);
+	      return (*lhs) < (*rhs);
       }
     };
   }
