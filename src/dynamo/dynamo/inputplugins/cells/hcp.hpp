@@ -20,19 +20,31 @@
 
 namespace dynamo
 {
-  struct CUBCC : public UCell
+  struct CUHCP : public UCell
   {
-    CUBCC(std::array<long, 3> ncells, Vector ndimensions, UCell *nextCell)
+    CUHCP(std::array<long, 3> ncells, Vector ndimensions, UCell *nextCell)
         : UCell(nextCell),
           cells(ncells)
-    {
-      _cellDim = ndimensions;
+    { 
+      Vector _lattice_size{1.0, std::sqrt(3.0), 2.0 * std::sqrt(6.0) / 3.0};
+
+      _cellDim = _lattice_size / std::max(_lattice_size[0], std::max(_lattice_size[1], _lattice_size[2]));
+      _cellDim = elementwiseMultiply(_cellDim, ndimensions);
     }
 
     std::array<long, 3> cells;
 
     virtual std::vector<Vector> placeObjects(const Vector &centre)
     {
+      Vector _lattice_size{1.0, std::sqrt(3.0), 2.0 * std::sqrt(6.0) / 3.0};
+      double lattice_positions[4][3] = {
+        {0,   0,                    0},
+        {0.5, std::sqrt(3.0)/2,     0.0},
+        {0.5, std::sqrt(3.0)/6,     std::sqrt(6.0) / 3.0},
+        {0.0, 2.0 * std::sqrt(3.0) / 3, std::sqrt(6.0) / 3.0}
+      };
+
+      std::cout << "\n!!!!!Building a HCP crystal" << std::endl; 
       std::vector<Vector> retval;
 
       Vector cellWidth;
@@ -44,17 +56,20 @@ namespace dynamo
 
       while (iterVec[NDIM - 1] != cells[NDIM - 1])
       {
+        //Create the zero position
         for (size_t iDim = 0; iDim < NDIM; iDim++)
-          position[iDim] = cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) + 0.25) - 0.5 * _cellDim[iDim] + centre[iDim];
+          position[iDim] = cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) /*+ 0.25 */) + centre[iDim];// - 0.5 * _cellDim[iDim];
 
-        for (const Vector &vec : uc->placeObjects(position))
-          retval.push_back(vec);
+        for (size_t i(0); i < 4; ++i) {
+          Vector rel_pos{
+            lattice_positions[i][0] / _lattice_size[0],
+            lattice_positions[i][1] / _lattice_size[1],
+            lattice_positions[i][2] / _lattice_size[2],
+            };
 
-        for (size_t iDim = 0; iDim < NDIM; iDim++)
-          position[iDim] += cellWidth[iDim] / 2.0;
-
-        const std::vector<Vector> &newsites = uc->placeObjects(position);
-        retval.insert(retval.end(), newsites.begin(), newsites.end());
+          for (const Vector &vec : uc->placeObjects(position + elementwiseMultiply(rel_pos, cellWidth)))
+            retval.push_back(vec);
+        }
 
         // Now update the displacement vector
         iterVec[0]++;

@@ -135,7 +135,7 @@ namespace dynamo {
       "  -z [ --zcell ] arg          Number of unit-cells in the z dimension.\n"
       "  --rectangular-box           Set the simulation box to be rectangular so that the x,y,z cells also specify the simulation aspect ratio.\n"
       "  -d [ --density ] arg (=0.5) System density.\n"
-      "  --i1 arg (=FCC)             Lattice type (0=FCC, 1=BCC, 2=SC)\n";
+      "  --i1 arg (=FCC)             Lattice type (0=FCC, 1=BCC, 2=SC, 3=HCP)\n";
 
     switch (vm["pack-mode"].as<size_t>())
       {
@@ -159,8 +159,7 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+	  Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -258,8 +257,7 @@ namespace dynamo {
 
 	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+	  Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -616,8 +614,7 @@ namespace dynamo {
 
 	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -753,7 +750,8 @@ namespace dynamo {
 
 	  std::vector<Vector>latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
+
 	  //Cut off the x periodic boundaries
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicExceptX(Sim));
 
@@ -901,8 +899,7 @@ namespace dynamo {
 	  if (vm.count("i2"))
 	    Na = vm["i2"].as<size_t>();
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 	
 	  double simVol = 1.0;
 
@@ -994,8 +991,7 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -1057,8 +1053,7 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -1273,12 +1268,11 @@ namespace dynamo {
 	      latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
 	    nPart = latticeSites.size();
+
+        Sim->primaryCellSize = packptr->systemDims();
 	  }
 
 	  size_t nPartA = size_t(nPart * molfrac);
-
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
 	  double simVol = 1.0;
 
@@ -1349,8 +1343,7 @@ namespace dynamo {
 	    M_throw() << "To make sure the system has zero momentum and +-1 velocities, you must"
 	      " use an even number of particles";
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -1430,8 +1423,7 @@ namespace dynamo {
 	  packptr->initialise();
 	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -1741,10 +1733,9 @@ namespace dynamo {
 	    }
 
 	  //Pack the system, determine the number of particles
-	  size_t N = std::unique_ptr<UCell>(standardPackingHelper(new UParticle()))->placeObjects(Vector{0,0,0}).size();
-
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  size_t N = packptr->placeObjects(Vector{0,0,0}).size();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -1758,9 +1749,8 @@ namespace dynamo {
 	  if (!vm.count("s1"))
 	    M_throw() << "No triangle file name specified";
 
-	  std::unique_ptr<UCell> 
-	    packptr(new CUTriangleIntersect(standardPackingHelper(new UParticle()),
-					    overlapDiameter, vm["s1"].as<std::string>()));
+      packptr.reset(new CUTriangleIntersect(standardPackingHelper(new UParticle()),
+					overlapDiameter, vm["s1"].as<std::string>()));
 
 	  packptr->initialise();
 
@@ -1876,7 +1866,8 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
+
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 
 	  double simVol = 1.0;
@@ -2808,8 +2799,7 @@ namespace dynamo {
 	  std::vector<Vector  >
 	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -2928,8 +2918,7 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector{0,0,0}));
 
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
+      Sim->primaryCellSize = packptr->systemDims();
 
 	  double simVol = 1.0;
 
@@ -3179,12 +3168,16 @@ namespace dynamo {
 	    sysPack = new CUSC(getCells(), boxDimensions, tmpPtr);
 	    break;
 	  }
+	case 3:
+	  {
+	    sysPack = new CUHCP(getCells(), boxDimensions, tmpPtr);
+	    break;
+	  }
 	default:
 	  M_throw() << "Not a valid packing type (--i1)";
 	}
 
-
-    return sysPack;;
+    return sysPack;
   }
 
   std::array<long, 3>

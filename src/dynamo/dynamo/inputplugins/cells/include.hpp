@@ -17,6 +17,7 @@
 
 #include <dynamo/inputplugins/cells/fcc.hpp>
 #include <dynamo/inputplugins/cells/bcc.hpp>
+#include <dynamo/inputplugins/cells/hcp.hpp>
 #include <dynamo/inputplugins/cells/sc.hpp>
 #include <dynamo/inputplugins/cells/randomwalk.hpp>
 #include <dynamo/inputplugins/cells/helix.hpp>
