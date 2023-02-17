@@ -44,7 +44,6 @@ namespace dynamo
         {0.0, 2.0 * std::sqrt(3.0) / 3, std::sqrt(6.0) / 3.0}
       };
 
-      std::cout << "\n!!!!!Building a HCP crystal" << std::endl; 
       std::vector<Vector> retval;
 
       Vector cellWidth;

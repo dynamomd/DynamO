@@ -18,6 +18,7 @@ def setup_worker( config, #The name of the config file to generate.
     
     unitcellN = {
         "FCC":4,
+        "HCP":4,
         "BCC":2,
         "SC":1,
     }
@@ -52,8 +53,15 @@ def setup_worker( config, #The name of the config file to generate.
     kTadd = ''
     if 'kT' in state:
         kTadd = '-T '+repr(state['kT'])
+
+    packmode = {
+        'FCC':0,
+        'BCC':1,
+        'SC': 2,
+        'HCP':3,
+    }
         
-    check_call(('dynamod '+kTadd+' -o '+config+' -m 1'+' -d ' + repr(state['ndensity'])+' -C'+str(Ncells)+' --f1 '+repr(state['Lambda'])).split(), stdout=logfile, stderr=logfile)
+    check_call(('dynamod '+kTadd+' -o '+config+' -m 1'+' -d ' + repr(state['ndensity'])+' -C'+str(Ncells)+' --f1 '+repr(state['Lambda']) + ' --i1 '+str(packmode[state['InitState']])).split(), stdout=logfile, stderr=logfile)
 
     if ('Rso' in state) and (state['Rso'] != float('inf')) and (state["InitState"] == "Liquid"):
         print("\n", file=logfile)
@@ -100,21 +108,29 @@ statevars = [
 #        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
 #    ],
     [ #Isochore
-        ("Lambda", [1.57]),
-        ("InitState", ["FCC"]),
+        ("Lambda", [1.5, 1.57]),
+        ("InitState", ["HCP"]), #'FCC'
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
         ('ndensity', [1.3]),
         ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
     ],
     [ #Sweep 
-        ("Lambda", [1.57]),
-        ("InitState", ["FCC"]),
+        ("Lambda", [1.5, 1.57]),
+        ("InitState", ["HCP"]), #'FCC'
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
         ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
         ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.5, 3.1, 0.1)))))),
     ],
+#    [ #liquid runs
+#        ("Lambda", [1.5, 1.57]),
+#        ("InitState", ["HCP"]), #'FCC'
+#        ("PhiT", [float('inf')]),
+#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+#        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
+#        ("kT", [5,4,3,2.5,1.5]),
+#    ],
 ]
         
 ################################################################
@@ -146,6 +162,6 @@ mgr.run(setup_worker=setup_worker,
 #This creates a pandas dataframe with columns for the state variables
 #AND any output values. It also generates pkl files, some for
 #different properties.
-#data = mgr.fetch_data(1000)
+data = mgr.fetch_data(1000)
 
 

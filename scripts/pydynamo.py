@@ -302,8 +302,12 @@ def perdir(args):
     configs = glob.glob(os.path.join(output_dir, "*.config.xml.bz2"))
     if len(configs) == 0:
         return {}
-    
-    state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
+
+    try:
+        state = pickle.load(open(os.path.join(output_dir, "state.pkl"), 'rb'))
+    except FileNotFoundError:
+        print("Skipping: Could not find state.pkl in ", output_dir)
+        return {}
     statedict, state = make_state(state)
 
     #Filter to only the set states (if enabled)
