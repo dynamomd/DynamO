@@ -66,7 +66,7 @@ def setup_worker( config, #The name of the config file to generate.
     options = options + ' --i1 '+str(packmode[state['InitState']]) +' -C '+str(Ncells)
     
     # Square well or hard sphere?
-    if state['Lambda'] != float('inf'):
+    if 'Lambda' in state and state['Lambda'] != float('inf'):
         options = options + ' -m 1 + --f1 '+repr(state['Lambda'])
     else:
         options = options + ' -m 0'
@@ -122,22 +122,22 @@ statevars = [
 #        ('ndensity', [1.3]),
 #        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
 #    ],
-    [ #Isochore
-        ("Lambda", [1.5, 1.57]),
-        ("InitState", ["HCP"]), #'FCC'
-        ("PhiT", [float('inf')]),
-        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-        ('ndensity', [1.3]),
-        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
-    ],
-    [ #Sweep 
-        ("Lambda", [1.5, 1.57]),
-        ("InitState", ["HCP"]), #'FCC'
-        ("PhiT", [float('inf')]),
-        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
-        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.5, 3.1, 0.1)))))),
-    ],
+#    [ #Isochore
+#        ("Lambda", [1.5, 1.57]),
+#        ("InitState", ["HCP"]), #'FCC'
+#        ("PhiT", [float('inf')]),
+#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+#        ('ndensity', [1.3]),
+#        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
+#    ],
+#    [ #Sweep 
+#        ("Lambda", [1.5, 1.57]),
+#        ("InitState", ["HCP"]), #'FCC'
+#        ("PhiT", [float('inf')]),
+#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+#        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
+#        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.5, 3.1, 0.1)))))),
+#    ],
 #    [ #liquid runs
 #        ("Lambda", [1.5, 1.57]),
 #        ("InitState", ["HCP"]), #'FCC'

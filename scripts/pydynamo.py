@@ -721,8 +721,16 @@ class SimManager:
 ConfigFile.config_props["N"] = {'recalculable':True, 'recalc': lambda config: config.N()}
 ConfigFile.config_props["ndensity"] = {'recalculable':True, 'recalc': lambda config: conv_to_14sf(config.n())}
 ConfigFile.config_props["InitState"] = {'recalculable':False, 'recalc': lambda config: "FCC"}
-ConfigFile.config_props["Lambda"] = {'recalculable':False, 'recalc': lambda config: 1.5}
-#
+
+
+def Lambda_config(XMLconfig):
+    tag = XMLconfig.tree.find('.//Interaction[@Type="SquareWell"]')
+    if tag is None:
+        return float('inf')
+    else:
+        return conv_to_14sf(float(tag.attrib['Lambda']))
+ConfigFile.config_props["Lambda"] = {'recalculable':True, 'recalc': lambda config: Lambda_config}
+
 def Rso_config(XMLconfig):
     tag = XMLconfig.tree.find('.//Global[@Type="SOCells"]')
     if tag is None:
@@ -730,7 +738,8 @@ def Rso_config(XMLconfig):
     else:
         return conv_to_14sf(float(tag.attrib['Diameter']) / 2)    
 ConfigFile.config_props["Rso"] = {'recalculable':True, 'recalc':Rso_config}
-#
+
+
 def PhiT_config(XMLconfig):
     Rso = Rso_config(XMLconfig)
     if Rso == float('inf'):
