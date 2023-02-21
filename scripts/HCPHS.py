@@ -103,9 +103,9 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 #This is the list of state variables and their ranges
 
-prefix="SWTether2"
-
-statevars = [
+#prefix="SWTether2"
+#
+#statevars = [
 #    [ #Sweep 
 #        ("Lambda", [2]),
 #        ("InitState", ["FCC"]),
@@ -146,14 +146,33 @@ statevars = [
 #        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
 #        ("kT", [5,4,3,2.5,1.5]),
 #    ],
+#]
+
+prefix="HCPHS"
+densities = set(list(numpy.arange(0.9, 1.4, 0.05))) # +list(numpy.arange(0.8,1.05,0.01))
+densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities.sort()
+#Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02))))
+phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.9, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+#phi_T = [float('inf')] + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.01))))+[2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+statevars = [
+    [
+        ("N", list(map(lambda x: 4*x**3, [5]))),#10, 15
+        ('ndensity', densities),
+        #("Rso", Rso),
+        ("PhiT", phi_T),
+        ("InitState", ["HCP"]),
+    ]
 ]
-        
+
+
+
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
-mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
+mgr = pydynamo.SimManager(prefix, #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", "NeventsSO", 'cv', 'u',], # 'RadialDist' "VACF",  # Output properties
+                          ["p", "NeventsSO"], # 'RadialDist' "VACF", 'cv', 'u', # Output properties 
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
 )
@@ -166,10 +185,10 @@ mgr = pydynamo.SimManager("SWTether2", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
