@@ -197,7 +197,7 @@ find_package(GLUT)
 find_package(GLEW)
 find_package(AVCodec)
 find_package(PNG)
-
+find_package(Eigen3)
 find_package(PkgConfig)
 pkg_check_modules(GTKMM gtkmm-3.0)
 
@@ -331,6 +331,7 @@ endif()
 file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
 add_library(dynamo STATIC ${dynamo_SRC})
 link_libraries(dynamo)
+target_link_libraries (dynamo Eigen3::Eigen)
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
   add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)

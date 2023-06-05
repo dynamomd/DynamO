@@ -22,9 +22,12 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
+
 namespace dynamo {
   class OPRadialDistribution: public OPTicker
   {
+  static const size_t N_moments = 3;
+
   public:
     OPRadialDistribution(const dynamo::Simulation*, 
 			 const magnet::xml::Node&);
@@ -47,7 +50,10 @@ namespace dynamo {
     unsigned long sampleCount;
     double sample_energy; 
     double sample_energy_bin_width;
-    std::vector<std::pair<unsigned int, unsigned int>> rdfpairs;
-    std::vector<std::vector<std::vector<unsigned long> > > data;
+    
+    std::vector<std::vector<std::vector<unsigned long> > > gr_accumulator; //The accumulator for the g(r)
+
+    std::vector<unsigned long> accumulator; //The accumulator collected at each timestep for the cumulative distribution function
+    std::vector<unsigned long> moments; //The moments of the accumulator, a running sum of each.
   };
 }

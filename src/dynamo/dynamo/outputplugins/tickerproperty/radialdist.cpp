@@ -20,6 +20,7 @@
 #include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <Eigen/Dense>
 
 namespace dynamo {
   OPRadialDistribution::OPRadialDistribution(const dynamo::Simulation* tmp, 
@@ -36,27 +37,6 @@ namespace dynamo {
   OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
   {
     try {
-      if(XML.hasAttribute("rdfpairs")){
-        std::string pairval("");
-        pairval = XML.getAttribute("rdfpairs").as<std::string>();
-        std::vector<std::string> pairstrings(2);
-        std::vector<unsigned int> pairIDs;
-        boost::split(pairstrings, pairval, [](char c){return c == ' ';});
-        for (const shared_ptr<Species>& sp : Sim->species) {
-          if (sp->getName() == pairstrings[0])
-            pairIDs.push_back(sp->getID());
-          if (sp->getName() == pairstrings[1])
-            pairIDs.push_back(sp->getID());
-          rdfpairs.push_back(std::make_pair(pairIDs[0],pairIDs[1]));
-        }
-      }
-      else {
-        for (const shared_ptr<Species>& sp1 : Sim->species)
-          for (const shared_ptr<Species>& sp2 : Sim->species)
-          {
-            rdfpairs.push_back(std::make_pair(sp1->getID(),sp2->getID()));
-          }
-      }
       if (XML.hasAttribute("BinWidth"))
 	    binWidth = XML.getAttribute("BinWidth").as<double>();
         binWidth *= Sim->units.unitLength();
@@ -84,11 +64,7 @@ namespace dynamo {
       }
       
       dout << "BinWidth = " << binWidth / Sim->units.unitLength()
-	   << "\nLength = " << length
-       << "\nrdfpairs = ";
-       for (std::pair<unsigned int, unsigned int> pairI : rdfpairs){
-         dout << std::get<0>(pairI) << ", " << std::get<1>(pairI) << std::endl;
-       }
+	         << "\nLength = " << length;
     }
     catch (std::exception& excep) {
 	  M_throw() << "Error while parsing output plugin options\n" << excep.what();
@@ -98,8 +74,12 @@ namespace dynamo {
   void 
   OPRadialDistribution::initialise()
   {
-    data.resize(Sim->species.size(), 
-		std::vector<std::vector<unsigned long> >(Sim->species.size(), std::vector<unsigned long>(length, 0)));
+    gr_accumulator.resize(Sim->species.size(), 
+		  std::vector<std::vector<unsigned long> >(Sim->species.size(), std::vector<unsigned long>(length, 0)));
+    
+    accumulator.resize(Sim->species.size() * Sim->species.size() * length, 0u);
+
+    moments.resize(N_moments * Sim->species.size() * Sim->species.size() * length, 0u);
 
     if (!(Sim->getOutputPlugin<OPMisc>()))
       M_throw() << "Radial Distribution requires the Misc output plugin";
@@ -130,22 +110,21 @@ namespace dynamo {
     
     ++sampleCount;
   
-    for (const shared_ptr<Species>& sp1 : Sim->species)
-      for (const shared_ptr<Species>& sp2 : Sim->species)
-        for (std::pair<unsigned int, unsigned int> pairI : rdfpairs)
-        {
-          if (sp1->getID() == std::get<0>(pairI) && sp2->getID() == std::get<1>(pairI))
-          {
-            for (const size_t& p1 : *sp1->getRange())
-           	for (const size_t& p2 : *sp2->getRange())
-           	{
-           	  Vector  rij = Sim->particles[p1].getPosition() - Sim->particles[p2].getPosition();
-           	  Sim->BCs->applyBC(rij);
-           	  const size_t i = static_cast<size_t>(rij.nrm() / binWidth + 0.5);
-           	  if (i < length) ++data[sp1->getID()][sp2->getID()][i];
-           	}
-          }
-        }
+    std::fill(accumulator.begin(), accumulator.end(), 0u);
+
+      for (const shared_ptr<Species>& sp1 : Sim->species)
+        for (const shared_ptr<Species>& sp2 : Sim->species)
+          for (const size_t& p1 : *sp1->getRange())
+            for (const size_t& p2 : *sp2->getRange())
+              {
+                Vector rij = Sim->particles[p1].getPosition() - Sim->particles[p2].getPosition();
+                Sim->BCs->applyBC(rij);
+                const size_t i = static_cast<size_t>(rij.nrm() / binWidth + 0.5);
+                if (i < length) {
+                  ++gr_accumulator[sp1->getID()][sp2->getID()][i];
+                  ++accumulator[(sp1->getID() * Sim->species.size() + sp2->getID()) * length + i];
+                }
+              }
   }
 
   std::vector<std::pair<double, double> > 
@@ -161,7 +140,7 @@ namespace dynamo {
       {
 	const double radius = binWidth * i;
 	const double volshell =  M_PI * (4.0 * binWidth * radius * radius + binWidth * binWidth * binWidth / 3.0);
-	const double GR = static_cast<double>(data[species1ID][species2ID][i]) / (density * originsTaken * volshell);
+	const double GR = static_cast<double>(gr_accumulator[species1ID][species2ID][i]) / (density * originsTaken * volshell);
 	retval.push_back(std::pair<double, double>(radius, GR));
       }
 
@@ -172,16 +151,12 @@ namespace dynamo {
   OPRadialDistribution::output(magnet::xml::XmlStream& XML)
   {
     XML << magnet::xml::tag("RadialDistribution")
-	<< magnet::xml::attr("SampleCount")
-	<< sampleCount;
-
+	      << magnet::xml::attr("SampleCount")
+      	<< sampleCount;
   
     for (const shared_ptr<Species>& sp1 : Sim->species)
       for (const shared_ptr<Species>& sp2 : Sim->species)
-        for (std::pair<unsigned int, unsigned int> pairI : rdfpairs)
         {
-          if (sp1->getID() == std::get<0>(pairI) && sp2->getID() == std::get<1>(pairI))
-          {
 	        const double density = (sp2->getCount() - (sp1 == sp2)) / Sim->getSimVolume();
 	        const size_t originsTaken = sampleCount * sp1->getCount();
 
@@ -198,12 +173,12 @@ namespace dynamo {
 	        {
 	          const double radius = binWidth * i;
 	          const double volshell =  M_PI * (4.0 * binWidth * radius * radius + binWidth * binWidth * binWidth / 3.0);
-	          const double GR = static_cast<double>(data[sp1->getID()][sp2->getID()][i]) / (density * originsTaken * volshell);
+	          const double GR = static_cast<double>(gr_accumulator[sp1->getID()][sp2->getID()][i]) / (density * originsTaken * volshell);
 	          XML << radius / Sim->units.unitLength() << " " << GR << "\n";
 	        }
 	        XML << magnet::xml::endtag("Species");
         }
-      }
+
     XML << magnet::xml::endtag("RadialDistribution");
   }
 }
