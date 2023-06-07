@@ -28,7 +28,7 @@ namespace dynamo
                                              const magnet::xml::Node &XML) : OPTicker(tmp, "RadialDistribution"),
                                                                              binWidth(0.01),
                                                                              length(100),
-                                                                             sampleCount(0),
+                                                                             _sampleCount(0),
                                                                              sample_energy(0),
                                                                              sample_energy_bin_width(0)
   {
@@ -83,8 +83,6 @@ namespace dynamo
     gr_accumulator.resize(Sim->species.size(),
                           std::vector<std::vector<unsigned long>>(Sim->species.size(), std::vector<unsigned long>(length, 0)));
 
-    accumulator.resize(length, 0u);
-
     moments.resize(N_moments * Sim->species.size() * Sim->species.size() * length, 0u);
 
     if (!(Sim->getOutputPlugin<OPMisc>()))
@@ -112,7 +110,13 @@ namespace dynamo
              << std::endl;
     }
 
-    ++sampleCount;
+    ++_sampleCount;
+
+    //These are preallocated here for speed
+    std::vector<unsigned long> accumulator; //Eventually becomes the number of particles at this radius or less
+    std::vector<unsigned long> moment; //The current moment of the accumulator
+    accumulator.resize(length);
+    moment.resize(length);
 
     for (const shared_ptr<Species> &sp1 : Sim->species)
       for (const shared_ptr<Species> &sp2 : Sim->species)
@@ -122,20 +126,35 @@ namespace dynamo
         for (const size_t &p1 : *sp1->getRange())
           for (const size_t &p2 : *sp2->getRange())
           {
+            if (p1==p2) continue; //Exclude self-self distances
             Vector rij = Sim->particles[p1].getPosition() - Sim->particles[p2].getPosition();
             Sim->BCs->applyBC(rij);
             const size_t i = static_cast<size_t>(rij.nrm() / binWidth + 0.5);
             if (i < length)
             {
               ++gr_accumulator[sp1->getID()][sp2->getID()][i];
-              ++accumulator[i];
+              if (p1 < p2) //only count pairs once
+                ++accumulator[i];
             }
           }
+
         //We now can run sums on the accumulator to make it cumulative
         for (size_t i(1); i < length; ++i)
           accumulator[i] += accumulator[i - 1];
-        
-        //const size_t moment_offset = (sp1->getID() * Sim->species.size() + sp2->getID()) * length;
+
+        std::fill(moment.begin(), moment.end(), 1u); //Reset the moments
+
+        for (size_t m(0); m < N_moments; ++m) {
+          //Generate the moment of the accumulator
+          for (size_t i(0); i < length; ++i)
+            moment[i] *= accumulator[i];
+
+          //Determine where we put this moment
+          const size_t moment_offset = ((m * Sim->species.size() + sp1->getID()) * Sim->species.size() + sp2->getID()) * length;
+
+          for (size_t i(0); i < length; ++i)
+            moments[moment_offset + i] += moment[i];
+        }
       }
   }
 
@@ -144,7 +163,7 @@ namespace dynamo
   {
     std::vector<std::pair<double, double>> retval;
     const double density = (Sim->species[species2ID]->getCount() - (species1ID == species2ID)) / Sim->getSimVolume();
-    const size_t originsTaken = sampleCount * Sim->species[species2ID]->getCount();
+    const size_t originsTaken = _sampleCount * Sim->species[species2ID]->getCount();
 
     // Skip the zero bin
     retval.reserve(length);
@@ -164,13 +183,13 @@ namespace dynamo
   {
     XML << magnet::xml::tag("RadialDistribution")
         << magnet::xml::attr("SampleCount")
-        << sampleCount;
+        << _sampleCount;
 
     for (const shared_ptr<Species> &sp1 : Sim->species)
       for (const shared_ptr<Species> &sp2 : Sim->species)
       {
         const double density = (sp2->getCount() - (sp1 == sp2)) / Sim->getSimVolume();
-        const size_t originsTaken = sampleCount * sp1->getCount();
+        const size_t originsTaken = _sampleCount * sp1->getCount();
 
         XML << magnet::xml::tag("Species")
             << magnet::xml::attr("Name1")
@@ -192,5 +211,38 @@ namespace dynamo
       }
 
     XML << magnet::xml::endtag("RadialDistribution");
+
+
+    XML << magnet::xml::tag("RadialDistributionMoments")
+        << magnet::xml::attr("SampleCount")
+        << _sampleCount;
+
+    for (const shared_ptr<Species> &sp1 : Sim->species)
+      for (const shared_ptr<Species> &sp2 : Sim->species) {
+        XML << magnet::xml::tag("Species")
+            << magnet::xml::attr("Name1")
+            << sp1->getName()
+            << magnet::xml::attr("Name2")
+            << sp2->getName()
+            << magnet::xml::attr("Samples") << _sampleCount;
+
+        for (size_t m(0); m < N_moments; ++m) {
+          const size_t moment_offset = ((m * Sim->species.size() + sp1->getID()) * Sim->species.size() + sp2->getID()) * length;
+            XML << magnet::xml::tag("Moment")
+                << magnet::xml::attr("Order") << m
+                << magnet::xml::chardata();
+
+          for (size_t i = 0; i < length; ++i)
+            XML << binWidth * (i + 0.5) / Sim->units.unitLength() << " " << moments[moment_offset + i] / _sampleCount << "\n";
+
+          XML << magnet::xml::endtag("Moment");
+        }
+        XML << magnet::xml::endtag("Species");
+      }
+
+    XML << magnet::xml::endtag("RadialDistributionMoments");
   }
 }
+
+//Test command
+//./dynamod -m0 -d 1.41421356 -o config.xml.bz2 && ./dynarun -L RadialDistribution config.xml.bz2  -c0 && bzcat output.xml.bz2 | xmlstarlet sel -t -v "//RadialDistributionMoments/Species[1]/Moment[1]" | tail -n+100 | head && bzcat output.xml.bz2 | xmlstarlet sel -t -v "//RadialDistributionMoments/Species[1]/Moment[2]" | tail -n+100 | head
