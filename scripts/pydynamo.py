@@ -59,20 +59,36 @@ class XMLFile:
     """A wrapper around  to allow loading and saving to
     bzip2 compressed files. """
     
-    def __init__(self, filename):
+    def __init__(self, filename, compressed=None):
         """Loads the xml file, decompressing it with bz2 first if the
         filename ends with .bz2"""
-        self._filename = filename
-        
-        if filename.endswith('.xml.bz2'):
-            import bz2
-            f = bz2.BZ2File(filename)
-            self.tree = ET.parse(f)
-            f.close()
-        elif filename.endswith('.xml'):
-            self.tree = ET.parse(filename)
+        import io
+        if isinstance(filename, str):
+            self._filename = filename        
+            if  filename.endswith('.xml.bz2'):
+                import bz2
+                f = bz2.BZ2File(filename)
+                self.tree = ET.parse(f)
+                f.close()
+            elif filename.endswith('.xml'):
+                self.tree = ET.parse(filename)
+            else:
+                raise RuntimeError('Unknown file extension for configuration file load "'+filename+'"')
+        elif isinstance(filename, io.BytesIO):
+            data = filename.read()
+            try:
+                self._filename = filename.name
+            except:
+                self._filename = "bytestream.xml"
+            try:
+                import bz2
+                data = bz2.decompress(data)
+                print("Successfully decompressed!")
+            except:
+                print("Could not decompress, trying direct reading")
+            self.tree = ET.fromstring(data)
         else:
-            raise RuntimeError('Unknown file extension for configuration file load "'+filename+'"')
+            raise RuntimeError("Could not determine file type")
         
     def save(self, filename):
         if filename.endswith('.xml.bz2'):

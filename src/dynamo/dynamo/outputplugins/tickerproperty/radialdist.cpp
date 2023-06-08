@@ -83,7 +83,7 @@ namespace dynamo
     gr_accumulator.resize(Sim->species.size(),
                           std::vector<std::vector<unsigned long>>(Sim->species.size(), std::vector<unsigned long>(length, 0)));
 
-    moments.resize(N_moments * Sim->species.size() * Sim->species.size() * length, 0u);
+    moments.resize(N_moments * Sim->species.size() * Sim->species.size() * length, 0.0);
 
     if (!(Sim->getOutputPlugin<OPMisc>()))
       M_throw() << "Radial Distribution requires the Misc output plugin";
@@ -114,7 +114,7 @@ namespace dynamo
 
     //These are preallocated here for speed
     std::vector<unsigned long> accumulator; //Eventually becomes the number of particles at this radius or less
-    std::vector<unsigned long> moment; //The current moment of the accumulator
+    std::vector<double> moment; //The current moment of the accumulator
     accumulator.resize(length);
     moment.resize(length);
 

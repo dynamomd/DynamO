@@ -52,6 +52,6 @@ namespace dynamo {
     double sample_energy_bin_width;
     
     std::vector<std::vector<std::vector<unsigned long> > > gr_accumulator; //The accumulator for the g(r)
-    std::vector<unsigned long> moments; //The moments of the accumulator, a running sum of each.
+    std::vector<double> moments; //The moments of the accumulator, a running sum of each.
   };
 }
