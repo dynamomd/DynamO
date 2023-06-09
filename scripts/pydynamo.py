@@ -184,6 +184,9 @@ class OutputFile(XMLFile):
     def t(self):
         return float(self.tree.find('.//Duration').attrib['Time'])
 
+    def numdensity(self):
+        return float(self.tree.find('.//Density').attrib['val'])
+
     def __getitem__(self, key):
         return OutputFile.output_props[key](self)
 
