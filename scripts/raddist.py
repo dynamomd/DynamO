@@ -4,7 +4,7 @@ import math
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-
+import scipy.special
 import jax.numpy as jnp
 import jax
 
@@ -41,7 +41,7 @@ class A_EOS:
 
 def A_FCC_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
-    return kT * (-3 * jnp.log((V-1)/V)+5.124*jnp.log(V)-20.78*V + 9.52*V**2 -1.98*V**3+15.05)
+    return kT * (-3 * jnp.log((V - 1) / V)+5.124 * jnp.log(V) - 20.78 * V + 9.52 * V**2 - 1.98 * V**3 + 15.05)
 EOS_FCC_HS_Young_Alder = A_EOS(A_FCC_HS_Young_Alder)
 
 def A_Liq_HS_Young_Alder(V, kT):
@@ -50,24 +50,24 @@ def A_Liq_HS_Young_Alder(V, kT):
     return  kT * ((4 * y - 3 * y**2) / (1-y)**2 + jnp.log(y) + math.log(6 / math.pi / math.e))
 EOS_Liq_HS_Young_Alder = A_EOS(A_Liq_HS_Young_Alder)
 
-
 def A_HCP_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
     if 1.0 <= V < 1.1:
         return A_FCC_HS_Young_Alder(V, kT) + 0.05 * (1.1 - V - jnp.log(1.1 / V)) + 0.005 * math.log(1.5 / 1.1)
-    elif 1.1 <= V:
+    elif 1.1 <= V < 1.5:
         return A_FCC_HS_Young_Alder(V, kT) + 0.005 * math.log(1.5 / V)
     else:
         raise RuntimeError("Out of range")
     
 EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 
-
 for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Liq_HS_Young_Alder]:
-    print(EOS.a(1.1, 1.0))
-    print(EOS.p(1.1, 1.0))
-    print(EOS.s(1.1, 1.0))
-
+    rho=0.9718
+    V=1.0/rho
+    kT=1.0
+    print(EOS.a(V, kT))
+    print(EOS.p(V, kT))
+    print(EOS.s(V, kT))
 
 if output_file is None:
     st.error("Please load a data file to process")
@@ -79,36 +79,83 @@ else:
 
     all_species = set(gr_df["Species 1"])
     all_densities = set(gr_df["N/V"])
+    all_N = set(gr_df["N"])
+    max_moment = max(gr_df["Order"])+1
+
     print("Found the following species ", all_species)
     print("Found the following densities ", all_densities)
+    print("Found the max moment ", max_moment)
+
+    gr_df = gr_df.set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"])
+
+    # The Helmholtz free energy is related to the partition function, which is related to the configuration integral
+    # -F/(k_BT) = ln Z = ln ⟨exp(-βU)⟩
+    # This has the form of a cumulant expansion generating function K(t)=ln⟨exp(tX)⟩, thus we can perform the cumulant expansion
+
+    # -F/(k_BT) = Σ_{n=1}^∞ κ_n (-β)^n / (n!)
+    #The cumulants κ_n can be written in terms of the central moments #https://en.wikipedia.org/wiki/Cumulant#The_first_several_cumulants_as_functions_of_the_moments
+    # κ_1 = ⟨U⟩
+    # κ_2 = ⟨(U-⟨U⟩)^2⟩
+    # κ_3 = ⟨(U-⟨U⟩)^3⟩
+    # κ_4 = ⟨(U-⟨U⟩)^4⟩ - 3(⟨(U-⟨U⟩)^2⟩)^2 
+
+    # In the simulation we have collected the moments about the origin ⟨x^n⟩, but we want to convert to the central moments ⟨(x-⟨x⟩)^n⟩. (https://en.wikipedifor j in range(n+1)a.org/wiki/Central_moment#Relation_to_moments_about_the_origin)
+    # ⟨(x-⟨x⟩)^n⟩ = Σ_{j=0}^n comb(n, j) (-1)^{n-j} ⟨x^j⟩ ⟨x⟩^{n-j}
+    # comb is combination function in scipy.special (binomial coefficient)
+
+    #First, grab the moments
+    moments = [gr_df.xs(i, level="Order")["Value"] for i in range(max_moment)]
+
+    subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
+    pwrs = ["⁰","¹", "²", "³", "⁴", "⁵", "⁶", "⁷","⁸", "⁹"]
+
+    #Now make a new dataframe with the moments, this is just a pivot so value is now by order
+    df = gr_df.xs(0, level="Order").rename(columns={"Value":"⟨N¹⟩"}, inplace=False)
+
+    for i in range(1, max_moment+1):
+        df["⟨N"+pwrs[i]+"⟩"] = gr_df.xs(i-1, level="Order")["Value"]
+
+    def mom(j, df):
+        if j == 0:
+            return 1
+        else:
+            return df["⟨N"+pwrs[j]+"⟩"]
+        
+    #Now make the central moments
+    for n in range(2, max_moment+1):
+        df["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, j) * (-1)**(n-j) * mom(j, df) * df["⟨N¹⟩"]**(n-j) for j in range(n+1))
+#
+    if max_moment >= 1:
+        df["κ₁"] = df["⟨N¹⟩"]
+    if max_moment >= 2:
+        df["κ₂"] = df["⟨(N-⟨N⟩)²⟩"]
+    if max_moment >= 3:
+        df["κ₃"] = df["⟨(N-⟨N⟩)³⟩"]
+    if max_moment >= 4:
+        df["κ₄"] = df["⟨(N-⟨N⟩)⁴⟩"] - 3 * (df["⟨(N-⟨N⟩)²⟩"] ** 2)
+    if max_moment >= 5:
+        df["κ₅"] = df["⟨(N-⟨N⟩)⁵⟩"] - 10 * df["⟨(N-⟨N⟩)³⟩"] * df["⟨(N-⟨N⟩)²⟩"]
+
+    st.dataframe(df)
+
+    ##Plot the values
     species1 = st.selectbox("Species 1", all_species)
     species2 = st.selectbox("Species 2", all_species)
     density = st.selectbox("Density", all_densities)
     st.text("V*="+str(math.sqrt(2)/density))
-    gr_df = gr_df.set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"])
+    N = st.selectbox("N", all_N)
 
-    #Lets grab Series for each average/order taken
-    avg_pow1 = gr_df.xs(0, level="Order")["Value"]
-    avg_pow2 = gr_df.xs(1, level="Order")["Value"]
-    avg_pow3 = gr_df.xs(2, level="Order")["Value"]
-
-    #Now make a new dataframe with the A values, first is just a simple rename
-    df = gr_df.xs(0, level="Order").rename(columns={"Value":"A1"}, inplace=False)
-    df["A2"] = (avg_pow2 - avg_pow1**2) / 2 #This is the formula for the standard deviation
-    df["A3"] = (avg_pow3 + 2 * (avg_pow1**3) - 3 * avg_pow1 * (avg_pow2))
-
-    #Plot the values
-    N=1372
     dfplot = df.loc[(N, species1, species2, density)]
     fig = go.Figure(
         data=[
-            go.Scatter(x=dfplot.index, y=dfplot["A1"] / N, name="A1"),
-            go.Scatter(x=dfplot.index, y=dfplot["A2"] / N, name="A2"),
-            go.Scatter(x=dfplot.index, y=dfplot["A3"] / N, name="A3"),
+            go.Scatter(x=dfplot.index, y=dfplot["κ₄"] / N, name="κ₄"),
+            go.Scatter(x=dfplot.index, y=dfplot["κ₃"] / N, name="κ₃"),
+            go.Scatter(x=dfplot.index, y=dfplot["κ₂"] / N, name="κ₂"),
+            go.Scatter(x=dfplot.index, y=dfplot["κ₁"] / N, name="κ₁"),
         ],
         layout=go.Layout(
-            title=go.layout.Title(text="Moments of the cumulative distribution function"),
+            title=go.layout.Title(text="Cumulants"),
         )
     )
-    fig.update_layout(xaxis_title=r"$r / sigma$")
+    fig.update_layout(xaxis_title=r"<i>r / σ</i>", yaxis_title="<i>κ<sub>n</sub></i>")
     st.plotly_chart(fig, use_container_width=True)

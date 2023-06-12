@@ -26,7 +26,7 @@
 namespace dynamo {
   class OPRadialDistribution: public OPTicker
   {
-  static const size_t N_moments = 3;
+  static const size_t N_moments = 5;
 
   public:
     OPRadialDistribution(const dynamo::Simulation*, 

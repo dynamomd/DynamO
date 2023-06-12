@@ -133,6 +133,10 @@ namespace dynamo
             if (i < length)
             {
               ++gr_accumulator[sp1->getID()][sp2->getID()][i];
+            }
+            const size_t j = static_cast<size_t>(rij.nrm() / binWidth);
+            if (j < length)
+            {
               if (p1 < p2) //only count pairs once
                 ++accumulator[i];
             }
@@ -202,7 +206,7 @@ namespace dynamo
         // Skip the zero bin
         for (size_t i = 1; i < length; ++i)
         {
-          const double radius = binWidth * i;
+          const double radius = binWidth * i; //This is right. Bins are centered around binWidth * i, the half added above is to make sure of this
           const double volshell = M_PI * (4.0 * binWidth * radius * radius + binWidth * binWidth * binWidth / 3.0);
           const double GR = static_cast<double>(gr_accumulator[sp1->getID()][sp2->getID()][i]) / (density * originsTaken * volshell);
           XML << radius / Sim->units.unitLength() << " " << GR << "\n";
@@ -233,7 +237,7 @@ namespace dynamo
                 << magnet::xml::chardata();
 
           for (size_t i = 0; i < length; ++i)
-            XML << binWidth * (i + 0.5) / Sim->units.unitLength() << " " << moments[moment_offset + i] / _sampleCount << "\n";
+            XML << binWidth * (i+1) / Sim->units.unitLength() << " " << moments[moment_offset + i] / _sampleCount << "\n";
 
           XML << magnet::xml::endtag("Moment");
         }
