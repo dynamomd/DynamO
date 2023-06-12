@@ -5,6 +5,9 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
+import jax.numpy as jnp
+import jax
+
 st.title("Radial Distribution Tool")
 
 output_file = st.file_uploader("Choose a Output file")
@@ -19,12 +22,58 @@ def getGrData(of : pydynamo.OutputFile):
                 r, v = map(float, line.split())
                 yield (N, species.attrib["Name1"], species.attrib["Name2"], int(moment.attrib['Order']), of.numdensity(), r, v)
 
+def try_jit(f):
+    try:
+        ftmp = jax.jit(ftmp)
+        ftmp(1.0, 1.0)
+        return ftmp
+    except:
+        return f
+
+class A_EOS:
+    def __init__(self, Aexpr):
+        self.a = try_jit(Aexpr)
+        #dA/dV = -p
+        self.p = try_jit(jax.grad(lambda V, kT : -A_FCC_HS_Young_Alder(V, kT), argnums=0))
+        #dA/dT = -S
+        self.s = try_jit(jax.grad(lambda V, kT : -A_FCC_HS_Young_Alder(V, kT), argnums=1))
+        
+
+def A_FCC_HS_Young_Alder(V, kT):
+    V = V * math.sqrt(2)
+    return kT * (-3 * jnp.log((V-1)/V)+5.124*jnp.log(V)-20.78*V + 9.52*V**2 -1.98*V**3+15.05)
+EOS_FCC_HS_Young_Alder = A_EOS(A_FCC_HS_Young_Alder)
+
+def A_Liq_HS_Young_Alder(V, kT):
+    V = V * math.sqrt(2)
+    y = math.pi * math.sqrt(2)/6/V
+    return  kT * ((4 * y - 3 * y**2) / (1-y)**2 + jnp.log(y) + math.log(6 / math.pi / math.e))
+EOS_Liq_HS_Young_Alder = A_EOS(A_Liq_HS_Young_Alder)
+
+
+def A_HCP_HS_Young_Alder(V, kT):
+    V = V * math.sqrt(2)
+    if 1.0 <= V < 1.1:
+        return A_FCC_HS_Young_Alder(V, kT) + 0.05 * (1.1 - V - jnp.log(1.1 / V)) + 0.005 * math.log(1.5 / 1.1)
+    elif 1.1 <= V:
+        return A_FCC_HS_Young_Alder(V, kT) + 0.005 * math.log(1.5 / V)
+    else:
+        raise RuntimeError("Out of range")
+    
+EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
+
+
+for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Liq_HS_Young_Alder]:
+    print(EOS.a(1.1, 1.0))
+    print(EOS.p(1.1, 1.0))
+    print(EOS.s(1.1, 1.0))
+
+
 if output_file is None:
     st.error("Please load a data file to process")
 else:
     of = pydynamo.OutputFile(output_file)
 
-    
     #Grab the data into a big pandas dataframe
     gr_df = pd.DataFrame(getGrData(of), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"])
 
