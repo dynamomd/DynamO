@@ -47,11 +47,13 @@ namespace dynamo {
   protected:
     double binWidth;
     size_t length;
-    unsigned long _sampleCount;
+    size_t _sampleCount;
     double sample_energy; 
     double sample_energy_bin_width;
+    bool _enable_offset = true;
     
-    std::vector<std::vector<std::vector<unsigned long> > > gr_accumulator; //The accumulator for the g(r)
+    std::vector<std::vector<std::vector<long long> > > gr_accumulator; //The accumulator for the g(r)
+    std::vector<long long> initial_moment; //The moments of the accumulator, a running sum of each.
     std::vector<double> moments; //The moments of the accumulator, a running sum of each.
   };
 }
