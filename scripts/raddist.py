@@ -99,34 +99,50 @@ else:
     # κ_3 = ⟨(U-⟨U⟩)^3⟩
     # κ_4 = ⟨(U-⟨U⟩)^4⟩ - 3(⟨(U-⟨U⟩)^2⟩)^2 
 
-    # In the simulation we have collected the moments about the origin ⟨x^n⟩, but we want to convert to the central moments ⟨(x-⟨x⟩)^n⟩. (https://en.wikipedifor j in range(n+1)a.org/wiki/Central_moment#Relation_to_moments_about_the_origin)
-    # ⟨(x-⟨x⟩)^n⟩ = Σ_{j=0}^n comb(n, j) (-1)^{n-j} ⟨x^j⟩ ⟨x⟩^{n-j}
-    # comb is combination function in scipy.special (binomial coefficient)
+    # In the simulation we have collected the moments of, N(r), the number of pairs below a radius r. 
+    # These moments are collected about an origin/offset N₀(r), i.e. ⟨(N(r)-N₀(r))^n⟩
+    # The origin is a numerical trick to reduce the size of the moments to reduce precision issues, its an
+    # approximation of the mean, by taking the initial value of N(r) at t=0.
 
-    #First, grab the moments
-    moments = [gr_df.xs(i, level="Order")["Value"] for i in range(max_moment)]
+    # We eventually want to convert to the central moments ⟨(N(r)-⟨N(r)⟩)^n⟩, To
+    # do this we need to determine the first moment ⟨N(r)⟩. There is a general
+    # expression for transforming moments:
+    #
+    # ⟨(x-b)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(x-a)^i⟩ (a-b)^{n-i}
+    #
+    # comb is combination function in scipy.special (binomial coefficient).
+    # But the answer for this first step is simple, x=N(r), b=0, a=N₀(r), n=1 gives the straightforward identity
+    #
+    # ⟨N(r)⟩ = ⟨N(r)-N₀(r)⟩ + N₀(r)
+
+    # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
+    # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
+
+    #First, grab the moments ⟨(N(r)-N₀(r))^n⟩
+    N_N0_n = [gr_df.xs(i, level="Order")["Value"] for i in range(max_moment)]
+    #And the offset N₀
+    N0 = gr_df.xs(-1, level="Order")["Value"]
 
     subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
     pwrs = ["⁰","¹", "²", "³", "⁴", "⁵", "⁶", "⁷","⁸", "⁹"]
 
-    #Now make a new dataframe with the moments, this is just a pivot so value is now by order
-    df = gr_df.xs(0, level="Order").rename(columns={"Value":"⟨N¹⟩"}, inplace=False)
-
+    # Now make a new dataframe with all the data
+    #
+    # Start with the initial offset/origin to build the dataframe
+    df = gr_df.xs(-1, level="Order").rename(columns={"Value":"N₀"}, inplace=False)
+    df["⟨(N-N₀)"+pwrs[0]+"⟩"] = 1
+    # Put all the simulation moments in too
     for i in range(1, max_moment+1):
-        df["⟨N"+pwrs[i]+"⟩"] = gr_df.xs(i-1, level="Order")["Value"]
+        df["⟨(N-N₀)"+pwrs[i]+"⟩"] = gr_df.xs(i-1, level="Order")["Value"]
+    # Calculate the first moment
+    df["⟨N⟩"] = df["⟨(N-N₀)¹⟩"] + df["N₀"]
 
-    def mom(j, df):
-        if j == 0:
-            return 1
-        else:
-            return df["⟨N"+pwrs[j]+"⟩"]
-        
-    #Now make the central moments
+    ##Now make the other central moments
     for n in range(2, max_moment+1):
-        df["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, j) * (-1)**(n-j) * mom(j, df) * df["⟨N¹⟩"]**(n-j) for j in range(n+1))
-#
+        df["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, i) * df["⟨(N-N₀)"+pwrs[i]+"⟩"] * (df["N₀"]-df["⟨N⟩"])**(n-i) for i in range(n+1))
+
     if max_moment >= 1:
-        df["κ₁"] = df["⟨N¹⟩"]
+        df["κ₁"] = df["⟨N⟩"]
     if max_moment >= 2:
         df["κ₂"] = df["⟨(N-⟨N⟩)²⟩"]
     if max_moment >= 3:
