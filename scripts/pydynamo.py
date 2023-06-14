@@ -883,7 +883,15 @@ class VACFOutputProperty(OutputProperty):
             pickle.dump(parseToArray(tag.text), open(filename_root + '/topology_'+tag.attrib['Name']+'.pkl', 'wb'))
         return None
 
-class RadialDistOutputProperty(OutputProperty):
+class RadialDistributionOutputProperty(OutputProperty):
+    def __init__(self):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LRadialDistribution'])
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        #We leave the data in the output files for processing later
+        return None
+
+class RadialDistEndOutputProperty(OutputProperty):
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
 
@@ -902,7 +910,7 @@ class RadialDistOutputProperty(OutputProperty):
         from subprocess import check_call
         check_call(["dynarun", configfilename, '-o', os.path.join(filename_root, 'RadDist.config.xml.bz2'), '-c', '0', "--out-data-file", os.path.join(filename_root, 'RadDist.out.xml.bz2'), '-LRadialDistribution'], stdout=logfile, stderr=logfile)
         
-        of = OutputFile('RadDist.out.tmp.xml.bz2')
+        of = OutputFile(os.path.join(filename_root, 'RadDist.out.xml.bz2'))
         for tag in of.tree.findall('.//RadialDistribution/Species'):
             A = tag.attrib['Name1']
             B = tag.attrib['Name2']
@@ -948,7 +956,8 @@ OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="
                                                     div_by_t=True, # Also divide by t
                                                     missing_val=0) # If counter is missing, return 0
 OutputFile.output_props["VACF"] = VACFOutputProperty()
-OutputFile.output_props["RadialDist"] = RadialDistOutputProperty()
+OutputFile.output_props["RadialDistEnd"] = RadialDistEndOutputProperty()
+OutputFile.output_props["RadialDistribution"] = RadialDistributionOutputProperty()
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
 
 if __name__ == "__main__":

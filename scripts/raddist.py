@@ -7,10 +7,90 @@ import plotly.express as px
 import scipy.special
 import jax.numpy as jnp
 import jax
+import glob
 
-st.title("Radial Distribution Tool")
+from pandas.api.types import (
+    is_categorical_dtype,
+    is_datetime64_any_dtype,
+    is_numeric_dtype,
+    is_object_dtype,
+)
 
-output_file = st.file_uploader("Choose a Output file")
+def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds a UI on top of a dataframe to let viewers filter columns
+
+    Args:
+        df (pd.DataFrame): Original dataframe
+
+    Returns:
+        pd.DataFrame: Filtered dataframe
+    """
+    modify = st.checkbox("Add filters")
+
+    if not modify:
+        return df
+
+    df = df.reset_index(inplace=False)
+
+    # Try to convert datetimes into a standard format (datetime, no timezone)
+    for col in df.columns:
+        if is_object_dtype(df[col]):
+            try:
+                df[col] = pd.to_datetime(df[col])
+            except Exception:
+                pass
+
+        if is_datetime64_any_dtype(df[col]):
+            df[col] = df[col].dt.tz_localize(None)
+
+    modification_container = st.container()
+
+    with modification_container:
+        to_filter_columns = st.multiselect("Filter dataframe on", df.columns)
+        for column in to_filter_columns:
+            left, right = st.columns((1, 20))
+            # Treat columns with < 10 unique values as categorical
+            if is_categorical_dtype(df[column]) or df[column].nunique() < 10:
+                user_cat_input = right.multiselect(
+                    f"Values for {column}",
+                    df[column].unique(),
+                    default=list(df[column].unique()),
+                )
+                df = df[df[column].isin(user_cat_input)]
+            elif is_numeric_dtype(df[column]):
+                _min = float(df[column].min())
+                _max = float(df[column].max())
+                step = (_max - _min) / 100
+                user_num_input = right.slider(
+                    f"Values for {column}",
+                    min_value=_min,
+                    max_value=_max,
+                    value=(_min, _max),
+                    step=step,
+                )
+                df = df[df[column].between(*user_num_input)]
+            elif is_datetime64_any_dtype(df[column]):
+                user_date_input = right.date_input(
+                    f"Values for {column}",
+                    value=(
+                        df[column].min(),
+                        df[column].max(),
+                    ),
+                )
+                if len(user_date_input) == 2:
+                    user_date_input = tuple(map(pd.to_datetime, user_date_input))
+                    start_date, end_date = user_date_input
+                    df = df.loc[df[column].between(start_date, end_date)]
+            else:
+                user_text_input = right.text_input(
+                    f"Substring or regex in {column}",
+                )
+                if user_text_input:
+                    df = df[df[column].astype(str).str.contains(user_text_input)]
+
+    return df
+
 
 def getGrData(of : pydynamo.OutputFile):
     grs = of.tree.findall('.//RadialDistributionMoments/Species')
@@ -21,6 +101,11 @@ def getGrData(of : pydynamo.OutputFile):
             for line in moment.text.strip().split("\n"):
                 r, v = map(float, line.split())
                 yield (N, species.attrib["Name1"], species.attrib["Name2"], int(moment.attrib['Order']), of.numdensity(), r, v)
+
+@st.cache_data
+def get_df():
+    return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]).set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
+
 
 def try_jit(f):
     try:
@@ -38,7 +123,6 @@ class A_EOS:
         #dA/dT = -S
         self.s = try_jit(jax.grad(lambda V, kT : -A_FCC_HS_Young_Alder(V, kT), argnums=1))
         
-
 def A_FCC_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
     return kT * (-3 * jnp.log((V - 1) / V)+5.124 * jnp.log(V) - 20.78 * V + 9.52 * V**2 - 1.98 * V**3 + 15.05)
@@ -69,24 +153,26 @@ for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Liq_HS_Young_Ald
     print(EOS.p(V, kT))
     print(EOS.s(V, kT))
 
-if output_file is None:
-    st.error("Please load a data file to process")
-else:
-    of = pydynamo.OutputFile(output_file)
 
-    #Grab the data into a big pandas dataframe
-    gr_df = pd.DataFrame(getGrData(of), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"])
+st.title("Radial Distribution Tool")
+#output_file = st.file_uploader("Choose a Output file")
+#if output_file is None:
+#    st.error("Please load a data file to process")
+#else:
+if True:
+    df = get_df()
 
-    all_species = set(gr_df["Species 1"])
-    all_densities = set(gr_df["N/V"])
-    all_N = set(gr_df["N"])
+    #Grab the data into a big pandas dataframe    
+    gr_df = df.reset_index(inplace=False)
+    all_species = sorted(set(gr_df["Species 1"]))
+    all_densities = sorted(set(gr_df["N/V"]))
+    all_N = sorted(set(gr_df["N"]))
     max_moment = max(gr_df["Order"])+1
 
     print("Found the following species ", all_species)
     print("Found the following densities ", all_densities)
     print("Found the max moment ", max_moment)
-
-    gr_df = gr_df.set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"])
+    gr_df = df
 
     # The Helmholtz free energy is related to the partition function, which is related to the configuration integral
     # -F/(k_BT) = ln Z = ln ⟨exp(-βU)⟩
@@ -152,7 +238,7 @@ else:
     if max_moment >= 5:
         df["κ₅"] = df["⟨(N-⟨N⟩)⁵⟩"] - 10 * df["⟨(N-⟨N⟩)³⟩"] * df["⟨(N-⟨N⟩)²⟩"]
 
-    st.dataframe(df)
+    st.dataframe(filter_dataframe(df))
 
     ##Plot the values
     species1 = st.selectbox("Species 1", all_species)
