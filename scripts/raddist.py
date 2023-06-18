@@ -6,8 +6,10 @@ import plotly.graph_objects as go
 import plotly.express as px
 import scipy.special
 import jax.numpy as jnp
+import numpy as np
 import jax
 import glob
+import datastat
 
 from pandas.api.types import (
     is_categorical_dtype,
@@ -15,6 +17,9 @@ from pandas.api.types import (
     is_numeric_dtype,
     is_object_dtype,
 )
+
+subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
+pwrs = ["⁰","¹", "²", "³", "⁴", "⁵", "⁶", "⁷","⁸", "⁹"]
 
 def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -145,20 +150,40 @@ def A_HCP_HS_Young_Alder(V, kT):
     
 EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 
-for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Liq_HS_Young_Alder]:
-    rho=0.9718
-    V=1.0/rho
-    kT=1.0
-    print(EOS.a(V, kT))
-    print(EOS.p(V, kT))
-    print(EOS.s(V, kT))
+#for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Liq_HS_Young_Alder]:
+#    rho=0.9718
+#    V=1.0/rho
+#    kT=1.0
+#    print(EOS.a(V, kT))
+#    print(EOS.p(V, kT))
+#    print(EOS.s(V, kT))
+#
+class A_TPT_EOS:
+    def __init__(self, df, N, A_ref):
+        import scipy.interpolate as si
 
+        self.terms = []
+        order = 1
+        df = df.copy()
+        df["v"] = df.index**(-1)
+        df = df.sort_values(by="v", inplace=False)
+        while 'A'+subs[order] in df:
+            #Fit a spline in terms of V
+            self.terms.append(si.InterpolatedUnivariateSpline(x=df["v"], y=df['A'+subs[order]]/N))
+            order +=1
+
+    def A(self, V, kT):
+        beta = 1/kT
+        return self.A_ref.A(V, kT) + sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.terms)) 
 
 st.title("Radial Distribution Tool")
 #output_file = st.file_uploader("Choose a Output file")
 #if output_file is None:
 #    st.error("Please load a data file to process")
 #else:
+
+tab_df, tab_Aterms, tab_phase = st.tabs(["Dataframe", "A terms", "Phase"])
+
 if True:
     df = get_df()
 
@@ -167,6 +192,7 @@ if True:
     all_species = sorted(set(gr_df["Species 1"]))
     all_densities = sorted(set(gr_df["N/V"]))
     all_N = sorted(set(gr_df["N"]))
+    all_R = sorted(set(gr_df["R"]))
     max_moment = max(gr_df["Order"])+1
 
     print("Found the following species ", all_species)
@@ -209,8 +235,6 @@ if True:
     #And the offset N₀
     N0 = gr_df.xs(-1, level="Order")["Value"]
 
-    subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
-    pwrs = ["⁰","¹", "²", "³", "⁴", "⁵", "⁶", "⁷","⁸", "⁹"]
 
     # Now make a new dataframe with all the data
     #
@@ -238,26 +262,66 @@ if True:
     if max_moment >= 5:
         df["κ₅"] = df["⟨(N-⟨N⟩)⁵⟩"] - 10 * df["⟨(N-⟨N⟩)³⟩"] * df["⟨(N-⟨N⟩)²⟩"]
 
-    st.dataframe(filter_dataframe(df))
+    well_depth = -1
+    for n in range(1, max_moment+1):
+        #The -1 arises from the negative sign on the beta in the cumulant expansion being moved in here to agree with Young_Alder's notation
+        df["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df["κ"+subs[n]] / math.factorial(n)
 
-    ##Plot the values
-    species1 = st.selectbox("Species 1", all_species)
-    species2 = st.selectbox("Species 2", all_species)
-    density = st.selectbox("Density", all_densities)
-    st.text("V*="+str(math.sqrt(2)/density))
-    N = st.selectbox("N", all_N)
+    with tab_df:
+        st.dataframe(filter_dataframe(df))
 
-    dfplot = df.loc[(N, species1, species2, density)]
+    with tab_Aterms:
+        ##Plot the values
+        N = st.selectbox("N", all_N)
+        species1 = st.selectbox("Species 1", all_species)
+        species2 = st.selectbox("Species 2", all_species)
+
+    format_func = lambda x : "ρ="+str(datastat.roundSF(x, 12))+",V*="+str(datastat.roundSF(math.sqrt(2)/x, 12))
+    with tab_Aterms:
+        densities = st.multiselect("Density", all_densities, format_func=format_func)
+
+    data = []
+    for rho in densities:
+        dfplot = df.loc[(N, species1, species2, rho)]
+        data = data + [
+            go.Scatter(x=dfplot.index, y=dfplot["A₄"] / N, name="A₄/N,"+format_func(rho)),
+            go.Scatter(x=dfplot.index, y=dfplot["A₃"] / N, name="A₃/N,"+format_func(rho)),
+            go.Scatter(x=dfplot.index, y=dfplot["A₂"] / N, name="A₂/N,"+format_func(rho)),
+            go.Scatter(x=dfplot.index, y=dfplot["A₁"] / N, name="A₁/N,"+format_func(rho)),
+        ]        
     fig = go.Figure(
-        data=[
-            go.Scatter(x=dfplot.index, y=dfplot["κ₄"] / N, name="κ₄"),
-            go.Scatter(x=dfplot.index, y=dfplot["κ₃"] / N, name="κ₃"),
-            go.Scatter(x=dfplot.index, y=dfplot["κ₂"] / N, name="κ₂"),
-            go.Scatter(x=dfplot.index, y=dfplot["κ₁"] / N, name="κ₁"),
-        ],
+        data=data,
         layout=go.Layout(
             title=go.layout.Title(text="Cumulants"),
         )
     )
-    fig.update_layout(xaxis_title=r"<i>r / σ</i>", yaxis_title="<i>κ<sub>n</sub></i>")
-    st.plotly_chart(fig, use_container_width=True)
+    fig.update_layout(xaxis_title=r"<i>r / σ</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
+    with tab_Aterms:
+        st.plotly_chart(fig, use_container_width=True)
+
+
+    with tab_phase:
+        Rval = st.selectbox("Lambda", all_R, format_func=lambda x: str(datastat.roundSF(x, 12)), index=149)
+
+        #This is a slice of all the densities for a particular Rval. 
+        dfplot = df.loc[(N, species1, species2, slice(None), Rval)].sort_index(inplace=False)
+
+        st.dataframe(dfplot)
+
+        EOS = A_TPT_EOS(dfplot, N, EOS_Liq_HS_Young_Alder)
+
+        n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
+        xs=np.linspace(0.01, 1.4, 1000)
+        fig = go.Figure(
+            data=[
+                go.Scatter(x=dfplot.index, y=dfplot["A"+subs[n]]/N, name="A"+subs[n], mode="markers"),
+                go.Scatter(x=xs, y=EOS.terms[n-1](1.0/xs), name="fit A"+subs[n], mode="lines"),
+                ],
+            layout=go.Layout(
+            title=go.layout.Title(text="Cumulants"),
+            )
+        )
+        fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
+        st.plotly_chart(fig, use_container_width=True)
+
+        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=2.0)
