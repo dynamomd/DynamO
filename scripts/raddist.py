@@ -124,9 +124,9 @@ class A_EOS:
     def __init__(self, Aexpr):
         self.a = try_jit(Aexpr)
         #dA/dV = -p
-        self.p = try_jit(jax.grad(lambda V, kT : -A_FCC_HS_Young_Alder(V, kT), argnums=0))
+        self.p = try_jit(jax.grad(lambda V, kT : -Aexpr(V, kT), argnums=0))
         #dA/dT = -S
-        self.s = try_jit(jax.grad(lambda V, kT : -A_FCC_HS_Young_Alder(V, kT), argnums=1))
+        self.s = try_jit(jax.grad(lambda V, kT : -Aexpr(V, kT), argnums=1))
         
 def A_FCC_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
@@ -162,19 +162,32 @@ class A_TPT_EOS:
     def __init__(self, df, N, A_ref):
         import scipy.interpolate as si
 
+        self.A_ref = A_ref
         self.terms = []
+        self.dtermsdV = []
+        self.ddtermsdV = []
         order = 1
         df = df.copy()
         df["v"] = df.index**(-1)
         df = df.sort_values(by="v", inplace=False)
         while 'A'+subs[order] in df:
             #Fit a spline in terms of V
-            self.terms.append(si.InterpolatedUnivariateSpline(x=df["v"], y=df['A'+subs[order]]/N))
+            spline = si.InterpolatedUnivariateSpline(x=df["v"], y=df['A'+subs[order]]/N)
+            self.terms.append(spline)
+            self.dtermsdV.append(spline.derivative())
+            self.ddtermsdV.append(spline.derivative(2))
             order +=1
 
-    def A(self, V, kT):
+    def A(self, V, kT, nterms=None):
         beta = 1/kT
-        return self.A_ref.A(V, kT) + sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.terms)) 
+        return self.A_ref.A(V, kT) + sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.terms[:nterms])) 
+
+    def p(self, V, kT, nterms=None):
+        beta = 1/kT
+        return self.A_ref.p(V, kT) - sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms])) 
+
+    def s(self, V, kT, nterms=None):
+        return self.A_ref.s(V, kT) - sum(term(V) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.dtermsdV[:nterms])) 
 
 st.title("Radial Distribution Tool")
 #output_file = st.file_uploader("Choose a Output file")
@@ -318,10 +331,20 @@ if True:
                 go.Scatter(x=xs, y=EOS.terms[n-1](1.0/xs), name="fit A"+subs[n], mode="lines"),
                 ],
             layout=go.Layout(
-            title=go.layout.Title(text="Cumulants"),
+            title=go.layout.Title(text="A terms"),
             )
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
 
         kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=2.0)
+        fig = go.Figure(
+            data=[
+                go.Scatter(x=xs, y=[EOS.p(1/rho, kT, nterms=n) for rho in xs], name="fit A"+subs[n], mode="lines"),
+                ],
+            layout=go.Layout(
+            title=go.layout.Title(text="Pressure"),
+            )
+        )
+        fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>p</i>")
+        st.plotly_chart(fig, use_container_width=True)
