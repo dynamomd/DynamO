@@ -159,7 +159,7 @@ EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 #    print(EOS.s(V, kT))
 #
 class A_TPT_EOS:
-    def __init__(self, df, N, A_ref):
+    def __init__(self, df, N, A_ref, s):
         import scipy.interpolate as si
 
         self.A_ref = A_ref
@@ -172,22 +172,25 @@ class A_TPT_EOS:
         df = df.sort_values(by="v", inplace=False)
         while 'A'+subs[order] in df:
             #Fit a spline in terms of V
-            spline = si.InterpolatedUnivariateSpline(x=df["v"], y=df['A'+subs[order]]/N)
+            spline = si.UnivariateSpline(x=df["v"], y=df['A'+subs[order]]/N, s=s)
             self.terms.append(spline)
             self.dtermsdV.append(spline.derivative())
             self.ddtermsdV.append(spline.derivative(2))
             order +=1
 
-    def A(self, V, kT, nterms=None):
+    def a(self, V, kT, nterms=None):
         beta = 1/kT
-        return self.A_ref.A(V, kT) + sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.terms[:nterms])) 
+        return self.A_ref.a(V, kT) + sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.terms[:nterms])) 
 
     def p(self, V, kT, nterms=None):
         beta = 1/kT
         return self.A_ref.p(V, kT) - sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms])) 
 
     def s(self, V, kT, nterms=None):
-        return self.A_ref.s(V, kT) - sum(term(V) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.dtermsdV[:nterms])) 
+        return self.A_ref.s(V, kT) - sum(term(V) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.dtermsdV[:nterms]))
+    
+    def mu(self, V, kT, nterms=None):
+        return self.a(V, kT, nterms) + self.p(V, kT, nterms) * V
 
 st.title("Radial Distribution Tool")
 #output_file = st.file_uploader("Choose a Output file")
@@ -317,11 +320,13 @@ if True:
         Rval = st.selectbox("Lambda", all_R, format_func=lambda x: str(datastat.roundSF(x, 12)), index=149)
 
         #This is a slice of all the densities for a particular Rval. 
-        dfplot = df.loc[(N, species1, species2, slice(None), Rval)].sort_index(inplace=False)
-
+        dfplot = df.loc[(N, species1, species2, slice(None), Rval)].copy(deep=True)
+        dfplot.loc[1e-12, ["A"+subs[i] for i in range(1, max_moment+1)]] = [0.0 for i in range(1, max_moment+1)]
+        dfplot.sort_index(inplace=True)
         st.dataframe(dfplot)
 
-        EOS = A_TPT_EOS(dfplot, N, EOS_Liq_HS_Young_Alder)
+        s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=0.1, step=0.001, value=0.0)
+        EOS = A_TPT_EOS(dfplot, N, EOS_Liq_HS_Young_Alder, s)
 
         n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
         xs=np.linspace(0.01, 1.4, 1000)
@@ -347,4 +352,15 @@ if True:
             )
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>p</i>")
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig = go.Figure(
+            data=[
+                go.Scatter(x=[EOS.p(1/rho, kT, nterms=n) for rho in xs], y=[EOS.mu(1/rho, kT, nterms=n) for rho in xs], name="fit A"+subs[n], mode="lines"),
+                ],
+            layout=go.Layout(
+            title=go.layout.Title(text="Loop diagram"),
+            )
+        )
+        fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
         st.plotly_chart(fig, use_container_width=True)
