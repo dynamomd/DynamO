@@ -201,6 +201,9 @@ class A_TPT_EOS:
     
     def mu(self, V, kT, nterms=None):
         return self.a(V, kT, nterms) + self.p(V, kT, nterms) * V
+    
+    def u(self, V, kT, nterms=None):
+        return self.a(V, kT, nterms) + kT * self.s(V, kT, nterms)
 
 st.title("Radial Distribution Tool")
 #output_file = st.file_uploader("Choose a Output file")
