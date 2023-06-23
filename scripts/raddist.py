@@ -10,13 +10,15 @@ import numpy as np
 import jax
 import glob
 import datastat
-
+import time 
 from pandas.api.types import (
     is_categorical_dtype,
     is_datetime64_any_dtype,
     is_numeric_dtype,
     is_object_dtype,
 )
+
+from jax_spline import InterpolatedUnivariateSpline
 
 subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
 pwrs = ["⁰","¹", "²", "³", "⁴", "⁵", "⁶", "⁷","⁸", "⁹"]
@@ -109,10 +111,11 @@ def getGrData(of : pydynamo.OutputFile):
 
 @st.cache_data
 def get_df():
-    return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]).set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
+    return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
 
 
 def try_jit(f):
+#    return f
     try:
         ftmp = jax.jit(ftmp)
         ftmp(1.0, 1.0)
@@ -140,13 +143,13 @@ def A_Liq_HS_Young_Alder(V, kT):
 EOS_Liq_HS_Young_Alder = A_EOS(A_Liq_HS_Young_Alder)
 
 def A_HCP_HS_Young_Alder(V, kT):
-    V = V * math.sqrt(2)
-    if 1.0 <= V < 1.1:
-        return A_FCC_HS_Young_Alder(V, kT) + 0.05 * (1.1 - V - jnp.log(1.1 / V)) + 0.005 * math.log(1.5 / 1.1)
-    elif 1.1 <= V < 1.5:
-        return A_FCC_HS_Young_Alder(V, kT) + 0.005 * math.log(1.5 / V)
+    Vstar = V * math.sqrt(2)
+    if 1.0 <= Vstar < 1.1:
+        return A_FCC_HS_Young_Alder(V, kT) + 0.05 * (1.1 - Vstar - jnp.log(1.1 / Vstar)) + 0.005 * math.log(1.5 / 1.1)
+    elif 1.1 <= Vstar < 1.5:
+        return A_FCC_HS_Young_Alder(V, kT) + 0.005 * jnp.log(1.5 / Vstar)
     else:
-        raise RuntimeError("Out of range")
+        raise RuntimeError("Out of range rho="+str(math.sqrt(2)/V))
     
 EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 
@@ -167,12 +170,12 @@ class A_TPT_EOS:
         self.dtermsdV = []
         self.ddtermsdV = []
         order = 1
-        df = df.copy()
-        df["v"] = df.index**(-1)
-        df = df.sort_values(by="v", inplace=False)
         while 'A'+subs[order] in df:
             #Fit a spline in terms of V
-            spline = si.UnivariateSpline(x=df["v"], y=df['A'+subs[order]]/N, s=s)
+            x=np.concatenate(([0], df.index.to_numpy()))
+            y=np.concatenate(([0], df['A'+subs[order]].to_numpy() / N))
+            #print(x,y)
+            spline = si.UnivariateSpline(x=x, y=y, s=s)
             self.terms.append(spline)
             self.dtermsdV.append(spline.derivative())
             self.ddtermsdV.append(spline.derivative(2))
@@ -180,14 +183,18 @@ class A_TPT_EOS:
 
     def a(self, V, kT, nterms=None):
         beta = 1/kT
-        return self.A_ref.a(V, kT) + sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.terms[:nterms])) 
+        rho = 1/V
+        return self.A_ref.a(V, kT) + sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.terms[:nterms])) 
 
     def p(self, V, kT, nterms=None):
         beta = 1/kT
-        return self.A_ref.p(V, kT) - sum(term(V) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms])) 
+        #-rho**2 is the jacobian from V to rho
+        rho = 1/V
+        return self.A_ref.p(V, kT) + (rho**2) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms])) 
 
     def s(self, V, kT, nterms=None):
-        return self.A_ref.s(V, kT) - sum(term(V) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.dtermsdV[:nterms]))
+        rho = 1/V
+        return self.A_ref.s(V, kT) - sum(term(rho) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.terms[:nterms]))
     
     def mu(self, V, kT, nterms=None):
         return self.a(V, kT, nterms) + self.p(V, kT, nterms) * V
@@ -201,20 +208,18 @@ st.title("Radial Distribution Tool")
 tab_df, tab_Aterms, tab_phase = st.tabs(["Dataframe", "A terms", "Phase"])
 
 if True:
+    print("Loading data files")
     df = get_df()
-
-    #Grab the data into a big pandas dataframe    
-    gr_df = df.reset_index(inplace=False)
-    all_species = sorted(set(gr_df["Species 1"]))
-    all_densities = sorted(set(gr_df["N/V"]))
-    all_N = sorted(set(gr_df["N"]))
-    all_R = sorted(set(gr_df["R"]))
-    max_moment = max(gr_df["Order"])+1
-
-    print("Found the following species ", all_species)
-    print("Found the following densities ", all_densities)
-    print("Found the max moment ", max_moment)
+    all_species = sorted(set(df["Species 1"]))
+    all_densities = sorted(set(df["N/V"]))
+    all_N = sorted(set(df["N"]))
+    all_R = sorted(set(df["R"]))
+    max_moment = max(df["Order"])+1
+    df.set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"], inplace=True)
     gr_df = df
+    #print("Found the following species ", all_species)
+    #print("Found the following densities ", all_densities)
+    #print("Found the max moment ", max_moment)
 
     # The Helmholtz free energy is related to the partition function, which is related to the configuration integral
     # -F/(k_BT) = ln Z = ln ⟨exp(-βU)⟩
@@ -246,6 +251,7 @@ if True:
     # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
     # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
 
+    print("Processing moments")
     #First, grab the moments ⟨(N(r)-N₀(r))^n⟩
     N_N0_n = [gr_df.xs(i, level="Order")["Value"] for i in range(max_moment)]
     #And the offset N₀
@@ -283,9 +289,11 @@ if True:
         #The -1 arises from the negative sign on the beta in the cumulant expansion being moved in here to agree with Young_Alder's notation
         df["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df["κ"+subs[n]] / math.factorial(n)
 
+    print("Creating dataframe tab")
     with tab_df:
         st.dataframe(filter_dataframe(df))
 
+    print("Creating Aterms tab")
     with tab_Aterms:
         ##Plot the values
         N = st.selectbox("N", all_N)
@@ -316,24 +324,28 @@ if True:
         st.plotly_chart(fig, use_container_width=True)
 
 
+    print("Creating Phase tab")
     with tab_phase:
         Rval = st.selectbox("Lambda", all_R, format_func=lambda x: str(datastat.roundSF(x, 12)), index=149)
 
         #This is a slice of all the densities for a particular Rval. 
-        dfplot = df.loc[(N, species1, species2, slice(None), Rval)].copy(deep=True)
-        dfplot.loc[1e-12, ["A"+subs[i] for i in range(1, max_moment+1)]] = [0.0 for i in range(1, max_moment+1)]
-        dfplot.sort_index(inplace=True)
+        print("Slicing and sorting the data")
+        dfplot = df.loc[(N, species1, species2, slice(None), Rval)].sort_index()
         st.dataframe(dfplot)
 
-        s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=0.1, step=0.001, value=0.0)
-        EOS = A_TPT_EOS(dfplot, N, EOS_Liq_HS_Young_Alder, s)
+        s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=0.1, step=0.001, value=0.05)
+        print("Building the equation of state")
+        EOS_liq = A_TPT_EOS(dfplot, N, EOS_Liq_HS_Young_Alder, s)
+        EOS_FCC = A_TPT_EOS(dfplot, N, EOS_FCC_HS_Young_Alder, s)
+        EOS_HCP = A_TPT_EOS(dfplot, N, EOS_HCP_HS_Young_Alder, s)
 
+        print("Plotting the spline fit to An")
         n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
-        xs=np.linspace(0.01, 1.4, 1000)
+        xs=np.linspace(0.001, 1.4, 100)
         fig = go.Figure(
             data=[
                 go.Scatter(x=dfplot.index, y=dfplot["A"+subs[n]]/N, name="A"+subs[n], mode="markers"),
-                go.Scatter(x=xs, y=EOS.terms[n-1](1.0/xs), name="fit A"+subs[n], mode="lines"),
+                go.Scatter(x=xs, y=EOS_liq.terms[n-1](xs), name="fit A"+subs[n], mode="lines"),
                 ],
             layout=go.Layout(
             title=go.layout.Title(text="A terms"),
@@ -341,11 +353,17 @@ if True:
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
-
-        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=2.0)
+#
+        print("Plotting the pressure ", end="")
+        start = time.process_time()
+        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=1.0)
+        xs=np.linspace(0.001, 1.4, 100)
+        xs_solid=np.linspace(1.2, 1.4, 100)
         fig = go.Figure(
             data=[
-                go.Scatter(x=xs, y=[EOS.p(1/rho, kT, nterms=n) for rho in xs], name="fit A"+subs[n], mode="lines"),
+                go.Scatter(x=xs, y=[EOS_liq.p(1/rho, kT, nterms=n) for rho in xs], name="Fluid", mode="lines"),
+                go.Scatter(x=xs_solid, y=[EOS_FCC.p(1/rho, kT, nterms=n) for rho in xs_solid], name="FCC", mode="lines"),
+                go.Scatter(x=xs_solid, y=[EOS_HCP.p(1/rho, kT, nterms=n) for rho in xs_solid], name="HCP", mode="lines"),
                 ],
             layout=go.Layout(
             title=go.layout.Title(text="Pressure"),
@@ -353,10 +371,15 @@ if True:
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>p</i>")
         st.plotly_chart(fig, use_container_width=True)
+        print(f"{time.process_time()-start:.2f} seconds")
 
+        print("Plotting the mu-p loop ", end="")
+        start = time.process_time()
         fig = go.Figure(
             data=[
-                go.Scatter(x=[EOS.p(1/rho, kT, nterms=n) for rho in xs], y=[EOS.mu(1/rho, kT, nterms=n) for rho in xs], name="fit A"+subs[n], mode="lines"),
+                go.Scatter(x=[EOS_liq.p(1/rho, kT, nterms=n) for rho in xs], y=[EOS_liq.mu(1/rho, kT, nterms=n) for rho in xs], name="Fluid", mode="lines"),
+                go.Scatter(x=[EOS_FCC.p(1/rho, kT, nterms=n) for rho in xs_solid], y=[EOS_FCC.mu(1/rho, kT, nterms=n) for rho in xs_solid], name="FCC", mode="lines"),
+                go.Scatter(x=[EOS_HCP.p(1/rho, kT, nterms=n) for rho in xs_solid], y=[EOS_HCP.mu(1/rho, kT, nterms=n) for rho in xs_solid], name="HCP", mode="lines"),
                 ],
             layout=go.Layout(
             title=go.layout.Title(text="Loop diagram"),
@@ -364,3 +387,4 @@ if True:
         )
         fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
         st.plotly_chart(fig, use_container_width=True)
+        print(f"{time.process_time()-start:.2f} seconds")
