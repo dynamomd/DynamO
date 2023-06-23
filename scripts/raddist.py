@@ -18,6 +18,9 @@ from pandas.api.types import (
     is_object_dtype,
 )
 
+import shapely
+from shapely.geometry import LineString
+
 from jax_spline import InterpolatedUnivariateSpline
 
 subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
@@ -136,11 +139,11 @@ def A_FCC_HS_Young_Alder(V, kT):
     return kT * (-3 * jnp.log((V - 1) / V)+5.124 * jnp.log(V) - 20.78 * V + 9.52 * V**2 - 1.98 * V**3 + 15.05)
 EOS_FCC_HS_Young_Alder = A_EOS(A_FCC_HS_Young_Alder)
 
-def A_Liq_HS_Young_Alder(V, kT):
+def A_Fluid_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
     y = math.pi * math.sqrt(2)/6/V
     return  kT * ((4 * y - 3 * y**2) / (1-y)**2 + jnp.log(y) + math.log(6 / math.pi / math.e))
-EOS_Liq_HS_Young_Alder = A_EOS(A_Liq_HS_Young_Alder)
+EOS_Fluid_HS_Young_Alder = A_EOS(A_Fluid_HS_Young_Alder)
 
 def A_HCP_HS_Young_Alder(V, kT):
     Vstar = V * math.sqrt(2)
@@ -153,7 +156,7 @@ def A_HCP_HS_Young_Alder(V, kT):
     
 EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 
-#for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Liq_HS_Young_Alder]:
+#for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Fluid_HS_Young_Alder]:
 #    rho=0.9718
 #    V=1.0/rho
 #    kT=1.0
@@ -206,6 +209,7 @@ st.title("Radial Distribution Tool")
 #else:
 
 tab_df, tab_Aterms, tab_phase = st.tabs(["Dataframe", "A terms", "Phase"])
+import collections
 
 if True:
     print("Loading data files")
@@ -335,7 +339,7 @@ if True:
 
         s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=0.1, step=0.001, value=0.05)
         print("Building the equation of state")
-        EOS_liq = A_TPT_EOS(dfplot, N, EOS_Liq_HS_Young_Alder, s)
+        EOS_Fluid = A_TPT_EOS(dfplot, N, EOS_Fluid_HS_Young_Alder, s)
         EOS_FCC = A_TPT_EOS(dfplot, N, EOS_FCC_HS_Young_Alder, s)
         EOS_HCP = A_TPT_EOS(dfplot, N, EOS_HCP_HS_Young_Alder, s)
 
@@ -345,7 +349,7 @@ if True:
         fig = go.Figure(
             data=[
                 go.Scatter(x=dfplot.index, y=dfplot["A"+subs[n]]/N, name="A"+subs[n], mode="markers"),
-                go.Scatter(x=xs, y=EOS_liq.terms[n-1](xs), name="fit A"+subs[n], mode="lines"),
+                go.Scatter(x=xs, y=EOS_Fluid.terms[n-1](xs), name="fit A"+subs[n], mode="lines"),
                 ],
             layout=go.Layout(
             title=go.layout.Title(text="A terms"),
@@ -357,11 +361,11 @@ if True:
         print("Plotting the pressure ", end="")
         start = time.process_time()
         kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=1.0)
-        xs=np.linspace(0.001, 1.4, 100)
-        xs_solid=np.linspace(1.2, 1.4, 100)
+        xs=np.linspace(0.001, 1.4, 200)
+        xs_solid=np.linspace(1.0, 1.4, 200)
         fig = go.Figure(
             data=[
-                go.Scatter(x=xs, y=[EOS_liq.p(1/rho, kT, nterms=n) for rho in xs], name="Fluid", mode="lines"),
+                go.Scatter(x=xs, y=[EOS_Fluid.p(1/rho, kT, nterms=n) for rho in xs], name="Fluid", mode="lines"),
                 go.Scatter(x=xs_solid, y=[EOS_FCC.p(1/rho, kT, nterms=n) for rho in xs_solid], name="FCC", mode="lines"),
                 go.Scatter(x=xs_solid, y=[EOS_HCP.p(1/rho, kT, nterms=n) for rho in xs_solid], name="HCP", mode="lines"),
                 ],
@@ -373,18 +377,44 @@ if True:
         st.plotly_chart(fig, use_container_width=True)
         print(f"{time.process_time()-start:.2f} seconds")
 
-        print("Plotting the mu-p loop ", end="")
+        print("Calculating the mu-p loop ", end="")
         start = time.process_time()
+        FluidData = np.column_stack(([EOS_Fluid.p(1 / rho, kT, nterms=n) for rho in xs],       [EOS_Fluid.mu(1/rho, kT, nterms=n) for rho in xs]))
+        FCCData = np.column_stack(([EOS_FCC.p(1 / rho, kT, nterms=n) for rho in xs_solid], [EOS_FCC.mu(1/rho, kT, nterms=n) for rho in xs_solid]))
+        HCPData = np.column_stack(([EOS_HCP.p(1 / rho, kT, nterms=n) for rho in xs_solid], [EOS_HCP.mu(1/rho, kT, nterms=n) for rho in xs_solid]))
+        print(f"{time.process_time()-start:.2f} seconds")
+
+        print("Solving for intersections ", end="")
+        start = time.process_time()
+        curves = ((FluidData, "Fluid"), (FCCData, "FCC"), (HCPData, "HCP"))
+        for ci in range(len(curves)):
+            Data1, name1 = curves[ci]
+            for cj in range(ci, len(curves)):
+                Data2, name2 = curves[cj]
+                if name1 == name2:
+                    for i in range(1, Data1.shape[0]):
+                        for j in range(i+2, Data1.shape[0]):
+                            l1 = LineString([Data1[i], Data1[i-1]])
+                            l2 = LineString([Data1[j], Data1[j-1]])
+                            if l1.intersects(l2):
+                                print(name1,"-", name2, l1.intersection(l2))
+                else:
+                    for i in range(1, Data1.shape[0]):
+                        for j in range(1, Data2.shape[0]):
+                            l1 = LineString([Data1[i], Data1[i-1]])
+                            l2 = LineString([Data2[j], Data2[j-1]])
+                            if l1.intersects(l2):
+                                print(name1,"-", name2, l1.intersection(l2))
+        
+        print(f"{time.process_time()-start:.2f} seconds")
+
+        print("Plotting mu-p", end="")
         fig = go.Figure(
-            data=[
-                go.Scatter(x=[EOS_liq.p(1/rho, kT, nterms=n) for rho in xs], y=[EOS_liq.mu(1/rho, kT, nterms=n) for rho in xs], name="Fluid", mode="lines"),
-                go.Scatter(x=[EOS_FCC.p(1/rho, kT, nterms=n) for rho in xs_solid], y=[EOS_FCC.mu(1/rho, kT, nterms=n) for rho in xs_solid], name="FCC", mode="lines"),
-                go.Scatter(x=[EOS_HCP.p(1/rho, kT, nterms=n) for rho in xs_solid], y=[EOS_HCP.mu(1/rho, kT, nterms=n) for rho in xs_solid], name="HCP", mode="lines"),
-                ],
+            data=[go.Scatter(x=Data[:,0], y=Data[:,1], name=name, mode="lines") for Data, name in ((FluidData, "Fluid"), (FCCData, "FCC"), (HCPData, "HCP"))],
             layout=go.Layout(
             title=go.layout.Title(text="Loop diagram"),
             )
         )
-        fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
+        fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ-μ_fluid</i>")
         st.plotly_chart(fig, use_container_width=True)
         print(f"{time.process_time()-start:.2f} seconds")

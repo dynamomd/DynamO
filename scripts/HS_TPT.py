@@ -108,10 +108,10 @@ prefix="HS_TPT"
 statevars = [
     [ #Hard sphere runs
         ("Lambda", [float('inf')]),
-        ("InitState", ["FCC"]),
+        ("InitState", ["FCC", "HCP"]),
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [7]))),
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
         ("kT", [1.0]),
     ],
 ]
