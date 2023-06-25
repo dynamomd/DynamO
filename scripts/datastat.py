@@ -108,6 +108,10 @@ class WeightedArray():
             raise RuntimeError("Cannot add non-WeightedArray to WeightedArray")
 
         retval = v
+        if self._w_sum == 0:
+            #Shortcut if this has no value, then just take the value passed in (and its shape!)
+            return retval
+
         retval._ww_vv_sum += self._ww_vv_sum
         retval._ww_v_sum += self._ww_v_sum
         retval._ww_sum += self._ww_sum

@@ -11,6 +11,8 @@ import jax
 import glob
 import datastat
 import time 
+import uncertainties
+import uncertainties.unumpy
 from pandas.api.types import (
     is_categorical_dtype,
     is_datetime64_any_dtype,
@@ -112,11 +114,6 @@ def getGrData(of : pydynamo.OutputFile):
                 r, v = map(float, line.split())
                 yield (N, species.attrib["Name1"], species.attrib["Name2"], int(moment.attrib['Order']), of.numdensity(), r, v)
 
-@st.cache_data
-def get_df():
-    return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
-
-
 def try_jit(f):
 #    return f
     try:
@@ -211,22 +208,58 @@ st.title("Radial Distribution Tool")
 #    st.error("Please load a data file to process")
 #else:
 
-tab_df, tab_Aterms, tab_phase = st.tabs(["Dataframe", "A terms", "Phase"])
-import collections
+@st.cache_data
+def get_df():
+    import pickle
 
-if True:
-    print("Loading data files")
-    df = get_df()
-    all_species = sorted(set(df["Species 1"]))
-    all_densities = sorted(set(df["N/V"]))
-    all_N = sorted(set(df["N"]))
-    all_R = sorted(set(df["R"]))
-    max_moment = max(df["Order"])+1
-    df.set_index(["N", "Species 1", "Species 2", "Order","N/V", "R"], inplace=True)
-    gr_df = df
-    #print("Found the following species ", all_species)
-    #print("Found the following densities ", all_densities)
-    #print("Found the max moment ", max_moment)
+    N=1372
+
+    max_moment=5
+    print("  Running pickle load")
+
+    df = pickle.load(open('/home/mjki2mb2/dynamo-repo/scripts/HS_TPT.pkl', 'rb'))
+    print(df['ndensity'])
+    df.set_index(["N", "ndensity", "InitState"], inplace=True)
+    all_N = sorted(set(df.index.get_level_values("N")))
+
+    #Selecting N
+    print("  Selecting N")
+    df = df.loc[(N, slice(None))]
+    st.warning("Selecting N="+str(N))
+
+    print("  Dropping unneeded columns")
+    df.drop(["Lambda", "PhiT", "Rso", "kT"], axis=1, inplace=True)
+
+    all_densities = sorted(set(df.index.get_level_values("ndensity")))
+    all_InitState = sorted(set(df.index.get_level_values("InitState")))
+
+    #We need to unpack the moments into a new dataframe
+    def moment_to_df(index, row):
+        #row by row, grab the moments as a numpy array
+        moments = row['RadialDistribution'].ufloat()
+        #Create the array of R values that index the rows of the moments
+        Rvals = np.linspace(bin_width, bin_width*moments.shape[1], moments.shape[1], endpoint=True)
+        #Stack this together with the moment values
+        data = np.hstack((Rvals.reshape((-1,1)), np.transpose(moments)))
+        #We then build a dataframe with this information
+        df_m = pd.DataFrame(data, columns=["R", "N"+subs[0]]+["⟨(N-N₀)"+pwrs[i]+"⟩" for i in range(1, moments.shape[0])])
+        #We add the index now individually, as smarter tricks with numpy will promote the float of ndensity to string to match InitState, or something equally stupid.
+        for k, v in zip(df.index.names, index):
+            df_m[k] = v
+        df_m.set_index(df.index.names+["R"], inplace=True)
+        return df_m
+    
+    print("  Unpacking moments")
+    df_moments = pd.concat([moment_to_df(index, row) for index, row in df.iterrows()])
+
+    all_Rs = sorted(set(df_moments.index.get_level_values("R")))
+
+    if True:
+        lam = [1.1, 1.5]
+        st.warning("Selecting lambda="+str(lam))
+        idx = pd.IndexSlice
+        df_moments = df_moments.loc(axis=0)[idx[:, :, lam]]
+        all_Rs = lam
 
     # The Helmholtz free energy is related to the partition function, which is related to the configuration integral
     # -F/(k_BT) = ln Z = ln ⟨exp(-βU)⟩
@@ -258,68 +291,62 @@ if True:
     # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
     # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
 
-    print("Processing moments")
-    #First, grab the moments ⟨(N(r)-N₀(r))^n⟩
-    N_N0_n = [gr_df.xs(i, level="Order")["Value"] for i in range(max_moment)]
-    #And the offset N₀
-    N0 = gr_df.xs(-1, level="Order")["Value"]
-
-
-    # Now make a new dataframe with all the data
-    #
-    # Start with the initial offset/origin to build the dataframe
-    df = gr_df.xs(-1, level="Order").rename(columns={"Value":"N₀"}, inplace=False)
-    df["⟨(N-N₀)"+pwrs[0]+"⟩"] = 1
-    # Put all the simulation moments in too
-    for i in range(1, max_moment+1):
-        df["⟨(N-N₀)"+pwrs[i]+"⟩"] = gr_df.xs(i-1, level="Order")["Value"]
+    print("  Generating central moments")
+    #We preseed the zeroth power here for a simpler life
+    df_moments["⟨(N-N₀)"+pwrs[0]+"⟩"] = 1
     # Calculate the first moment
-    df["⟨N⟩"] = df["⟨(N-N₀)¹⟩"] + df["N₀"]
-
+    df_moments["⟨N⟩"] = df_moments["⟨(N-N₀)¹⟩"] + df_moments["N₀"]
     ##Now make the other central moments
     for n in range(2, max_moment+1):
-        df["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, i) * df["⟨(N-N₀)"+pwrs[i]+"⟩"] * (df["N₀"]-df["⟨N⟩"])**(n-i) for i in range(n+1))
+        if "⟨(N-N₀)"+pwrs[n]+"⟩" in df_moments:
+            df_moments["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, i) * df_moments["⟨(N-N₀)"+pwrs[i]+"⟩"] * (df_moments["N₀"]-df_moments["⟨N⟩"])**(n-i) for i in range(n+1))
 
-    if max_moment >= 1:
-        df["κ₁"] = df["⟨N⟩"]
-    if max_moment >= 2:
-        df["κ₂"] = df["⟨(N-⟨N⟩)²⟩"]
-    if max_moment >= 3:
-        df["κ₃"] = df["⟨(N-⟨N⟩)³⟩"]
-    if max_moment >= 4:
-        df["κ₄"] = df["⟨(N-⟨N⟩)⁴⟩"] - 3 * (df["⟨(N-⟨N⟩)²⟩"] ** 2)
-    if max_moment >= 5:
-        df["κ₅"] = df["⟨(N-⟨N⟩)⁵⟩"] - 10 * df["⟨(N-⟨N⟩)³⟩"] * df["⟨(N-⟨N⟩)²⟩"]
+    print("  Generating cumulants")
+    if "⟨N⟩" in df_moments:
+        df_moments["κ₁"] = df_moments["⟨N⟩"]
+    if "⟨(N-⟨N⟩)²⟩" in df_moments:
+        df_moments["κ₂"] = df_moments["⟨(N-⟨N⟩)²⟩"]
+    if "⟨(N-⟨N⟩)³⟩" in df_moments:
+        df_moments["κ₃"] = df_moments["⟨(N-⟨N⟩)³⟩"]
+    if "⟨(N-⟨N⟩)⁴⟩" in df_moments:
+        df_moments["κ₄"] = df_moments["⟨(N-⟨N⟩)⁴⟩"] - 3 * (df_moments["⟨(N-⟨N⟩)²⟩"] ** 2)
+    if "⟨(N-⟨N⟩)⁵⟩" in df_moments:
+        df_moments["κ₅"] = df_moments["⟨(N-⟨N⟩)⁵⟩"] - 10 * df_moments["⟨(N-⟨N⟩)³⟩"] * df_moments["⟨(N-⟨N⟩)²⟩"]
 
+    print("  Generating Helmholtz terms")
     well_depth = -1
     for n in range(1, max_moment+1):
+        if "κ"+subs[n] not in df_moments:
+            break
         #The -1 arises from the negative sign on the beta in the cumulant expansion being moved in here to agree with Young_Alder's notation
-        df["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df["κ"+subs[n]] / math.factorial(n)
+        df_moments["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df_moments["κ"+subs[n]] / math.factorial(n) / N
 
-    print("Creating dataframe tab")
+    return df, all_N, all_densities, all_InitState, all_Rs, df_moments
+    #return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
+
+tab_df, tab_Aterms, tab_phase = st.tabs(["Dataframe", "A terms", "Phase"])
+import collections
+
+if True:
+    max_moment = 5
+    bin_width = 0.01
     with tab_df:
-        st.dataframe(filter_dataframe(df))
+        print("Loading data files")
+        df, all_N, all_densities, all_InitState, all_Rs, df_moments = get_df()
 
+        print("Creating dataframe tab")
+        st.dataframe(filter_dataframe(df_moments))
+#
     print("Creating Aterms tab")
-    with tab_Aterms:
-        ##Plot the values
-        N = st.selectbox("N", all_N)
-        species1 = st.selectbox("Species 1", all_species)
-        species2 = st.selectbox("Species 2", all_species)
-
     format_func = lambda x : "ρ="+str(datastat.roundSF(x, 12))+",V*="+str(datastat.roundSF(math.sqrt(2)/x, 12))
     with tab_Aterms:
         densities = st.multiselect("Density", all_densities, format_func=format_func)
-
     data = []
     for rho in densities:
-        dfplot = df.loc[(N, species1, species2, rho)]
-        data = data + [
-            go.Scatter(x=dfplot.index, y=dfplot["A₄"] / N, name="A₄/N,"+format_func(rho)),
-            go.Scatter(x=dfplot.index, y=dfplot["A₃"] / N, name="A₃/N,"+format_func(rho)),
-            go.Scatter(x=dfplot.index, y=dfplot["A₂"] / N, name="A₂/N,"+format_func(rho)),
-            go.Scatter(x=dfplot.index, y=dfplot["A₁"] / N, name="A₁/N,"+format_func(rho)),
-        ]        
+        dfplot_FCC = df_moments.loc[(rho, 'FCC')]
+        dfplot_HCP = df_moments.loc[(rho, 'HCP')]
+        data = data + [go.Scatter(x=dfplot_FCC.index, y=uncertainties.unumpy.nominal_values(dfplot_FCC["A"+subs[i]]), error_y=dict(type='data', array=uncertainties.unumpy.std_devs(dfplot_FCC["A"+subs[i]]), visible=True), name="A"+subs[i]+"/N,FCC,"+format_func(rho)) for i in range(1,5)]
+    
     fig = go.Figure(
         data=data,
         layout=go.Layout(
@@ -327,19 +354,21 @@ if True:
         )
     )
     fig.update_layout(xaxis_title=r"<i>r / σ</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
+
     with tab_Aterms:
         st.plotly_chart(fig, use_container_width=True)
 
 
     print("Creating Phase tab")
     with tab_phase:
-        Rval = st.selectbox("Lambda", all_R, format_func=lambda x: str(datastat.roundSF(x, 12)), index=149)
+        Rval = st.selectbox("Lambda", all_Rs, format_func=lambda x: str(datastat.roundSF(x, 12)))
 
         #This is a slice of all the densities for a particular Rval. 
         print("Slicing and sorting the data")
-        dfplot = df.loc[(N, species1, species2, slice(None), Rval)].sort_index()
+        dfplot = df_moments.loc[(slice(None), slice(None), Rval)].sort_index()
         st.dataframe(dfplot)
-
+        print("DONE!!!")
+        exit()
         s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=0.1, step=0.001, value=0.05)
         print("Building the equation of state")
         EOS_Fluid = A_TPT_EOS(dfplot, N, EOS_Fluid_HS_Young_Alder, s)
