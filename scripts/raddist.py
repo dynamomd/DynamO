@@ -162,7 +162,7 @@ EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 #    print(EOS.s(V, kT))
 #
 class A_TPT_EOS:
-    def __init__(self, df, N, A_ref, s):
+    def __init__(self, df, A_ref, s):
         import scipy.interpolate as si
 
         self.A_ref = A_ref
@@ -173,7 +173,7 @@ class A_TPT_EOS:
         while 'A'+subs[order] in df:
             #Fit a spline in terms of V
             x=np.concatenate(([0], df.index.to_numpy()))
-            y=np.concatenate(([0], df['A'+subs[order]].to_numpy() / N))
+            y=np.concatenate(([0], df['A'+subs[order]].to_numpy()))
             #print(x,y)
             spline = si.UnivariateSpline(x=x, y=y, s=s)
             self.terms.append(spline)
@@ -218,7 +218,6 @@ def get_df():
     print("  Running pickle load")
 
     df = pickle.load(open('/home/mjki2mb2/dynamo-repo/scripts/HS_TPT.pkl', 'rb'))
-    print(df['ndensity'])
     df.set_index(["N", "ndensity", "InitState"], inplace=True)
     all_N = sorted(set(df.index.get_level_values("N")))
 
@@ -240,12 +239,14 @@ def get_df():
         #Create the array of R values that index the rows of the moments
         Rvals = np.linspace(bin_width, bin_width*moments.shape[1], moments.shape[1], endpoint=True)
         #Stack this together with the moment values
-        data = np.hstack((Rvals.reshape((-1,1)), np.transpose(moments)))
+        data = np.hstack((Rvals.reshape((-1,1)), np.transpose(uncertainties.unumpy.nominal_values(moments))))
         #We then build a dataframe with this information
         df_m = pd.DataFrame(data, columns=["R", "N"+subs[0]]+["⟨(N-N₀)"+pwrs[i]+"⟩" for i in range(1, moments.shape[0])])
         #We add the index now individually, as smarter tricks with numpy will promote the float of ndensity to string to match InitState, or something equally stupid.
         for k, v in zip(df.index.names, index):
             df_m[k] = v
+        df_m.drop(df_m[df_m['R'] <= 1.0].index, inplace=True)
+        df_m.drop(df_m[df_m['R'] > 2.0].index, inplace=True)
         df_m.set_index(df.index.names+["R"], inplace=True)
         return df_m
     
@@ -254,7 +255,7 @@ def get_df():
 
     all_Rs = sorted(set(df_moments.index.get_level_values("R")))
 
-    if True:
+    if False:
         lam = [1.1, 1.5]
         st.warning("Selecting lambda="+str(lam))
         idx = pd.IndexSlice
@@ -345,7 +346,7 @@ if True:
     for rho in densities:
         dfplot_FCC = df_moments.loc[(rho, 'FCC')]
         dfplot_HCP = df_moments.loc[(rho, 'HCP')]
-        data = data + [go.Scatter(x=dfplot_FCC.index, y=uncertainties.unumpy.nominal_values(dfplot_FCC["A"+subs[i]]), error_y=dict(type='data', array=uncertainties.unumpy.std_devs(dfplot_FCC["A"+subs[i]]), visible=True), name="A"+subs[i]+"/N,FCC,"+format_func(rho)) for i in range(1,5)]
+        data = data + [go.Scatter(x=dfplot_FCC.index, y=dfplot_FCC["A"+subs[i]], name="A"+subs[i]+"/N,FCC,"+format_func(rho)) for i in range(1,5)]
     
     fig = go.Figure(
         data=data,
@@ -365,22 +366,26 @@ if True:
 
         #This is a slice of all the densities for a particular Rval. 
         print("Slicing and sorting the data")
-        dfplot = df_moments.loc[(slice(None), slice(None), Rval)].sort_index()
+        dfplot = df_moments.reset_index()
+        dfplot = dfplot[dfplot['R'].between(Rval-bin_width*0.5, Rval+bin_width*0.5)]
+        
         st.dataframe(dfplot)
-        print("DONE!!!")
-        exit()
-        s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=0.1, step=0.001, value=0.05)
-        print("Building the equation of state")
-        EOS_Fluid = A_TPT_EOS(dfplot, N, EOS_Fluid_HS_Young_Alder, s)
-        EOS_FCC = A_TPT_EOS(dfplot, N, EOS_FCC_HS_Young_Alder, s)
-        EOS_HCP = A_TPT_EOS(dfplot, N, EOS_HCP_HS_Young_Alder, s)
+
+        s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=10.0, step=0.001, value=0.05)
+        print("Building the equations of state")
+        dfFCC = dfplot[dfplot["InitState"]=="FCC"].set_index("ndensity").sort_index()
+        dfHCP = dfplot[dfplot["InitState"]=="HCP"].set_index("ndensity").sort_index()
+        EOS_Fluid = A_TPT_EOS(dfFCC, EOS_Fluid_HS_Young_Alder, s)
+        EOS_FCC = A_TPT_EOS(dfFCC, EOS_FCC_HS_Young_Alder, s)
+        EOS_HCP = A_TPT_EOS(dfHCP, EOS_HCP_HS_Young_Alder, s)
 
         print("Plotting the spline fit to An")
         n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
         xs=np.linspace(0.001, 1.4, 100)
         fig = go.Figure(
             data=[
-                go.Scatter(x=dfplot.index, y=dfplot["A"+subs[n]]/N, name="A"+subs[n], mode="markers"),
+                go.Scatter(x=dfFCC.index, y=dfFCC["A"+subs[n]], name="A"+subs[n]+",FCC", mode="markers"),
+                go.Scatter(x=dfHCP.index, y=dfHCP["A"+subs[n]], name="A"+subs[n]+",HCP", mode="markers"),
                 go.Scatter(x=xs, y=EOS_Fluid.terms[n-1](xs), name="fit A"+subs[n], mode="lines"),
                 ],
             layout=go.Layout(
@@ -389,7 +394,7 @@ if True:
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
-#
+
         print("Plotting the pressure ", end="")
         start = time.process_time()
         kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=1.0)
