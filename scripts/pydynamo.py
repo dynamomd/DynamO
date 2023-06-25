@@ -13,7 +13,7 @@ point.
 # Include everything "standard" in here. Try to keep external
 # dependencies only imported when they are used, so this can be
 # easilly deployed on a cluster.
-import os, glob, sys, time, math, subprocess, bz2, alive_progress
+import os, glob, sys, time, math, subprocess, bz2, alive_progress, scipy
 
 from multiprocessing import Pool, cpu_count
 
@@ -893,7 +893,38 @@ class RadialDistributionOutputProperty(OutputProperty):
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         #Presume that each tag is in order, and has a common bin width
         samples = float(outputfile.tree.find('.//RadialDistributionMoments').attrib["SampleCount"])
-        return WeightedArray(np.array([[float(line.split()[1]) for line in tag.text.strip().split("\n")] for tag in outputfile.tree.findall('.//RadialDistributionMoments/Species/Moment')]), samples)
+        bin_width = 0.01        
+        #Grab all the moments, drop the R values for now
+        moment_tags = outputfile.tree.findall('.//RadialDistributionMoments/Species/Moment')
+        moments = np.array([[float(line.split()[1]) for line in tag.text.strip().split("\n")] for tag in moment_tags])
+
+        #moments is a 6xNbins array with N0, then <(N-N0)>, <(N-N0)^2>, and <(N-N0)^3> etc.
+        N0 = np.copy(moments[0,:])
+        moments[0,:] = np.ones_like(moments[0,:])
+
+        #We need to recreate the central moments now before we're ready to send this for averaging.
+        central_moments = np.zeros((moments.shape[0]-1, moments.shape[1]))
+
+        # We eventually want to convert to the central moments ⟨(N(r)-⟨N(r)⟩)^n⟩, To
+        # do this we need to determine the first moment ⟨N(r)⟩. There is a general
+        # expression for transforming moments:
+        #
+        # ⟨(x-b)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(x-a)^i⟩ (a-b)^{n-i}
+        #
+        # comb is combination function in scipy.special (binomial coefficient).
+        # But the answer for this first step is simple, x=N(r), b=0, a=N₀(r), n=1 gives the straightforward identity
+        #
+        # ⟨N(r)⟩ = ⟨N(r)-N₀(r)⟩ + N₀(r)
+
+        # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
+        # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
+
+        central_moments[0,:] = moments[1,:] + N0
+        ##Now make the other central moments
+        for n in range(2, moments.shape[0]):
+            central_moments[n-1] = sum(scipy.special.comb(n, i) * moments[i] * (N0-central_moments[0,:])**(n-i) for i in range(n+1))
+
+        return WeightedArray(central_moments, samples)
 
 class RadialDistEndOutputProperty(OutputProperty):
     def __init__(self):
@@ -978,4 +1009,5 @@ OutputFile.output_props["RadialDistribution"] = RadialDistributionOutputProperty
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
 
 if __name__ == "__main__":
+
     pass

@@ -241,7 +241,7 @@ def get_df():
         #Stack this together with the moment values
         data = np.hstack((Rvals.reshape((-1,1)), np.transpose(uncertainties.unumpy.nominal_values(moments))))
         #We then build a dataframe with this information
-        df_m = pd.DataFrame(data, columns=["R", "N"+subs[0]]+["⟨(N-N₀)"+pwrs[i]+"⟩" for i in range(1, moments.shape[0])])
+        df_m = pd.DataFrame(data, columns=["R"]+["⟨(N-⟨N⟩)"+pwrs[i]+"⟩" for i in range(1, moments.shape[0]+1)])
         #We add the index now individually, as smarter tricks with numpy will promote the float of ndensity to string to match InitState, or something equally stupid.
         for k, v in zip(df.index.names, index):
             df_m[k] = v
@@ -292,19 +292,20 @@ def get_df():
     # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
     # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
 
-    print("  Generating central moments")
-    #We preseed the zeroth power here for a simpler life
-    df_moments["⟨(N-N₀)"+pwrs[0]+"⟩"] = 1
-    # Calculate the first moment
-    df_moments["⟨N⟩"] = df_moments["⟨(N-N₀)¹⟩"] + df_moments["N₀"]
-    ##Now make the other central moments
-    for n in range(2, max_moment+1):
-        if "⟨(N-N₀)"+pwrs[n]+"⟩" in df_moments:
-            df_moments["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, i) * df_moments["⟨(N-N₀)"+pwrs[i]+"⟩"] * (df_moments["N₀"]-df_moments["⟨N⟩"])**(n-i) for i in range(n+1))
+    #Central moments generated in pydynamo
+    #print("  Generating central moments")
+    ##We preseed the zeroth power here for a simpler life
+    #df_moments["⟨(N-N₀)"+pwrs[0]+"⟩"] = 1
+    ## Calculate the first moment
+    #df_moments["⟨N⟩"] = df_moments["⟨(N-N₀)¹⟩"] + df_moments["N₀"]
+    ###Now make the other central moments
+    #for n in range(2, max_moment+1):
+    #    if "⟨(N-N₀)"+pwrs[n]+"⟩" in df_moments:
+    #        df_moments["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, i) * df_moments["⟨(N-N₀)"+pwrs[i]+"⟩"] * (df_moments["N₀"]-df_moments["⟨N⟩"])**(n-i) for i in range(n+1))
 
     print("  Generating cumulants")
-    if "⟨N⟩" in df_moments:
-        df_moments["κ₁"] = df_moments["⟨N⟩"]
+    if "⟨(N-⟨N⟩)¹⟩" in df_moments:
+        df_moments["κ₁"] = df_moments["⟨(N-⟨N⟩)¹⟩"]
     if "⟨(N-⟨N⟩)²⟩" in df_moments:
         df_moments["κ₂"] = df_moments["⟨(N-⟨N⟩)²⟩"]
     if "⟨(N-⟨N⟩)³⟩" in df_moments:
@@ -337,7 +338,7 @@ if True:
 
         print("Creating dataframe tab")
         st.dataframe(filter_dataframe(df_moments))
-#
+
     print("Creating Aterms tab")
     format_func = lambda x : "ρ="+str(datastat.roundSF(x, 12))+",V*="+str(datastat.roundSF(math.sqrt(2)/x, 12))
     with tab_Aterms:
