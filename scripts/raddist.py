@@ -172,10 +172,14 @@ class A_TPT_EOS:
         order = 1
         while 'A'+subs[order] in df:
             #Fit a spline in terms of V
-            x=np.concatenate(([0], df.index.to_numpy()))
-            y=np.concatenate(([0], df['A'+subs[order]].to_numpy()))
-            #print(x,y)
-            spline = si.UnivariateSpline(x=x, y=y, s=s)
+            x=np.concatenate(([0.0], df.index.to_numpy()))
+            y=np.concatenate(([0.0], uncertainties.unumpy.nominal_values(df['A'+subs[order]])))
+            yerr=np.concatenate(([0.0], uncertainties.unumpy.std_devs(df['A'+subs[order]])))
+            #Some value have zero uncertainty which doesn't work with fitting, so here we give them the minimum uncertainty
+            yerr_min = np.ma.masked_equal(yerr, 0.0, copy=False).min()
+            yerr[yerr == 0] = yerr_min
+            #Weights are 1/std_dev, so we follow scipy.interpolate.UnivariateSpline guidance for s which is equal to data count.
+            spline = si.UnivariateSpline(x=x, y=y, w=1/yerr, s= s * 4 * y.shape[0])
             self.terms.append(spline)
             self.dtermsdV.append(spline.derivative())
             self.ddtermsdV.append(spline.derivative(2))
@@ -239,7 +243,7 @@ def get_df():
         #Create the array of R values that index the rows of the moments
         Rvals = np.linspace(bin_width, bin_width*moments.shape[1], moments.shape[1], endpoint=True)
         #Stack this together with the moment values
-        data = np.hstack((Rvals.reshape((-1,1)), np.transpose(uncertainties.unumpy.nominal_values(moments))))
+        data = np.hstack((Rvals.reshape((-1,1)), np.transpose(moments)))
         #We then build a dataframe with this information
         df_m = pd.DataFrame(data, columns=["R"]+["⟨(N-⟨N⟩)"+pwrs[i]+"⟩" for i in range(1, moments.shape[0]+1)])
         #We add the index now individually, as smarter tricks with numpy will promote the float of ndensity to string to match InitState, or something equally stupid.
@@ -273,10 +277,6 @@ def get_df():
     # κ_3 = ⟨(U-⟨U⟩)^3⟩
     # κ_4 = ⟨(U-⟨U⟩)^4⟩ - 3(⟨(U-⟨U⟩)^2⟩)^2 
 
-    # In the simulation we have collected the moments of, N(r), the number of pairs below a radius r. 
-    # These moments are collected about an origin/offset N₀(r), i.e. ⟨(N(r)-N₀(r))^n⟩
-    # The origin is a numerical trick to reduce the size of the moments to reduce precision issues, its an
-    # approximation of the mean, by taking the initial value of N(r) at t=0.
 
     # We eventually want to convert to the central moments ⟨(N(r)-⟨N(r)⟩)^n⟩, To
     # do this we need to determine the first moment ⟨N(r)⟩. There is a general
@@ -291,17 +291,6 @@ def get_df():
 
     # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
     # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
-
-    #Central moments generated in pydynamo
-    #print("  Generating central moments")
-    ##We preseed the zeroth power here for a simpler life
-    #df_moments["⟨(N-N₀)"+pwrs[0]+"⟩"] = 1
-    ## Calculate the first moment
-    #df_moments["⟨N⟩"] = df_moments["⟨(N-N₀)¹⟩"] + df_moments["N₀"]
-    ###Now make the other central moments
-    #for n in range(2, max_moment+1):
-    #    if "⟨(N-N₀)"+pwrs[n]+"⟩" in df_moments:
-    #        df_moments["⟨(N-⟨N⟩)"+pwrs[n]+"⟩"] = sum(scipy.special.comb(n, i) * df_moments["⟨(N-N₀)"+pwrs[i]+"⟩"] * (df_moments["N₀"]-df_moments["⟨N⟩"])**(n-i) for i in range(n+1))
 
     print("  Generating cumulants")
     if "⟨(N-⟨N⟩)¹⟩" in df_moments:
@@ -347,7 +336,7 @@ if True:
     for rho in densities:
         dfplot_FCC = df_moments.loc[(rho, 'FCC')]
         dfplot_HCP = df_moments.loc[(rho, 'HCP')]
-        data = data + [go.Scatter(x=dfplot_FCC.index, y=dfplot_FCC["A"+subs[i]], name="A"+subs[i]+"/N,FCC,"+format_func(rho)) for i in range(1,5)]
+        data = data + [go.Scatter(x=dfplot_FCC.index, y=uncertainties.unumpy.nominal_values(dfplot_FCC["A"+subs[i]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfplot_FCC["A"+subs[i]]), visible=True), name="A"+subs[i]+"/N,FCC,"+format_func(rho)) for i in range(1,5)]
     
     fig = go.Figure(
         data=data,
@@ -371,23 +360,34 @@ if True:
         dfplot = dfplot[dfplot['R'].between(Rval-bin_width*0.5, Rval+bin_width*0.5)]
         
         st.dataframe(dfplot)
+        
+        rho_minsolid = 0.95
+        rho_maxfluid = 1.4
 
-        s = st.slider("Spline smoothing, 0=none", min_value=0.0, max_value=10.0, step=0.001, value=0.05)
+        s = st.slider("Spline smoothing", min_value=0.0, max_value=1.0, step=0.01, value=0.5, format="%g")
         print("Building the equations of state")
-        dfFCC = dfplot[dfplot["InitState"]=="FCC"].set_index("ndensity").sort_index()
-        dfHCP = dfplot[dfplot["InitState"]=="HCP"].set_index("ndensity").sort_index()
-        EOS_Fluid = A_TPT_EOS(dfFCC, EOS_Fluid_HS_Young_Alder, s)
+        dfFluidFCC = dfplot[dfplot["InitState"]=="FCC"]
+        dfFluid = dfFluidFCC[dfFluidFCC['ndensity'] < rho_maxfluid].set_index("ndensity").sort_index()
+        dfFCC = dfFluidFCC[dfFluidFCC['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
+        dfHCP = dfplot[dfplot["InitState"]=="HCP"]
+        dfHCP = dfHCP[dfHCP['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
+
+        EOS_Fluid = A_TPT_EOS(dfFluid, EOS_Fluid_HS_Young_Alder, s)
         EOS_FCC = A_TPT_EOS(dfFCC, EOS_FCC_HS_Young_Alder, s)
         EOS_HCP = A_TPT_EOS(dfHCP, EOS_HCP_HS_Young_Alder, s)
 
         print("Plotting the spline fit to An")
         n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
-        xs=np.linspace(0.001, 1.4, 100)
+        xs_fluid=np.linspace(0.001, rho_maxfluid, 200)
+        xs_solid=np.linspace(rho_minsolid, 1.4, 200)
         fig = go.Figure(
             data=[
-                go.Scatter(x=dfFCC.index, y=dfFCC["A"+subs[n]], name="A"+subs[n]+",FCC", mode="markers"),
-                go.Scatter(x=dfHCP.index, y=dfHCP["A"+subs[n]], name="A"+subs[n]+",HCP", mode="markers"),
-                go.Scatter(x=xs, y=EOS_Fluid.terms[n-1](xs), name="fit A"+subs[n], mode="lines"),
+                go.Scatter(x=dfFluid.index, y=uncertainties.unumpy.nominal_values(dfFluid["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfFluid["A"+subs[n]]), visible=True), name="A"+subs[n]+",Fluid", mode="markers"),
+                go.Scatter(x=dfFCC.index, y=uncertainties.unumpy.nominal_values(dfFCC["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfFCC["A"+subs[n]]), visible=True), name="A"+subs[n]+",FCC", mode="markers"),
+                go.Scatter(x=dfHCP.index, y=uncertainties.unumpy.nominal_values(dfHCP["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfHCP["A"+subs[n]]), visible=True), name="A"+subs[n]+",HCP", mode="markers"),
+                go.Scatter(x=xs_fluid, y=EOS_Fluid.terms[n-1](xs_fluid), name="Fluid A"+subs[n], mode="lines"),
+                go.Scatter(x=xs_solid, y=EOS_FCC.terms[n-1](xs_solid), name="FCC A"+subs[n], mode="lines"),
+                go.Scatter(x=xs_solid, y=EOS_HCP.terms[n-1](xs_solid), name="HCP A"+subs[n], mode="lines"),
                 ],
             layout=go.Layout(
             title=go.layout.Title(text="A terms"),
@@ -399,11 +399,9 @@ if True:
         print("Plotting the pressure ", end="")
         start = time.process_time()
         kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=1.0)
-        xs=np.linspace(0.001, 1.4, 200)
-        xs_solid=np.linspace(1.0, 1.4, 200)
         fig = go.Figure(
             data=[
-                go.Scatter(x=xs, y=[EOS_Fluid.p(1/rho, kT, nterms=n) for rho in xs], name="Fluid", mode="lines"),
+                go.Scatter(x=xs_fluid, y=[EOS_Fluid.p(1/rho, kT, nterms=n) for rho in xs_fluid], name="Fluid", mode="lines"),
                 go.Scatter(x=xs_solid, y=[EOS_FCC.p(1/rho, kT, nterms=n) for rho in xs_solid], name="FCC", mode="lines"),
                 go.Scatter(x=xs_solid, y=[EOS_HCP.p(1/rho, kT, nterms=n) for rho in xs_solid], name="HCP", mode="lines"),
                 ],
@@ -417,32 +415,38 @@ if True:
 
         print("Calculating the mu-p loop ", end="")
         start = time.process_time()
-        FluidData = np.column_stack(([EOS_Fluid.p(1 / rho, kT, nterms=n) for rho in xs],       [EOS_Fluid.mu(1/rho, kT, nterms=n) for rho in xs]))
+        FluidData = np.column_stack(([EOS_Fluid.p(1 / rho, kT, nterms=n) for rho in xs_fluid], [EOS_Fluid.mu(1/rho, kT, nterms=n) for rho in xs_fluid]))
         FCCData = np.column_stack(([EOS_FCC.p(1 / rho, kT, nterms=n) for rho in xs_solid], [EOS_FCC.mu(1/rho, kT, nterms=n) for rho in xs_solid]))
         HCPData = np.column_stack(([EOS_HCP.p(1 / rho, kT, nterms=n) for rho in xs_solid], [EOS_HCP.mu(1/rho, kT, nterms=n) for rho in xs_solid]))
         print(f"{time.process_time()-start:.2f} seconds")
 
         print("Solving for intersections ", end="")
         start = time.process_time()
-        curves = ((FluidData, "Fluid"), (FCCData, "FCC"), (HCPData, "HCP"))
+        curves = ((FluidData, "Fluid", xs_fluid), (FCCData, "FCC", xs_solid), (HCPData, "HCP", xs_solid))
         for ci in range(len(curves)):
-            Data1, name1 = curves[ci]
+            Data1, name1, densities1 = curves[ci]
             for cj in range(ci, len(curves)):
-                Data2, name2 = curves[cj]
+                Data2, name2, densities2 = curves[cj]
                 if name1 == name2:
                     for i in range(1, Data1.shape[0]):
-                        for j in range(i+2, Data1.shape[0]):
+                        for j in range(i+2, Data1.shape[0]): #Here we've strategically skipped adjecent line segments which share a vertex (as this would always give an intersection)
                             l1 = LineString([Data1[i], Data1[i-1]])
                             l2 = LineString([Data1[j], Data1[j-1]])
                             if l1.intersects(l2):
-                                print(name1,"-", name2, l1.intersection(l2))
+                                intersection = l1.intersection(l2)
+                                frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
+                                frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
+                                print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1]) + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
                 else:
                     for i in range(1, Data1.shape[0]):
                         for j in range(1, Data2.shape[0]):
                             l1 = LineString([Data1[i], Data1[i-1]])
                             l2 = LineString([Data2[j], Data2[j-1]])
                             if l1.intersects(l2):
-                                print(name1,"-", name2, l1.intersection(l2))
+                                intersection = l1.intersection(l2)
+                                frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
+                                frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
+                                print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1])  + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
         
         print(f"{time.process_time()-start:.2f} seconds")
 
@@ -453,6 +457,6 @@ if True:
             title=go.layout.Title(text="Loop diagram"),
             )
         )
-        fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ-μ_fluid</i>")
+        fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
         st.plotly_chart(fig, use_container_width=True)
         print(f"{time.process_time()-start:.2f} seconds")

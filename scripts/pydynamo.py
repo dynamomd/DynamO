@@ -898,12 +898,15 @@ class RadialDistributionOutputProperty(OutputProperty):
         moment_tags = outputfile.tree.findall('.//RadialDistributionMoments/Species/Moment')
         moments = np.array([[float(line.split()[1]) for line in tag.text.strip().split("\n")] for tag in moment_tags])
 
+        # In the simulation we have collected the moments of, N(r), the number of pairs below a radius r. 
+        # These moments are collected about an origin/offset N₀(r), i.e. ⟨(N(r)-N₀(r))^n⟩
+        # The origin is a numerical trick to reduce the size of the moments to reduce precision issues, its an
+        # approximation of the mean, by taking the initial value of N(r) at t=0.
+
         #moments is a 6xNbins array with N0, then <(N-N0)>, <(N-N0)^2>, and <(N-N0)^3> etc.
         N0 = np.copy(moments[0,:])
+        #We set the N0 column (copied above) into the <(N-N0)^0> column. This makes the formula exact 
         moments[0,:] = np.ones_like(moments[0,:])
-
-        #We need to recreate the central moments now before we're ready to send this for averaging.
-        central_moments = np.zeros((moments.shape[0]-1, moments.shape[1]))
 
         # We eventually want to convert to the central moments ⟨(N(r)-⟨N(r)⟩)^n⟩, To
         # do this we need to determine the first moment ⟨N(r)⟩. There is a general
@@ -919,6 +922,7 @@ class RadialDistributionOutputProperty(OutputProperty):
         # For all other steps n>2, b=⟨N(r)⟩, and a = N₀(r).
         # ⟨(N(r)-⟨N(r)⟩)^n⟩ = Σ_{i=0}^n comb(n, i) ⟨(N(r)-N₀(r))^i⟩ (N₀(r)-⟨N(r)⟩)^{n-i}
 
+        central_moments = np.zeros((moments.shape[0]-1, moments.shape[1]))
         central_moments[0,:] = moments[1,:] + N0
         ##Now make the other central moments
         for n in range(2, moments.shape[0]):
