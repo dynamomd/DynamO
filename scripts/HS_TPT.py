@@ -106,12 +106,36 @@ def setup_worker( config, #The name of the config file to generate.
 prefix="HS_TPT"
 
 statevars = [
-    [ #Hard sphere runs
+    [ #FCC
         ("Lambda", [float('inf')]),
-        ("InitState", ["FCC"]), #"HCP"
+        ("InitState", ["FCC"]),
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [7]))),
         ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
+        ("kT", [1.0]),
+    ],
+    [ # HCP
+        ("Lambda", [float('inf')]),
+        ("InitState", ["HCP"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 4*x**3, [7]))),
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
+        ("kT", [1.0]),
+    ],
+    [ # BCC
+        ("Lambda", [float('inf')]),
+        ("InitState", ["BCC"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: 2*x**3, [8]))),
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
+        ("kT", [1.0]),
+    ],
+    [ # SC
+        ("Lambda", [float('inf')]),
+        ("InitState", ["SC"]),
+        ("PhiT", [float('inf')]),
+        ("N", list(map(lambda x: x**3, [10]))),
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 0.99, 0.01)))))),
         ("kT", [1.0]),
     ],
 ]
@@ -134,10 +158,10 @@ mgr = pydynamo.SimManager(prefix, #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 1000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

@@ -215,9 +215,6 @@ st.title("Radial Distribution Tool")
 @st.cache_data
 def get_df():
     import pickle
-
-    N=1372
-
     max_moment=5
     print("  Running pickle load")
 
@@ -226,10 +223,6 @@ def get_df():
     all_N = sorted(set(df.index.get_level_values("N")))
 
     #Selecting N
-    print("  Selecting N")
-    df = df.loc[(N, slice(None))]
-    st.warning("Selecting N="+str(N))
-
     print("  Dropping unneeded columns")
     df.drop(["Lambda", "PhiT", "Rso", "kT"], axis=1, inplace=True)
 
@@ -310,7 +303,7 @@ def get_df():
         if "κ"+subs[n] not in df_moments:
             break
         #The -1 arises from the negative sign on the beta in the cumulant expansion being moved in here to agree with Young_Alder's notation
-        df_moments["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df_moments["κ"+subs[n]] / math.factorial(n) / N
+        df_moments["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df_moments["κ"+subs[n]] / math.factorial(n) / df_moments.index.get_level_values("N")
 
     return df, all_N, all_densities, all_InitState, all_Rs, df_moments
     #return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
@@ -362,13 +355,14 @@ if True:
         st.dataframe(dfplot)
         
         rho_minsolid = 0.95
-        rho_maxfluid = 1.4
+        rho_maxfluid = 1.0
 
         s = st.slider("Spline smoothing", min_value=0.0, max_value=1.0, step=0.01, value=0.5, format="%g")
         print("Building the equations of state")
-        dfFluidFCC = dfplot[dfplot["InitState"]=="FCC"]
-        dfFluid = dfFluidFCC[dfFluidFCC['ndensity'] < rho_maxfluid].set_index("ndensity").sort_index()
-        dfFCC = dfFluidFCC[dfFluidFCC['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
+        dfFluid = dfplot[dfplot["InitState"]=="SC"]
+        dfFluid = dfFluid[dfFluid['ndensity'] < rho_maxfluid].set_index("ndensity").sort_index()
+        dfFCC = dfplot[dfplot["InitState"]=="FCC"]
+        dfFCC = dfFCC[dfFCC['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
         dfHCP = dfplot[dfplot["InitState"]=="HCP"]
         dfHCP = dfHCP[dfHCP['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
 
