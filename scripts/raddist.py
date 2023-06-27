@@ -359,46 +359,34 @@ if True:
 
         s = st.slider("Spline smoothing", min_value=0.0, max_value=1.0, step=0.01, value=0.5, format="%g")
         print("Building the equations of state")
-        dfFluid = dfplot[dfplot["InitState"]=="SC"]
-        dfFluid = dfFluid[dfFluid['ndensity'] < rho_maxfluid].set_index("ndensity").sort_index()
-        dfFCC = dfplot[dfplot["InitState"]=="FCC"]
-        dfFCC = dfFCC[dfFCC['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
-        dfHCP = dfplot[dfplot["InitState"]=="HCP"]
-        dfHCP = dfHCP[dfHCP['ndensity'] > rho_minsolid].set_index("ndensity").sort_index()
 
-        EOS_Fluid = A_TPT_EOS(dfFluid, EOS_Fluid_HS_Young_Alder, s)
-        EOS_FCC = A_TPT_EOS(dfFCC, EOS_FCC_HS_Young_Alder, s)
-        EOS_HCP = A_TPT_EOS(dfHCP, EOS_HCP_HS_Young_Alder, s)
+        phases = {}
+        for name, InitState, solid, BaseEOS in [("Fluid", "SC", False, EOS_Fluid_HS_Young_Alder), ("FCC", "FCC", True, EOS_FCC_HS_Young_Alder), ("HCP", "HCP", True, EOS_HCP_HS_Young_Alder)]:
+            dfphase = dfplot[dfplot["InitState"]==InitState]
+            if solid:
+                filter_points = dfphase['ndensity'] > rho_minsolid
+                xs = np.linspace(rho_minsolid, 1.4, 200)
+            else:
+                filter_points = dfphase['ndensity'] < rho_maxfluid
+                xs = np.linspace(0.001, rho_maxfluid, 200)
+            datapoints = dfphase[filter_points].set_index("ndensity").sort_index()
+            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s), xs=xs)
 
         print("Plotting the spline fit to An")
         n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
-        xs_fluid=np.linspace(0.001, rho_maxfluid, 200)
-        xs_solid=np.linspace(rho_minsolid, 1.4, 200)
         fig = go.Figure(
-            data=[
-                go.Scatter(x=dfFluid.index, y=uncertainties.unumpy.nominal_values(dfFluid["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfFluid["A"+subs[n]]), visible=True), name="A"+subs[n]+",Fluid", mode="markers"),
-                go.Scatter(x=dfFCC.index, y=uncertainties.unumpy.nominal_values(dfFCC["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfFCC["A"+subs[n]]), visible=True), name="A"+subs[n]+",FCC", mode="markers"),
-                go.Scatter(x=dfHCP.index, y=uncertainties.unumpy.nominal_values(dfHCP["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(dfHCP["A"+subs[n]]), visible=True), name="A"+subs[n]+",HCP", mode="markers"),
-                go.Scatter(x=xs_fluid, y=EOS_Fluid.terms[n-1](xs_fluid), name="Fluid A"+subs[n], mode="lines"),
-                go.Scatter(x=xs_solid, y=EOS_FCC.terms[n-1](xs_solid), name="FCC A"+subs[n], mode="lines"),
-                go.Scatter(x=xs_solid, y=EOS_HCP.terms[n-1](xs_solid), name="HCP A"+subs[n], mode="lines"),
-                ],
-            layout=go.Layout(
-            title=go.layout.Title(text="A terms"),
-            )
+            data=[go.Scatter(x=d['datapoints'].index, y=uncertainties.unumpy.nominal_values(d['datapoints']["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(d['datapoints']["A"+subs[n]]), visible=True), name="A"+subs[n]+","+name, mode="markers") for name, d in phases.items()]\
+                +[go.Scatter(x=d['xs'], y=d['EOS'].terms[n-1](d['xs']), name=name+" A"+subs[n], mode="lines") for name, d in phases.items()],
+            layout=go.Layout(title=go.layout.Title(text="A terms"),),
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
 
         print("Plotting the pressure ", end="")
         start = time.process_time()
-        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.1, value=1.0)
+        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.01, value=1.0)
         fig = go.Figure(
-            data=[
-                go.Scatter(x=xs_fluid, y=[EOS_Fluid.p(1/rho, kT, nterms=n) for rho in xs_fluid], name="Fluid", mode="lines"),
-                go.Scatter(x=xs_solid, y=[EOS_FCC.p(1/rho, kT, nterms=n) for rho in xs_solid], name="FCC", mode="lines"),
-                go.Scatter(x=xs_solid, y=[EOS_HCP.p(1/rho, kT, nterms=n) for rho in xs_solid], name="HCP", mode="lines"),
-                ],
+            data=[go.Scatter(x=d['xs'], y=[d['EOS'].p(1/rho, kT, nterms=n) for rho in d['xs']], name=name, mode="lines") for name, d in phases.items()],
             layout=go.Layout(
             title=go.layout.Title(text="Pressure"),
             )
@@ -407,50 +395,99 @@ if True:
         st.plotly_chart(fig, use_container_width=True)
         print(f"{time.process_time()-start:.2f} seconds")
 
-        print("Calculating the mu-p loop ", end="")
-        start = time.process_time()
-        FluidData = np.column_stack(([EOS_Fluid.p(1 / rho, kT, nterms=n) for rho in xs_fluid], [EOS_Fluid.mu(1/rho, kT, nterms=n) for rho in xs_fluid]))
-        FCCData = np.column_stack(([EOS_FCC.p(1 / rho, kT, nterms=n) for rho in xs_solid], [EOS_FCC.mu(1/rho, kT, nterms=n) for rho in xs_solid]))
-        HCPData = np.column_stack(([EOS_HCP.p(1 / rho, kT, nterms=n) for rho in xs_solid], [EOS_HCP.mu(1/rho, kT, nterms=n) for rho in xs_solid]))
-        print(f"{time.process_time()-start:.2f} seconds")
+        def find_tielines(kT):
+            print(f"Calculating the kT={kT} mu-p loop data", end="")
+            start = time.process_time()
+            curve_points={name: np.column_stack(([d['EOS'].p(1 / rho, kT, nterms=n) for rho in d['xs']], [d['EOS'].mu(1/rho, kT, nterms=n) for rho in d['xs']])) for name, d in phases.items()}
+            print(f"{time.process_time()-start:.2f} seconds")
 
-        print("Solving for intersections ", end="")
-        start = time.process_time()
-        curves = ((FluidData, "Fluid", xs_fluid), (FCCData, "FCC", xs_solid), (HCPData, "HCP", xs_solid))
-        for ci in range(len(curves)):
-            Data1, name1, densities1 = curves[ci]
-            for cj in range(ci, len(curves)):
-                Data2, name2, densities2 = curves[cj]
-                if name1 == name2:
-                    for i in range(1, Data1.shape[0]):
-                        for j in range(i+2, Data1.shape[0]): #Here we've strategically skipped adjecent line segments which share a vertex (as this would always give an intersection)
-                            l1 = LineString([Data1[i], Data1[i-1]])
-                            l2 = LineString([Data1[j], Data1[j-1]])
-                            if l1.intersects(l2):
-                                intersection = l1.intersection(l2)
-                                frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
-                                frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
-                                print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1]) + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
+            print("Solving for tie lines ", end="")
+            start = time.process_time()
+            tielines = []
+
+            for name1, d1 in phases.items():
+                Data1 = curve_points[name1]
+                densities1 = d1['xs']
+                for name2, d2 in phases.items():
+                    Data2 = curve_points[name2]
+                    densities2 = d2['xs']
+                    if name1 == name2:
+                        for i in range(1, Data1.shape[0]):
+                            for j in range(i+2, Data1.shape[0]): #Here we've strategically skipped adjecent line segments which share a vertex (as this would always give an intersection)
+                                l1 = LineString([Data1[i], Data1[i-1]])
+                                l2 = LineString([Data1[j], Data1[j-1]])
+                                if l1.intersects(l2):
+                                    intersection = l1.intersection(l2)
+                                    frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
+                                    frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
+                                    density1 = frac1 * (densities1[i] - densities1[i-1]) + densities1[i-1]
+                                    density2 = frac2 * (densities2[j] - densities2[j-1]) + densities2[j-1]
+                                    if density1 < density2:
+                                        tielines.append((name1, name2, intersection.x, intersection.y, density1, density2))
+                                    else:
+                                        tielines.append((name2, name1, intersection.x, intersection.y, density2, density1))
+                                    #print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", , "ρ2=", )
+                    else:
+                        if name1 < name2:
+                            break #We discard half the ties to remove double counted transitions
+                        for i in range(1, Data1.shape[0]):
+                            for j in range(1, Data2.shape[0]): 
+                                l1 = LineString([Data1[i], Data1[i-1]])
+                                l2 = LineString([Data2[j], Data2[j-1]])
+                                if l1.intersects(l2):
+                                    intersection = l1.intersection(l2)
+                                    frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
+                                    frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
+                                    density1 = frac1 * (densities1[i] - densities1[i-1]) + densities1[i-1]
+                                    density2 = frac2 * (densities2[j] - densities2[j-1]) + densities2[j-1]
+                                    if density1 < density2:
+                                        tielines.append((name1, name2, intersection.x, intersection.y, density1, density2))
+                                    else:
+                                        tielines.append((name2, name1, intersection.x, intersection.y, density2, density1))
+                                    #print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1])  + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
+
+            stable_tielines = []
+            unstable_tielines = []
+            for idx1, tie1 in enumerate(tielines):
+                stable = True
+                tie1_name1, tie1_name2, tie1_p, tie1_mu, tie1_density1, tie1_density2 = tie1
+                for idx2, tie2 in enumerate(tielines):
+                    if idx1 == idx2:
+                        continue
+                    tie2_name1, tie2_name2, tie2_p, tie2_mu, tie2_density1, tie2_density2 = tie2
+                    #print("Testing", tie1_name1, tie1_name2, "against ", tie2_name1, tie2_name2)
+                    if (((tie2_density1 <= tie1_density1 <= tie2_density2) or (tie2_density1 <= tie1_density2 <= tie2_density2))
+                            and (tie1_mu > tie2_mu)):
+                        #print("DISCARD",tie1, tie2)
+                        stable=False
+                        break
+                                           
+                if stable:
+                    stable_tielines.append(tie1)
                 else:
-                    for i in range(1, Data1.shape[0]):
-                        for j in range(1, Data2.shape[0]):
-                            l1 = LineString([Data1[i], Data1[i-1]])
-                            l2 = LineString([Data2[j], Data2[j-1]])
-                            if l1.intersects(l2):
-                                intersection = l1.intersection(l2)
-                                frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
-                                frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
-                                print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1])  + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
-        
-        print(f"{time.process_time()-start:.2f} seconds")
+                    unstable_tielines.append(tie1)
 
-        print("Plotting mu-p", end="")
+            print(f"{time.process_time()-start:.2f} seconds")
+            return stable_tielines, unstable_tielines, curve_points
+
+            #for i, tie in enumerate(tielines):
+            #    stable = True
+            #    for j, tie in enumerate(tielines):
+            #        if i == j:
+            #            continue
+            #        if 
+        stable_tielines, unstable_tielines, curve_points = find_tielines(kT)
+        print("Stable", stable_tielines)
+        print("UnStable", unstable_tielines)
+
+        start = time.process_time()
         fig = go.Figure(
-            data=[go.Scatter(x=Data[:,0], y=Data[:,1], name=name, mode="lines") for Data, name in ((FluidData, "Fluid"), (FCCData, "FCC"), (HCPData, "HCP"))],
+            data=[go.Scatter(x=curve_points[name][:,0], y=curve_points[name][:,1], name=name, mode="lines") for name, d in phases.items()],
             layout=go.Layout(
             title=go.layout.Title(text="Loop diagram"),
             )
         )
         fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
         st.plotly_chart(fig, use_container_width=True)
-        print(f"{time.process_time()-start:.2f} seconds")
+
+        print("DONE!")
