@@ -446,29 +446,39 @@ if True:
                                         tielines.append((name2, name1, intersection.x, intersection.y, density2, density1))
                                     #print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1])  + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
 
-            stable_tielines = []
-            unstable_tielines = []
-            for idx1, tie1 in enumerate(tielines):
-                stable = True
-                tie1_name1, tie1_name2, tie1_p, tie1_mu, tie1_density1, tie1_density2 = tie1
-                for idx2, tie2 in enumerate(tielines):
-                    if idx1 == idx2:
-                        continue
-                    tie2_name1, tie2_name2, tie2_p, tie2_mu, tie2_density1, tie2_density2 = tie2
-                    #print("Testing", tie1_name1, tie1_name2, "against ", tie2_name1, tie2_name2)
-                    if (((tie2_density1 <= tie1_density1 <= tie2_density2) or (tie2_density1 <= tie1_density2 <= tie2_density2))
-                            and (tie1_mu > tie2_mu)):
-                        #print("DISCARD",tie1, tie2)
-                        stable=False
-                        break
-                                           
-                if stable:
-                    stable_tielines.append(tie1)
-                else:
-                    unstable_tielines.append(tie1)
+            #stable_tielines = []
+            #unstable_tielines = []
+            #tielines = sorted(tielines, key=lambda x: x[4])
+#
+            #for idx1, tie1 in enumerate(tielines):
+            #    stable = True
+            #    tie1_name1, tie1_name2, tie1_p, tie1_mu, tie1_density1, tie1_density2 = tie1
+            #    for idx2, tie2 in enumerate(tielines):
+            #        if not stable:
+            #            break
+            #        if idx1 == idx2:
+            #            continue
+            #        tie2_name1, tie2_name2, tie2_p, tie2_mu, tie2_density1, tie2_density2 = tie2
+            #        #Check for overlap
+            #        common_low = max(tie1_density1, tie2_density1)
+            #        common_high = min(tie1_density2, tie2_density2)
+            #        if  common_low >= common_high:
+            #            continue
+            #        
+            #        for d in [common_low, common_high]:
+            #            tie1_a = - tie1_p + d * tie1_mu
+            #            tie2_a = - tie2_p + d * tie2_mu
+            #            if tie2_a < tie1_a:
+            #                stable=False
+            #                break
+            #                               
+            #    if stable:
+            #        stable_tielines.append(tie1)
+            #    else:
+            #        unstable_tielines.append(tie1)
 
             print(f"{time.process_time()-start:.2f} seconds")
-            return stable_tielines, unstable_tielines, curve_points
+            return tielines, curve_points
 
             #for i, tie in enumerate(tielines):
             #    stable = True
@@ -476,9 +486,21 @@ if True:
             #        if i == j:
             #            continue
             #        if 
-        stable_tielines, unstable_tielines, curve_points = find_tielines(kT)
-        print("Stable", stable_tielines)
-        print("UnStable", unstable_tielines)
+        tielines, curve_points = find_tielines(kT)
+        print("tielines", tielines)
+
+        start = time.process_time()
+        fig = go.Figure(
+            data=[go.Scatter(x=[d1, d2], y=[-p+mu*d1, -p+mu*d2], name=name1+"->"+name2) for name1, name2, p, mu, d1, d2 in tielines]
+            + [go.Scatter(x=d['xs'], y=[d['EOS'].a(1/rho, kT, nterms=n) * rho for rho in d['xs']], name="a "+name) for name, d in phases.items()],
+            #+ [go.Scatter(x=d['xs'], y=[jax.grad(d['EOS'].p, argnums=0)(1/rho, kT, n) for rho in d['xs']], name="a "+name) for name, d in phases.items()],
+            layout=go.Layout(
+            title=go.layout.Title(text="Tielines"),
+            )
+        )
+        fig.update_layout(xaxis_title=r"<i> rho </i>", yaxis_title="<i>a</i>")
+        st.plotly_chart(fig, use_container_width=True)
+
 
         start = time.process_time()
         fig = go.Figure(
