@@ -489,7 +489,6 @@ if True:
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>p</i>")
         st.plotly_chart(fig, use_container_width=True)
 
-        start = time.process_time()
         stable_tielines = tielines[tielines['stable'] == True]
         unstable_tielines = tielines[tielines['stable'] == False]
         fig = go.Figure(
@@ -509,6 +508,18 @@ if True:
             )
         )
         fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
+        st.plotly_chart(fig, use_container_width=True)
+
+        print("Solving for the phase diagram", flush=True)
+        tielines = pd.concat([find_tielines(kT)[0].assign(kT=kT) for kT in np.linspace(0.25, 2.5, 50)])
+        groupd_ties = tielines.groupby(['name1', 'name2'])
+        fig = go.Figure(
+            data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties],
+            layout=go.Layout(
+            title=go.layout.Title(text="Phase diagram"),
+            )
+        )
+        fig.update_layout(xaxis_title=r"<i> ρ</i>", yaxis_title="<i>k<sub>B</sub>T</i>")
         st.plotly_chart(fig, use_container_width=True)
 
         print("DONE!")
