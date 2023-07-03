@@ -128,6 +128,7 @@ class A_EOS:
         self.a = try_jit(Aexpr)
         #dA/dV = -p
         self.p = try_jit(jax.grad(lambda V, kT : -Aexpr(V, kT), argnums=0))
+        self.dpdV = try_jit(jax.grad(self.p, argnums=0))
         #dA/dT = -S
         self.s = try_jit(jax.grad(lambda V, kT : -Aexpr(V, kT), argnums=1))
         
@@ -196,6 +197,11 @@ class A_TPT_EOS:
         rho = 1/V
         return self.A_ref.p(V, kT) + (rho**2) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms])) 
 
+    def dpdV(self, V, kT, nterms=None):
+        beta = 1/kT
+        rho = 1/V
+        return self.A_ref.p(V, kT) - 2 * (rho**3) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms]))  - (rho**4) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.ddtermsdV[:nterms])) 
+
     def s(self, V, kT, nterms=None):
         rho = 1/V
         return self.A_ref.s(V, kT) - sum(term(rho) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.terms[:nterms]))
@@ -207,12 +213,8 @@ class A_TPT_EOS:
         return self.a(V, kT, nterms) + kT * self.s(V, kT, nterms)
 
 st.title("Radial Distribution Tool")
-#output_file = st.file_uploader("Choose a Output file")
-#if output_file is None:
-#    st.error("Please load a data file to process")
-#else:
 
-@st.cache_data
+@st.cache_resource
 def get_df():
     import pickle
     max_moment=5
@@ -365,10 +367,10 @@ if True:
             dfphase = dfplot[dfplot["InitState"]==InitState]
             if solid:
                 filter_points = dfphase['ndensity'] > rho_minsolid
-                xs = np.linspace(rho_minsolid, 1.4, 200)
+                xs = np.linspace(rho_minsolid, 1.4, 201)
             else:
                 filter_points = dfphase['ndensity'] < rho_maxfluid
-                xs = np.linspace(0.001, rho_maxfluid, 200)
+                xs = np.linspace(0.001, rho_maxfluid, 201)
             datapoints = dfphase[filter_points].set_index("ndensity").sort_index()
             phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s), xs=xs)
 
@@ -382,129 +384,126 @@ if True:
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
 
-        print("Plotting the pressure ", end="")
-        start = time.process_time()
         kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.01, value=1.0)
+        def find_tielines(kT):
+            #Calculate all the segments for each EOS
+            def generator():
+                for name, d in phases.items():
+                    last = None
+                    for idx,rho in enumerate(d['xs']):
+                        next = (rho, (float(d['EOS'].p(1 / rho, kT, nterms=n)), float(d['EOS'].mu(1/rho, kT, nterms=n)), float(d['EOS'].dpdV(1/rho, kT, nterms=n))))
+                        if last != None:
+                            if last[1][0] < next[1][0]:
+                                yield (name, last[0], next[0], *(last[1]), *(next[1]), idx)
+                            else:
+                                yield (name, next[0], last[0], *(next[1]), *(last[1]), idx)
+                        last = next
+            
+            #Create the dataframe so this appears easier to read
+            df = pd.DataFrame(generator(),
+                              columns=["phase", "ρ1", "ρ2", "p1", "μ1", "dp/dv1", "p2", "μ2", "dp/dv2", "phaseindex"])
+            #Here we sort by pressure and chemical potential, so that when we iterate, we pull points of increasing pressure
+            df.sort_values(by=["p1","μ1"],inplace=True)
+
+            #We scan up in segments, with "active" segments being ones that had
+            #upper pressure limits above the previous segment's lower limit.
+            active_segments = [] 
+            active_tielines = []
+            tielines = []
+            for index, seg1 in df.iterrows():
+                #print("Checking index", index, list(seg1))
+                #Check if any transitions have been determined to be stable or unstable
+                temp_active_stable_transitions = active_tielines
+                active_tielines = []
+                for transition in temp_active_stable_transitions:
+                    p,mu,density1, density2, phase1, phase2 = transition
+                    if p < seg1['p1']:
+                        #We've moved passed this transition in pressure, so it must be stable
+                        tielines.append(transition + [True])
+                    else:
+                        mu_seg1 = seg1['μ1'] + (seg1['μ2'] - seg1['μ1']) * (p - seg1['p1']) / (seg1['p2'] - seg1['p1'])
+                        if mu_seg1 > mu:
+                            #Its still stable, so keep it
+                            active_tielines.append(transition)
+                        else:
+                            #Its not stable, so discard
+                            tielines.append(transition + [False])
+
+                #Now we check if this new segment brings in a transition. This
+                #will happen exactly once for each crossing.
+                l1 = LineString([(seg1["p1"], seg1["μ1"]), (seg1["p2"], seg1["μ2"])])
+                for aseg_idx in active_segments:
+                    seg2 = df.loc[aseg_idx]
+                    if seg1['phase'] == seg2['phase'] and abs(seg1['phaseindex'] - seg2['phaseindex']) == 1:
+                        #We skip adjacent line segments of the same phase, as they always intersect at their common points.
+                        continue
+                    l2 = LineString([(seg2["p1"], seg2["μ1"]), (seg2["p2"], seg2["μ2"])])
+                    if l1.intersects(l2):
+                        #We have an intersection/tie line. Calculate its properties
+                        intersection = l1.intersection(l2)
+                        p = intersection.x
+                        mu = intersection.y
+                        frac1 = (p - seg1['p1']) / (seg1['p2'] - seg1['p1'])
+                        frac2 = (p - seg2['p1']) / (seg2['p2'] - seg2['p1'])
+                        density1 = frac1 * (seg1['ρ2'] - seg1['ρ1']) + seg1['ρ1']
+                        density2 = frac2 * (seg2['ρ2'] - seg2['ρ1']) + seg2['ρ1']
+                        #We need to check that mu is below all other tie lines (skip the intersecting one)
+                        stable=True
+                        for seg3_idx in active_segments:
+                            if seg3_idx == aseg_idx:
+                                continue
+                            seg3 = df.loc[seg3_idx]
+                            if seg3['p1'] <= p <= seg3['p2']:
+                                #OK, check if the transition is above it
+                                mu_seg3 = seg3['μ1'] + (seg3['μ2'] - seg3['μ1']) * (p - seg3['p1']) / (seg3['p2'] - seg3['p1'])
+                                if mu_seg3 < mu:
+                                    stable = False
+                                    break
+                        if stable:
+                            if density1 < density2:
+                                active_tielines.append([p,mu, density1, density2, seg1['phase'], seg2['phase']])
+                            else:
+                                active_tielines.append([p,mu, density2, density1, seg2['phase'], seg1['phase']])
+                
+                #First, only keep segments that are overlapping with the current one
+                active_segments = list(filter(lambda idx: df.loc[idx]['p2'] >= seg1['p1'], active_segments))
+                active_segments.append(index)
+
+            #Resort the curve values for plotting as curves
+            df.sort_values(by=["phase", "phaseindex"], inplace=True)
+            return pd.DataFrame(tielines, columns=['p', 'μ', 'ρ1', 'ρ2', 'name1', 'name2', 'stable']), df
+
+        print("Solving for the tielines and data ", end="")
+        start = time.process_time()
+        tielines, curve_points = find_tielines(kT)
+        print(f"{time.process_time()-start:.2f} seconds")
+        #print("Discovered tielines\n", tielines)
+
+        print("Plotting the pressures")
         fig = go.Figure(
-            data=[go.Scatter(x=d['xs'], y=[d['EOS'].p(1/rho, kT, nterms=n) for rho in d['xs']], name=name, mode="lines") for name, d in phases.items()],
+            data=[go.Scatter(x=curve_points[curve_points['phase'] == name]["ρ1"], y=curve_points[curve_points['phase'] == name]["p1"], name=name, mode="lines") for name, d in phases.items()],
             layout=go.Layout(
-            title=go.layout.Title(text="Pressure"),
+                title=go.layout.Title(text="Pressure"),
             )
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>p</i>")
         st.plotly_chart(fig, use_container_width=True)
-        print(f"{time.process_time()-start:.2f} seconds")
-
-        def find_tielines(kT):
-            print(f"Calculating the kT={kT} mu-p loop data", end="")
-            start = time.process_time()
-            curve_points={name: np.column_stack(([d['EOS'].p(1 / rho, kT, nterms=n) for rho in d['xs']], [d['EOS'].mu(1/rho, kT, nterms=n) for rho in d['xs']])) for name, d in phases.items()}
-            print(f"{time.process_time()-start:.2f} seconds")
-
-            print("Solving for tie lines ", end="")
-            start = time.process_time()
-            tielines = []
-
-            for name1, d1 in phases.items():
-                Data1 = curve_points[name1]
-                densities1 = d1['xs']
-                for name2, d2 in phases.items():
-                    Data2 = curve_points[name2]
-                    densities2 = d2['xs']
-                    if name1 == name2:
-                        for i in range(1, Data1.shape[0]):
-                            for j in range(i+2, Data1.shape[0]): #Here we've strategically skipped adjecent line segments which share a vertex (as this would always give an intersection)
-                                l1 = LineString([Data1[i], Data1[i-1]])
-                                l2 = LineString([Data1[j], Data1[j-1]])
-                                if l1.intersects(l2):
-                                    intersection = l1.intersection(l2)
-                                    frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
-                                    frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
-                                    density1 = frac1 * (densities1[i] - densities1[i-1]) + densities1[i-1]
-                                    density2 = frac2 * (densities2[j] - densities2[j-1]) + densities2[j-1]
-                                    if density1 < density2:
-                                        tielines.append((name1, name2, intersection.x, intersection.y, density1, density2))
-                                    else:
-                                        tielines.append((name2, name1, intersection.x, intersection.y, density2, density1))
-                                    #print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", , "ρ2=", )
-                    else:
-                        if name1 < name2:
-                            break #We discard half the ties to remove double counted transitions
-                        for i in range(1, Data1.shape[0]):
-                            for j in range(1, Data2.shape[0]): 
-                                l1 = LineString([Data1[i], Data1[i-1]])
-                                l2 = LineString([Data2[j], Data2[j-1]])
-                                if l1.intersects(l2):
-                                    intersection = l1.intersection(l2)
-                                    frac1 = (intersection.x - Data1[i-1][0]) / (Data1[i][0] - Data1[i-1][0])
-                                    frac2 = (intersection.x - Data2[j-1][0]) / (Data2[j][0] - Data2[j-1][0])
-                                    density1 = frac1 * (densities1[i] - densities1[i-1]) + densities1[i-1]
-                                    density2 = frac2 * (densities2[j] - densities2[j-1]) + densities2[j-1]
-                                    if density1 < density2:
-                                        tielines.append((name1, name2, intersection.x, intersection.y, density1, density2))
-                                    else:
-                                        tielines.append((name2, name1, intersection.x, intersection.y, density2, density1))
-                                    #print(f"{name1}-{name2}, p=",intersection.x, ", μ=", intersection.y, ", ρ1=", frac1 * (densities1[i] - densities1[i-1])  + densities1[i-1], "ρ2=", frac2 * (densities2[j] - densities2[j-1])+densities2[j-1])
-
-            #stable_tielines = []
-            #unstable_tielines = []
-            #tielines = sorted(tielines, key=lambda x: x[4])
-#
-            #for idx1, tie1 in enumerate(tielines):
-            #    stable = True
-            #    tie1_name1, tie1_name2, tie1_p, tie1_mu, tie1_density1, tie1_density2 = tie1
-            #    for idx2, tie2 in enumerate(tielines):
-            #        if not stable:
-            #            break
-            #        if idx1 == idx2:
-            #            continue
-            #        tie2_name1, tie2_name2, tie2_p, tie2_mu, tie2_density1, tie2_density2 = tie2
-            #        #Check for overlap
-            #        common_low = max(tie1_density1, tie2_density1)
-            #        common_high = min(tie1_density2, tie2_density2)
-            #        if  common_low >= common_high:
-            #            continue
-            #        
-            #        for d in [common_low, common_high]:
-            #            tie1_a = - tie1_p + d * tie1_mu
-            #            tie2_a = - tie2_p + d * tie2_mu
-            #            if tie2_a < tie1_a:
-            #                stable=False
-            #                break
-            #                               
-            #    if stable:
-            #        stable_tielines.append(tie1)
-            #    else:
-            #        unstable_tielines.append(tie1)
-
-            print(f"{time.process_time()-start:.2f} seconds")
-            return tielines, curve_points
-
-            #for i, tie in enumerate(tielines):
-            #    stable = True
-            #    for j, tie in enumerate(tielines):
-            #        if i == j:
-            #            continue
-            #        if 
-        tielines, curve_points = find_tielines(kT)
-        print("tielines", tielines)
 
         start = time.process_time()
+        stable_tielines = tielines[tielines['stable'] == True]
+        unstable_tielines = tielines[tielines['stable'] == False]
         fig = go.Figure(
-            data=[go.Scatter(x=[d1, d2], y=[-p+mu*d1, -p+mu*d2], name=name1+"->"+name2) for name1, name2, p, mu, d1, d2 in tielines]
-            + [go.Scatter(x=d['xs'], y=[d['EOS'].a(1/rho, kT, nterms=n) * rho for rho in d['xs']], name="a "+name) for name, d in phases.items()],
-            #+ [go.Scatter(x=d['xs'], y=[jax.grad(d['EOS'].p, argnums=0)(1/rho, kT, n) for rho in d['xs']], name="a "+name) for name, d in phases.items()],
-            layout=go.Layout(
-            title=go.layout.Title(text="Tielines"),
-            )
-        )
-        fig.update_layout(xaxis_title=r"<i> rho </i>", yaxis_title="<i>a</i>")
-        st.plotly_chart(fig, use_container_width=True)
-
-
-        start = time.process_time()
-        fig = go.Figure(
-            data=[go.Scatter(x=curve_points[name][:,0], y=curve_points[name][:,1], name=name, mode="lines") for name, d in phases.items()],
+            data=[go.Scatter(x=curve_points[curve_points['phase'] == name]["p1"], y=curve_points[curve_points['phase'] == name]["μ1"], name=name, mode="lines") for name, d in phases.items()]
+                +[go.Scatter(x=stable_tielines['p'], 
+                             y=stable_tielines['μ'],
+                             text=stable_tielines['name1']+"→"+stable_tielines['name2'],
+                             mode="markers+text",
+                             name="Stable Transitions")]
+                +[go.Scatter(x=unstable_tielines['p'], 
+                             y=unstable_tielines['μ'],
+                             text=unstable_tielines['name1']+"→"+unstable_tielines['name2'],
+                             mode="markers+text",
+                             name="Unstable Transitions")],
             layout=go.Layout(
             title=go.layout.Title(text="Loop diagram"),
             )
