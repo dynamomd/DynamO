@@ -154,14 +154,8 @@ def A_HCP_HS_Young_Alder(V, kT):
     
 EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 
-#for EOS in [EOS_FCC_HS_Young_Alder, EOS_HCP_HS_Young_Alder, EOS_Fluid_HS_Young_Alder]:
-#    rho=0.9718
-#    V=1.0/rho
-#    kT=1.0
-#    print(EOS.a(V, kT))
-#    print(EOS.p(V, kT))
-#    print(EOS.s(V, kT))
-#
+from functools import partial
+
 class A_TPT_EOS:
     def __init__(self, df, A_ref, s):
         import scipy.interpolate as si
@@ -185,6 +179,7 @@ class A_TPT_EOS:
             self.dtermsdV.append(spline.derivative())
             self.ddtermsdV.append(spline.derivative(2))
             order +=1
+        
 
     def a(self, V, kT, nterms=None):
         beta = 1/kT
@@ -212,7 +207,10 @@ class A_TPT_EOS:
     def u(self, V, kT, nterms=None):
         return self.a(V, kT, nterms) + kT * self.s(V, kT, nterms)
 
-st.title("Radial Distribution Tool")
+def fixup_values(values):
+   #Get a unique list of values without small numerical differences (10s.f.) in sorted order
+   return list(sorted(set(float(f'{float(f"{v:.10g}"):g}') for v in values)))
+
 
 @st.cache_resource
 def get_df():
@@ -222,13 +220,13 @@ def get_df():
 
     df = pickle.load(open('/home/mjki2mb2/dynamo-repo/scripts/HS_TPT.pkl', 'rb'))
     df.set_index(["N", "ndensity", "InitState"], inplace=True)
-    all_N = sorted(set(df.index.get_level_values("N")))
+    all_N = fixup_values(df.index.get_level_values("N"))
 
     #Selecting N
     print("  Dropping unneeded columns")
     df.drop(["Lambda", "PhiT", "Rso", "kT"], axis=1, inplace=True)
 
-    all_densities = sorted(set(df.index.get_level_values("ndensity")))
+    all_densities = fixup_values(df.index.get_level_values("ndensity"))
     all_InitState = sorted(set(df.index.get_level_values("InitState")))
 
     #We need to unpack the moments into a new dataframe
@@ -252,14 +250,7 @@ def get_df():
     print("  Unpacking moments")
     df_moments = pd.concat([moment_to_df(index, row) for index, row in df.iterrows()])
 
-    all_Rs = sorted(set(df_moments.index.get_level_values("R")))
-
-    if False:
-        lam = [1.1, 1.5]
-        st.warning("Selecting lambda="+str(lam))
-        idx = pd.IndexSlice
-        df_moments = df_moments.loc(axis=0)[idx[:, :, lam]]
-        all_Rs = lam
+    all_Rs = fixup_values(df_moments.index.get_level_values("R"))
 
     # The Helmholtz free energy is related to the partition function, which is related to the configuration integral
     # -F/(k_BT) = ln Z = ln ⟨exp(-βU)⟩
@@ -308,8 +299,8 @@ def get_df():
         df_moments["A"+subs[n]] = (-1) ** (n+1) * (well_depth)**n * df_moments["κ"+subs[n]] / math.factorial(n) / df_moments.index.get_level_values("N")
 
     return df, all_N, all_densities, all_InitState, all_Rs, df_moments
-    #return pd.concat(pd.DataFrame(getGrData(pydynamo.OutputFile(file)), columns=["N", "Species 1", "Species 2", "Order","N/V", "R", "Value"]) for file in glob.glob("/home/mjki2mb2/dynamo-repo/scripts/HS_TPT/*/1.data.xml.bz2", recursive=True))
 
+st.title("Radial Distribution Tool")
 tab_df, tab_Aterms, tab_phase = st.tabs(["Dataframe", "A terms", "Phase"])
 import collections
 
@@ -320,10 +311,13 @@ if True:
         print("Loading data files")
         df, all_N, all_densities, all_InitState, all_Rs, df_moments = get_df()
 
-        print("Creating dataframe tab")
+        print("Creating dataframe tab", flush=True)
+        start = time.process_time()
         st.dataframe(filter_dataframe(df_moments))
+        print(f"{time.process_time()-start:.2f} seconds")
 
     print("Creating Aterms tab")
+    start = time.process_time()
     format_func = lambda x : "ρ="+str(datastat.roundSF(x, 12))+",V*="+str(datastat.roundSF(math.sqrt(2)/x, 12))
     with tab_Aterms:
         densities = st.multiselect("Density", all_densities, format_func=format_func)
@@ -343,11 +337,11 @@ if True:
 
     with tab_Aterms:
         st.plotly_chart(fig, use_container_width=True)
-
+    print(f"{time.process_time()-start:.2f} seconds")
 
     print("Creating Phase tab")
     with tab_phase:
-        Rval = st.selectbox("Lambda", all_Rs, format_func=lambda x: str(datastat.roundSF(x, 12)))
+        Rval = st.selectbox("Lambda", all_Rs, format_func=lambda x: str(datastat.roundSF(x, 12)), index=50)
 
         #This is a slice of all the densities for a particular Rval. 
         print("Slicing and sorting the data")
@@ -361,6 +355,7 @@ if True:
 
         s = st.slider("Spline smoothing", min_value=0.0, max_value=1.0, step=0.01, value=0.5, format="%g")
         print("Building the equations of state")
+        start = time.process_time()
 
         phases = {}
         for name, InitState, solid, BaseEOS in [("Fluid", "SC", False, EOS_Fluid_HS_Young_Alder), ("FCC", "FCC", True, EOS_FCC_HS_Young_Alder), ("HCP", "HCP", True, EOS_HCP_HS_Young_Alder)]:
@@ -370,11 +365,13 @@ if True:
                 xs = np.linspace(rho_minsolid, 1.4, 201)
             else:
                 filter_points = dfphase['ndensity'] < rho_maxfluid
-                xs = np.linspace(0.001, rho_maxfluid, 201)
+                xs = np.linspace(1e-12, rho_maxfluid, 201)
             datapoints = dfphase[filter_points].set_index("ndensity").sort_index()
             phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s), xs=xs)
+        print(f"{time.process_time()-start:.2f} seconds")
 
         print("Plotting the spline fit to An")
+        start = time.process_time()
         n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
         fig = go.Figure(
             data=[go.Scatter(x=d['datapoints'].index, y=uncertainties.unumpy.nominal_values(d['datapoints']["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(d['datapoints']["A"+subs[n]]), visible=True), name="A"+subs[n]+","+name, mode="markers") for name, d in phases.items()]\
@@ -383,9 +380,11 @@ if True:
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
+        print(f"{time.process_time()-start:.2f} seconds")
 
-        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.01, value=1.0)
-        def find_tielines(kT):
+        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.01, value=1.1)
+
+        def find_tielines(kT, timeit=False):
             #Calculate all the segments for each EOS
             def generator():
                 for name, d in phases.items():
@@ -398,19 +397,30 @@ if True:
                             else:
                                 yield (name, next[0], last[0], *(next[1]), *(last[1]), idx)
                         last = next
-            
+            if timeit:
+                print("Calculating the segments ", flush=True)
+                start = time.process_time()
             #Create the dataframe so this appears easier to read
             df = pd.DataFrame(generator(),
                               columns=["phase", "ρ1", "ρ2", "p1", "μ1", "dp/dv1", "p2", "μ2", "dp/dv2", "phaseindex"])
-            #Here we sort by pressure and chemical potential, so that when we iterate, we pull points of increasing pressure
-            df.sort_values(by=["p1","μ1"],inplace=True)
+            if timeit:
+                print(f"{time.process_time()-start:.2f} seconds")
 
+            #Here we also sort by pressure and chemical potential, so that when
+            #we iterate, we pull points of increasing pressure.
+            df.sort_values(by=["p1","μ1"], inplace=True)
+            #Filter out any segments including unstable points. 
+            df_scan = df[(df['dp/dv1'] > 0) & (df['dp/dv2'] > 0)]
+
+            if timeit:
+                print("Scanning segments for transitions", flush=True)
+                start = time.process_time()
             #We scan up in segments, with "active" segments being ones that had
             #upper pressure limits above the previous segment's lower limit.
             active_segments = [] 
             active_tielines = []
             tielines = []
-            for index, seg1 in df.iterrows():
+            for index, seg1 in df_scan.iterrows():
                 #print("Checking index", index, list(seg1))
                 #Check if any transitions have been determined to be stable or unstable
                 temp_active_stable_transitions = active_tielines
@@ -447,6 +457,15 @@ if True:
                         frac2 = (p - seg2['p1']) / (seg2['p2'] - seg2['p1'])
                         density1 = frac1 * (seg1['ρ2'] - seg1['ρ1']) + seg1['ρ1']
                         density2 = frac2 * (seg2['ρ2'] - seg2['ρ1']) + seg2['ρ1']
+                        #Check that this tieline is on sensible parts of the EOS
+                        if phases[seg1['phase']]['EOS'].dpdV(1/density1, kT, nterms=n) < 0:
+                            continue
+                        if phases[seg2['phase']]['EOS'].dpdV(1/density2, kT, nterms=n) < 0:
+                            continue
+                        if phases[seg1['phase']]['EOS'].p(1/density1, kT, nterms=n) < 0:
+                            continue
+                        if phases[seg2['phase']]['EOS'].p(1/density2, kT, nterms=n) < 0:
+                            continue
                         #We need to check that mu is below all other tie lines (skip the intersecting one)
                         stable=True
                         for seg3_idx in active_segments:
@@ -469,13 +488,15 @@ if True:
                 active_segments = list(filter(lambda idx: df.loc[idx]['p2'] >= seg1['p1'], active_segments))
                 active_segments.append(index)
 
+            if timeit:
+                print(f"{time.process_time()-start:.2f} seconds")
             #Resort the curve values for plotting as curves
             df.sort_values(by=["phase", "phaseindex"], inplace=True)
             return pd.DataFrame(tielines, columns=['p', 'μ', 'ρ1', 'ρ2', 'name1', 'name2', 'stable']), df
 
-        print("Solving for the tielines and data ", end="")
+        print("Solving for the tielines and data ", flush=True)
         start = time.process_time()
-        tielines, curve_points = find_tielines(kT)
+        tielines, curve_points = find_tielines(kT, timeit=True)
         print(f"{time.process_time()-start:.2f} seconds")
         #print("Discovered tielines\n", tielines)
 
@@ -510,16 +531,16 @@ if True:
         fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
         st.plotly_chart(fig, use_container_width=True)
 
-        print("Solving for the phase diagram", flush=True)
-        tielines = pd.concat([find_tielines(kT)[0].assign(kT=kT) for kT in np.linspace(0.25, 2.5, 50)])
-        groupd_ties = tielines.groupby(['name1', 'name2'])
-        fig = go.Figure(
-            data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties],
-            layout=go.Layout(
-            title=go.layout.Title(text="Phase diagram"),
-            )
-        )
-        fig.update_layout(xaxis_title=r"<i> ρ</i>", yaxis_title="<i>k<sub>B</sub>T</i>")
-        st.plotly_chart(fig, use_container_width=True)
+        #print("Solving for the phase diagram", flush=True)
+        #tielines = pd.concat([find_tielines(kT)[0].assign(kT=kT) for kT in np.linspace(0.25, 2.5, 50)])
+        #groupd_ties = tielines.groupby(['name1', 'name2'])
+        #fig = go.Figure(
+        #    data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties],
+        #    layout=go.Layout(
+        #    title=go.layout.Title(text="Phase diagram"),
+        #    )
+        #)
+        #fig.update_layout(xaxis_title=r"<i> ρ</i>", yaxis_title="<i>k<sub>B</sub>T</i>")
+        #st.plotly_chart(fig, use_container_width=True)
 
         print("DONE!")
