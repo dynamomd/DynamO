@@ -23,7 +23,8 @@ from pandas.api.types import (
 import shapely
 from shapely.geometry import LineString
 
-from jax_spline import InterpolatedUnivariateSpline
+#from jax_spline import InterpolatedUnivariateSpline
+from scipy.interpolate import UnivariateSpline
 
 subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
 pwrs = ["⁰","¹", "²", "³", "⁴", "⁵", "⁶", "⁷","⁸", "⁹"]
@@ -115,7 +116,7 @@ def getGrData(of : pydynamo.OutputFile):
                 yield (N, species.attrib["Name1"], species.attrib["Name2"], int(moment.attrib['Order']), of.numdensity(), r, v)
 
 def try_jit(f):
-#    return f
+    #return f
     try:
         ftmp = jax.jit(ftmp)
         ftmp(1.0, 1.0)
@@ -157,7 +158,7 @@ EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
 from functools import partial
 
 class A_TPT_EOS:
-    def __init__(self, df, A_ref, s):
+    def __init__(self, df, A_ref, s, nterms):
         import scipy.interpolate as si
 
         self.A_ref = A_ref
@@ -165,7 +166,7 @@ class A_TPT_EOS:
         self.dtermsdV = []
         self.ddtermsdV = []
         order = 1
-        while 'A'+subs[order] in df:
+        while 'A'+subs[order] in df and order <= nterms:
             #Fit a spline in terms of V
             x=np.concatenate(([0.0], df.index.to_numpy()))
             y=np.concatenate(([0.0], uncertainties.unumpy.nominal_values(df['A'+subs[order]])))
@@ -175,37 +176,37 @@ class A_TPT_EOS:
             yerr[yerr == 0] = yerr_min
             #Weights are 1/std_dev, so we follow scipy.interpolate.UnivariateSpline guidance for s which is equal to data count.
             spline = si.UnivariateSpline(x=x, y=y, w=1/yerr, s= s * 4 * y.shape[0])
+            #print('A'+subs[order], spline.get_coeffs())
             self.terms.append(spline)
             self.dtermsdV.append(spline.derivative())
             self.ddtermsdV.append(spline.derivative(2))
             order +=1
-        
 
-    def a(self, V, kT, nterms=None):
+    def a(self, V, kT):
         beta = 1/kT
         rho = 1/V
-        return self.A_ref.a(V, kT) + sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.terms[:nterms])) 
+        return self.A_ref.a(V, kT) + sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.terms)) 
 
-    def p(self, V, kT, nterms=None):
+    def p(self, V, kT):
         beta = 1/kT
         #-rho**2 is the jacobian from V to rho
         rho = 1/V
-        return self.A_ref.p(V, kT) + (rho**2) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms])) 
+        return self.A_ref.p(V, kT) + (rho**2) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV))
 
-    def dpdV(self, V, kT, nterms=None):
+    def dpdV(self, V, kT):
         beta = 1/kT
         rho = 1/V
-        return self.A_ref.p(V, kT) - 2 * (rho**3) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV[:nterms]))  - (rho**4) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.ddtermsdV[:nterms])) 
+        return self.A_ref.p(V, kT) - 2 * (rho**3) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV))  - (rho**4) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.ddtermsdV)) 
 
-    def s(self, V, kT, nterms=None):
+    def s(self, V, kT):
         rho = 1/V
-        return self.A_ref.s(V, kT) - sum(term(rho) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.terms[:nterms]))
+        return self.A_ref.s(V, kT) - sum(term(rho) * (-(idx+1)) * kT**(-(idx+2)) for idx, term in enumerate(self.terms))
     
-    def mu(self, V, kT, nterms=None):
-        return self.a(V, kT, nterms) + self.p(V, kT, nterms) * V
+    def mu(self, V, kT):
+        return self.a(V, kT) + self.p(V, kT) * V
     
     def u(self, V, kT, nterms=None):
-        return self.a(V, kT, nterms) + kT * self.s(V, kT, nterms)
+        return self.a(V, kT) + kT * self.s(V, kT)
 
 def fixup_values(values):
    #Get a unique list of values without small numerical differences (10s.f.) in sorted order
@@ -357,6 +358,7 @@ if True:
         print("Building the equations of state")
         start = time.process_time()
 
+        nterms = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
         phases = {}
         for name, InitState, solid, BaseEOS in [("Fluid", "SC", False, EOS_Fluid_HS_Young_Alder), ("FCC", "FCC", True, EOS_FCC_HS_Young_Alder), ("HCP", "HCP", True, EOS_HCP_HS_Young_Alder)]:
             dfphase = dfplot[dfplot["InitState"]==InitState]
@@ -367,30 +369,32 @@ if True:
                 filter_points = dfphase['ndensity'] < rho_maxfluid
                 xs = np.linspace(1e-12, rho_maxfluid, 201)
             datapoints = dfphase[filter_points].set_index("ndensity").sort_index()
-            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s), xs=xs)
+            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s, nterms=nterms), xs=xs)
         print(f"{time.process_time()-start:.2f} seconds")
 
         print("Plotting the spline fit to An")
         start = time.process_time()
-        n = st.slider("Theory order n", min_value=1, max_value=max_moment, step=1, value=2)
         fig = go.Figure(
-            data=[go.Scatter(x=d['datapoints'].index, y=uncertainties.unumpy.nominal_values(d['datapoints']["A"+subs[n]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(d['datapoints']["A"+subs[n]]), visible=True), name="A"+subs[n]+","+name, mode="markers") for name, d in phases.items()]\
-                +[go.Scatter(x=d['xs'], y=d['EOS'].terms[n-1](d['xs']), name=name+" A"+subs[n], mode="lines") for name, d in phases.items()],
+            data=[go.Scatter(x=d['datapoints'].index, y=uncertainties.unumpy.nominal_values(d['datapoints']["A"+subs[nterms]]), error_y=dict(type="data", array=uncertainties.unumpy.std_devs(d['datapoints']["A"+subs[nterms]]), visible=True), name="A"+subs[nterms]+","+name, mode="markers") for name, d in phases.items()]\
+                +[go.Scatter(x=d['xs'], y=d['EOS'].terms[nterms-1](d['xs']), name=name+" A"+subs[nterms], mode="lines") for name, d in phases.items()],
             layout=go.Layout(title=go.layout.Title(text="A terms"),),
         )
         fig.update_layout(xaxis_title=r"<i> N σ³ / V</i>", yaxis_title="<i>A<sub>n</sub>/N</i>")
         st.plotly_chart(fig, use_container_width=True)
         print(f"{time.process_time()-start:.2f} seconds")
 
-        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.01, value=1.1)
+        kT = st.slider("kT", min_value=0.1, max_value=5.0, step=0.01, value=0.6)
 
         def find_tielines(kT, timeit=False):
+            print("Finding tielines for kT =",kT)
             #Calculate all the segments for each EOS
             def generator():
                 for name, d in phases.items():
                     last = None
+                    #print(d['EOS'].p(1 / d['xs'], kT, nterms=n))
+                    EOS = d['EOS']
                     for idx,rho in enumerate(d['xs']):
-                        next = (rho, (float(d['EOS'].p(1 / rho, kT, nterms=n)), float(d['EOS'].mu(1/rho, kT, nterms=n)), float(d['EOS'].dpdV(1/rho, kT, nterms=n))))
+                        next = (rho, (float(EOS.p(1 / rho, kT)), float(EOS.mu(1/rho, kT)), 1)) #float(EOS.dpdV(1/rho, kT))
                         if last != None:
                             if last[1][0] < next[1][0]:
                                 yield (name, last[0], next[0], *(last[1]), *(next[1]), idx)
@@ -410,7 +414,9 @@ if True:
             #we iterate, we pull points of increasing pressure.
             df.sort_values(by=["p1","μ1"], inplace=True)
             #Filter out any segments including unstable points. 
-            df_scan = df[(df['dp/dv1'] > 0) & (df['dp/dv2'] > 0)]
+            #df_scan = df
+            #We only consider tielines which have at least one positive pressure (don't mind some extrapolation into negative pressure, needed for low temperature/gas branches)
+            df_scan = df[(df['p1'] > 0) | (df['p2'] > 0)]
 
             if timeit:
                 print("Scanning segments for transitions", flush=True)
@@ -420,8 +426,9 @@ if True:
             active_segments = [] 
             active_tielines = []
             tielines = []
+            debug_tielines = False
+            i=0
             for index, seg1 in df_scan.iterrows():
-                #print("Checking index", index, list(seg1))
                 #Check if any transitions have been determined to be stable or unstable
                 temp_active_stable_transitions = active_tielines
                 active_tielines = []
@@ -429,6 +436,8 @@ if True:
                     p,mu,density1, density2, phase1, phase2 = transition
                     if p < seg1['p1']:
                         #We've moved passed this transition in pressure, so it must be stable
+                        if debug_tielines:
+                            print("Tieline stable:", transition)
                         tielines.append(transition + [True])
                     else:
                         mu_seg1 = seg1['μ1'] + (seg1['μ2'] - seg1['μ1']) * (p - seg1['p1']) / (seg1['p2'] - seg1['p1'])
@@ -437,6 +446,8 @@ if True:
                             active_tielines.append(transition)
                         else:
                             #Its not stable, so discard
+                            if debug_tielines:
+                                print("Tieline discarded:", transition)
                             tielines.append(transition + [False])
 
                 #Now we check if this new segment brings in a transition. This
@@ -452,20 +463,30 @@ if True:
                         #We have an intersection/tie line. Calculate its properties
                         intersection = l1.intersection(l2)
                         p = intersection.x
+                        if p < 0:
+                            #There is a chance a negative pressure might show up on extrapolated lines
+                            print("NEGATIVE PRESSURE FOUND!")
+                            continue
                         mu = intersection.y
                         frac1 = (p - seg1['p1']) / (seg1['p2'] - seg1['p1'])
                         frac2 = (p - seg2['p1']) / (seg2['p2'] - seg2['p1'])
                         density1 = frac1 * (seg1['ρ2'] - seg1['ρ1']) + seg1['ρ1']
                         density2 = frac2 * (seg2['ρ2'] - seg2['ρ1']) + seg2['ρ1']
+                        if density1 < density2:
+                            tieline = [p,mu, density1, density2, seg1['phase'], seg2['phase']]
+                        else:
+                            tieline = [p,mu, density2, density1, seg2['phase'], seg1['phase']]
+                        if debug_tielines:
+                            print('Tieline found:', tieline)
                         #Check that this tieline is on sensible parts of the EOS
-                        if phases[seg1['phase']]['EOS'].dpdV(1/density1, kT, nterms=n) < 0:
-                            continue
-                        if phases[seg2['phase']]['EOS'].dpdV(1/density2, kT, nterms=n) < 0:
-                            continue
-                        if phases[seg1['phase']]['EOS'].p(1/density1, kT, nterms=n) < 0:
-                            continue
-                        if phases[seg2['phase']]['EOS'].p(1/density2, kT, nterms=n) < 0:
-                            continue
+                        #if phases[seg1['phase']]['EOS'].dpdV(1/density1, kT, nterms=n) < 0:
+                        #    continue
+                        #if phases[seg2['phase']]['EOS'].dpdV(1/density2, kT, nterms=n) < 0:
+                        #    continue
+                        #if phases[seg1['phase']]['EOS'].p(1/density1, kT, nterms=n) < 0:
+                        #    continue
+                        #if phases[seg2['phase']]['EOS'].p(1/density2, kT, nterms=n) < 0:
+                        #    continue
                         #We need to check that mu is below all other tie lines (skip the intersecting one)
                         stable=True
                         for seg3_idx in active_segments:
@@ -476,13 +497,12 @@ if True:
                                 #OK, check if the transition is above it
                                 mu_seg3 = seg3['μ1'] + (seg3['μ2'] - seg3['μ1']) * (p - seg3['p1']) / (seg3['p2'] - seg3['p1'])
                                 if mu_seg3 < mu:
+                                    if debug_tielines:
+                                        print('Tieline is unstable with active_segments:', tieline)
                                     stable = False
                                     break
                         if stable:
-                            if density1 < density2:
-                                active_tielines.append([p,mu, density1, density2, seg1['phase'], seg2['phase']])
-                            else:
-                                active_tielines.append([p,mu, density2, density1, seg2['phase'], seg1['phase']])
+                            active_tielines.append(tieline)
                 
                 #First, only keep segments that are overlapping with the current one
                 active_segments = list(filter(lambda idx: df.loc[idx]['p2'] >= seg1['p1'], active_segments))
@@ -513,7 +533,7 @@ if True:
         stable_tielines = tielines[tielines['stable'] == True]
         unstable_tielines = tielines[tielines['stable'] == False]
         fig = go.Figure(
-            data=[go.Scatter(x=curve_points[curve_points['phase'] == name]["p1"], y=curve_points[curve_points['phase'] == name]["μ1"], name=name, mode="lines") for name, d in phases.items()]
+            data=[go.Scatter(x=curve_points[curve_points['phase'] == name]["p1"], y=curve_points[curve_points['phase'] == name]["μ1"], name=name, mode="markers+lines") for name, d in phases.items()]
                 +[go.Scatter(x=stable_tielines['p'], 
                              y=stable_tielines['μ'],
                              text=stable_tielines['name1']+"→"+stable_tielines['name2'],
@@ -531,16 +551,16 @@ if True:
         fig.update_layout(xaxis_title=r"<i> p </i>", yaxis_title="<i>μ</i>")
         st.plotly_chart(fig, use_container_width=True)
 
-        #print("Solving for the phase diagram", flush=True)
-        #tielines = pd.concat([find_tielines(kT)[0].assign(kT=kT) for kT in np.linspace(0.25, 2.5, 50)])
-        #groupd_ties = tielines.groupby(['name1', 'name2'])
-        #fig = go.Figure(
-        #    data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties],
-        #    layout=go.Layout(
-        #    title=go.layout.Title(text="Phase diagram"),
-        #    )
-        #)
-        #fig.update_layout(xaxis_title=r"<i> ρ</i>", yaxis_title="<i>k<sub>B</sub>T</i>")
-        #st.plotly_chart(fig, use_container_width=True)
+        print("Solving for the phase diagram", flush=True)
+        tielines = pd.concat([find_tielines(kT)[0].assign(kT=kT) for kT in np.linspace(0.25, 2.5, 50)])
+        groupd_ties = tielines.groupby(['name1', 'name2'])
+        fig = go.Figure(
+            data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties],
+            layout=go.Layout(
+            title=go.layout.Title(text="Phase diagram"),
+            )
+        )
+        fig.update_layout(xaxis_title=r"<i> ρ</i>", yaxis_title="<i>k<sub>B</sub>T</i>")
+        st.plotly_chart(fig, use_container_width=True)
 
         print("DONE!")
