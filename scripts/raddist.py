@@ -126,23 +126,71 @@ def try_jit(f):
 
 class A_EOS:
     def __init__(self, Aexpr):
+        print("Creating AEOS")
         self.a = try_jit(Aexpr)
         #dA/dV = -p
         self.p = try_jit(jax.grad(lambda V, kT : -Aexpr(V, kT), argnums=0))
         self.dpdV = try_jit(jax.grad(self.p, argnums=0))
         #dA/dT = -S
         self.s = try_jit(jax.grad(lambda V, kT : -Aexpr(V, kT), argnums=1))
-        
+
+class EOS_FCC_HS_Young_Alder:
+    def a(self, V, kT):
+        V = V * math.sqrt(2)
+        return kT * (-3 * np.log((V - 1) / V)+5.124 * np.log(V) - 20.78 * V + 9.52 * V**2 - 1.98 * V**3 + 15.05)
+
+    def p(self, V, kT):
+        V = V * math.sqrt(2)
+        return (math.sqrt(2)) * kT * (5.94 * V**4 - 24.98 * V**3 + 39.82*V**2 -25.904*V + 8.124) / ((V-1) * V)
+
+    def dpdV(self, V, kT):
+        V = V * math.sqrt(2)
+        return -(math.sqrt(2))**2 * kT * (-11.88*V**5 +42.8*V**4 -49.96*V**3 +13.916*V**2 +16.248*V -8.124) / (((V-1)**2) * (V**2))
+
+    def s(self, V, kT):
+        return  -self.a(V, kT) / kT
+
+import sympy
 def A_FCC_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
     return kT * (-3 * jnp.log((V - 1) / V)+5.124 * jnp.log(V) - 20.78 * V + 9.52 * V**2 - 1.98 * V**3 + 15.05)
-EOS_FCC_HS_Young_Alder = A_EOS(A_FCC_HS_Young_Alder)
+
+#EOS_FCC_HS_Young_Alder_test = A_EOS(A_FCC_HS_Young_Alder)
+#print(EOS_FCC_HS_Young_Alder_test.a(1.2/math.sqrt(2), 1.0), EOS_FCC_HS_Young_Alder().a(1.2/math.sqrt(2), 1.0))
+#print(EOS_FCC_HS_Young_Alder_test.p(1.2/math.sqrt(2), 1.0), EOS_FCC_HS_Young_Alder().p(1.2/math.sqrt(2), 1.0))
+#print(EOS_FCC_HS_Young_Alder_test.dpdV(1.2/math.sqrt(2), 1.0), EOS_FCC_HS_Young_Alder().dpdV(1.2/math.sqrt(2), 1.0))
+#print(EOS_FCC_HS_Young_Alder_test.s(1.2/math.sqrt(2), 1.0), EOS_FCC_HS_Young_Alder().s(1.2/math.sqrt(2), 1.0))
+
+class EOS_Fluid_HS_Young_Alder:
+    def a(self, V, kT):
+        V = V * math.sqrt(2)
+        y = math.pi * math.sqrt(2)/ 6 / V
+        return  kT * ((4 * y - 3 * y**2) / (1-y)**2 + np.log(y) + math.log(6 / math.pi / math.e))
+
+    def p(self, V, T):
+        return -T*((-2.0943951023932/V**2 + 1.64493406684823/V**3)/(1 - 0.523598775598299/V)**2 - 1.0/V - 1.0471975511966*(2.0943951023932/V - 0.822467033424113/V**2)/(V**2*(1 - 0.523598775598299/V)**3))
+
+    def dpdV(self, V, T):
+        return -T*(1.0 + (4.18879020478639 - 4.93480220054468/V)/(V*(1 - 0.523598775598299/V)**2) + (4.3864908449286 - 3.44514185336665/V)/(V**2*(1 - 0.523598775598299/V)**3) + (4.3864908449286 - 1.72257092668332/V)/(V**2*(1 - 0.523598775598299/V)**3) + (3.44514185336665 - 1.35290404213892/V)/(V**3*(1 - 0.523598775598299/V)**4))/V**2
+
+    def s(self, V, kT):
+        return  -self.a(V, kT) / kT
 
 def A_Fluid_HS_Young_Alder(V, kT):
     V = V * math.sqrt(2)
     y = math.pi * math.sqrt(2)/6/V
     return  kT * ((4 * y - 3 * y**2) / (1-y)**2 + jnp.log(y) + math.log(6 / math.pi / math.e))
-EOS_Fluid_HS_Young_Alder = A_EOS(A_Fluid_HS_Young_Alder)
+
+#EOS_Fluid_HS_Young_Alder_test = A_EOS(A_Fluid_HS_Young_Alder)
+#from sympy import *
+#import sympy
+#V, kT = symbols("V T")
+#print(diff(-A_Fluid_HS_Young_Alder(V, kT), V, V))
+
+#print(EOS_Fluid_HS_Young_Alder_test.a(1.2/math.sqrt(2), 1.0), EOS_Fluid_HS_Young_Alder().a(1.2/math.sqrt(2), 1.0))
+#print(EOS_Fluid_HS_Young_Alder_test.p(1.2/math.sqrt(2), 1.0), EOS_Fluid_HS_Young_Alder().p(1.2/math.sqrt(2), 1.0))
+#print(EOS_Fluid_HS_Young_Alder_test.dpdV(1.2/math.sqrt(2), 1.0), EOS_Fluid_HS_Young_Alder().dpdV(1.2/math.sqrt(2), 1.0))
+#print(EOS_Fluid_HS_Young_Alder_test.s(1.2/math.sqrt(2), 1.0), EOS_Fluid_HS_Young_Alder().s(1.2/math.sqrt(2), 1.0))
 
 def A_HCP_HS_Young_Alder(V, kT):
     Vstar = V * math.sqrt(2)
@@ -153,15 +201,69 @@ def A_HCP_HS_Young_Alder(V, kT):
     else:
         raise RuntimeError("Out of range rho="+str(math.sqrt(2)/V))
     
-EOS_HCP_HS_Young_Alder = A_EOS(A_HCP_HS_Young_Alder)
+EOS_HCP_HS_Young_Alder_test = A_EOS(A_HCP_HS_Young_Alder)
+
+class EOS_HCP_HS_Young_Alder:
+    def a(self, V, T):
+        Vstar = V * math.sqrt(2)
+        log=np.log
+        if 1.0 <= Vstar < 1.1:
+            return T*(-5.60028570699746*V**3 + 19.04*V**2 - 29.3873578261129*V + 5.124*log(1.4142135623731*V) - 3*log(0.707106781186547*(1.4142135623731*V - 1)/V) + 15.05) - 0.0707106781186548*V - 0.05*log(0.777817459305202/V) + 0.0565507746415192
+        elif 1.1 <= Vstar < 1.5:
+            return T*(-5.60028570699746*V**3 + 19.04*V**2 - 29.3873578261129*V + 5.124*log(1.4142135623731*V) - 3*log(0.707106781186547*(1.4142135623731*V - 1)/V) + 15.05) + 0.005*log(1.06066017177982/V)
+        else:
+            raise RuntimeError("Out of range rho="+str(math.sqrt(2)/V))
+
+    def p(self, V, T):
+        Vstar = V * math.sqrt(2)
+        log=np.log
+        if 1.0 <= Vstar < 1.1:
+            return -T*(-16.8008571209924*V**2 - 4.24264068711929*V*(1.0/V - 0.707106781186547*(1.4142135623731*V - 1)/V**2)/(1.4142135623731*V - 1) + 38.08*V - 29.3873578261129 + 5.124/V) + 0.0707106781186548 - 0.05/V
+        elif 1.1 <= Vstar < 1.5:
+            return -T*(-16.8008571209924*V**2 - 4.24264068711929*V*(1.0/V - 0.707106781186547*(1.4142135623731*V - 1)/V**2)/(1.4142135623731*V - 1) + 38.08*V - 29.3873578261129 + 5.124/V) + 0.005/V
+        else:
+            raise RuntimeError("Out of range rho="+str(math.sqrt(2)/V))        
+
+    def dpdV(self, V, T):
+        Vstar = V * math.sqrt(2)
+        log=np.log
+        if 1.0 <= Vstar < 1.1:
+            return -T*(-33.6017142419847*V + (3.0 - 3.0*(1.0*V - 0.707106781186547)/V)/(V - 0.707106781186547)**2 + 38.08 - (4.24264068711929 - 4.24264068711929*(1.0*V - 0.707106781186547)/V)/(V*(1.4142135623731*V - 1)) + (8.48528137423857 - 4.24264068711929*(2.0*V - 1.41421356237309)/V)/(V*(1.4142135623731*V - 1)) - 5.124/V**2) + 0.05/V**2
+        elif 1.1 <= Vstar < 1.5:
+            return -(T*(-33.6017142419847*V + (3.0 - 3.0*(1.0*V - 0.707106781186547)/V)/(V - 0.707106781186547)**2 + 38.08 - (4.24264068711929 - 4.24264068711929*(1.0*V - 0.707106781186547)/V)/(V*(1.4142135623731*V - 1)) + (8.48528137423857 - 4.24264068711929*(2.0*V - 1.41421356237309)/V)/(V*(1.4142135623731*V - 1)) - 5.124/V**2) + 0.005/V**2)
+        else:
+            raise RuntimeError("Out of range rho="+str(math.sqrt(2)/V))   
+
+    def s(self, V, kT):
+        return -self.a(V, kT) / kT
+
+#from sympy import *
+#import sympy
+#V, kT = symbols("V T")
+#Vstar = V * math.sqrt(2)
+#A_HCP_HS_Young_Alder_1 = A_FCC_HS_Young_Alder(V, kT) + 0.05 * (1.1 - Vstar - sympy.log(1.1 / Vstar)) + 0.005 * math.log(1.5 / 1.1)
+#A_HCP_HS_Young_Alder_2 = A_FCC_HS_Young_Alder(V, kT) + 0.005 * sympy.log(1.5 / Vstar)
+#print(A_HCP_HS_Young_Alder_1)
+#print(A_HCP_HS_Young_Alder_2)
+#print(diff(-A_HCP_HS_Young_Alder_1, V))
+#print(diff(-A_HCP_HS_Young_Alder_2, V))
+#print(diff(-A_HCP_HS_Young_Alder_1, V, V))
+#print(diff(-A_HCP_HS_Young_Alder_2, V, V))
+#print(diff(-A_HCP_HS_Young_Alder_1(V, kT), V, V))
+
+#print(EOS_HCP_HS_Young_Alder_test.a(1.2/math.sqrt(2), 1.0), EOS_HCP_HS_Young_Alder().a(1.2/math.sqrt(2), 1.0))
+#print(EOS_HCP_HS_Young_Alder_test.p(1.2/math.sqrt(2), 1.0), EOS_HCP_HS_Young_Alder().p(1.2/math.sqrt(2), 1.0))
+#print(EOS_HCP_HS_Young_Alder_test.dpdV(1.2/math.sqrt(2), 1.0), EOS_HCP_HS_Young_Alder().dpdV(1.2/math.sqrt(2), 1.0))
+#print(EOS_HCP_HS_Young_Alder_test.s(1.2/math.sqrt(2), 1.0), EOS_HCP_HS_Young_Alder().s(1.2/math.sqrt(2), 1.0))
+#exit()
 
 from functools import partial
 
 class A_TPT_EOS:
-    def __init__(self, df, A_ref, s, nterms):
+    def __init__(self, df, A_ref, s, nterms, poly=False):
         import scipy.interpolate as si
 
-        self.A_ref = A_ref
+        self.A_ref = A_ref()
         self.terms = []
         self.dtermsdV = []
         self.ddtermsdV = []
@@ -175,17 +277,26 @@ class A_TPT_EOS:
             yerr_min = np.ma.masked_equal(yerr, 0.0, copy=False).min()
             yerr[yerr == 0] = yerr_min
             #Weights are 1/std_dev, so we follow scipy.interpolate.UnivariateSpline guidance for s which is equal to data count.
-            spline = si.UnivariateSpline(x=x, y=y, w=1/yerr, s= s * 4 * y.shape[0])
-            #print('A'+subs[order], spline.get_coeffs())
-            self.terms.append(spline)
-            self.dtermsdV.append(spline.derivative())
-            self.ddtermsdV.append(spline.derivative(2))
+            if not poly:
+                spline = si.UnivariateSpline(x=x, y=y, w=1/yerr, s= s * 4 * y.shape[0])
+                #print('A'+subs[order], spline.get_coeffs())
+                self.terms.append(spline)
+                self.dtermsdV.append(spline.derivative())
+                self.ddtermsdV.append(spline.derivative(2))
+            else:
+                #Polynomial fit
+                p = np.poly1d(np.polyfit(x=x, y=y, w=1/yerr, deg=int(s)))
+                self.terms.append(p)
+                self.dtermsdV.append(p.deriv(m=1))
+                self.ddtermsdV.append(p.deriv(m=2))
             order +=1
 
     def a(self, V, kT):
         beta = 1/kT
         rho = 1/V
-        return self.A_ref.a(V, kT) + sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.terms)) 
+        terms = np.array([beta**(idx+1) for idx, term in enumerate(self.terms)])
+        coeffs = np.array([term(rho) for idx, term in enumerate(self.terms)])
+        return self.A_ref.a(V, kT) + terms.dot(coeffs)
 
     def p(self, V, kT):
         beta = 1/kT
@@ -353,8 +464,11 @@ if True:
         
         rho_minsolid = 0.95
         rho_maxfluid = 1.0
-
-        s = st.slider("Spline smoothing", min_value=0.0, max_value=1.0, step=0.01, value=0.5, format="%g")
+        poly = st.checkbox("Use polynomials instead of splines", False)
+        if poly:
+            s = st.slider("Polynomial Order", min_value=0, max_value=7, step=1, value=2, format="%g")
+        else:
+            s = st.slider("Spline smoothing", min_value=0.0, max_value=3.0, step=0.01, value=0.3, format="%g")
         print("Building the equations of state")
         start = time.process_time()
 
@@ -369,7 +483,7 @@ if True:
                 filter_points = dfphase['ndensity'] < rho_maxfluid
                 xs = np.linspace(1e-12, rho_maxfluid, 201)
             datapoints = dfphase[filter_points].set_index("ndensity").sort_index()
-            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s, nterms=nterms), xs=xs)
+            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s, nterms=nterms, poly=poly), xs=xs)
         print(f"{time.process_time()-start:.2f} seconds")
 
         print("Plotting the spline fit to An")
@@ -393,6 +507,10 @@ if True:
                     last = None
                     #print(d['EOS'].p(1 / d['xs'], kT, nterms=n))
                     EOS = d['EOS']
+
+                    #Tests for array inputs
+                    #EOS.p(1 / d['xs'], kT)
+                    #EOS.mu(1/d['xs'], kT)
                     for idx,rho in enumerate(d['xs']):
                         next = (rho, (float(EOS.p(1 / rho, kT)), float(EOS.mu(1/rho, kT)), 1)) #float(EOS.dpdV(1/rho, kT))
                         if last != None:
@@ -552,10 +670,18 @@ if True:
         st.plotly_chart(fig, use_container_width=True)
 
         print("Solving for the phase diagram", flush=True)
+        import pandas as pd
+        e_df = pd.read_pickle('vle.pkl')
+        e_df = e_df[e_df["lam"] == 1.5]
         tielines = pd.concat([find_tielines(kT)[0].assign(kT=kT) for kT in np.linspace(0.25, 2.5, 50)])
+        print(tielines)
         groupd_ties = tielines.groupby(['name1', 'name2'])
         fig = go.Figure(
-            data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties],
+            data=[go.Scatter(x=list(group['ρ1'])+list(group['ρ2']),y=list(group['kT'])+list(group['kT']), mode='markers', name=key[0]+'⇌'+key[1]) for key, group in groupd_ties]+
+            [
+                go.Scatter(x=e_df['rhol'], y=e_df['T']),
+                go.Scatter(x=e_df['rhog'], y=e_df['T'])
+            ],
             layout=go.Layout(
             title=go.layout.Title(text="Phase diagram"),
             )
