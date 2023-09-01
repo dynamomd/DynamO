@@ -260,13 +260,14 @@ class EOS_HCP_HS_Young_Alder:
 from functools import partial
 
 class A_TPT_EOS:
-    def __init__(self, df, A_ref, s, nterms, poly=False):
+    def __init__(self, df, A_ref, s, nterms, poly=False, delta=False):
         import scipy.interpolate as si
 
         self.A_ref = A_ref()
         self.terms = []
         self.dtermsdV = []
         self.ddtermsdV = []
+        self.delta = delta
         order = 1
         while 'A'+subs[order] in df and order <= nterms:
             #Fit a spline in terms of V
@@ -294,20 +295,52 @@ class A_TPT_EOS:
     def a(self, V, kT):
         beta = 1/kT
         rho = 1/V
-        terms = np.array([beta**(idx+1) for idx, term in enumerate(self.terms)])
-        coeffs = np.array([term(rho) for idx, term in enumerate(self.terms)])
-        return self.A_ref.a(V, kT) + terms.dot(coeffs)
+        Acoeffs = np.array([term(rho) for idx, term in enumerate(self.terms)])
+        if not self.delta:
+            Aterms = np.array([beta**(idx+1) for idx, term in enumerate(self.terms)])
+            return self.A_ref.a(V, kT) + Aterms.dot(Acoeffs)
+        else:
+            epsilon = 1
+            delta = np.exp(beta * epsilon) - 1
+            Dterms = np.array([delta**(idx+1) for idx, term in enumerate(self.terms)])
+            A = np.append(Acoeffs, np.array([0.0]*5))
+            Dcoeffs = [A[0],-A[0]/2 + A[1], A[0]/3 - A[1] + A[2], -A[0]/4+11*A[1]/12-3*A[2]/2+A[3]]
+            return self.A_ref.a(V, kT) + Dterms.dot(Dcoeffs[:len(self.terms)])
 
     def p(self, V, kT):
         beta = 1/kT
         #-rho**2 is the jacobian from V to rho
         rho = 1/V
-        return self.A_ref.p(V, kT) + (rho**2) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV))
+        Acoeffs = np.array([term(rho) for idx, term in enumerate(self.dtermsdV)])
+        if not self.delta or True:
+            Aterms = np.array([beta**(idx+1) for idx, term in enumerate(self.dtermsdV)])
+            return self.A_ref.p(V, kT) + (rho**2) * Aterms.dot(Acoeffs)
+        else:
+            epsilon = 1
+            delta = np.exp(beta * epsilon) - 1
+            Dterms = np.array([delta**(idx+1) for idx, term in enumerate(self.dtermsdV)])
+            A = np.append(Acoeffs, np.array([0.0]*5))
+            Dcoeffs = [A[0], A[1] - A[0]/2, A[0]/3 - A[1] + A[2], -A[0]/4+11*A[1]/12-3*A[2]/2+A[3]]
+            return self.A_ref.p(V, kT)  + (rho**2) * Dterms.dot(Dcoeffs[:len(self.dtermsdV)])
 
     def dpdV(self, V, kT):
         beta = 1/kT
         rho = 1/V
-        return self.A_ref.p(V, kT) - 2 * (rho**3) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV))  - (rho**4) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.ddtermsdV)) 
+        raise RuntimeError("Derivative is incorrect")
+        Adcoeffs = np.array([term(rho) for idx, term in enumerate(self.dtermsdV)])
+        Addcoeffs = np.array([term(rho) for idx, term in enumerate(self.ddtermsdV)])
+        if not self.delta or True:
+            Aterms = np.array([beta**(idx+1) for idx, term in enumerate(self.dtermsdV)])
+            return self.A_ref.dpdV(V, kT) - 2 * (rho**3) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV))  - (rho**4) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.ddtermsdV)) 
+        else:
+            epsilon = 1
+            delta = np.exp(beta * epsilon) - 1
+            Dterms = np.array([delta**(idx+1) for idx, term in enumerate(self.dtermsdV)])
+            A = np.append(Acoeffs, np.array([0.0]*5))
+            Dcoeffs = [A[0], A[1] - A[0]/2, A[0]/3 - A[1] + A[2], -A[0]/4+11*A[1]/12-3*A[2]/2+A[3]]
+            return self.A_ref.a(V, kT) + Dterms.dot(Dcoeffs[:len(self.dtermsdV)])
+
+        return self.A_ref.dpdV(V, kT) - 2 * (rho**3) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.dtermsdV))  - (rho**4) * sum(term(rho) * beta**(idx+1) for idx, term in enumerate(self.ddtermsdV)) 
 
     def s(self, V, kT):
         rho = 1/V
@@ -464,7 +497,8 @@ if True:
         
         rho_minsolid = 0.95
         rho_maxfluid = 1.0
-        poly = st.checkbox("Use polynomials instead of splines", False)
+        poly = st.checkbox("Use polynomials instead of splines?", False)
+        delta = st.checkbox("Use delta instead of beta expansion?", False)
         if poly:
             s = st.slider("Polynomial Order", min_value=0, max_value=7, step=1, value=2, format="%g")
         else:
@@ -483,7 +517,7 @@ if True:
                 filter_points = dfphase['ndensity'] < rho_maxfluid
                 xs = np.linspace(1e-12, rho_maxfluid, 201)
             datapoints = dfphase[filter_points].set_index("ndensity").sort_index()
-            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s, nterms=nterms, poly=poly), xs=xs)
+            phases[name] = dict(InitState=InitState, solid=solid, datapoints=datapoints, EOS=A_TPT_EOS(datapoints, BaseEOS, s, nterms=nterms, poly=poly, delta=delta), xs=xs)
         print(f"{time.process_time()-start:.2f} seconds")
 
         print("Plotting the spline fit to An")
