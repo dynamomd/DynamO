@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,20 +21,22 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlwriter.hpp>
 
-namespace dynamo {
-  OPMSD::OPMSD(const dynamo::Simulation* tmp, const magnet::xml::Node&):
-    OutputPlugin(tmp,"MSD")
-  {}
+namespace dynamo
+{
+  OPMSD::OPMSD(const dynamo::Simulation *tmp, const magnet::xml::Node &) : OutputPlugin(tmp, "MSD")
+  {
+  }
 
   OPMSD::~OPMSD()
-  {}
+  {
+  }
 
   void
   OPMSD::initialise()
   {
     initPos.clear();
     initPos.resize(Sim->N());
-  
+
     for (size_t ID = 0; ID < Sim->N(); ++ID)
       initPos[ID] = Sim->particles[ID].getPosition();
   }
@@ -42,90 +44,115 @@ namespace dynamo {
   void
   OPMSD::output(magnet::xml::XmlStream &XML)
   {
-    //Required to get the correct results
+    // Required to get the correct results
     Sim->dynamics->updateAllParticles();
-  
+
     XML << magnet::xml::tag("MSD");
-  
-    for (const shared_ptr<Species>& sp : Sim->species)
-      {
-	double MSD = calcMSD(*sp->getRange()) / Sim->units.unitArea();
-      
-	XML << magnet::xml::tag("Species")
-	    << magnet::xml::attr("Name") << sp->getName()
-	    << magnet::xml::attr("val") << MSD
-	    << magnet::xml::attr("diffusionCoeff") 
-	    << MSD * Sim->units.unitTime() / (2 * NDIM * Sim->systemTime)
-	    << magnet::xml::endtag("Species");
-      }
+
+    for (const shared_ptr<Species> &sp : Sim->species)
+    {
+      Vector MSD = calcMSD(*sp->getRange()) / Sim->units.unitArea();
+      double MSD_sum = 0;
+      for (size_t i(0); i < NDIM; ++i)
+        MSD_sum += MSD[i];
+      MSD_sum /= 3;
+      XML << magnet::xml::tag("Species")
+          << magnet::xml::attr("Name") << sp->getName()
+          << magnet::xml::attr("val") << MSD_sum
+          << magnet::xml::attr("diffusionCoeff")
+          << MSD_sum * Sim->units.unitTime() / (2 * Sim->systemTime)
+          << magnet::xml::tag("MSDvec")
+          << MSD
+          << magnet::xml::endtag("MSDvec")
+          << magnet::xml::tag("Dvec")
+          << MSD * Sim->units.unitTime() / (2 * Sim->systemTime)
+          << magnet::xml::endtag("Dvec")
+          << magnet::xml::endtag("Species");
+    }
 
     if (!Sim->topology.empty())
+    {
+      XML << magnet::xml::tag("Structures");
+
+      for (const shared_ptr<Topology> &topo : Sim->topology)
       {
-	XML << magnet::xml::tag("Structures");
+        Vector MSD = calcStructMSD(*topo) / Sim->units.unitArea();
 
-	for (const shared_ptr<Topology>& topo : Sim->topology)
-	  {
-	    double MSD = calcStructMSD(*topo) / Sim->units.unitArea();
+        double MSD_sum = 0;
+        for (size_t i(0); i < NDIM; ++i)
+          MSD_sum += MSD[i];
+        MSD_sum /= 3;
 
-	    XML << magnet::xml::tag("Structure")
-		<< magnet::xml::attr("Name") << topo->getName()
-		<< magnet::xml::attr("val") << MSD
-		<< magnet::xml::attr("diffusionCoeff") 
-		<< MSD * Sim->units.unitTime() / (2 * NDIM * Sim->systemTime)
-		<< magnet::xml::endtag("Structure");
-	  }
-
-	XML << magnet::xml::endtag("Structures");
+        XML << magnet::xml::tag("Structure")
+            << magnet::xml::attr("Name") << topo->getName()
+            << magnet::xml::attr("val") << MSD_sum
+            << magnet::xml::attr("diffusionCoeff")
+            << MSD_sum * Sim->units.unitTime() / (2 * NDIM * Sim->systemTime)
+            << magnet::xml::tag("MSDvec")
+            << MSD
+            << magnet::xml::endtag("MSDvec")
+            << magnet::xml::tag("Dvec")
+            << MSD * Sim->units.unitTime() / (2 * Sim->systemTime)
+            << magnet::xml::endtag("Dvec")
+            << magnet::xml::endtag("Structure");
       }
+
+      XML << magnet::xml::endtag("Structures");
+    }
 
     XML << magnet::xml::endtag("MSD");
   }
 
-  double
-  OPMSD::calcMSD(const IDRange& range) const
+  Vector
+  OPMSD::calcMSD(const IDRange &range) const
   {
-    double acc = 0.0;
+    Vector acc(0.0);
 
     for (const size_t ID : range)
-      acc += (Sim->particles[ID].getPosition() - initPos[ID]).nrm2();
-  
+    {
+      const Vector diff = Sim->particles[ID].getPosition() - initPos[ID];
+      for (size_t i(0); i < NDIM; ++i)
+        acc[i] += diff[i] * diff[i];
+    }
+
     return acc / range.size();
   }
 
-  double 
-  OPMSD::calcD(const IDRange& range) const
+  Vector
+  OPMSD::calcD(const IDRange &range) const
   {
-    return calcMSD(range) / (2 * NDIM * Sim->systemTime);
+    return calcMSD(range) / (2 * Sim->systemTime);
   }
 
-  double
-  OPMSD::calcStructMSD(const Topology& Itop) const
+  Vector
+  OPMSD::calcStructMSD(const Topology &Itop) const
   {
-    //Required to get the correct results
+    // Required to get the correct results
     Sim->dynamics->updateAllParticles();
 
-    double acc = 0.0;
-    for (const shared_ptr<IDRange>& molRange : Itop.getMolecules())
+    Vector acc(0.0);
+    for (const shared_ptr<IDRange> &molRange : Itop.getMolecules())
+    {
+      Vector origPos{0, 0, 0}, currPos{0, 0, 0};
+      double totmass = 0.0;
+      for (const unsigned long &ID : *molRange)
       {
-	Vector origPos{0,0,0}, currPos{0,0,0};
-	double totmass = 0.0;
-	for (const unsigned long& ID : *molRange)
-	  {
-	    double pmass = Sim->species[Sim->particles[ID]]->getMass(ID);
+        double pmass = Sim->species[Sim->particles[ID]]->getMass(ID);
 
-	    totmass += pmass;
-	    currPos += Sim->particles[ID].getPosition() * pmass;
-	    origPos += initPos[ID] * pmass;
-	  }
-      
-	currPos /= totmass;
-	origPos /= totmass;
-
-	acc += (currPos - origPos).nrm2();
+        totmass += pmass;
+        currPos += Sim->particles[ID].getPosition() * pmass;
+        origPos += initPos[ID] * pmass;
       }
 
+      currPos /= totmass;
+      origPos /= totmass;
+      const Vector diff = currPos - origPos;
+      for (size_t i(0); i < NDIM; ++i)
+        acc[i] += diff[i] * diff[i];
+    }
+
     acc /= Itop.getMoleculeCount();
-  
+
     return acc;
   }
 }

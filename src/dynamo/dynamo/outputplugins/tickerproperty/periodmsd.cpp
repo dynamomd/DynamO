@@ -54,11 +54,15 @@ namespace dynamo {
   void 
   OPPeriodicMSD::ticker()
   {
-    for (localpair2& dat : structResults)
-      dat.second.push_back(std::make_pair(Sim->systemTime, ptrOPMSD->calcStructMSD(*dat.first)));
+    for (localpair2& dat : structResults) {
+      const Vector msd = ptrOPMSD->calcStructMSD(*dat.first);
+      dat.second.push_back(std::make_pair(Sim->systemTime, (msd[0]+msd[1]+msd[2])/3));
+    }
 
-    for (const shared_ptr<Species>& sp : Sim->species)
-      speciesData[sp->getID()].push_back(std::make_pair(Sim->systemTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
+    for (const shared_ptr<Species>& sp : Sim->species) {
+      const Vector msd = ptrOPMSD->calcMSD(*(sp->getRange()));
+      speciesData[sp->getID()].push_back(std::make_pair(Sim->systemTime, (msd[0]+msd[1]+msd[2])/3));
+    }
   }
 
   void

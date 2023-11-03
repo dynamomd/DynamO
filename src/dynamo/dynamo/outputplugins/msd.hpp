@@ -35,10 +35,10 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &); 
 
-    double calcMSD(const IDRange& range) const;
-    double calcD(const IDRange& range) const;
+    Vector calcMSD(const IDRange& range) const;
+    Vector calcD(const IDRange& range) const;
 
-    double calcStructMSD(const Topology&) const;
+    Vector calcStructMSD(const Topology&) const;
 
     virtual void replicaExchange(OutputPlugin&)
     { M_throw() << "This plugin hasn't been prepared for changes of system"; }

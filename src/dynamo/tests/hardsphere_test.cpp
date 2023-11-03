@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   BOOST_CHECK_CLOSE(MFT, expectedMFT, 1);
 
   //Check the diffusion coefficient as well
-  double D = opMSD.calcD(*Sim.species[0]->getRange()) / Sim.units.unitDiffusion();
-  BOOST_CHECK_CLOSE(D, expectedD, 6);
+  dynamo::Vector D = opMSD.calcD(*Sim.species[0]->getRange()) / Sim.units.unitDiffusion();
+  BOOST_CHECK_CLOSE((D[0] + D[1] + D[2])/3, expectedD, 6);
 
   //Check the temperature is constant at 1
   double Temperature = opMisc.getCurrentkT() / Sim.units.unitEnergy();
