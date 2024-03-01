@@ -169,6 +169,8 @@ namespace dynamo {
       return testGeneratePlugin<OPVTK>(Sim, XML);
     else if (!Name.compare("Craig"))
       return testGeneratePlugin<OPCraig>(Sim, XML);
+    else if (!Name.compare("Brenner"))
+      return testGeneratePlugin<OPBrenner>(Sim, XML);
     else
       M_throw() << Name << ", Unknown type of OutputPlugin encountered";
   }

@@ -15,14 +15,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/tickerproperty/include.hpp>
-#include <dynamo/outputplugins/collMatrix.hpp>
+#pragma once
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
-#include <dynamo/outputplugins/msdOrientational.hpp>
-#include <dynamo/outputplugins/trajectory.hpp>
-#include <dynamo/outputplugins/contactmap.hpp>
-#include <dynamo/outputplugins/misc.hpp>
-#include <dynamo/outputplugins/eventEffects.hpp>
-#include <dynamo/outputplugins/intEnergyHist.hpp>
-#include <dynamo/outputplugins/msd.hpp>
-#include <dynamo/outputplugins/brenner.hpp>
+#include <magnet/math/vector.hpp>
+#include <map>
+#include <magnet/math/histogram.hpp>
+
+namespace dynamo {
+  class Particle;
+
+  using namespace EventTypeTracking;
+
+  class OPBrenner: public OutputPlugin
+  {
+  public:
+    OPBrenner(const dynamo::Simulation*, const magnet::xml::Node&);
+    ~OPBrenner();
+
+    virtual void initialise();
+
+    virtual void eventUpdate(const Event&, const NEventData&);
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual void replicaExchange(OutputPlugin& plug) { 
+      M_throw() << "Not implemented";
+    }
+  
+  protected:
+    magnet::math::HistogramWeighted<> _sysmomentum_hist[3];
+    Vector _sysMomentum;
+  };
+}
