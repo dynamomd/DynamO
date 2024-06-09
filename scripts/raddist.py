@@ -363,7 +363,7 @@ def get_df():
     max_moment=5
     print("  Running pickle load")
 
-    df = pickle.load(open('/home/mjki2mb2/dynamo-repo/scripts/HS_TPT.pkl', 'rb'))
+    df = pickle.load(open('HS_TPT.pkl', 'rb'))
     df.set_index(["N", "ndensity", "InitState"], inplace=True)
     all_N = fixup_values(df.index.get_level_values("N"))
 
