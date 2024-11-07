@@ -32,6 +32,19 @@ namespace dynamo {
   OPCollMatrix::initialise()
   {
     lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, eventKey(classKey(0, NOSOURCE), NONE)));
+
+    for (const auto& p1: Sim->particles)
+      for (const auto& p2: Sim->particles)
+        if (p1 != p2)
+        {
+          auto iPtr = std::dynamic_pointer_cast<ICapture>(Sim->getInteraction(p1, p2));
+          if (iPtr)
+            {
+              auto status = iPtr->isCaptured(p1, p2);
+              _lastCaptureState[captureKey(iPtr->getID(), p1)] += status;
+              _lastCaptureState[captureKey(iPtr->getID(), p2)] += status;
+            }
+        }  
   }
 
   OPCollMatrix::~OPCollMatrix()
@@ -40,16 +53,52 @@ namespace dynamo {
   void 
   OPCollMatrix::eventUpdate(const Event& event, const NEventData& SDat)
   {
+    auto ck = getClassKey(event);
+
     for (const ParticleEventData& pData : SDat.L1partChanges)
-      newEvent(pData.getParticleID(), pData.getType(), getClassKey(event));  
+      newEvent(pData.getParticleID(), pData.getType(), ck);  
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
-	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(event));
-	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(event));
+	      newEvent(pData.particle1_.getParticleID(), pData.getType(), ck);
+	      newEvent(pData.particle2_.getParticleID(), pData.getType(), ck);
+      }
+
+    //Check if the interaction is a subclass of ICapture, if so grab a shared_ptr
+    //to the interaction and call the capture function.
+    if (event._source == INTERACTION)
+      {
+        auto iPtr = std::dynamic_pointer_cast<ICapture>(Sim->interactions[event._sourceID]);
+        if (iPtr) {
+          for (const PairEventData& pData : SDat.L2partChanges) {
+            auto ck1 = captureKey(iPtr->getID(), pData.particle1_.getParticleID());
+            auto ck2 = captureKey(iPtr->getID(), pData.particle2_.getParticleID());
+            auto& cs1 = _lastCaptureState[ck1];
+            auto& cs2 = _lastCaptureState[ck2];
+
+            auto ek = eventKey(ck, pData.getType());
+            auto cek1 = captureEventKey(ek, cs1);
+            auto cek2 = captureEventKey(ek, cs2);
+            // Update the tracked capture status 
+            _captureCounters[cek1].count += 1;
+            _captureCounters[cek2].count += 1;
+
+            auto status = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
+            // Update the tracked capture status
+            if ((pData.getType() == STEP_OUT) && (!status))
+              {
+                _lastCaptureState[ck1] -= 1;
+                _lastCaptureState[ck2] -= 1;
+              }
+            if ((pData.getType() == STEP_IN) && (status == 1))
+              {
+                _lastCaptureState[ck1] += 1;
+                _lastCaptureState[ck2] += 1;
+              }
+          }
+        }
       }
   }
-
   void 
   OPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
   {
@@ -123,7 +172,27 @@ namespace dynamo {
 			      * Sim->units.unitTime())
 	  << magnet::xml::endtag("TotCount");
   
-    XML << magnet::xml::endtag("Totals")
-	<< magnet::xml::endtag("CollCounters");
+    XML << magnet::xml::endtag("Totals");
+
+    XML	<< magnet::xml::tag("CaptureCounters");
+    for (const auto& val: _captureCounters) {
+      auto cek =  val.first;
+      auto ek = cek.first;
+      auto class_key = ek.first;
+      auto event_type = ek.second;
+      auto captures = cek.second;
+      auto captureData = val.second;
+
+      XML << magnet::xml::tag("Count")
+          << magnet::xml::attr("Name") << getName(class_key, Sim)
+          << magnet::xml::attr("Event") << event_type
+          << magnet::xml::attr("captures") << captures
+          << magnet::xml::attr("Count") << captureData.count
+          << magnet::xml::endtag("Count")
+      ; 
+    }
+    XML	<< magnet::xml::endtag("CaptureCounters");
+
+    XML << magnet::xml::endtag("CollCounters");
   }
 }

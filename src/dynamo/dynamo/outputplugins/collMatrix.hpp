@@ -46,20 +46,35 @@ namespace dynamo {
   
     struct counterData
     {
-      counterData():count(0), initialCount(0), totalTime(0) {}
+      counterData():count(0), totalTime(0) {}
       unsigned long count;
-      size_t initialCount;
       double totalTime;
     };
   
     unsigned long totalCount;
 
+    // We create a key for events based on the interaction/system/global/local ID and type (classKey) and EventType
     typedef std::pair<classKey, EEventType> eventKey;
 
+    // And we count time between events for a particular particle, so we need this twice
     typedef std::pair<eventKey, eventKey> counterKey;
   
     std::map<counterKey, counterData> counters;
-  
+
+    //First we track how many times a particle has been captured
+    typedef std::pair<size_t, size_t> captureKey; // Interaction ID and particle ID
+    std::map<captureKey, size_t> _lastCaptureState; // How many captures a particle has
+
+
+    //Here we're tracking collision statistics depending on the capture state of
+    //a pair of particles
+    typedef std::pair<eventKey, size_t> captureEventKey;
+    struct captureData {
+      captureData():count(0) {}
+      unsigned long count;
+    };
+    std::map<captureEventKey, captureData> _captureCounters;
+
     std::map<eventKey, size_t> initialCounter;
 
     typedef std::pair<double, eventKey> lastEventData;
