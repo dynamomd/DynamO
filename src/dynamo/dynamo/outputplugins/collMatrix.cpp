@@ -83,6 +83,9 @@ namespace dynamo {
             _captureCounters[cek1].count += 1;
             _captureCounters[cek2].count += 1;
 
+            // Histogram of capture state occupancy times
+            // Time weighted average of capture state
+
             auto status = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
             // Update the tracked capture status
             if ((pData.getType() == STEP_OUT) && (!status))

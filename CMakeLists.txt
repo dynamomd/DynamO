@@ -1,5 +1,4 @@
-cmake_minimum_required (VERSION 3.0 FATAL_ERROR)
-
+cmake_minimum_required (VERSION 3.25)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -9,11 +8,6 @@ RelWithDebInfo MinSizeRel."
 endif(NOT CMAKE_BUILD_TYPE)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-
-if(WIN32)
-  add_definitions(-D_USE_MATH_DEFINES)
-  add_definitions(-DNOMINMAX)
-endif()
 
 IF(DEFINED CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
@@ -73,7 +67,42 @@ include(CPack) #Enable build of packages
 
 install(FILES ${CMAKE_SOURCE_DIR}/copyright DESTINATION share/doc/${CPACK_PACKAGE_NAME})
 
+######################################################################
+########## Git submodules 
+######################################################################
+########## Check we have git submodules installed!
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/stator/CMakeLists.txt")
+    message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
+
+######################################################################
+########## COMPILER FLAGS
+######################################################################
 ##########   RELEASE MODE
+if(WIN32)
+  add_definitions(-D_USE_MATH_DEFINES)
+  add_definitions(-DNOMINMAX)
+endif()
+
+if(NOT WIN32)
+  link_libraries(debug dl)
+endif()
+
 if(MSVC)
   #MSVC has crazy warnings for -Wall, we'll build up support to the higher warning levels
   add_compile_options(-W1)
@@ -87,14 +116,8 @@ else()
   add_compile_options(-Wall)
 endif()
 
-
 ##########   DEBUG MODE
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG")
-#  -D_GLIBCXX_DEBUG <- Not compatible with boost program_options
-
-if(NOT WIN32)
-  link_libraries(debug dl)
-endif()
 
 ######################################################################
 ########## COMPILER C++11/C++0x SUPPORT TESTS
@@ -147,7 +170,11 @@ endif()
 if(WIN32)
   set (Boost_USE_STATIC_LIBS ON)
 endif()
-find_package(Boost 1.46 REQUIRED COMPONENTS program_options filesystem system unit_test_framework)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
+
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 link_directories(${Boost_LIBRARY_DIRS})
@@ -335,6 +362,7 @@ target_link_libraries (dynamo Eigen3::Eigen)
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
   add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)
+  target_link_libraries(${name} dynamo)
   install(PROGRAMS $<TARGET_FILE:${name}> DESTINATION bin)
 endfunction(dynamo_exe)
 dynamo_exe(dynarun)
@@ -346,6 +374,7 @@ if(VISUALIZER_SUPPORT)
   #Can't use dynamo_exe here, as we just need to compile "dynarun.cpp" differently
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
   set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
+  target_link_libraries(dynavis coil)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
 endif()
 
