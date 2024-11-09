@@ -153,18 +153,6 @@ if(STACKTRACE_AVAILABLE)
 endif()
 
 ######################################################################
-# Test for libbz2 (for compressed files)
-######################################################################
-if(NOT WIN32)
-  find_package(BZip2)
-  if(BZIP2_FOUND)
-    include_directories(${BZIP2_INCLUDE_DIR})
-    link_libraries(${BZIP2_LIBRARIES})
-    add_definitions(-DDYNAMO_bzip2_support)
-  endif()
-endif()
-
-######################################################################
 ##########  Boost support
 ######################################################################
 if(WIN32)
@@ -176,7 +164,6 @@ cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
 find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
 
 include_directories(${Boost_INCLUDE_DIRS})
-link_libraries(${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_IOSTREAMS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 link_directories(${Boost_LIBRARY_DIRS})
 
 ######################################################################
@@ -276,7 +263,6 @@ if(VISUALIZER_SUPPORT)
     message("OpenVR not found (try setting OPENVR_ROOT_DIR to the location of the openvr git repository")
   endif()
 
-
   add_definitions(${OPENGL_DEFINITONS} ${GLUT_DEFINITIONS} ${GLEW_DEFINITIONS} ${GTKMM_DEFINITIONS})
   include_directories(${GTKMM_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CAIROMM_INCLUDE_PATH} ${CAIROMM_CONFIG_PATH} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
   link_libraries(${GTKMM_LIBRARIES} ${CAIROMM_LIBRARIES} ${PNG_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
@@ -285,8 +271,6 @@ endif()
 ######################################################################
 ########## HEADER DIRECTORIES
 ######################################################################
-include_directories(${PROJECT_SOURCE_DIR}/src/dynamo/)
-include_directories(${PROJECT_SOURCE_DIR}/src/coil/)
 include_directories(${PROJECT_SOURCE_DIR}/src/magnet)
 include_directories(${PROJECT_SOURCE_DIR}/src/ext_include)
 
@@ -306,7 +290,6 @@ endfunction(magnet_test)
 #magnet_test(bitonicsort_test : tests/bitonicsort_test.cpp magnet /opencl//OpenCL ;
 #magnet_test(heapsort_test : tests/heapsort_test.cpp magnet /opencl//OpenCL ;
 #magnet_test(sorter_test : tests/sorter_test.cpp magnet /opencl//OpenCL ;
-
 magnet_test(threadpool_test)
 #SET_TARGET_PROPERTIES(magnet_threadpool_test_exe PROPERTIES LINK_FLAGS -Wl,--no-as-needed) #Fix for a bug in gcc
 
@@ -340,6 +323,25 @@ int main() { &avcodec_send_frame; return 0; }" AVCodec_Send_Frame_Avail)
   endif()
 endif()
 
+### DynamO
+file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
+add_library(dynamo STATIC ${dynamo_SRC})
+target_link_libraries(dynamo PUBLIC Boost::program_options Boost::system Boost::filesystem Eigen3::Eigen)
+target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
+######################################################################
+# Test for libbz2 (for compressed files)
+######################################################################
+if(NOT WIN32)
+  find_package(BZip2)
+  if(BZIP2_FOUND)
+    target_include_directories(dynamo PRIVATE ${BZIP2_INCLUDE_DIR})
+    target_link_libraries(dynamo PRIVATE ${BZIP2_LIBRARIES})
+    target_compile_definitions(dynamo PUBLIC DDYNAMO_bzip2_support=1)
+  endif()
+endif()
+
+
+
 ### Coil
 # configuration
 if(VISUALIZER_SUPPORT)
@@ -348,33 +350,35 @@ if(VISUALIZER_SUPPORT)
   # Coil library
   file(GLOB_RECURSE coil_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/coil/*.cpp)
   add_library(coil STATIC ${coil_SRC})
-  link_libraries(coil)
+  target_link_libraries(coil PUBLIC Boost::program_options)
+  target_include_directories(coil PUBLIC ${PROJECT_SOURCE_DIR}/src/coil/)
   add_definitions(-DDYNAMO_visualizer)
+
+  # Make dynamo depend on the coil library
+  target_link_libraries(dynamo PUBLIC coil)
+
+  # Add coilvol as a dependency
   add_executable(coilvol ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/programs/coilvol.cpp)
+  target_link_libraries(coilvol PUBLIC coil Boost::program_options Boost::filesystem Boost::system)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/coilvol DESTINATION bin)
 endif()
-
-### DynamO
-file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
-add_library(dynamo STATIC ${dynamo_SRC})
-link_libraries(dynamo)
-target_link_libraries (dynamo Eigen3::Eigen)
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
   add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)
   target_link_libraries(${name} dynamo)
   install(PROGRAMS $<TARGET_FILE:${name}> DESTINATION bin)
 endfunction(dynamo_exe)
+
 dynamo_exe(dynarun)
 dynamo_exe(dynamod)
 dynamo_exe(dynahist_rw)
 dynamo_exe(dynapotential)
 #dynamo_exe(dynacollide)
 if(VISUALIZER_SUPPORT)
-  #Can't use dynamo_exe here, as we just need to compile "dynarun.cpp" differently
+  #we do dynavis by hand, as its just dynarun with some changes
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
   set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
-  target_link_libraries(dynavis coil)
+  target_link_libraries(dynavis dynamo)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
 endif()
 
@@ -398,6 +402,7 @@ endif()
 # unit tests
 function(dynamo_test name) #Registers a unit test of DynamO
   add_executable(dynamo_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/tests/${name}.cpp)
+  target_link_libraries(dynamo_${name}_exe dynamo)
   add_test(dynamo_${name} dynamo_${name}_exe)
 endfunction(dynamo_test)
 
