@@ -65,8 +65,11 @@ namespace dynamo {
     /*! \brief  An enumeration of the bead/site types in the PRIME potential. */
     enum PRIME_residue_type {
       NH, CH, CO, A, C, D, E, F, H, I, K, L, M, N, P, Q, R, S, T, V, W, Y, G,
-      GROUP_COUNT
+      //GROUP_COUNT <- Removed from here!
     };
+    // THIS IS A STRANGE ONE, as above is longer, including a G type, but all tables exclude G.
+    // Need to check this in Gil's work, for now, to fix out of bounds error, I will define this here.
+    static const int GROUP_COUNT = 22;
     
     /*! \brief A mapping of \ref PRIME_residue_type enumerations to
         string representations for output. 
