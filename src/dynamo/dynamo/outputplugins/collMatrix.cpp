@@ -67,14 +67,21 @@ namespace dynamo {
           for (const PairEventData& pData : SDat.L2partChanges) {
             auto ck1 = TotalCaptureStateKey(iPtr->getID(), pData.particle1_.getParticleID());
             auto ck2 = TotalCaptureStateKey(iPtr->getID(), pData.particle2_.getParticleID());
+
             auto& cs1 = _currentCaptureState[ck1];
             auto& cs2 = _currentCaptureState[ck2];
 
             auto ek = EventKey(ck, pData.getType());
             auto cek1 = EventCaptureStateKey(ek, cs1);
             auto cek2 = EventCaptureStateKey(ek, cs2);
-            auto& cekd1 = _captureCounters[cek1];
-            auto& cekd2 = _captureCounters[cek2];
+
+            //Lookup capture counter data, but initialise histogram if it doesn't exist
+            auto it  = _captureCounters.insert(decltype(_captureCounters)::value_type(cek1, EventCaptureStateData(Sim->lastRunMFT * 0.01)));
+            auto& cekd1 = it.first->second;
+            it  = _captureCounters.insert(decltype(_captureCounters)::value_type(cek2, EventCaptureStateData(Sim->lastRunMFT * 0.01)));
+            auto& cekd2 = it.first->second;
+
+            //Lookup the last event of the particles
             auto lastEvent1 = lastEvent[pData.particle1_.getParticleID()];
             auto lastEvent2 = lastEvent[pData.particle2_.getParticleID()];
 

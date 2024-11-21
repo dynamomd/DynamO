@@ -72,7 +72,7 @@ namespace dynamo {
     typedef std::pair<EventKey, size_t> EventCaptureStateKey;
 
     struct EventCaptureStateData {
-      EventCaptureStateData():count(0), totalTime(0) {}
+      EventCaptureStateData(double binWidth):count(0), totalTime(0), MFT(binWidth) {}
       unsigned long count;
       double totalTime;
       magnet::math::Histogram<> MFT;
