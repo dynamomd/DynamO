@@ -332,7 +332,7 @@ namespace dynamo {
     if ((NDat.L1partChanges.size() == 0) && (NDat.L2partChanges.size() == 1))
       type = NDat.L2partChanges[0].getType();
     
-    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), type)];
+    CounterData& counterdata = _counters[CounterKey(getEventSourceKey(eevent), type)];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
 
     Vector thermalDel({0,0,0});
@@ -636,8 +636,8 @@ namespace dynamo {
   
     for (const auto& mp1 : _counters)
       XML << tag("Entry")
-	  << attr("Type") << getClass(mp1.first.first)
-	  << attr("Name") << getName(mp1.first.first, Sim)
+	  << attr("Type") << getEventSourceTypeName(mp1.first.first)
+	  << attr("Name") << getEventSourceName(mp1.first.first, Sim)
 	  << attr("Event") << mp1.first.second
 	  << attr("Count") << mp1.second.count
 	  << tag("NetImpulse") 

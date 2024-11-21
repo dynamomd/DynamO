@@ -19,6 +19,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <magnet/math/histogram.hpp>
 #include <map>
 #include <vector>
 
@@ -42,42 +43,45 @@ namespace dynamo {
     void output(magnet::xml::XmlStream &);
   
   protected:
-    void newEvent(const size_t&, const EEventType&, const classKey&);
+    void newEvent(const size_t&, const EEventType&, const EventSourceKey&);
   
-    struct counterData
+    struct InterEventData
     {
-      counterData():count(0), totalTime(0) {}
+      InterEventData():count(0), totalTime(0) {}
       unsigned long count;
       double totalTime;
     };
   
     unsigned long totalCount;
 
-    // We create a key for events based on the interaction/system/global/local ID and type (classKey) and EventType
-    typedef std::pair<classKey, EEventType> eventKey;
+    // We create a key for events based on the interaction/system/global/local ID and type (EventSourceKey) and EventType
 
-    // And we count time between events for a particular particle, so we need this twice
-    typedef std::pair<eventKey, eventKey> counterKey;
+    //! A key for two events
+    // Used to track the previous and current event for some data
+    typedef std::pair<EventKey, EventKey> InterEventKey;
   
-    std::map<counterKey, counterData> counters;
+    std::map<InterEventKey, InterEventData> counters;
 
     //First we track how many times a particle has been captured
-    typedef std::pair<size_t, size_t> captureKey; // Interaction ID and particle ID
-    std::map<captureKey, size_t> _lastCaptureState; // How many captures a particle has
+    typedef std::pair<size_t, size_t> TotalCaptureStateKey; // Interaction ID and particle ID
+    std::map<TotalCaptureStateKey, size_t> _currentCaptureState; // How many captures a particle has
 
 
     //Here we're tracking collision statistics depending on the capture state of
     //a pair of particles
-    typedef std::pair<eventKey, size_t> captureEventKey;
-    struct captureData {
-      captureData():count(0) {}
+    typedef std::pair<EventKey, size_t> EventCaptureStateKey;
+
+    struct EventCaptureStateData {
+      EventCaptureStateData():count(0), totalTime(0) {}
       unsigned long count;
+      double totalTime;
+      magnet::math::Histogram<> MFT;
     };
-    std::map<captureEventKey, captureData> _captureCounters;
+    std::map<EventCaptureStateKey, EventCaptureStateData> _captureCounters;
 
-    std::map<eventKey, size_t> initialCounter;
+    std::map<EventKey, size_t> initialCounter;
 
-    typedef std::pair<double, eventKey> lastEventData;
+    typedef std::pair<double, EventKey> lastEventData;
 
     std::vector<lastEventData> lastEvent; 
   };

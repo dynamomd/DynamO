@@ -21,7 +21,7 @@
 namespace dynamo {
   namespace EventTypeTracking {
 
-    std::string getName(const classKey& key, const dynamo::Simulation* Sim)
+    std::string getEventSourceName(const EventSourceKey& key, const dynamo::Simulation* Sim)
     {
       switch (key.second)
 	{
@@ -42,7 +42,7 @@ namespace dynamo {
 	}
     }
 
-    std::string getClass(const classKey& key)
+    std::string getEventSourceTypeName(const EventSourceKey& key)
     {
       switch (key.second)
 	{
@@ -55,9 +55,9 @@ namespace dynamo {
 	}
     }
 
-    classKey getClassKey(const Event& i)
+    EventSourceKey getEventSourceKey(const Event& i)
     {
-      return classKey(i._sourceID, i._source);
+      return EventSourceKey(i._sourceID, i._source);
     }
   }
 }

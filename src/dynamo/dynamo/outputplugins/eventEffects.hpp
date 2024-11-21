@@ -46,9 +46,8 @@ namespace dynamo {
     }
   
   protected:
-    typedef std::pair<classKey, EEventType> eventKey;
 
-    void newEvent(const EEventType&, const classKey&, const double&, const Vector &);
+    void newEvent(const EEventType&, const EventSourceKey&, const double&, const Vector &);
   
     struct counterData
     {
@@ -58,6 +57,6 @@ namespace dynamo {
       Vector  momentumChange;
     };
   
-    std::map<eventKey, counterData> counters;
+    std::map<EventKey, counterData> counters;
   };
 }

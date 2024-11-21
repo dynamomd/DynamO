@@ -69,7 +69,7 @@ namespace dynamo {
   protected:
     void stream(double dt);
 
-    typedef std::pair<classKey, EEventType> CounterKey;
+    typedef std::pair<EventSourceKey, EEventType> CounterKey;
 
     struct CounterData
     {

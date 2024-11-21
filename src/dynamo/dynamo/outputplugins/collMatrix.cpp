@@ -31,7 +31,7 @@ namespace dynamo {
   void 
   OPCollMatrix::initialise()
   {
-    lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, eventKey(classKey(0, NOSOURCE), NONE)));
+    lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, EventKey(EventSourceKey(0, NOSOURCE), NONE)));
 
     for (const auto& p1: Sim->particles)
       for (const auto& p2: Sim->particles)
@@ -41,8 +41,8 @@ namespace dynamo {
           if (iPtr)
             {
               auto status = iPtr->isCaptured(p1, p2);
-              _lastCaptureState[captureKey(iPtr->getID(), p1)] += status;
-              _lastCaptureState[captureKey(iPtr->getID(), p2)] += status;
+              _currentCaptureState[TotalCaptureStateKey(iPtr->getID(), p1)] += status;
+              _currentCaptureState[TotalCaptureStateKey(iPtr->getID(), p2)] += status;
             }
         }  
   }
@@ -53,7 +53,57 @@ namespace dynamo {
   void 
   OPCollMatrix::eventUpdate(const Event& event, const NEventData& SDat)
   {
-    auto ck = getClassKey(event);
+    auto ck = getEventSourceKey(event);
+
+    // Here we're investigating particles by capture state
+    // We do it first, before last_event is updated.
+    //
+    //Check if the interaction is a subclass of ICapture, if so grab a shared_ptr
+    //to the interaction and call the capture function.
+    if (event._source == INTERACTION)
+      {
+        auto iPtr = std::dynamic_pointer_cast<ICapture>(Sim->interactions[event._sourceID]);
+        if (iPtr) {
+          for (const PairEventData& pData : SDat.L2partChanges) {
+            auto ck1 = TotalCaptureStateKey(iPtr->getID(), pData.particle1_.getParticleID());
+            auto ck2 = TotalCaptureStateKey(iPtr->getID(), pData.particle2_.getParticleID());
+            auto& cs1 = _currentCaptureState[ck1];
+            auto& cs2 = _currentCaptureState[ck2];
+
+            auto ek = EventKey(ck, pData.getType());
+            auto cek1 = EventCaptureStateKey(ek, cs1);
+            auto cek2 = EventCaptureStateKey(ek, cs2);
+            auto& cekd1 = _captureCounters[cek1];
+            auto& cekd2 = _captureCounters[cek2];
+            auto lastEvent1 = lastEvent[pData.particle1_.getParticleID()];
+            auto lastEvent2 = lastEvent[pData.particle2_.getParticleID()];
+
+            // Update the tracked capture status 
+            cekd1.count += 1;
+            cekd2.count += 1;
+            cekd1.MFT.addVal(Sim->systemTime - lastEvent1.first);
+            cekd2.MFT.addVal(Sim->systemTime - lastEvent2.first);
+
+            // Histogram of capture state occupancy times
+            // Time weighted average of capture state
+
+            auto status = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
+            // Update the tracked capture status
+            if ((pData.getType() == STEP_OUT) && (!status))
+              {
+                _currentCaptureState[ck1] -= 1;
+                _currentCaptureState[ck2] -= 1;
+              }
+            if ((pData.getType() == STEP_IN) && (status == 1))
+              {
+                _currentCaptureState[ck1] += 1;
+                _currentCaptureState[ck2] += 1;
+              }
+          }
+        }
+      }
+
+
 
     for (const ParticleEventData& pData : SDat.L1partChanges)
       newEvent(pData.getParticleID(), pData.getType(), ck);  
@@ -63,61 +113,23 @@ namespace dynamo {
 	      newEvent(pData.particle1_.getParticleID(), pData.getType(), ck);
 	      newEvent(pData.particle2_.getParticleID(), pData.getType(), ck);
       }
-
-    //Check if the interaction is a subclass of ICapture, if so grab a shared_ptr
-    //to the interaction and call the capture function.
-    if (event._source == INTERACTION)
-      {
-        auto iPtr = std::dynamic_pointer_cast<ICapture>(Sim->interactions[event._sourceID]);
-        if (iPtr) {
-          for (const PairEventData& pData : SDat.L2partChanges) {
-            auto ck1 = captureKey(iPtr->getID(), pData.particle1_.getParticleID());
-            auto ck2 = captureKey(iPtr->getID(), pData.particle2_.getParticleID());
-            auto& cs1 = _lastCaptureState[ck1];
-            auto& cs2 = _lastCaptureState[ck2];
-
-            auto ek = eventKey(ck, pData.getType());
-            auto cek1 = captureEventKey(ek, cs1);
-            auto cek2 = captureEventKey(ek, cs2);
-            // Update the tracked capture status 
-            _captureCounters[cek1].count += 1;
-            _captureCounters[cek2].count += 1;
-
-            // Histogram of capture state occupancy times
-            // Time weighted average of capture state
-
-            auto status = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
-            // Update the tracked capture status
-            if ((pData.getType() == STEP_OUT) && (!status))
-              {
-                _lastCaptureState[ck1] -= 1;
-                _lastCaptureState[ck2] -= 1;
-              }
-            if ((pData.getType() == STEP_IN) && (status == 1))
-              {
-                _lastCaptureState[ck1] += 1;
-                _lastCaptureState[ck2] += 1;
-              }
-          }
-        }
-      }
   }
   void 
-  OPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
+  OPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const EventSourceKey& ck)
   {
     if (lastEvent[part].second.first.second != NOSOURCE)
       {
-	counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part].second)];
+	InterEventData& refCount = counters[InterEventKey(EventKey(ck,etype), lastEvent[part].second)];
       
 	refCount.totalTime += Sim->systemTime - lastEvent[part].first;
 	++(refCount.count);
 	++(totalCount);
       }
     else
-      ++initialCounter[eventKey(ck,etype)];
+      ++initialCounter[EventKey(ck,etype)];
 
     lastEvent[part].first = Sim->systemTime;
-    lastEvent[part].second = eventKey(ck, etype);
+    lastEvent[part].second = EventKey(ck, etype);
   }
 
   void
@@ -127,9 +139,9 @@ namespace dynamo {
     XML << magnet::xml::tag("CollCounters") 
 	<< magnet::xml::tag("TransitionMatrix");
   
-    std::map<eventKey, std::pair<size_t, double> > totmap;
+    std::map<EventKey, std::pair<size_t, double> > totmap;
   
-    typedef std::pair<const counterKey, counterData> locPair;
+    typedef std::pair<const InterEventKey, InterEventData> locPair;
   
   
     size_t initialsum(0);
@@ -141,9 +153,9 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Count")
 	    << magnet::xml::attr("Event") << ele.first.first.second
-	    << magnet::xml::attr("Name") << getName(ele.first.first.first, Sim)
+	    << magnet::xml::attr("Name") << getEventSourceName(ele.first.first.first, Sim)
 	    << magnet::xml::attr("lastEvent") << ele.first.second.second
-	    << magnet::xml::attr("lastName") << getName(ele.first.second.first, Sim)
+	    << magnet::xml::attr("lastName") << getEventSourceName(ele.first.second.first, Sim)
 	    << magnet::xml::attr("Percent") << 100.0 * ((double) ele.second.count) 
 	  / ((double) totalCount)
 	    << magnet::xml::attr("mft") << ele.second.totalTime
@@ -163,7 +175,7 @@ namespace dynamo {
   
     for (const auto& mp1 : totmap)
       XML << magnet::xml::tag("TotCount")
-	  << magnet::xml::attr("Name") << getName(mp1.first.first, Sim)
+	  << magnet::xml::attr("Name") << getEventSourceName(mp1.first.first, Sim)
 	  << magnet::xml::attr("Event") << mp1.first.second
 	  << magnet::xml::attr("Percent") 
 	  << 100.0 * (((double) mp1.second.first)
@@ -184,14 +196,15 @@ namespace dynamo {
       auto class_key = ek.first;
       auto event_type = ek.second;
       auto captures = cek.second;
-      auto captureData = val.second;
+      auto EventCaptureStateData = val.second;
 
       XML << magnet::xml::tag("Count")
-          << magnet::xml::attr("Name") << getName(class_key, Sim)
+          << magnet::xml::attr("Name") << getEventSourceName(class_key, Sim)
           << magnet::xml::attr("Event") << event_type
           << magnet::xml::attr("captures") << captures
-          << magnet::xml::attr("Count") << captureData.count
-          << magnet::xml::endtag("Count")
+          << magnet::xml::attr("Count") << EventCaptureStateData.count;
+      val.second.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+      XML << magnet::xml::endtag("Count")
       ; 
     }
     XML	<< magnet::xml::endtag("CaptureCounters");

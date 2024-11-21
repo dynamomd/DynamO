@@ -28,12 +28,15 @@ namespace dynamo
 
   namespace EventTypeTracking {
   
-    //! Keeps the type of event (interaction etc) and the ID num
-    typedef std::pair<size_t, EventSource> classKey;
+    //! Keeps the ID and type of the event source
+    typedef std::pair<size_t, EventSource> EventSourceKey;
 
-    std::string getName(const classKey&, const dynamo::Simulation*);
-    std::string getClass(const classKey&);
+    //! Event source And Type
+    typedef std::pair<EventSourceKey, EEventType> EventKey;
 
-    classKey getClassKey(const Event&);
+    std::string getEventSourceName(const EventSourceKey&, const dynamo::Simulation*);
+    std::string getEventSourceTypeName(const EventSourceKey&);
+
+    EventSourceKey getEventSourceKey(const Event&);
   }
 }

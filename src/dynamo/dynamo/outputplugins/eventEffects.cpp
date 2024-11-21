@@ -43,7 +43,7 @@ namespace dynamo {
 	const double m1 = Sim->species[p1]->getMass(p1.getID());
 	const Vector dP = m1 * (p1.getVelocity() - pData.getOldVel());
 	
-	newEvent(localEvent._type, getClassKey(localEvent), 0.5 * m1 * (p1.getVelocity().nrm2() - pData.getOldVel().nrm2()), dP);
+	newEvent(localEvent._type, getEventSourceKey(localEvent), 0.5 * m1 * (p1.getVelocity().nrm2() - pData.getOldVel().nrm2()), dP);
       }
   
     for (const PairEventData& pData : SDat.L2partChanges)
@@ -53,21 +53,21 @@ namespace dynamo {
 	const double m1 = Sim->species[p1]->getMass(p1.getID());
 	const double m2 = Sim->species[p2]->getMass(p2.getID());
 
-	newEvent(localEvent._type, getClassKey(localEvent),
+	newEvent(localEvent._type, getEventSourceKey(localEvent),
 		 0.5 * m1 * (p1.getVelocity().nrm2() - pData.particle1_.getOldVel().nrm2()),
 		 -pData.impulse);
       
-	newEvent(localEvent._type, getClassKey(localEvent),
+	newEvent(localEvent._type, getEventSourceKey(localEvent),
 		 0.5 * m2 * (p2.getVelocity().nrm2() - pData.particle2_.getOldVel().nrm2()),
 		 pData.impulse);
       }
   }
 
   void 
-  OPEventEffects::newEvent(const EEventType& eType, const classKey& ck, 
+  OPEventEffects::newEvent(const EEventType& eType, const EventSourceKey& ck, 
 			   const double& deltaKE, const Vector & delP)
   {
-    counterData& ref(counters[eventKey(ck, eType)]);
+    counterData& ref(counters[EventKey(ck, eType)]);
     ref.energyLoss += deltaKE;
     ref.momentumChange += delP;
   }
@@ -77,12 +77,12 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("EventEffects");
 
-    typedef std::pair<const eventKey, counterData> locPair;  
+    typedef std::pair<const EventKey, counterData> locPair;  
   
     for (const locPair& ele : counters)
       {
 	XML << magnet::xml::tag("Count")
-	    << magnet::xml::attr("Name") << getName(ele.first.first, Sim)
+	    << magnet::xml::attr("Name") << getEventSourceName(ele.first.first, Sim)
 	    << magnet::xml::attr("Event") << ele.first.second
 	    << magnet::xml::attr("EnergyLossRate") 
 	    << ele.second.energyLoss * Sim->units.unitTime()
