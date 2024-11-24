@@ -74,14 +74,15 @@ namespace dynamo {
 
     magnet::math::HistogramWeighted<> _captureStateHistogram;
 
-    //Here we're tracking collision statistics depending on the capture state of
-    //a pair of particles
+    //Here we're tracking collision statistics depending on the Event Type/Source and pair capture state
     typedef std::pair<EventKey, size_t> EventCaptureStateKey;
 
     struct EventCaptureStateData {
-      EventCaptureStateData(double binWidth):MFT(binWidth) {}
+      EventCaptureStateData(double binWidth):MFT(binWidth), rijdotvij(0.01), vi2(0.01) {}
       double last_event_time = 0;
       magnet::math::Histogram<> MFT;
+      magnet::math::Histogram<> rijdotvij;
+      magnet::math::Histogram<> vi2;
     };
 
     std::map<EventCaptureStateKey, EventCaptureStateData> _captureCounters;

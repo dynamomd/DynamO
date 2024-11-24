@@ -113,8 +113,8 @@ statevars = [
         ("Lambda", [1.5, 2]),
         ("InitState", ["FCC"]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.1)))))),
-        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 3.1, 0.1)))))),
+        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), [0.01, 0.1, 0.5, 1.0, 1.3])))),
+        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))),
     ],
 #    [ #Isochore
 #        ("Lambda", [2]),
@@ -170,7 +170,7 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
 ################################################################
 mgr.run(setup_worker=setup_worker,
         particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 10000, # How many events per particle to run IN TOTAL
+        particle_run_events = 1000, # How many events per particle to run IN TOTAL
         particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################

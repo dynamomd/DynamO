@@ -96,12 +96,15 @@ namespace dynamo {
             if (cekd2.last_event_time != 0)
               cekd2.MFT.addVal(Sim->systemTime - cekd2.last_event_time);
 
+            cekd1.rijdotvij.addVal(pData.rvdot);
+            cekd2.rijdotvij.addVal(pData.rvdot);
+            cekd1.vi2.addVal(pData.particle1_.getOldVel().nrm2());
+            cekd2.vi2.addVal(pData.particle2_.getOldVel().nrm2());
             // Now we update the last event time
             cekd1.last_event_time = Sim->systemTime;
             cekd2.last_event_time = Sim->systemTime;
 
             auto new_capture_state = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
-
 
             _captureStateHistogram.addVal(cs1._state, Sim->systemTime - cs1._last_update);
             _captureStateHistogram.addVal(cs2._state, Sim->systemTime - cs2._last_update);
@@ -222,7 +225,19 @@ namespace dynamo {
           << magnet::xml::attr("Name") << getEventSourceName(class_key, Sim)
           << magnet::xml::attr("Event") << event_type
           << magnet::xml::attr("captures") << captures;
+      
+      XML << magnet::xml::tag("MFT");
       val.second.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+      XML << magnet::xml::endtag("MFT");
+
+      XML << magnet::xml::tag("RijDotVij");
+      val.second.rijdotvij.outputHistogram(XML, 1.0 / Sim->units.unitLength() / Sim->units.unitVelocity());
+      XML << magnet::xml::endtag("RijDotVij");
+
+      XML << magnet::xml::tag("V2");
+      val.second.vi2.outputHistogram(XML, 1.0 / Sim->units.unitVelocity() / Sim->units.unitVelocity());
+      XML << magnet::xml::endtag("V2");
+
       XML << magnet::xml::endtag("Count")
       ; 
     }
