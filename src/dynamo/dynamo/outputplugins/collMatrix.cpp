@@ -24,15 +24,19 @@
 namespace dynamo {
   OPCollMatrix::OPCollMatrix(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"CollisionMatrix"),
-    totalCount(0)
+    totalCount(0),
+    _captureStateHistogram(0.1)
   {
   }
 
   void 
   OPCollMatrix::initialise()
   {
+    lastEvent.clear();
     lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, EventKey(EventSourceKey(0, NOSOURCE), NONE)));
 
+    // Reset the current capture state
+    _currentCaptureState.clear();
     for (const auto& p1: Sim->particles)
       for (const auto& p2: Sim->particles)
         if (p1 != p2)
@@ -40,11 +44,14 @@ namespace dynamo {
           auto iPtr = std::dynamic_pointer_cast<ICapture>(Sim->getInteraction(p1, p2));
           if (iPtr)
             {
-              auto status = iPtr->isCaptured(p1, p2);
-              _currentCaptureState[TotalCaptureStateKey(iPtr->getID(), p1)] += status;
-              _currentCaptureState[TotalCaptureStateKey(iPtr->getID(), p2)] += status;
+              auto status = iPtr->isCaptured(p1, p2) > 0;
+              _currentCaptureState[TotalCaptureStateKey(iPtr->getID(), p1)]._state += status;
+              _currentCaptureState[TotalCaptureStateKey(iPtr->getID(), p2)]._state += status;
             }
-        }  
+        }
+    // Move the time origin to now
+    for (auto& p: _currentCaptureState)
+      p.second._last_update = Sim->systemTime;
   }
 
   OPCollMatrix::~OPCollMatrix()
@@ -72,8 +79,8 @@ namespace dynamo {
             auto& cs2 = _currentCaptureState[ck2];
 
             auto ek = EventKey(ck, pData.getType());
-            auto cek1 = EventCaptureStateKey(ek, cs1);
-            auto cek2 = EventCaptureStateKey(ek, cs2);
+            auto cek1 = EventCaptureStateKey(ek, cs1._state);
+            auto cek2 = EventCaptureStateKey(ek, cs2._state);
 
             //Lookup capture counter data, but initialise histogram if it doesn't exist
             auto it  = _captureCounters.insert(decltype(_captureCounters)::value_type(cek1, EventCaptureStateData(Sim->lastRunMFT * 0.01)));
@@ -81,30 +88,34 @@ namespace dynamo {
             it  = _captureCounters.insert(decltype(_captureCounters)::value_type(cek2, EventCaptureStateData(Sim->lastRunMFT * 0.01)));
             auto& cekd2 = it.first->second;
 
-            //Lookup the last event of the particles
-            auto lastEvent1 = lastEvent[pData.particle1_.getParticleID()];
-            auto lastEvent2 = lastEvent[pData.particle2_.getParticleID()];
+            //We only track the time between events of the same type, at the
+            //start of the simulation we don't have a previous event so we skip.
+            if (cekd1.last_event_time != 0)
+              cekd1.MFT.addVal(Sim->systemTime - cekd1.last_event_time);
+            if (cekd2.last_event_time != 0)
+              cekd2.MFT.addVal(Sim->systemTime - cekd2.last_event_time);
 
-            // Update the tracked capture status 
-            cekd1.count += 1;
-            cekd2.count += 1;
-            cekd1.MFT.addVal(Sim->systemTime - lastEvent1.first);
-            cekd2.MFT.addVal(Sim->systemTime - lastEvent2.first);
+            // Now we update the last event time
+            cekd1.last_event_time = Sim->systemTime;
+            cekd2.last_event_time = Sim->systemTime;
 
-            // Histogram of capture state occupancy times
-            // Time weighted average of capture state
+            auto new_capture_state = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
 
-            auto status = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
+            _captureStateHistogram.addVal(cs1._state, Sim->systemTime - cs1._last_update);
+            _captureStateHistogram.addVal(cs2._state, Sim->systemTime - cs2._last_update);
+            cs1._last_update = Sim->systemTime;
+            cs2._last_update = Sim->systemTime;
+
             // Update the tracked capture status
-            if ((pData.getType() == STEP_OUT) && (!status))
+            if ((pData.getType() == STEP_OUT) && (!new_capture_state))
               {
-                _currentCaptureState[ck1] -= 1;
-                _currentCaptureState[ck2] -= 1;
+                cs1._state -= 1;
+                cs2._state -= 1;
               }
-            if ((pData.getType() == STEP_IN) && (status == 1))
+            if ((pData.getType() == STEP_IN) && (new_capture_state == 1))
               {
-                _currentCaptureState[ck1] += 1;
-                _currentCaptureState[ck2] += 1;
+                cs1._state += 1;
+                cs2._state += 1;
               }
           }
         }
@@ -208,14 +219,24 @@ namespace dynamo {
       XML << magnet::xml::tag("Count")
           << magnet::xml::attr("Name") << getEventSourceName(class_key, Sim)
           << magnet::xml::attr("Event") << event_type
-          << magnet::xml::attr("captures") << captures
-          << magnet::xml::attr("Count") << EventCaptureStateData.count;
+          << magnet::xml::attr("captures") << captures;
       val.second.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
       XML << magnet::xml::endtag("Count")
       ; 
     }
-    XML	<< magnet::xml::endtag("CaptureCounters");
+    XML	<< magnet::xml::endtag("CaptureCounters")
+        << magnet::xml::tag("CaptureStateHistogram");
 
-    XML << magnet::xml::endtag("CollCounters");
+    //Before we output the histogram we need to bring everything up to date
+    for (auto& p: _currentCaptureState)
+      {
+        auto& cs = p.second;
+        _captureStateHistogram.addVal(cs._state, Sim->systemTime - cs._last_update);
+        cs._last_update = Sim->systemTime;
+      }
+
+    _captureStateHistogram.outputHistogram(XML, 1.0 / Sim->units.unitEnergy());
+    XML << magnet::xml::endtag("CaptureStateHistogram")
+        << magnet::xml::endtag("CollCounters");
   }
 }

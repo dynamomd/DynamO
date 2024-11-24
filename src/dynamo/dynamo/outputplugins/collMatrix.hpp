@@ -64,19 +64,26 @@ namespace dynamo {
 
     //First we track how many times a particle has been captured
     typedef std::pair<size_t, size_t> TotalCaptureStateKey; // Interaction ID and particle ID
-    std::map<TotalCaptureStateKey, size_t> _currentCaptureState; // How many captures a particle has
+    struct CaptureStateData {
+      CaptureStateData(double binWidth = 1.0) {}
+      double _last_update = 0;
+      size_t _state = 0;
+    };
+    std::map<TotalCaptureStateKey, CaptureStateData> _currentCaptureState; // How many captures a particle has
 
+
+    magnet::math::HistogramWeighted<> _captureStateHistogram;
 
     //Here we're tracking collision statistics depending on the capture state of
     //a pair of particles
     typedef std::pair<EventKey, size_t> EventCaptureStateKey;
 
     struct EventCaptureStateData {
-      EventCaptureStateData(double binWidth):count(0), totalTime(0), MFT(binWidth) {}
-      unsigned long count;
-      double totalTime;
+      EventCaptureStateData(double binWidth):MFT(binWidth) {}
+      double last_event_time = 0;
       magnet::math::Histogram<> MFT;
     };
+
     std::map<EventCaptureStateKey, EventCaptureStateData> _captureCounters;
 
     std::map<EventKey, size_t> initialCounter;
