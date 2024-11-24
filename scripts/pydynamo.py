@@ -10,12 +10,20 @@ calculating error estimates for the properties obtained at each state
 point.
 """
 
+import bz2
+import glob
+import math
 # Include everything "standard" in here. Try to keep external
 # dependencies only imported when they are used, so this can be
 # easilly deployed on a cluster.
-import os, glob, sys, time, math, subprocess, bz2, alive_progress, scipy
-
+import os
+import subprocess
+import sys
+import time
 from multiprocessing import Pool, cpu_count
+
+import alive_progress
+import scipy
 
 #import xml.etree.cElementTree as ET
 
@@ -31,14 +39,16 @@ except ImportError:
         try:
             # normal ElementTree install
             import xml.etree.ElementTree as ET
+
             import elementtree.ElementTree as ET
             print("Running with ElementTree")
         except ImportError:
             print("Failed to import ElementTree from any known place")
 
-import uncertainties
 import numpy as np
-from datastat import WeightedFloat, linear_interp, WeightedArray
+import uncertainties
+from datastat import WeightedArray, WeightedFloat, linear_interp
+
 
 class SkipThisPoint(BaseException):
     pass
@@ -210,6 +220,8 @@ def validate_configfile(filename):
     return validate_xmlfile(filename)
     
 import pickle as pickle
+
+
 #This function actually sets up and runs the simulations and is run in parallel
 def worker(state, workdir, outputplugins, particle_equil_events, particle_run_events, particle_run_events_block_size, setup_worker):
     try:
@@ -256,6 +268,7 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
             print("################################\n", file=logfile, flush=True)
             
             from subprocess import check_call
+
             #Only actually do the equilibration if the output data/config is missing
             if not os.path.isfile(outputfile) or not validate_configfile(outputfile) or not os.path.isfile(datafile) or not validate_outputfile(datafile):
                 check_call(["dynarun", inputfile, '-o', outputfile, '-c', str(N * particle_equil_events), "--out-data-file", datafile], stdout=logfile, stderr=logfile)
@@ -383,7 +396,7 @@ def make_state(state):
     
 import shutil
 
-        
+
 def reorg_dir_worker(args):
     entry, manager = args
     oldpath = os.path.join(manager.workdir, entry)
@@ -664,9 +677,9 @@ class SimManager:
         if len(errors) > 0:
             import traceback
             print("\nERROR: Found",len(errors),"exceptions while processing")
-            print(''.join(traceback.format_exception(etype=type(errors[0]), value=errors[0], tb=errors[0].__traceback__)))
+            print(''.join(traceback.format_exception(errors[0])))
             f=open("error.log", 'w')
-            print(''.join([''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)) for error in errors]), file=f)
+            print(''.join([''.join(traceback.format_exception(error)) for error in errors]), file=f)
             
             print('Remaining errors written to "error.log"')
             raise RuntimeError("Parallel execution failed")
@@ -681,6 +694,7 @@ class SimManager:
         pool = Pool(processes=self.processes)
 
         import collections
+
         #We store the extracted data in a dict of dicts. The first
         #dict is for the state, the second for the property.
         state_data = collections.defaultdict(dict)        
@@ -868,6 +882,13 @@ def parseToArray(text):
             data.append(row_data)
     return np.array(data)
 
+class CollisionMatrixOutputProperty(OutputProperty):
+    def __init__(self):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LCollisionMatrix'])
+
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        return None
+
 class VACFOutputProperty(OutputProperty):
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LVACF'])
@@ -991,7 +1012,7 @@ class OrderParameterProperty(OutputProperty):
         
         return WeightedFloat(np.mean(ql_value), 1)
 
-    
+
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
 OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
 OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
@@ -1011,6 +1032,7 @@ OutputFile.output_props["VACF"] = VACFOutputProperty()
 OutputFile.output_props["RadialDistEnd"] = RadialDistEndOutputProperty()
 OutputFile.output_props["RadialDistribution"] = RadialDistributionOutputProperty()
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
+OutputFile.output_props["CollisionMatrix"] = CollisionMatrixOutputProperty()
 
 if __name__ == "__main__":
 

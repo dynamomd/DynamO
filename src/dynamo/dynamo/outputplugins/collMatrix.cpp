@@ -25,7 +25,7 @@ namespace dynamo {
   OPCollMatrix::OPCollMatrix(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"CollisionMatrix"),
     totalCount(0),
-    _captureStateHistogram(0.1)
+    _captureStateHistogram(1.0)
   {
   }
 
@@ -37,10 +37,11 @@ namespace dynamo {
 
     // Reset the current capture state
     _currentCaptureState.clear();
-    for (const auto& p1: Sim->particles)
-      for (const auto& p2: Sim->particles)
-        if (p1 != p2)
+    for (size_t i(0); i < Sim->N(); ++i)
+      for (size_t j(i+1); j < Sim->N(); ++j)
         {
+          auto& p1 = Sim->particles[i];
+          auto& p2 = Sim->particles[j];
           auto iPtr = std::dynamic_pointer_cast<ICapture>(Sim->getInteraction(p1, p2));
           if (iPtr)
             {
@@ -101,13 +102,14 @@ namespace dynamo {
 
             auto new_capture_state = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
 
+
             _captureStateHistogram.addVal(cs1._state, Sim->systemTime - cs1._last_update);
             _captureStateHistogram.addVal(cs2._state, Sim->systemTime - cs2._last_update);
             cs1._last_update = Sim->systemTime;
             cs2._last_update = Sim->systemTime;
 
             // Update the tracked capture status
-            if ((pData.getType() == STEP_OUT) && (!new_capture_state))
+            if ((pData.getType() == STEP_OUT) && (new_capture_state == 0))
               {
                 cs1._state -= 1;
                 cs2._state -= 1;
