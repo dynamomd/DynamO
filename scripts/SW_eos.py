@@ -57,7 +57,7 @@ def setup_worker( config, #The name of the config file to generate.
     # Thermostat
     options = ''
     if 'kT' in state:
-        if 'kT' != float('inf'):
+        if state['kT'] != float('inf'):
             options = options + ' -T '+repr(state['kT'])
         else:#infite temperature is a special case, we set well energies to zero
             options = options + ' -T 1.0'
@@ -73,7 +73,7 @@ def setup_worker( config, #The name of the config file to generate.
     
     # Square well or hard sphere?
     if state['Lambda'] != float('inf'):
-        if 'kT' != float('inf'):
+        if state['kT'] != float('inf'):
             options = options + ' -m 1 --f1 '+repr(state['Lambda'])
         else: # infinite temperature is a special case, we set well energies to zero
             options = options + ' -m 1 --f1 '+repr(state['Lambda']) + " --f2 0.0"
@@ -84,6 +84,7 @@ def setup_worker( config, #The name of the config file to generate.
     options = options + ' -d ' + repr(state['ndensity'])
 
     # Execution of dynamod
+    print('# dynamod'+options+' -o '+config, file=logfile)
     check_call(('dynamod'+options+' -o '+config).split(), stdout=logfile, stderr=logfile)
 
     # Run of an equilibration step to blur the system state
@@ -92,6 +93,7 @@ def setup_worker( config, #The name of the config file to generate.
         print("################################", file=logfile)
         print("#      Liquifaction Run        #", file=logfile)
         print("################################\n", file=logfile, flush=True)
+        print("# dynarun --unwrapped "+config+" -o "+config+" -c "+str(state['N'] * particle_equil_events)+" --out-data-file data.liqequil.xml.bz2", file=logfile)
         check_call(["dynarun", "--unwrapped", config, '-o', config, '-c', str(state['N'] * particle_equil_events), "--out-data-file", "data.liqequil.xml.bz2"], stdout=logfile, stderr=logfile)
     
     # Add the SO Cells global interaction (if needed)
