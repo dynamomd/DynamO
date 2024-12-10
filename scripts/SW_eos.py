@@ -57,7 +57,10 @@ def setup_worker( config, #The name of the config file to generate.
     # Thermostat
     options = ''
     if 'kT' in state:
-        options = options + ' -T '+repr(state['kT'])
+        if 'kT' != float('inf'):
+            options = options + ' -T '+repr(state['kT'])
+        else:#infite temperature is a special case, we set well energies to zero
+            options = options + ' -T 1.0'
 
     # Crystal lattice packing
     packmode = {
@@ -70,7 +73,10 @@ def setup_worker( config, #The name of the config file to generate.
     
     # Square well or hard sphere?
     if state['Lambda'] != float('inf'):
-        options = options + ' -m 1 --f1 '+repr(state['Lambda'])
+        if 'kT' != float('inf'):
+            options = options + ' -m 1 --f1 '+repr(state['Lambda'])
+        else: # infinite temperature is a special case, we set well energies to zero
+            options = options + ' -m 1 --f1 '+repr(state['Lambda']) + " --f2 0.0"
     else:
         options = options + ' -m 0'
 
@@ -114,7 +120,7 @@ statevars = [
         ("InitState", ["FCC"]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
         ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), [0.01, 0.1, 0.5, 1.0, 1.3])))),
-        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))),
+        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))+[float('inf')]),
     ],
 #    [ #Isochore
 #        ("Lambda", [2]),
@@ -170,7 +176,7 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
 ################################################################
 mgr.run(setup_worker=setup_worker,
         particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 1000, # How many events per particle to run IN TOTAL
+        particle_run_events = 5000, # How many events per particle to run IN TOTAL
         particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
