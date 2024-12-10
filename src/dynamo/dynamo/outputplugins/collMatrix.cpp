@@ -106,12 +106,30 @@ namespace dynamo {
 
             auto new_capture_state = iPtr->isCaptured(pData.particle1_.getParticleID(), pData.particle2_.getParticleID());
 
+            if (cs1._last_event_time != 0) {
+              cekd1._particle_MFT.addVal(Sim->systemTime - cs1._last_event_time);
+              MFTKey k1(EventCaptureStateKey(cs1._last_event, cs1._state), cek1);
+              auto it2  = _fullMFT.insert(decltype(_fullMFT)::value_type(k1, magnet::math::Histogram<>(Sim->lastRunMFT * 0.01)));
+              it2.first->second.addVal(Sim->systemTime - cs1._last_event_time);
+            }
+            if (cs2._last_event_time != 0) {
+              cekd2._particle_MFT.addVal(Sim->systemTime - cs2._last_event_time);
+              MFTKey k2(EventCaptureStateKey(cs2._last_event, cs1._state), cek2);
+              auto it2 = _fullMFT.insert(decltype(_fullMFT)::value_type(k2, magnet::math::Histogram<>(Sim->lastRunMFT * 0.01)));
+              it2.first->second.addVal(Sim->systemTime - cs2._last_event_time);
+            }
+
+
             _captureStateHistogram.addVal(cs1._state, Sim->systemTime - cs1._last_update);
             _captureStateHistogram.addVal(cs2._state, Sim->systemTime - cs2._last_update);
             cs1._last_update = Sim->systemTime;
             cs2._last_update = Sim->systemTime;
 
-            // Update the tracked capture status
+            // Update the tracked capture/event status
+            cs1._last_event = ek;
+            cs2._last_event = ek;
+            cs1._last_event_time = Sim->systemTime;
+            cs2._last_event_time = Sim->systemTime;
             if ((pData.getType() == STEP_OUT) && (new_capture_state == 0))
               {
                 cs1._state -= 1;
@@ -230,6 +248,10 @@ namespace dynamo {
       val.second.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
       XML << magnet::xml::endtag("MFT");
 
+      XML << magnet::xml::tag("ParticleMFT");
+      val.second._particle_MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+      XML << magnet::xml::endtag("ParticleMFT");
+
       XML << magnet::xml::tag("RijDotVij");
       val.second.rijdotvij.outputHistogram(XML, 1.0 / Sim->units.unitLength() / Sim->units.unitVelocity());
       XML << magnet::xml::endtag("RijDotVij");
@@ -255,5 +277,23 @@ namespace dynamo {
     _captureStateHistogram.outputHistogram(XML, 1.0 / Sim->units.unitEnergy());
     XML << magnet::xml::endtag("CaptureStateHistogram")
         << magnet::xml::endtag("CollCounters");
+
+
+    XML << magnet::xml::tag("FullMFTs");
+
+    for (auto& p: _fullMFT)
+      {
+        auto& k = p.first;
+        auto& h = p.second;
+        XML << magnet::xml::tag("FullMFT")
+            << magnet::xml::attr("Src1") << getEventSourceName(k.first.first.first, Sim)
+            << magnet::xml::attr("Event1") << k.first.first.second
+            << magnet::xml::attr("Captures1") << k.first.second
+            << magnet::xml::attr("Src2") << getEventSourceName(k.second.first.first, Sim)
+            << magnet::xml::attr("Event2") << k.second.first.second
+            << magnet::xml::attr("Captures2") << k.second.second;
+        h.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+        XML << magnet::xml::endtag("FullMFT");
+      }
   }
 }

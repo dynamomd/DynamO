@@ -68,6 +68,8 @@ namespace dynamo {
       CaptureStateData(double binWidth = 1.0) {}
       double _last_update = 0;
       size_t _state = 0;
+      EventKey _last_event = EventKey(EventSourceKey(0, NOSOURCE), NONE);
+      double _last_event_time = 0;
     };
     std::map<TotalCaptureStateKey, CaptureStateData> _currentCaptureState; // How many captures a particle has
 
@@ -83,9 +85,14 @@ namespace dynamo {
       magnet::math::Histogram<> MFT;
       magnet::math::Histogram<> rijdotvij;
       magnet::math::Histogram<> vi2;
+      magnet::math::Histogram<> _particle_MFT;
     };
 
     std::map<EventCaptureStateKey, EventCaptureStateData> _captureCounters;
+
+    typedef std::pair<EventCaptureStateKey, EventCaptureStateKey> MFTKey;
+
+    std::map<MFTKey, magnet::math::Histogram<> > _fullMFT;
 
     std::map<EventKey, size_t> initialCounter;
 

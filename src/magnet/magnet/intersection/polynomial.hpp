@@ -101,7 +101,7 @@ namespace magnet {
 	//derivative
 	std::array<double, 2> derivroots;
 	const size_t nderivroots = magnet::math::quadSolve(f[3], f[2], f[1], derivroots[0], derivroots[1]);
-	if (derivroots[1] < derivroots[0])
+	if ((nderivroots > 1) && (derivroots[1] < derivroots[0]))
 	  std::swap(derivroots[0], derivroots[1]);
 	
 	if (f[3] > 0) {

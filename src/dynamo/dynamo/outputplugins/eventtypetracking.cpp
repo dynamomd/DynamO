@@ -37,8 +37,11 @@ namespace dynamo {
 	case LOCAL:
 	  return Sim->locals[key.first]->getName();
 	  break;
+	case NOSOURCE:
+	  return "NO SOURCE";
+	  break;
 	default:
-	  M_throw() << "Collision matrix found an unknown event class";
+	  M_throw() << "Collision matrix found an unknown event class" << key.second;
 	}
     }
 
