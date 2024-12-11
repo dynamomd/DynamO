@@ -114,7 +114,7 @@ namespace dynamo {
             }
             if (cs2._last_event_time != 0) {
               cekd2._particle_MFT.addVal(Sim->systemTime - cs2._last_event_time);
-              MFTKey k2(EventCaptureStateKey(cs2._last_event, cs1._state), cek2);
+              MFTKey k2(EventCaptureStateKey(cs2._last_event, cs2._state), cek2);
               auto it2 = _fullMFT.insert(decltype(_fullMFT)::value_type(k2, magnet::math::Histogram<>(Sim->lastRunMFT * 0.01)));
               it2.first->second.addVal(Sim->systemTime - cs2._last_event_time);
             }
