@@ -160,7 +160,12 @@ if(WIN32)
 endif()
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+
+# if cmake version is higher than 3.20 we can use the new boost configuration
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+endif()
+
 find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
 
 include_directories(${Boost_INCLUDE_DIRS})
