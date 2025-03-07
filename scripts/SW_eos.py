@@ -7,9 +7,9 @@ import pydynamo
 from pydynamo import ET
 
 
-def setup_worker( config, #The name of the config file to generate.
-                  state, #A dictionary of state variables to use
-                  logfile, #File handle where to write progress/logging output
+def setup_worker( config,                # The name of the config file to generate.
+                  state,                 # A dictionary of state variables to use
+                  logfile,               # File handle where to write progress/logging output
                   particle_equil_events, # How many events will be run per particle to equilibrate the config. Useful if in setup you also need to equilibrate an intermediate configuration.
 ):
     from subprocess import check_call
@@ -112,7 +112,7 @@ def setup_worker( config, #The name of the config file to generate.
 ################################################################
 ###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
 ################################################################
-#This is the list of state variables and their ranges
+# This is the list of state variables and their ranges
 
 prefix="SW_eos"
 
@@ -124,38 +124,6 @@ statevars = [
         ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), [0.01, 0.1, 0.5, 1.0, 1.3])))),
         ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))+[float('inf')]),
     ],
-#    [ #Isochore
-#        ("Lambda", [2]),
-#        ("InitState", ["FCC"]),
-#        ("PhiT", [float('inf')]),
-#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', [1.3]),
-#        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
-#    ],
-#    [ #Isochore
-#        ("Lambda", [1.5, 1.57]),
-#        ("InitState", ["HCP"]), #'FCC'
-#        ("PhiT", [float('inf')]),
-#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', [1.3]),
-#        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
-#    ],
-#    [ #Sweep 
-#        ("Lambda", [1.5, 1.57]),
-#        ("InitState", ["HCP"]), #'FCC'
-#        ("PhiT", [float('inf')]),
-#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
-#        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.5, 3.1, 0.1)))))),
-#    ],
-#    [ #liquid runs
-#        ("Lambda", [1.5, 1.57]),
-#        ("InitState", ["HCP"]), #'FCC'
-#        ("PhiT", [float('inf')]),
-#        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
-#        ("kT", [5,4,3,2.5,1.5]),
-#    ],
 ]
         
 ################################################################
@@ -184,7 +152,7 @@ mgr.run(setup_worker=setup_worker,
 ################################################################
 ###          GET THE DATA
 ################################################################
-#This creates a pandas dataframe with columns for the state variables
-#AND any output values. It also generates pkl files, some for
-#different properties.
+# This creates a pandas dataframe with columns for the state variables
+# AND any output values. It also generates pkl files, some for
+# different properties.
 data = mgr.fetch_data(1000)
