@@ -1,5 +1,5 @@
 {
   "name": "main",
   "version-string": "latest",
-  "dependencies": ["fmt", "boost", "eigen3", "libpng"]
+  "dependencies": ["boost", "eigen3", "libpng"]
 }

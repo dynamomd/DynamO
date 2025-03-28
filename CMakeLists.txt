@@ -333,6 +333,7 @@ file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp
 add_library(dynamo STATIC ${dynamo_SRC})
 target_link_libraries(dynamo PUBLIC Boost::program_options Boost::system Boost::filesystem Eigen3::Eigen)
 target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
+
 ######################################################################
 # Test for libbz2 (for compressed files)
 ######################################################################
@@ -348,6 +349,24 @@ if(NOT WIN32)
   endif()
 endif()
 
+set(
+  CPP_SOURCE_FILES
+  ${dynamo_SRC}
+)
+
+add_custom_target(
+    check-src-format
+    COMMAND clang-format --dry-run ${CPP_SOURCE_FILES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "checking format of source files..."
+)
+
+add_custom_target(
+    src-format
+    COMMAND clang-format -i ${CPP_SOURCE_FILES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Formatting all source files in src..."
+)
 
 
 ### Coil
