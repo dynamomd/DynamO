@@ -15,7 +15,7 @@ import glob
 import math
 # Include everything "standard" in here. Try to keep external
 # dependencies only imported when they are used, so this can be
-# easilly deployed on a cluster.
+# easily deployed on a cluster.
 import os
 import subprocess
 import sys
@@ -980,10 +980,33 @@ class RadialDistEndOutputProperty(OutputProperty):
         return None
 
 class OrderParameterProperty(OutputProperty):
-    '''See here https://freud.readthedocs.io/en/stable/modules/order.html#freud.order.Steinhardt'''
+    '''
+    See here https://freud.readthedocs.io/en/stable/modules/order.html#freud.order.Steinhardt
+    
+    This property is expensive to run at data collection time, as it processes every configuration file to determine the order parameter.
+    The advantage is that it can be run on any simulation, no need for extra output plugins.
+    '''
     def __init__(self, L):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
         self.L = L
+    
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        # We use freud to calculate the Steinhardt order parameter
+        # This function is called on every "run" of the simulation, with the outputfile and config file
+        # So we process the particle positions in the config file to calculate the order parameter
+        import freud
+        configfile = ConfigFile(configfilename)
+        box, points = configfile.to_freud()
+
+        #Steinhardt for FCC
+        ql = freud.order.Steinhardt(self.L)
+        ql.compute((box, points), neighbors={"num_neighbors": self.L})
+        ql_value = ql.particle_order
+        
+        return WeightedFloat(np.mean(ql_value), 1)
+
+    def init(self):
+        return WeightedFloat()
     
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         import freud
@@ -996,6 +1019,32 @@ class OrderParameterProperty(OutputProperty):
         ql_value = ql.particle_order
         
         return WeightedFloat(np.mean(ql_value), 1)
+
+class ChungLuConfigurationModel(OutputProperty):
+    '''
+    https://en.wikipedia.org/wiki/Configuration_model#Chung-Lu_Configuration_Model
+    
+
+    '''
+    def __init__(self, L):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
+        self.L = L
+    
+    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
+        
+        configfile = ConfigFile(configfilename)
+        if len(configfile.tree.findall('.//Interaction/CaptureMap')) != 1:
+            raise RuntimeError("ChungLuConfigurationModel requires a single CaptureMap in the config file")
+
+        import networkx as nx
+        G = nx.Graph()
+        for particle in configfile.tree.findall('.//Pt'):
+            G.add_node(int(particle.attrib['ID']))
+
+        for pair in configfile.tree.findall('.//Interaction/CaptureMap/Pair'):
+            G.add_edge(int(pair.attrib['ID1']), int(pair.attrib['ID2']))
+        
+        return WeightedFloat(nx.community.modularity(G), 1)
 
     def init(self):
         return WeightedFloat()

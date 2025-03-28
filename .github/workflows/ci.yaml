@@ -1,0 +1,42 @@
+name: Continuous Integration
+description: CI workflow for building DynamO and running the unit tests
+on:
+  - push
+  - pull_request
+jobs:
+  build-project:
+    name: Build Project
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Compiler
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --force-yes git build-essential cmake libboost-all-dev libbz2-dev libeigen3-dev libgtkmm-3.0-dev freeglut3-dev libavcodec-dev libglew-dev libxmu-dev
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$INSTPRF -DPACKAGE_SUFFIX=-${{ matrix.os }}
+          cmake --build . --config Release -- -j2
+      - name: Package
+        run: |
+          cpack --verbose -G ZIP
+          cpack --verbose
+      - name: Unit Testing
+        run: |
+          CTEST_OUTPUT_ON_FAILURE=1 ctest --build-config Release -j2
+      - name: Upload Package
+        if: success()
+        run: |
+          if [[ ${{ matrix.os }} == 'ubuntu-22.04' ]]; then
+            export RELEASE_PKG_FILE=$(ls build/*.deb)
+          else
+            export RELEASE_PKG_FILE=$(ls build/*.zip)
+          fi
+          echo "Package file: $RELEASE_PKG_FILE"
+          echo "::set-output name=package_file::$RELEASE_PKG_FILE"
