@@ -72,7 +72,7 @@ jobs:
       - name: Check code formatting
         if: runner.os == 'Linux'
         run: |
-          cmake --workflow --preset check-format
+          cmake --workflow --preset check-src-format
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       #
