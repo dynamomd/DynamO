@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,5 +15,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/topology/chain.hpp>
 #include <dynamo/topology/PRIME.hpp>
+#include <dynamo/topology/chain.hpp>

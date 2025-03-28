@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,65 +17,62 @@
 
 #pragma once
 
-#include <gtkmm.h>
 #include <coil/filters/filter.hpp>
+#include <gtkmm.h>
 
-namespace coil 
-{
-  template <class T>
-  class magnetFilterWrapper: public Filter
-  {
-  public:
-    magnetFilterWrapper():
-      _radius(1)
-    { 
-      _filter.build(); 
-      
-      {
-	Gtk::Label* Label1 = manage(new Gtk::Label("Radius"));
-	_optlist.add(*Label1); Label1->show();
-      }
+namespace coil {
+template <class T> class magnetFilterWrapper : public Filter {
+public:
+  magnetFilterWrapper() : _radius(1) {
+    _filter.build();
 
-      _radiusSlider.set_range(1, 20);
-      _radiusSlider.set_increments(1,1);
-      _radiusSlider.set_digits(0);
-      _radiusSlider.set_value(_radius);
-      _radiusSlider.signal_value_changed()
-	.connect(sigc::mem_fun(this, &magnetFilterWrapper<T>::settingsCallback));
-      _optlist.add(_radiusSlider); _radiusSlider.show();
-      
-      _optlist.show();
-    }
-
-    inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T> >::val; }
-
-
-    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::Camera&)
-    { 
-      _filter.attach();
-      _filter["u_Texture0"] = colorTextureUnit;
-      std::array<GLfloat, 2> arg = {{GLfloat(_radius) / width, 
-					  GLfloat(_radius) / height}};
-      _filter["u_Scale"] = arg;
-      _filter.invoke(); 
-      _filter.detach();
-    }
-
-    virtual void showControls(Gtk::ScrolledWindow* start)
     {
-      _optlist.unparent();
-      start->add(_optlist);
-      start->show();
+      Gtk::Label *Label1 = manage(new Gtk::Label("Radius"));
+      _optlist.add(*Label1);
+      Label1->show();
     }
-    
-  protected:
-    T _filter;
 
-    GLuint _radius;
+    _radiusSlider.set_range(1, 20);
+    _radiusSlider.set_increments(1, 1);
+    _radiusSlider.set_digits(0);
+    _radiusSlider.set_value(_radius);
+    _radiusSlider.signal_value_changed().connect(
+        sigc::mem_fun(this, &magnetFilterWrapper<T>::settingsCallback));
+    _optlist.add(_radiusSlider);
+    _radiusSlider.show();
 
-    Gtk::HScale _radiusSlider;
-    Gtk::HBox _optlist;
+    _optlist.show();
+  }
 
-    void settingsCallback() { _radius = _radiusSlider.get_value(); }
-  };
-}
+  inline virtual size_t type_id() {
+    return detail::filterEnum<magnetFilterWrapper<T>>::val;
+  }
+
+  inline virtual void invoke(GLint colorTextureUnit, size_t width,
+                             size_t height, const magnet::GL::Camera &) {
+    _filter.attach();
+    _filter["u_Texture0"] = colorTextureUnit;
+    std::array<GLfloat, 2> arg = {
+        {GLfloat(_radius) / width, GLfloat(_radius) / height}};
+    _filter["u_Scale"] = arg;
+    _filter.invoke();
+    _filter.detach();
+  }
+
+  virtual void showControls(Gtk::ScrolledWindow *start) {
+    _optlist.unparent();
+    start->add(_optlist);
+    start->show();
+  }
+
+protected:
+  T _filter;
+
+  GLuint _radius;
+
+  Gtk::HScale _radiusSlider;
+  Gtk::HBox _optlist;
+
+  void settingsCallback() { _radius = _radiusSlider.get_value(); }
+};
+} // namespace coil

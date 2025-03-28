@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,40 +16,42 @@
 */
 
 #pragma once
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  class SysFrancesco: public System
-  {
-  public:
-    SysFrancesco(const magnet::xml::Node& XML, dynamo::Simulation*);
+class SysFrancesco : public System {
+public:
+  SysFrancesco(const magnet::xml::Node &XML, dynamo::Simulation *);
 
-    SysFrancesco(dynamo::Simulation*, double, double, std::string);
-  
-    virtual NEventData runEvent();
+  SysFrancesco(dynamo::Simulation *, double, double, std::string);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-    double getTemperature() const { return Temp; }
-    double getReducedTemperature() const;
-    void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
-    void setReducedTemperature(double nT);
+  virtual void operator<<(const magnet::xml::Node &);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    double meanFreeTime;
-    double Temp, sqrtTemp;
-    double _R;
-    size_t dimensions;
-    size_t eventCount;
-    size_t lastlNColl;
+  double getTemperature() const { return Temp; }
+  double getReducedTemperature() const;
+  void setTemperature(double nT) {
+    Temp = nT;
+    sqrtTemp = std::sqrt(Temp);
+  }
+  void setReducedTemperature(double nT);
 
-    double getGhostt() const;
-  
-    shared_ptr<IDRange> range;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  double meanFreeTime;
+  double Temp, sqrtTemp;
+  double _R;
+  size_t dimensions;
+  size_t eventCount;
+  size_t lastlNColl;
+
+  double getGhostt() const;
+
+  shared_ptr<IDRange> range;
+};
+} // namespace dynamo

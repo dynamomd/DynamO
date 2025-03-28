@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,29 +21,34 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  class SpFixedCollider: public SpInertia
-  {
-  public:  
-    SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, unsigned int ID):
-      SpInertia(sim, r, std::numeric_limits<float>::infinity(), nName, ID)
-    { setOutputPrefix("SpFixedCollider"); }
-  
-    SpFixedCollider(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
-      SpInertia(nSim, NULL, std::numeric_limits<float>::infinity(), "", nID)
-    { setOutputPrefix("SpFixedCollider"); operator<<(XML); }
-  
-    virtual void initialise();
+class SpFixedCollider : public SpInertia {
+public:
+  SpFixedCollider(dynamo::Simulation *sim, IDRange *r, std::string nName,
+                  unsigned int ID)
+      : SpInertia(sim, r, std::numeric_limits<float>::infinity(), nName, ID) {
+    setOutputPrefix("SpFixedCollider");
+  }
 
-    virtual void operator<<(const magnet::xml::Node& XML);
+  SpFixedCollider(const magnet::xml::Node &XML, dynamo::Simulation *nSim,
+                  unsigned int nID)
+      : SpInertia(nSim, NULL, std::numeric_limits<float>::infinity(), "", nID) {
+    setOutputPrefix("SpFixedCollider");
+    operator<<(XML);
+  }
 
-    virtual double getScalarMomentOfInertia(size_t ID) const { return std::numeric_limits<float>::infinity(); }
+  virtual void initialise();
 
-    virtual double getParticleKineticEnergy(size_t ID) const {return 0; }
+  virtual void operator<<(const magnet::xml::Node &XML);
 
-    virtual double getDOF() const { return 0; }
+  virtual double getScalarMomentOfInertia(size_t ID) const {
+    return std::numeric_limits<float>::infinity();
+  }
 
-  protected:
+  virtual double getParticleKineticEnergy(size_t ID) const { return 0; }
 
-    virtual void outputXML(magnet::xml::XmlStream& XML) const;
-  };
-}
+  virtual double getDOF() const { return 0; }
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const;
+};
+} // namespace dynamo

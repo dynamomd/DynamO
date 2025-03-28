@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,27 +16,23 @@
 */
 
 #pragma once
-#include <dynamo/inputplugins/cells/cell.hpp>
 #include <algorithm>
+#include <dynamo/inputplugins/cells/cell.hpp>
 #include <random>
 
 namespace dynamo {
-  struct CURandomise: public UCell
-  {
-    CURandomise(UCell* nextCell):
-      UCell(nextCell)
-    {}
+struct CURandomise : public UCell {
+  CURandomise(UCell *nextCell) : UCell(nextCell) {}
 
-    virtual std::vector<Vector  > placeObjects(const Vector & centre)
-    {
-      //Must be placed at zero for the mirroring to work correctly
-      std::vector<Vector  > retval(uc->placeObjects(Vector (centre)));
-    
-      std::random_device rd;
-      std::mt19937 g(rd());
-      std::shuffle(retval.begin(), retval.end(), g);
-    
-      return retval;    
-    }
-  };
-}
+  virtual std::vector<Vector> placeObjects(const Vector &centre) {
+    // Must be placed at zero for the mirroring to work correctly
+    std::vector<Vector> retval(uc->placeObjects(Vector(centre)));
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(retval.begin(), retval.end(), g);
+
+    return retval;
+  }
+};
+} // namespace dynamo

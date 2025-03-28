@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,17 +21,22 @@
 #include <list>
 
 namespace dynamo {
-  class NEventData
-  {
-  public:
-    NEventData() {};
-    NEventData(const ParticleEventData& a) { L1partChanges.push_back(a); }
-    NEventData(const PairEventData& a) { L2partChanges.push_back(a); }
+class NEventData {
+public:
+  NEventData() {};
+  NEventData(const ParticleEventData &a) { L1partChanges.push_back(a); }
+  NEventData(const PairEventData &a) { L2partChanges.push_back(a); }
 
-    NEventData&  operator+=(const ParticleEventData& p) { L1partChanges.push_back(p); return *this; }
-    NEventData&  operator+=(const PairEventData& p) { L2partChanges.push_back(p); return *this; }
+  NEventData &operator+=(const ParticleEventData &p) {
+    L1partChanges.push_back(p);
+    return *this;
+  }
+  NEventData &operator+=(const PairEventData &p) {
+    L2partChanges.push_back(p);
+    return *this;
+  }
 
-    std::vector<ParticleEventData> L1partChanges;
-    std::vector<PairEventData> L2partChanges;
-  };
-}
+  std::vector<ParticleEventData> L1partChanges;
+  std::vector<PairEventData> L2partChanges;
+};
+} // namespace dynamo

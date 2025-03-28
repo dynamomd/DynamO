@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,66 +17,69 @@
 
 #pragma once
 
+#include <dynamo/eventtypes.hpp>
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/eventtypes.hpp>
 #include <vector>
 
 namespace dynamo {
-  class IStepped: public ICapture
-  {
-  public:
-    template<class T1, class T2>
-    IStepped(dynamo::Simulation* tmp, shared_ptr<Potential> potential, IDPairRange* nR, std::string name, T1 length, T2 energy):
-      ICapture(tmp,nR),
-      _lengthScale(Sim->_properties.getProperty(length, Property::Units::Length())),
-      _energyScale(Sim->_properties.getProperty(energy, Property::Units::Energy())),
-      _potential(potential)
-    { intName = name; }
+class IStepped : public ICapture {
+public:
+  template <class T1, class T2>
+  IStepped(dynamo::Simulation *tmp, shared_ptr<Potential> potential,
+           IDPairRange *nR, std::string name, T1 length, T2 energy)
+      : ICapture(tmp, nR), _lengthScale(Sim->_properties.getProperty(
+                               length, Property::Units::Length())),
+        _energyScale(
+            Sim->_properties.getProperty(energy, Property::Units::Energy())),
+        _potential(potential) {
+    intName = name;
+  }
 
-    IStepped(const magnet::xml::Node&, dynamo::Simulation*);
-  
-    void operator<<(const magnet::xml::Node&);
+  IStepped(const magnet::xml::Node &, dynamo::Simulation *);
 
-    virtual std::array<double, 4> getGlyphSize(size_t ID) const;
+  void operator<<(const magnet::xml::Node &);
 
-    virtual double getExcludedVolume(size_t) const;
+  virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
-    virtual double maxIntDist() const;
+  virtual double getExcludedVolume(size_t) const;
 
-    virtual size_t captureTest(const Particle&, const Particle&) const;
+  virtual double maxIntDist() const;
 
-    virtual void initialise(size_t);
+  virtual size_t captureTest(const Particle &, const Particle &) const;
 
-    virtual Event getEvent(const Particle&, const Particle&) const;
-  
-    virtual PairEventData runEvent(Particle&, Particle&, Event);
-  
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void initialise(size_t);
 
-    virtual double getInternalEnergy() const;
+  virtual Event getEvent(const Particle &, const Particle &) const;
 
-    virtual double getInternalEnergy(const Particle&, const Particle&) const;
+  virtual PairEventData runEvent(Particle &, Particle &, Event);
 
-    using ICapture::validateState;
-    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    virtual void outputData(magnet::xml::XmlStream&) const;
+  virtual double getInternalEnergy() const;
 
-  protected:
-    //!This class is used to track how the length scale changes in the system
-    shared_ptr<Property> _lengthScale;
-    //!This class is used to track how the energy scale changes in the system
-    shared_ptr<Property> _energyScale;
+  virtual double getInternalEnergy(const Particle &, const Particle &) const;
 
-    shared_ptr<Potential> _potential;
-    
-    struct EdgeData {
-      EdgeData(): counter(0), rdotv_sum(0) {}
-      size_t counter;
-      double rdotv_sum;
-    };
-    std::map<std::pair<size_t, EEventType>, EdgeData> _edgedata;
+  using ICapture::validateState;
+  virtual bool validateState(const Particle &p1, const Particle &p2,
+                             bool textoutput = true) const;
+
+  virtual void outputData(magnet::xml::XmlStream &) const;
+
+protected:
+  //! This class is used to track how the length scale changes in the system
+  shared_ptr<Property> _lengthScale;
+  //! This class is used to track how the energy scale changes in the system
+  shared_ptr<Property> _energyScale;
+
+  shared_ptr<Potential> _potential;
+
+  struct EdgeData {
+    EdgeData() : counter(0), rdotv_sum(0) {}
+    size_t counter;
+    double rdotv_sum;
   };
-}
+  std::map<std::pair<size_t, EEventType>, EdgeData> _edgedata;
+};
+} // namespace dynamo

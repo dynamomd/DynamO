@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,61 +22,70 @@
 #include <dynamo/simulation.hpp>
 #include <string>
 
-namespace magnet { namespace xml { class Node; } }
-namespace xml { class XmlStream; }
+namespace magnet {
+namespace xml {
+class Node;
+}
+} // namespace magnet
+namespace xml {
+class XmlStream;
+}
 
 namespace dynamo {
-  class Particle;
-  class Interaction;
-  class RenderObj;
+class Particle;
+class Interaction;
+class RenderObj;
 
-  class Species: public dynamo::SimBase
-  {
-  public:
-    virtual ~Species();
+class Species : public dynamo::SimBase {
+public:
+  virtual ~Species();
 
-    inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
-    inline const double getMass(size_t ID) const { return _mass->getProperty(ID); }
-    inline unsigned long getCount() const { return range->size(); }
-    inline unsigned int getID() const { return ID; }
-    inline const std::string& getName() const { return spName; }
-    inline const shared_ptr<IDRange>& getRange() const { return range; }
-    virtual double getScalarMomentOfInertia(size_t ID) const = 0;
-
-    virtual void operator<<(const magnet::xml::Node&) = 0;
-
-    virtual void initialise() = 0;
-
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
-  
-    static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::Simulation*, size_t);
-
-    virtual double getParticleKineticEnergy(size_t ID) const = 0;
-    double getParticleKineticEnergy(const Particle&) const;
-
-    virtual double getDOF() const = 0;
-    
-  protected:
-    template<class T1>
-    Species(dynamo::Simulation* tmp, std::string name, IDRange* nr, T1 mass, std::string nName, unsigned int nID):
-      SimBase(tmp, name),
-      _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
-      range(nr),
-      spName(nName),
-      ID(nID)
-    {}
-
-    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
-  
-    shared_ptr<Property> _mass;
-    shared_ptr<IDRange> range;
-    std::string spName;
-    unsigned int ID;
-  };
-
-  inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Species& g)
-  {
-    g.outputXML(XML);
-    return XML;
+  inline bool isSpecies(const Particle &p1) const {
+    return range->isInRange(p1);
   }
+  inline const double getMass(size_t ID) const {
+    return _mass->getProperty(ID);
+  }
+  inline unsigned long getCount() const { return range->size(); }
+  inline unsigned int getID() const { return ID; }
+  inline const std::string &getName() const { return spName; }
+  inline const shared_ptr<IDRange> &getRange() const { return range; }
+  virtual double getScalarMomentOfInertia(size_t ID) const = 0;
+
+  virtual void operator<<(const magnet::xml::Node &) = 0;
+
+  virtual void initialise() = 0;
+
+  friend magnet::xml::XmlStream &operator<<(magnet::xml::XmlStream &,
+                                            const Species &);
+
+  static shared_ptr<Species> getClass(const magnet::xml::Node &,
+                                      dynamo::Simulation *, size_t);
+
+  virtual double getParticleKineticEnergy(size_t ID) const = 0;
+  double getParticleKineticEnergy(const Particle &) const;
+
+  virtual double getDOF() const = 0;
+
+protected:
+  template <class T1>
+  Species(dynamo::Simulation *tmp, std::string name, IDRange *nr, T1 mass,
+          std::string nName, unsigned int nID)
+      : SimBase(tmp, name),
+        _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
+        range(nr), spName(nName), ID(nID) {}
+
+  virtual void outputXML(magnet::xml::XmlStream &) const = 0;
+
+  shared_ptr<Property> _mass;
+  shared_ptr<IDRange> range;
+  std::string spName;
+  unsigned int ID;
+};
+
+inline magnet::xml::XmlStream &operator<<(magnet::xml::XmlStream &XML,
+                                          const Species &g) {
+  g.outputXML(XML);
+  return XML;
 }
+} // namespace dynamo

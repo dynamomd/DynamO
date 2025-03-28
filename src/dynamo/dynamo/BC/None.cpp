@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,39 +19,26 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  BCNone::BCNone(const dynamo::Simulation* Sim):
-    BoundaryCondition(Sim, "NullBC")
-  { dout << "No boundary condition loaded" << std::endl; }
-
-  BCNone::~BCNone() {}
-    
-  void 
-  BCNone::applyBC(Vector  &)const 
-  {}
-
-  void 
-  BCNone::applyBC(Vector  &, Vector &) const 
-  {}
-
-  void 
-  BCNone::applyBC(Vector  &, const double&) const 
-  {}
-
-  void 
-  BCNone::update(const double &) 
-  {}
-
-  void 
-  BCNone::outputXML(magnet::xml::XmlStream &XML) const
-  {
-    XML << magnet::xml::attr("Type") << "None";
-  }
-
-  void 
-  BCNone::operator<<(const magnet::xml::Node&)
-  {}
-
-  void 
-  BCNone::rounding(Vector &) const 
-  {}
+BCNone::BCNone(const dynamo::Simulation *Sim)
+    : BoundaryCondition(Sim, "NullBC") {
+  dout << "No boundary condition loaded" << std::endl;
 }
+
+BCNone::~BCNone() {}
+
+void BCNone::applyBC(Vector &) const {}
+
+void BCNone::applyBC(Vector &, Vector &) const {}
+
+void BCNone::applyBC(Vector &, const double &) const {}
+
+void BCNone::update(const double &) {}
+
+void BCNone::outputXML(magnet::xml::XmlStream &XML) const {
+  XML << magnet::xml::attr("Type") << "None";
+}
+
+void BCNone::operator<<(const magnet::xml::Node &) {}
+
+void BCNone::rounding(Vector &) const {}
+} // namespace dynamo

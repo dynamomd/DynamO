@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,32 +19,33 @@
 #include "Triangles.hpp"
 
 namespace coil {
-  class RTriangleMesh : public RTriangles
-  {
-  public:
-    RTriangleMesh(std::string name, 
-		  const std::vector<GLfloat>& vertices,
-		  const std::vector<GLuint>& elements,
-		  const std::vector<GLubyte>& colours = std::vector<GLubyte>()):
-      RTriangles(name),
-      _vertices(vertices),
-      _elements(elements),
-      _colours(colours)
-    {}
+class RTriangleMesh : public RTriangles {
+public:
+  RTriangleMesh(std::string name, const std::vector<GLfloat> &vertices,
+                const std::vector<GLuint> &elements,
+                const std::vector<GLubyte> &colours = std::vector<GLubyte>())
+      : RTriangles(name), _vertices(vertices), _elements(elements),
+        _colours(colours) {}
 
-    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+  virtual void
+  init(const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue);
 
-    void updateGLData(const std::vector<GLfloat> vertices, const std::vector<GLuint> elements, const std::vector<GLubyte> colours = std::vector<GLubyte>()) {
-      _context->queueTask(std::bind(&RTriangleMesh::updateGLDataWorker, this, vertices, elements, colours));    
-    }
+  void
+  updateGLData(const std::vector<GLfloat> vertices,
+               const std::vector<GLuint> elements,
+               const std::vector<GLubyte> colours = std::vector<GLubyte>()) {
+    _context->queueTask(std::bind(&RTriangleMesh::updateGLDataWorker, this,
+                                  vertices, elements, colours));
+  }
 
-  protected:
-    void updateGLDataWorker(const std::vector<GLfloat> vertices, const std::vector<GLuint> elements, const std::vector<GLubyte> colours = std::vector<GLubyte>());
+protected:
+  void updateGLDataWorker(
+      const std::vector<GLfloat> vertices, const std::vector<GLuint> elements,
+      const std::vector<GLubyte> colours = std::vector<GLubyte>());
 
-    std::vector<GLfloat> _vertices;
-    std::vector<GLuint> _elements;
-    std::vector<GLubyte> _colours;    
-    magnet::GL::Context::ContextPtr _context;
-  };
-}
-
+  std::vector<GLfloat> _vertices;
+  std::vector<GLuint> _elements;
+  std::vector<GLubyte> _colours;
+  magnet::GL::Context::ContextPtr _context;
+};
+} // namespace coil

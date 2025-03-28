@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,51 +16,51 @@
 */
 
 #pragma once
+#include <dynamo/coilRenderObj.hpp>
 #include <dynamo/globals/cells.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/coilRenderObj.hpp>
 #include <magnet/containers/ordering.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Volume.hpp>
-#endif 
+#include <coil/RenderObj/Volume.hpp>
+#endif
+#include <array>
 #include <unordered_map>
 #include <vector>
-#include <array>
 
 namespace dynamo {
-  /*! \brief An implementation of volumetric potentials.
-   */
-  class GVolumetricPotential: public GCells, public CoilRenderObj
-  {
-  public:
-  public:
-    GVolumetricPotential(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
-      GCells(ptrSim, "VolumetricPotential")
-    { operator<<(XML); }
-    
-    virtual void runEvent(Particle& p, const double dt);
+/*! \brief An implementation of volumetric potentials.
+ */
+class GVolumetricPotential : public GCells, public CoilRenderObj {
+public:
+public:
+  GVolumetricPotential(const magnet::xml::Node &XML, dynamo::Simulation *ptrSim)
+      : GCells(ptrSim, "VolumetricPotential") {
+    operator<<(XML);
+  }
 
-    virtual void initialise(size_t id);
+  virtual void runEvent(Particle &p, const double dt);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t id);
 
-#ifdef DYNAMO_visualizer
-    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-    virtual void initRenderData(magnet::GL::Context::ContextPtr) const;
-    virtual void updateRenderData() const;
-#endif
-
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RVolume> _renderObj;
+  virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+  virtual void initRenderData(magnet::GL::Context::ContextPtr) const;
+  virtual void updateRenderData() const;
 #endif
 
-    std::string _fileName;
-    size_t _sampleBytes;
-    std::vector<unsigned char> _volumeData;
-    std::array<size_t, 3> _imageDimensions;
-    std::array<size_t, 3> _offset;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+
+#ifdef DYNAMO_visualizer
+  mutable shared_ptr<coil::RVolume> _renderObj;
+#endif
+
+  std::string _fileName;
+  size_t _sampleBytes;
+  std::vector<unsigned char> _volumeData;
+  std::array<size_t, 3> _imageDimensions;
+  std::array<size_t, 3> _offset;
+};
+} // namespace dynamo

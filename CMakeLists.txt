@@ -349,26 +349,6 @@ if(NOT WIN32)
   endif()
 endif()
 
-set(
-  CPP_SOURCE_FILES
-  ${dynamo_SRC}
-)
-
-add_custom_target(
-    check-src-format
-    COMMAND clang-format --dry-run ${CPP_SOURCE_FILES}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "checking format of source files..."
-)
-
-add_custom_target(
-    src-format
-    COMMAND clang-format -i ${CPP_SOURCE_FILES}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Formatting all source files in src..."
-)
-
-
 ### Coil
 # configuration
 if(VISUALIZER_SUPPORT)
@@ -476,3 +456,32 @@ if(Python3_Interpreter_FOUND)
       )
   endif()
 endif()
+
+file(GLOB_RECURSE dynamo_SRC_hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/*.hpp)
+file(GLOB_RECURSE dynamo_SRC_cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/*.cpp)
+file(GLOB_RECURSE coil_SRC_hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/*.hpp)
+file(GLOB_RECURSE coil_SRC_cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/*.cpp)
+file(GLOB_RECURSE magnet_SRC_hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/magnet/*.hpp)
+file(GLOB_RECURSE magnet_SRC_cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/magnet/*.cpp)
+
+set(
+  CPP_SOURCE_FILES
+  ${dynamo_SRC_hpp} ${dynamo_SRC_cpp}
+  ${coil_SRC_hpp} ${coil_SRC_cpp}
+  #${magnet_SRC_hpp} 
+  ${magnet_SRC_cpp}
+)
+
+add_custom_target(
+    check-src-format
+    COMMAND clang-format --dry-run ${CPP_SOURCE_FILES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "checking format of source files..."
+)
+
+add_custom_target(
+    src-format
+    COMMAND clang-format -i ${CPP_SOURCE_FILES}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Formatting all source files in src..."
+)

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,248 +16,248 @@
 */
 
 #pragma once
-#include <coil/RenderObj/RenderObj.hpp>
-#include <coil/RenderObj/Attribute.hpp>
-#include <magnet/GL/buffer.hpp>
-#include <magnet/gtk/numericEntry.hpp>
-#include <magnet/gtk/colorMapSelector.hpp>
 #include <boost/lexical_cast.hpp>
-#include <vector>
+#include <coil/RenderObj/Attribute.hpp>
+#include <coil/RenderObj/RenderObj.hpp>
+#include <magnet/GL/buffer.hpp>
+#include <magnet/gtk/colorMapSelector.hpp>
+#include <magnet/gtk/numericEntry.hpp>
 #include <memory>
+#include <vector>
 
 namespace coil {
-  class DataSet;
-  class AttributeSelector;
+class DataSet;
+class AttributeSelector;
 
-  class DataSetChild: public RenderObj
-  {
-  public:
-    inline DataSetChild(std::string name, DataSet& ds): RenderObj(name), _ds(ds) {}
-    
-    virtual bool deletable() { return true; }
+class DataSetChild : public RenderObj {
+public:
+  inline DataSetChild(std::string name, DataSet &ds)
+      : RenderObj(name), _ds(ds) {}
 
-    /*! \brief Called when the object should be deleted. */
-    virtual void request_delete();
+  virtual bool deletable() { return true; }
 
-    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
+  /*! \brief Called when the object should be deleted. */
+  virtual void request_delete();
 
-    virtual std::string getCursorText(uint32_t objID);
+  virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
 
-  protected:
+  virtual std::string getCursorText(uint32_t objID);
 
-    DataSet& _ds;
+protected:
+  DataSet &_ds;
+};
+
+/*! \brief A container class for a collection of \ref Attribute
+ * instances forming a dataset, and any active filters/glyphs or any
+ * other type derived from \ref DataSetChild.
+ */
+class DataSet : public RenderObj {
+  struct PointSet : public magnet::GL::Buffer<GLuint> {
+    int glyphType;
   };
-    
-  /*! \brief A container class for a collection of \ref Attribute
-   * instances forming a dataset, and any active filters/glyphs or any
-   * other type derived from \ref DataSetChild.
+
+  struct LinkSet : public magnet::GL::Buffer<GLuint> {};
+
+  std::map<std::string, std::shared_ptr<Attribute>> _attributes;
+  std::map<std::string, PointSet> _pointSets;
+  std::map<std::string, LinkSet> _linkSets;
+
+public:
+  DataSet(std::string name, size_t N) : RenderObj(name), _N(N) {}
+
+  virtual void
+  init(const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue);
+
+  virtual void deinit();
+
+  std::map<std::string, std::shared_ptr<Attribute>> &getAttributes() {
+    return _attributes;
+  }
+  const std::map<std::string, std::shared_ptr<Attribute>> &
+  getAttributes() const {
+    return _attributes;
+  }
+
+  std::map<std::string, PointSet> &getPointSets() { return _pointSets; }
+
+  void addPointSet(std::string name, const std::vector<GLuint> &,
+                   int glyphtype);
+
+  void addLinkSet(std::string name, const std::vector<GLuint> &, int glyphtype);
+
+  /** @name The host code interface. */
+  /**@{*/
+
+  /*! \brief Add an Attribute to the DataSet.
+
+    \param name The name of the Attribute.
+    \param type The type of the attribute.
+    \param components The number of components per value of the attribute.
    */
-  class DataSet: public RenderObj
-  {
-    struct PointSet : public magnet::GL::Buffer<GLuint>
-    { int glyphType; };
+  void addAttribute(std::string name, int type, size_t components);
 
-    struct LinkSet : public magnet::GL::Buffer<GLuint>
-    {};
+  /*! \brief Looks up an attribute by its name.
+   */
+  inline Attribute &operator[](const std::string &name) {
+    auto iPtr = _attributes.find(name);
+    if (iPtr == _attributes.end())
+      M_throw() << "No attribute named " << name << " in Data set";
 
-    std::map<std::string, std::shared_ptr<Attribute>> _attributes;
-    std::map<std::string, PointSet> _pointSets;
-    std::map<std::string, LinkSet> _linkSets;
-    
-  public:
-    DataSet(std::string name, size_t N):
-      RenderObj(name), 
-      _N(N)
-    {}
-    
-    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    return *(iPtr->second);
+  }
 
-    virtual void deinit();
+  inline size_t size() const { return _N; }
 
-    std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() { return _attributes; }
-    const std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() const { return _attributes; }
+  void setPeriodicVectors(Vector x, Vector y, Vector z) {
+    _periodicImageX = x;
+    _periodicImageY = y;
+    _periodicImageZ = z;
+  }
 
-    std::map<std::string, PointSet>& getPointSets() { return _pointSets; }
+  /**@}*/
 
-    void addPointSet(std::string name, const std::vector<GLuint>&, int glyphtype);
+  virtual void glRender(const magnet::GL::Camera &cam, RenderMode mode,
+                        const uint32_t offset) {
+    if (mode == PICKING) {
+      uint32_t obj_offset = offset;
 
-    void addLinkSet(std::string name, const std::vector<GLuint>&, int glyphtype);
+      for (auto &child : _children) {
+        uint32_t objs = child->pickableObjectCount();
+        if (objs)
+          child->glRender(cam, RenderObj::PICKING, obj_offset);
+        obj_offset += objs;
+      }
+    } else {
+      for (auto &child : _children)
+        if (child->visible() && (!(mode & SHADOW) || child->shadowCasting()))
+          child->glRender(cam, mode);
 
-    /** @name The host code interface. */
-    /**@{*/
+      for (auto &data : _attributes)
+        data.second->renderComplete();
 
-    /*! \brief Add an Attribute to the DataSet.
-     
-      \param name The name of the Attribute.
-      \param type The type of the attribute.
-      \param components The number of components per value of the attribute.
-     */
-    void addAttribute(std::string name, int type, size_t components);
+      rebuildGui();
+    }
+  }
 
-    /*! \brief Looks up an attribute by its name.
-     */
-    inline Attribute& operator[](const std::string& name)
-    {
-      auto iPtr = _attributes.find(name);
-      if (iPtr == _attributes.end())
-	M_throw() << "No attribute named " << name << " in Data set";
-      
-      return *(iPtr->second);
+  virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView &view,
+                                               Gtk::TreeModel::iterator &iter) {
+    _view = &view;
+
+    _iter = iter;
+    RenderObj::addViewRows(view, _iter);
+
+    for (auto &child : _children) {
+      Gtk::TreeModel::iterator child_iter =
+          view._store->append(_iter->children());
+      child->addViewRows(view, child_iter);
+    }
+    return _iter;
+  }
+
+  virtual void showControls(Gtk::ScrolledWindow *win);
+
+  virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
+
+  void deleteChild(DataSetChild *child) {
+    _context->queueTask(std::bind(&DataSet::deleteChildWorker, this, child));
+  }
+
+  magnet::GL::Context::ContextPtr getContext() { return _context; }
+
+  virtual uint32_t pickableObjectCount() {
+    if (!visible())
+      return 0;
+
+    uint32_t sum = 0;
+    for (auto &child : _children)
+      sum += child->pickableObjectCount();
+
+    return sum;
+  }
+
+  virtual std::shared_ptr<RenderObj>
+  getPickedObject(uint32_t &objID, const std::shared_ptr<RenderObj> &my_ptr) {
+    uint32_t obj_offset = 0;
+
+    for (auto &child : _children) {
+      const uint32_t n_objects = child->pickableObjectCount();
+
+      if ((objID >= obj_offset) && (objID - obj_offset) < n_objects) {
+        objID -= obj_offset;
+        return child->getPickedObject(objID, child);
+      }
+
+      obj_offset += n_objects;
     }
 
-    inline size_t size() const { return _N; }
+    M_throw() << "The selected object was not drawn by this RenderObj";
+  }
 
-    void setPeriodicVectors(Vector x, Vector y, Vector z)
-    {
-      _periodicImageX = x; 
-      _periodicImageY = y; 
-      _periodicImageZ = z;
+  virtual magnet::math::Vector getMinCoord() const;
+  virtual magnet::math::Vector getMaxCoord() const;
+
+  magnet::GL::Buffer<GLfloat> &getPositionBuffer();
+
+  std::shared_ptr<AttributeSelector> &getPositionSelector() {
+    return _positionSel;
+  }
+
+  void addGlyphs();
+  void addLinkGlyphs();
+
+  virtual std::string getCursorText(uint32_t objID);
+
+  virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
+
+  Vector getPeriodicVectorX() const { return _periodicImageX; }
+  Vector getPeriodicVectorY() const { return _periodicImageY; }
+  Vector getPeriodicVectorZ() const { return _periodicImageZ; }
+
+protected:
+  void deleteChildWorker(DataSetChild *child);
+
+  void addPointSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
+  void addLinkSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
+
+  /*! \brief An iterator to this DataSet's row in the Render object
+    treeview.
+   */
+  Gtk::TreeModel::iterator _iter;
+  RenderObjectsGtkTreeView *_view;
+  magnet::GL::Context::ContextPtr _context;
+  std::unique_ptr<Gtk::VBox> _gtkOptList;
+  size_t _N;
+  std::vector<std::shared_ptr<DataSetChild>> _children;
+  std::shared_ptr<AttributeSelector> _positionSel;
+
+  void initGtk();
+  void rebuildGui();
+
+  struct ModelColumns : Gtk::TreeModelColumnRecord {
+    ModelColumns() {
+      add(name);
+      add(components);
+      add(type);
+      add(min);
+      add(max);
     }
 
-    /**@}*/
-        
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
-    {
-      if (mode == PICKING)
-	{
-	  uint32_t obj_offset = offset;
-	  
-	  for (auto& child : _children)
-	    {
-	      uint32_t objs = child->pickableObjectCount();
-	      if (objs) child->glRender(cam, RenderObj::PICKING, obj_offset);
-	      obj_offset += objs;
-	    }
-	}
-      else
-	{
-	  for (auto& child : _children)
-	    if (child->visible() && (!(mode & SHADOW) || child->shadowCasting()))
-	      child->glRender(cam, mode);
-	  
-	  for (auto& data : _attributes)
-	    data.second->renderComplete();
-	  
-	  rebuildGui();
-	}
-    }
-    
-    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)
-    {
-      _view = &view;
-      
-      _iter = iter;
-      RenderObj::addViewRows(view, _iter);
-
-      for (auto& child : _children)
-	{
-	  Gtk::TreeModel::iterator child_iter = view._store->append(_iter->children());
-	  child->addViewRows(view, child_iter);
-	}
-      return _iter;
-    }
-
-    virtual void showControls(Gtk::ScrolledWindow* win);
-
-    virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
-
-    void deleteChild(DataSetChild* child)
-    {
-      _context->queueTask(std::bind(&DataSet::deleteChildWorker, this, child));
-    }
-
-    magnet::GL::Context::ContextPtr getContext() { return _context; }
-
-    virtual uint32_t pickableObjectCount()
-    {
-      if (!visible()) return 0;
-
-      uint32_t sum = 0;
-      for (auto& child : _children) sum += child->pickableObjectCount();
-
-      return sum;
-    }
-
-    virtual std::shared_ptr<RenderObj>
-    getPickedObject(uint32_t& objID, const std::shared_ptr<RenderObj>& my_ptr)
-    { 
-      uint32_t obj_offset = 0;
-
-      for (auto& child : _children)
-	{
-	  const uint32_t n_objects = child->pickableObjectCount();
-	  
-	  if ((objID >= obj_offset) && (objID - obj_offset) < n_objects)
-	    {
-	      objID -= obj_offset;
-	      return child->getPickedObject(objID, child);
-	    }
-
-	  obj_offset += n_objects;
-	}
-
-      M_throw() << "The selected object was not drawn by this RenderObj";
-    }
-
-    virtual magnet::math::Vector getMinCoord() const;
-    virtual magnet::math::Vector getMaxCoord() const;
-
-    magnet::GL::Buffer<GLfloat>& getPositionBuffer();
-
-    std::shared_ptr<AttributeSelector>& getPositionSelector() { return _positionSel; }
-
-    void addGlyphs();
-    void addLinkGlyphs();
-        
-    virtual std::string getCursorText(uint32_t objID);
-
-    virtual magnet::math::NVector<GLfloat, 4> getCursorPosition(uint32_t objID);
-
-    Vector getPeriodicVectorX() const { return _periodicImageX; }
-    Vector getPeriodicVectorY() const { return _periodicImageY; }
-    Vector getPeriodicVectorZ() const { return _periodicImageZ; }
-
-  protected:
-    void deleteChildWorker(DataSetChild* child);
-
-    void addPointSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
-    void addLinkSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
-
-    /*! \brief An iterator to this DataSet's row in the Render object
-      treeview.
-     */
-    Gtk::TreeModel::iterator _iter;
-    RenderObjectsGtkTreeView* _view;
-    magnet::GL::Context::ContextPtr _context;
-    std::unique_ptr<Gtk::VBox> _gtkOptList;
-    size_t _N;
-    std::vector<std::shared_ptr<DataSetChild> > _children;
-    std::shared_ptr<AttributeSelector> _positionSel;
-
-    void initGtk();
-    void rebuildGui();
-
-    struct ModelColumns : Gtk::TreeModelColumnRecord
-    {
-      ModelColumns()
-      { add(name); add(components); add(type); add(min); add(max); }
-      
-      Gtk::TreeModelColumn<Glib::ustring> name;
-      Gtk::TreeModelColumn<size_t> components;
-      Gtk::TreeModelColumn<std::string> min;
-      Gtk::TreeModelColumn<std::string> max;
-      Gtk::TreeModelColumn<Attribute::AttributeType> type;
-    };
-    
-    std::unique_ptr<ModelColumns> _attrcolumns;
-    Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
-    std::unique_ptr<Gtk::TreeView> _attrview;
-    std::unique_ptr<Gtk::Label> _infolabel;
-    std::unique_ptr<Gtk::ComboBoxText> _comboPointSet;
-    std::unique_ptr<Gtk::ComboBoxText> _comboLinkSet;
-
-    Vector _periodicImageX;
-    Vector _periodicImageY;
-    Vector _periodicImageZ;
+    Gtk::TreeModelColumn<Glib::ustring> name;
+    Gtk::TreeModelColumn<size_t> components;
+    Gtk::TreeModelColumn<std::string> min;
+    Gtk::TreeModelColumn<std::string> max;
+    Gtk::TreeModelColumn<Attribute::AttributeType> type;
   };
-}
+
+  std::unique_ptr<ModelColumns> _attrcolumns;
+  Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
+  std::unique_ptr<Gtk::TreeView> _attrview;
+  std::unique_ptr<Gtk::Label> _infolabel;
+  std::unique_ptr<Gtk::ComboBoxText> _comboPointSet;
+  std::unique_ptr<Gtk::ComboBoxText> _comboLinkSet;
+
+  Vector _periodicImageX;
+  Vector _periodicImageY;
+  Vector _periodicImageZ;
+};
+} // namespace coil

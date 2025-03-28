@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,46 +16,47 @@
 */
 
 #pragma once
-#include <dynamo/locals/local.hpp>
-#include <dynamo/locals/boundary/object.hpp>
 #include <dynamo/coilRenderObj.hpp>
+#include <dynamo/locals/boundary/object.hpp>
+#include <dynamo/locals/local.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/TriangleMesh.hpp>
-#endif 
+#include <coil/RenderObj/TriangleMesh.hpp>
+#endif
 
 namespace dynamo {
-  class LBoundary: public Local, public CoilRenderObj
-  {
-  public:
-    LBoundary(const magnet::xml::Node&, dynamo::Simulation*);
+class LBoundary : public Local, public CoilRenderObj {
+public:
+  LBoundary(const magnet::xml::Node &, dynamo::Simulation *);
 
-    virtual ~LBoundary() {}
+  virtual ~LBoundary() {}
 
-    virtual Event getEvent(const Particle&) const;
+  virtual Event getEvent(const Particle &) const;
 
-    virtual ParticleEventData runEvent(Particle&, const Event&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual ParticleEventData runEvent(Particle &, const Event &) const;
 
-    virtual bool validateState(const Particle& part, bool textoutput = true) const;
+  virtual void operator<<(const magnet::xml::Node &);
+
+  virtual bool validateState(const Particle &part,
+                             bool textoutput = true) const;
 
 #ifdef DYNAMO_visualizer
-    std::pair<std::vector<float>, std::vector<GLuint> > getTessalatedSurfaces() const;
-    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-    virtual void updateRenderData() const;
+  std::pair<std::vector<float>, std::vector<GLuint>>
+  getTessalatedSurfaces() const;
+  virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+  virtual void updateRenderData() const;
 #endif
 
-  protected:
+protected:
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RTriangleMesh> _renderObj;
+  mutable shared_ptr<coil::RTriangleMesh> _renderObj;
 #endif
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    shared_ptr<Property> _diameter;
-    double _kT;
-    std::vector<std::shared_ptr<boundary::Object> > _objects;
+  shared_ptr<Property> _diameter;
+  double _kT;
+  std::vector<std::shared_ptr<boundary::Object>> _objects;
 
-    boundary::BoundaryOscillationData _oscillationData;
-  };
-}
+  boundary::BoundaryOscillationData _oscillationData;
+};
+} // namespace dynamo

@@ -16,40 +16,38 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/circular_buffer.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/vector.hpp>
 #include <vector>
 
 namespace dynamo {
-  class OPMSDOrientationalCorrelator: public OPTicker
-  {
-  public:
-    OPMSDOrientationalCorrelator(const dynamo::Simulation*, 
-				 const magnet::xml::Node&);
+class OPMSDOrientationalCorrelator : public OPTicker {
+public:
+  OPMSDOrientationalCorrelator(const dynamo::Simulation *,
+                               const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    void output(magnet::xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void operator<<(const magnet::xml::Node &);
 
-    typedef std::pair<Vector,Vector> RUpair;
+  typedef std::pair<Vector, Vector> RUpair;
 
-  protected:
-    virtual void stream(double) {}
-    virtual void ticker();
+protected:
+  virtual void stream(double) {}
+  virtual void ticker();
 
-    void accPass();
+  void accPass();
 
-    std::vector<boost::circular_buffer<RUpair> > historicalData;
-    std::vector<double> stepped_data_parallel, stepped_data_perpendicular,
-			   stepped_data_rotational_legendre1,
-			   stepped_data_rotational_legendre2;
+  std::vector<boost::circular_buffer<RUpair>> historicalData;
+  std::vector<double> stepped_data_parallel, stepped_data_perpendicular,
+      stepped_data_rotational_legendre1, stepped_data_rotational_legendre2;
 
-    size_t length;
-    size_t currCorrLength;
-    size_t ticksTaken;
-    bool notReady;
-  };
-}
+  size_t length;
+  size_t currCorrLength;
+  size_t ticksTaken;
+  bool notReady;
+};
+} // namespace dynamo

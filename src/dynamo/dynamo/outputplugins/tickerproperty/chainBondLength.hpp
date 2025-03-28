@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,33 +17,30 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <list>
 #include <magnet/math/histogram.hpp>
 #include <vector>
-#include <list>
 
 namespace dynamo {
-  class OPChainBondLength: public OPTicker
-  {
-  public:
-    OPChainBondLength(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPChainBondLength : public OPTicker {
+public:
+  OPChainBondLength(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
+  virtual void ticker();
 
-    virtual void output(magnet::xml::XmlStream&);
-  
-  protected:
+  virtual void output(magnet::xml::XmlStream &);
 
-    struct Cdata
-    {
-      Cdata(size_t chainID, size_t CL);
-      const size_t chainID;
-      std::vector<magnet::math::Histogram<> > BondLengths;
-    };
-
-    std::list<Cdata> chains;
+protected:
+  struct Cdata {
+    Cdata(size_t chainID, size_t CL);
+    const size_t chainID;
+    std::vector<magnet::math::Histogram<>> BondLengths;
   };
-}
+
+  std::list<Cdata> chains;
+};
+} // namespace dynamo

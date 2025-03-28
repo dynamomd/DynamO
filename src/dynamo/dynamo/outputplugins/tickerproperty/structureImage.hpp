@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,29 +21,27 @@
 #include <vector>
 
 namespace dynamo {
-  class OPStructureImaging: public OPTicker
-  {
-  public:
-    OPStructureImaging(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPStructureImaging : public OPTicker {
+public:
+  OPStructureImaging(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
+  virtual void ticker();
 
-    //virtual void replicaExchange(OutputPlugin&);
+  // virtual void replicaExchange(OutputPlugin&);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void operator<<(const magnet::xml::Node &);
 
-    virtual void output(magnet::xml::XmlStream&);
-  
-  protected:
+  virtual void output(magnet::xml::XmlStream &);
 
-    void printImage();
-    size_t id;
-    size_t imageCount;
-    std::vector<std::vector<Vector  > > imagelist;
-    std::string structureName;
-  };
-}
+protected:
+  void printImage();
+  size_t id;
+  size_t imageCount;
+  std::vector<std::vector<Vector>> imagelist;
+  std::string structureName;
+};
+} // namespace dynamo

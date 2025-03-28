@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,36 +16,36 @@
 */
 
 #pragma once
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  class SysDSMCSpheres: public System
-  {
-  public:
-    SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::Simulation*);
+class SysDSMCSpheres : public System {
+public:
+  SysDSMCSpheres(const magnet::xml::Node &XML, dynamo::Simulation *);
 
-    SysDSMCSpheres(dynamo::Simulation*, double, double, double, double, std::string, IDRange*, IDRange*);
-  
-    virtual NEventData runEvent();
+  SysDSMCSpheres(dynamo::Simulation *, double, double, double, double,
+                 std::string, IDRange *, IDRange *);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    double tstep;
-    double chi;
-    double d2;
-    double diameter;
-    mutable double maxprob;
-    double e;
-    double factor;
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    shared_ptr<IDRange> range1;
-    shared_ptr<IDRange> range2;
-  };
-}
+  double tstep;
+  double chi;
+  double d2;
+  double diameter;
+  mutable double maxprob;
+  double e;
+  double factor;
+
+  shared_ptr<IDRange> range1;
+  shared_ptr<IDRange> range2;
+};
+} // namespace dynamo

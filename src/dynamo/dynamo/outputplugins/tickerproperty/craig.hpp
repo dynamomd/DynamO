@@ -22,35 +22,33 @@
 #include <vector>
 
 namespace dynamo {
-      class OPCraig: public OPTicker
-      {
-      public:
-            OPCraig(const dynamo::Simulation*,
-                    const magnet::xml::Node&);
+class OPCraig : public OPTicker {
+public:
+  OPCraig(const dynamo::Simulation *, const magnet::xml::Node &);
 
-            virtual void initialise();
+  virtual void initialise();
 
-            virtual void stream(double) {}
+  virtual void stream(double) {}
 
-            virtual void ticker();
+  virtual void ticker();
 
-            virtual void operator<<(const magnet::xml::Node&);
+  virtual void operator<<(const magnet::xml::Node &);
 
-            virtual void output(magnet::xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream &);
 
-            virtual double getTemperature(const Vector&, const double);
+  virtual double getTemperature(const Vector &, const double);
 
-            virtual double volume(const Vector&);
+  virtual double volume(const Vector &);
 
-      protected:
-            std::vector<double> guf;
-            std::vector<double> temperatures;
-            std::vector<double> densities;
-            std::vector<std::vector<double> > speciesTemperatures;
-            std::vector<std::vector<double> > speciesDensities;
-            int numberOfSpecies;
-            size_t nBins;
-            size_t tickCount;
-            static const size_t X = 0;
-      };
-}
+protected:
+  std::vector<double> guf;
+  std::vector<double> temperatures;
+  std::vector<double> densities;
+  std::vector<std::vector<double>> speciesTemperatures;
+  std::vector<std::vector<double>> speciesDensities;
+  int numberOfSpecies;
+  size_t nBins;
+  size_t tickCount;
+  static const size_t X = 0;
+};
+} // namespace dynamo

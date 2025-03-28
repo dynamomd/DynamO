@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,46 +17,45 @@
 
 #pragma once
 #include <dynamo/globals/global.hpp>
-#include <vector>
 #include <random>
+#include <vector>
 
 namespace dynamo {
-  /*! \brief A Global event which helps prevent wrap around problems
-   * with neighbor lists in periodic systems.
-   *
-   * If a particle has a clear path from one end of the simulation to
-   * the other and PBC are applied, the cellular neighbor lists can
-   * enter an infinite loop. The particle keeps travelling around and
-   * around the simulation, without actually moving forward in time
-   * because it doesn't actually hit anything.
-   *
-   * This Global attempts to break this infinite loop by making
-   * particles have a virtual event when they travel half a simulation
-   * box length.
-   */
-  class GFrancesco: public Global
-  {
-  public:
-    GFrancesco(const magnet::xml::Node&, dynamo::Simulation*);
-  
-    virtual ~GFrancesco() {}
+/*! \brief A Global event which helps prevent wrap around problems
+ * with neighbor lists in periodic systems.
+ *
+ * If a particle has a clear path from one end of the simulation to
+ * the other and PBC are applied, the cellular neighbor lists can
+ * enter an infinite loop. The particle keeps travelling around and
+ * around the simulation, without actually moving forward in time
+ * because it doesn't actually hit anything.
+ *
+ * This Global attempts to break this infinite loop by making
+ * particles have a virtual event when they travel half a simulation
+ * box length.
+ */
+class GFrancesco : public Global {
+public:
+  GFrancesco(const magnet::xml::Node &, dynamo::Simulation *);
 
-    virtual Event getEvent(const Particle &) const;
+  virtual ~GFrancesco() {}
 
-    virtual void runEvent(Particle&, const double);
+  virtual Event getEvent(const Particle &) const;
 
-    virtual void initialise(size_t);
+  virtual void runEvent(Particle &, const double);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    void particlesUpdated(const NEventData& PDat);
-    
-    double generateTime() const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    std::vector<double> _eventTimes;
-    mutable std::normal_distribution<> _dist;
-    double _vel;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  void particlesUpdated(const NEventData &PDat);
+
+  double generateTime() const;
+
+  std::vector<double> _eventTimes;
+  mutable std::normal_distribution<> _dist;
+  double _vel;
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,47 +15,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/systems/tHalt.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/units/units.hpp>
-#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/tHalt.hpp>
+#include <dynamo/units/units.hpp>
 
 namespace dynamo {
-  SystHalt::SystHalt(dynamo::Simulation* nSim, double ndt, std::string nName):
-    System(nSim)
-  {
-    dt = ndt * Sim->units.unitTime();
+SystHalt::SystHalt(dynamo::Simulation *nSim, double ndt, std::string nName)
+    : System(nSim) {
+  dt = ndt * Sim->units.unitTime();
 
-    sysName = nName;
+  sysName = nName;
 
-    dout << "System halt set for " 
-	 << ndt << std::endl;
+  dout << "System halt set for " << ndt << std::endl;
 
-    type = VIRTUAL;
-  }
-
-  NEventData
-  SystHalt::runEvent()
-  {
-    Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
-    return NEventData();
-  }
-
-  void 
-  SystHalt::initialise(size_t nID)
-  {
-    ID=nID;
-  }
-
-  void 
-  SystHalt::setdt(double ndt)
-  { dt = ndt * Sim->units.unitTime(); }
-
-  void 
-  SystHalt::increasedt(double ndt)
-  { 
-    dt += ndt * Sim->units.unitTime(); 
-  }
+  type = VIRTUAL;
 }
+
+NEventData SystHalt::runEvent() {
+  Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
+  return NEventData();
+}
+
+void SystHalt::initialise(size_t nID) { ID = nID; }
+
+void SystHalt::setdt(double ndt) { dt = ndt * Sim->units.unitTime(); }
+
+void SystHalt::increasedt(double ndt) { dt += ndt * Sim->units.unitTime(); }
+} // namespace dynamo

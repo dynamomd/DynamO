@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,32 +16,31 @@
 */
 
 #pragma once
+#include <complex>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/vector.hpp>
-#include <complex>
 #include <vector>
 
 namespace dynamo {
-  class OPOrientationalOrder: public OPTicker
-  {
-  public:
-    OPOrientationalOrder(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPOrientationalOrder : public OPTicker {
+public:
+  OPOrientationalOrder(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
-  
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void ticker();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void output(magnet::xml::XmlStream &);
 
-  protected:
-    typedef std::complex<double> ComplexNum;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    std::vector<ComplexNum> _history;
-    Vector _axis;
-    double _rg;
-  };
-}
+protected:
+  typedef std::complex<double> ComplexNum;
+
+  std::vector<ComplexNum> _history;
+  Vector _axis;
+  double _rg;
+};
+} // namespace dynamo

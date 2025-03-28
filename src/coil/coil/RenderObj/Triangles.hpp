@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,60 +15,62 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <gtkmm.h>
 #include "RenderObj.hpp"
+#include <gtkmm.h>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/GL/shader/render.hpp>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace coil {
-  class RTriangles : public RenderObj
-  {
-  public:
-    RTriangles(std::string name);
-    ~RTriangles();
+class RTriangles : public RenderObj {
+public:
+  RTriangles(std::string name);
+  ~RTriangles();
 
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
+  virtual void glRender(const magnet::GL::Camera &cam, RenderMode mode,
+                        const uint32_t offset);
 
-    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+  virtual void
+  init(const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue);
 
-    void setGLColors(const std::vector<GLubyte>& VertexColor);
-    void setGLPositions(const std::vector<float>& VertexPos);
-    void setGLNormals(const std::vector<float>& VertexNormals);
-    void setGLElements(const std::vector<GLuint>& Elements);
+  void setGLColors(const std::vector<GLubyte> &VertexColor);
+  void setGLPositions(const std::vector<float> &VertexPos);
+  void setGLNormals(const std::vector<float> &VertexNormals);
+  void setGLElements(const std::vector<GLuint> &Elements);
 
-    virtual void deinit();
+  virtual void deinit();
 
-    void setComponents(size_t comps) { _triangleComponents = comps; }
+  void setComponents(size_t comps) { _triangleComponents = comps; }
 
-    virtual void showControls(Gtk::ScrolledWindow* win);
+  virtual void showControls(Gtk::ScrolledWindow *win);
 
-    const magnet::GL::Context::ContextPtr& getContext() const { return _posBuff.getContext(); }
+  const magnet::GL::Context::ContextPtr &getContext() const {
+    return _posBuff.getContext();
+  }
 
-  protected:
-    enum RenderModeType { POINTS, LINES, TRIANGLES };
-    RenderModeType _RenderMode;
+protected:
+  enum RenderModeType { POINTS, LINES, TRIANGLES };
+  RenderModeType _RenderMode;
 
-    void setRenderMode(RenderModeType rm);
+  void setRenderMode(RenderModeType rm);
 
-    void initGTK();
-    void guiUpdate();
-  
-    std::unique_ptr<Gtk::VBox>        _gtkOptList;
-    std::unique_ptr<Gtk::RadioButton> _gtkLineRender;
-    std::unique_ptr<Gtk::RadioButton> _gtkPointRender;
-    std::unique_ptr<Gtk::RadioButton> _gtkTriangleRender;
+  void initGTK();
+  void guiUpdate();
 
-    magnet::GL::Buffer<GLubyte> _colBuff;
-    magnet::GL::Buffer<GLfloat> _posBuff;
-    magnet::GL::Buffer<GLfloat> _normBuff;
-    magnet::GL::Buffer<GLuint> _elementBuff;
-    magnet::GL::Buffer<GLuint> _specialElementBuff;
+  std::unique_ptr<Gtk::VBox> _gtkOptList;
+  std::unique_ptr<Gtk::RadioButton> _gtkLineRender;
+  std::unique_ptr<Gtk::RadioButton> _gtkPointRender;
+  std::unique_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
-    magnet::GL::shader::RenderShader _renderShader;
-    magnet::GL::shader::RenderVSMShader _renderVSMShader;
-    size_t _triangleComponents;
-  };
-}
+  magnet::GL::Buffer<GLubyte> _colBuff;
+  magnet::GL::Buffer<GLfloat> _posBuff;
+  magnet::GL::Buffer<GLfloat> _normBuff;
+  magnet::GL::Buffer<GLuint> _elementBuff;
+  magnet::GL::Buffer<GLuint> _specialElementBuff;
 
+  magnet::GL::shader::RenderShader _renderShader;
+  magnet::GL::shader::RenderVSMShader _renderVSMShader;
+  size_t _triangleComponents;
+};
+} // namespace coil

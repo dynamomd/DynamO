@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,390 +15,390 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <magnet/exception.hpp>
-#include <magnet/xmlwriter.hpp>
-#include <magnet/xmlreader.hpp>
-#include <magnet/units.hpp>
-#include <vector>
-#include <string>
 #include <algorithm>
 #include <cmath>
+#include <dynamo/base.hpp>
+#include <magnet/exception.hpp>
+#include <magnet/units.hpp>
+#include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace dynamo {
-  /*! \brief A interface class which allows other classes to access a property
-    of a particle.  
-    
-    These properties are looked up by a name, and the value extracted
-    using the ID of a particle. Some properties are just a single
-    fixed value, their name is their value (see
-    NumericProperty). Others are more complicated and use look-up
-    tables or functions. These are usually defined in the
-    PropertyStore and PropertyHandles are used to access them.
+/*! \brief A interface class which allows other classes to access a property
+  of a particle.
+
+  These properties are looked up by a name, and the value extracted
+  using the ID of a particle. Some properties are just a single
+  fixed value, their name is their value (see
+  NumericProperty). Others are more complicated and use look-up
+  tables or functions. These are usually defined in the
+  PropertyStore and PropertyHandles are used to access them.
+*/
+class Property {
+public:
+  typedef magnet::units::Units Units;
+
+  inline Property(Units units) : _units(units) {}
+
+  virtual ~Property() {}
+
+  //! Fetch the value of this property for a particle with a certain ID
+  inline virtual const double getProperty(size_t ID) const {
+    M_throw() << "Unimplemented";
+  }
+
+  //! Fetch the value of this property for a particle pairing
+  inline const double getProperty(size_t ID1, size_t ID2) const {
+    return (getProperty(ID1) + getProperty(ID2)) / 2;
+  }
+
+  //! Fetch the maximum value of this property
+  inline virtual const double getMaxValue() const {
+    M_throw() << "Unimplemented";
+  }
+
+  //! Fetch the minimum value of this property
+  inline virtual const double getMinValue() const {
+    M_throw() << "Unimplemented";
+  }
+
+  /*! This is called whenever a unit is rescaled.
+
+   This function must check the _units of the property and raise
+   the rescale factor to the correct power.
+   \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
+   \param rescale The factor to rescale the unit by.
   */
-  class Property
-  {
-  public:
-    typedef magnet::units::Units Units;
+  inline virtual const void rescaleUnit(const Units::Dimension dim,
+                                        const double rescale) {
+    M_throw() << "Unimplemented";
+  }
 
-    inline Property(Units units): _units(units) {}
+  //! Fetch the name of this property
+  inline virtual std::string getName() const { M_throw() << "Unimplemented"; }
 
-    virtual ~Property() {}
-    
-    //! Fetch the value of this property for a particle with a certain ID
-    inline virtual const double getProperty(size_t ID) const 
-    { M_throw() << "Unimplemented"; }
+  //! Fetch the units of this property
+  inline const Units &getUnits() const { return _units; }
 
-    //! Fetch the value of this property for a particle pairing
-    inline const double getProperty(size_t ID1, size_t ID2) const 
-    { return (getProperty(ID1) + getProperty(ID2)) / 2; }
+  //! Helper to write out derived classes
+  friend magnet::xml::XmlStream &operator<<(magnet::xml::XmlStream &XML,
+                                            const Property &prop) {
+    prop.outputXML(XML);
+    return XML;
+  }
 
-    //! Fetch the maximum value of this property
-    inline virtual const double getMaxValue() const
-    { M_throw() << "Unimplemented"; }
-
-    //! Fetch the minimum value of this property
-    inline virtual const double getMinValue() const
-    { M_throw() << "Unimplemented"; }
-
-    /*! This is called whenever a unit is rescaled.
-    
-     This function must check the _units of the property and raise
-     the rescale factor to the correct power.
-     \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
-     \param rescale The factor to rescale the unit by.
-    */
-    inline virtual const void rescaleUnit(const Units::Dimension dim, 
-					  const double rescale)
-    { M_throw() << "Unimplemented"; }
-  
-    //! Fetch the name of this property
-    inline virtual std::string getName() const 
-    { M_throw() << "Unimplemented"; }
-
-    //! Fetch the units of this property
-    inline const Units& getUnits() const { return _units; }
-
-    //! Helper to write out derived classes
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Property& prop)
-    { prop.outputXML(XML); return XML; }
-
-    /*! Write any XML attributes that store this Property's data on a
-      single particle.
-      \param pID The ID number of the particle being written out.
-      \param rescale Amount to scale the Property values by.
-    */
-    inline virtual void outputParticleXMLData(magnet::xml::XmlStream& XML, 
-					      const size_t pID) const {}
-
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream& XML) const 
-    { M_throw() << "Unimplemented"; }
-
-    //! The Units of the property.
-    magnet::units::Units _units;
-  };
-
-  /*! \brief A class where the name is the value of the property.
-    
-    This property is used whenever a single value is set for a
-    property, e.g., in an interaction the interaction diameter might
-    be R="1.0". A NumericProperty will be generated by the
-    PropertyStore from the value "1.0".
+  /*! Write any XML attributes that store this Property's data on a
+    single particle.
+    \param pID The ID number of the particle being written out.
+    \param rescale Amount to scale the Property values by.
   */
-  class NumericProperty: public Property
-  {
-  public:
-    inline NumericProperty(double val, const Property::Units& units):
-      Property(units), _val(val) {}
-  
-    //! Always returns a single value.
-    inline virtual const double getProperty(size_t ID) const { return _val; }
-    //! Returns the value as a string.
-    inline virtual std::string getName() const { return boost::lexical_cast<std::string>(_val); }
+  inline virtual void outputParticleXMLData(magnet::xml::XmlStream &XML,
+                                            const size_t pID) const {}
 
-    /*! As this Property only stores a single value, it is always
-      returned as the max.
-    */
-    inline virtual const double getMaxValue() const { return _val; }
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    M_throw() << "Unimplemented";
+  }
 
-    /*! As this Property only stores a single value, it is always
-      returned as the min.
-    */
-    inline virtual const double getMinValue() const { return _val; }
+  //! The Units of the property.
+  magnet::units::Units _units;
+};
 
-    //! \sa Property::rescaleUnit
-    inline virtual const void rescaleUnit(const Units::Dimension dim, 
-					  const double rescale)
-    { _val *= std::pow(rescale, _units.getUnitsPower(dim));  }
+/*! \brief A class where the name is the value of the property.
 
-  private:
-    /*! The name of this class is its value. So when other classes
-      output the name of the property, this counts as outputing the
-      XML for it. So no extra XML tag is needed.
-    */
-    virtual void outputXML(magnet::xml::XmlStream& XML) const {}
+  This property is used whenever a single value is set for a
+  property, e.g., in an interaction the interaction diameter might
+  be R="1.0". A NumericProperty will be generated by the
+  PropertyStore from the value "1.0".
+*/
+class NumericProperty : public Property {
+public:
+  inline NumericProperty(double val, const Property::Units &units)
+      : Property(units), _val(val) {}
 
-    //! \brief The single value stored in the property
-    double _val;
-  };
+  //! Always returns a single value.
+  inline virtual const double getProperty(size_t ID) const { return _val; }
+  //! Returns the value as a string.
+  inline virtual std::string getName() const {
+    return boost::lexical_cast<std::string>(_val);
+  }
 
-  /*! \brief A class which stores a single value for each particle.
-    
-    This is the second most common property after NumericProperty. It
-    stores a single float per particle, allowing polydisperse values
-    to be used in the simulation.
+  /*! As this Property only stores a single value, it is always
+    returned as the max.
   */
-  class ParticleProperty: public Property
-  {
-  public:
-    inline ParticleProperty(size_t N, 
-			    const Property::Units& units, 
-			    std::string name,
-			    double initalval):
-      Property(units), _name(name),
-      _values(N, initalval) {}
-  
-    inline ParticleProperty(const magnet::xml::Node& node):
-      Property(Property::Units(node.getAttribute("Units").getValue())),
-      _name(node.getAttribute("Name").getValue())
-    {
-      //Move up to the particles nodes, and start loading the property values
-      for (magnet::xml::Node pNode = node.getParent().getParent()
-	     .getNode("ParticleData").findNode("Pt");
-	   pNode.valid(); ++pNode)
-	_values.push_back(pNode.getAttribute(_name).as<double>());
-    }
-  
-    inline virtual const double getProperty(size_t ID) const 
-    { 
+  inline virtual const double getMaxValue() const { return _val; }
+
+  /*! As this Property only stores a single value, it is always
+    returned as the min.
+  */
+  inline virtual const double getMinValue() const { return _val; }
+
+  //! \sa Property::rescaleUnit
+  inline virtual const void rescaleUnit(const Units::Dimension dim,
+                                        const double rescale) {
+    _val *= std::pow(rescale, _units.getUnitsPower(dim));
+  }
+
+private:
+  /*! The name of this class is its value. So when other classes
+    output the name of the property, this counts as outputing the
+    XML for it. So no extra XML tag is needed.
+  */
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {}
+
+  //! \brief The single value stored in the property
+  double _val;
+};
+
+/*! \brief A class which stores a single value for each particle.
+
+  This is the second most common property after NumericProperty. It
+  stores a single float per particle, allowing polydisperse values
+  to be used in the simulation.
+*/
+class ParticleProperty : public Property {
+public:
+  inline ParticleProperty(size_t N, const Property::Units &units,
+                          std::string name, double initalval)
+      : Property(units), _name(name), _values(N, initalval) {}
+
+  inline ParticleProperty(const magnet::xml::Node &node)
+      : Property(Property::Units(node.getAttribute("Units").getValue())),
+        _name(node.getAttribute("Name").getValue()) {
+    // Move up to the particles nodes, and start loading the property values
+    for (magnet::xml::Node pNode = node.getParent()
+                                       .getParent()
+                                       .getNode("ParticleData")
+                                       .findNode("Pt");
+         pNode.valid(); ++pNode)
+      _values.push_back(pNode.getAttribute(_name).as<double>());
+  }
+
+  inline virtual const double getProperty(size_t ID) const {
 #ifdef DYNAMO_DEBUG
-      if (ID >= _values.size())
-	M_throw() << "Out of bounds access to ParticleProperty \"" 
-		  << _name << "\", which has " << _values.size() 
-		  << " entries and you're accessing " << ID;
+    if (ID >= _values.size())
+      M_throw() << "Out of bounds access to ParticleProperty \"" << _name
+                << "\", which has " << _values.size()
+                << " entries and you're accessing " << ID;
 #endif
-      return _values[ID]; 
-    }
+    return _values[ID];
+  }
 
-    inline virtual double& getProperty(size_t ID)
-    { 
+  inline virtual double &getProperty(size_t ID) {
 #ifdef DYNAMO_DEBUG
-      return _values.at(ID); 
+    return _values.at(ID);
 #endif
-      return _values[ID]; 
-    }
-  
-    inline virtual std::string getName() const 
-    { return _name; }
-  
-    inline virtual const double getMaxValue() const 
-    { return *std::max_element(_values.begin(), _values.end()); }
+    return _values[ID];
+  }
 
-    inline virtual const double getMinValue() const 
-    { return *std::min_element(_values.begin(), _values.end()); }
-  
-    //! \sa Property::rescaleUnit
-    inline virtual const void rescaleUnit(const Units::Dimension dim, 
-					  const double rescale)
-    {
-      double factor = std::pow(rescale, _units.getUnitsPower(dim));
-      if (factor)
-	for (auto& value : _values) value *= factor;  
-    }
+  inline virtual std::string getName() const { return _name; }
 
-    inline void outputParticleXMLData(magnet::xml::XmlStream& XML, const size_t pID) const
-    { XML << magnet::xml::attr(_name) << getProperty(pID); }
-  
-  
-  protected:
-    /*! \brief Output an XML representation of the Property to the
-      passed XmlStream.
-    */
-    virtual void outputXML(magnet::xml::XmlStream& XML) const 
-    { 
-      XML << magnet::xml::tag("Property") 
-	  << magnet::xml::attr("Type") << "PerParticle"
-	  << magnet::xml::attr("Name") << _name
-	  << magnet::xml::attr("Units") << std::string(_units)
-	  << magnet::xml::endtag("Property");
-    }
-  
-    std::string _name;
-    typedef std::vector<double> Container;
-    typedef Container::iterator Iterator;
-    Container _values;
-  };
+  inline virtual const double getMaxValue() const {
+    return *std::max_element(_values.begin(), _values.end());
+  }
 
-  /*! \brief This class stores the properties of the particles loaded from the
-    configuration file and hands out reference counting pointers to the
-    properties to other classes when they're requested by name.
+  inline virtual const double getMinValue() const {
+    return *std::min_element(_values.begin(), _values.end());
+  }
+
+  //! \sa Property::rescaleUnit
+  inline virtual const void rescaleUnit(const Units::Dimension dim,
+                                        const double rescale) {
+    double factor = std::pow(rescale, _units.getUnitsPower(dim));
+    if (factor)
+      for (auto &value : _values)
+        value *= factor;
+  }
+
+  inline void outputParticleXMLData(magnet::xml::XmlStream &XML,
+                                    const size_t pID) const {
+    XML << magnet::xml::attr(_name) << getProperty(pID);
+  }
+
+protected:
+  /*! \brief Output an XML representation of the Property to the
+    passed XmlStream.
+  */
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    XML << magnet::xml::tag("Property") << magnet::xml::attr("Type")
+        << "PerParticle" << magnet::xml::attr("Name") << _name
+        << magnet::xml::attr("Units") << std::string(_units)
+        << magnet::xml::endtag("Property");
+  }
+
+  std::string _name;
+  typedef std::vector<double> Container;
+  typedef Container::iterator Iterator;
+  Container _values;
+};
+
+/*! \brief This class stores the properties of the particles loaded from the
+  configuration file and hands out reference counting pointers to the
+  properties to other classes when they're requested by name.
+ */
+class PropertyStore {
+  typedef shared_ptr<Property> Value;
+  typedef std::vector<Value> Container;
+
+  /*!\brief Contains the NumericProperty's that are defined by their
+    name.
+
+    These are only stored in the PropertyStore for unit rescaling.
+  */
+  Container _numericProperties;
+
+  //! Contains the properties that are looked up by their name.
+  Container _namedProperties;
+
+  typedef Container::iterator iterator;
+
+public:
+  typedef Container::const_iterator const_iterator;
+
+  /*! \brief Request a handle to a property using a string containing
+    the properties name.
+
+    If the name is a string representation of a numeric type, the look-up
+    in the property store will fail but a one-time NumericProperty is
+    created. You may then have lines in the configuration file like so
+
+    For a fixed value
+    <Interaction Elasticity="0.9" ...
+
+    or for a lookup in the property store
+    <Interaction Elasticity="e" ... For a lookup of the particle property "e"
+
+    \param name An Attribute containing either the name or the value of a
+    property.
+    \return A reference to the property requested or an instance of
+    NumericProperty.
+  */
+  inline Value getProperty(const std::string &name,
+                           const Property::Units &units) {
+    return getPropertyBase(name, units);
+  }
+
+  /*! \brief Request a handle to a property using an xml attribute
+    containing the properties name.
+
+    See getProperty(const std::string& name) for usage info.
+  */
+  inline Value getProperty(const magnet::xml::Attribute &name,
+                           const Property::Units &units) {
+    return getPropertyBase(name.getValue(), units);
+  }
+
+  /*! \brief Request a handle to a property, but this specialization always
+    returns a new instance of NumericProperty.
+    \sa getProperty(const std::string& name)
+  */
+  inline Value getProperty(const double &name, const Property::Units &units) {
+    Value retval(new NumericProperty(name, units));
+    _numericProperties.push_back(retval);
+    return retval;
+  }
+
+  /*! \brief Method which loads the properties from the XML configuration file.
+    \param node A xml Node at the root dynamoconfig Node of the config file.
+  */
+  inline PropertyStore &operator<<(const magnet::xml::Node &node) {
+    if (node.hasNode("Properties"))
+      for (magnet::xml::Node propNode =
+               node.getNode("Properties").findNode("Property");
+           propNode.valid(); ++propNode) {
+        if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
+          _namedProperties.push_back(Value(new ParticleProperty(propNode)));
+        else
+          M_throw() << "Unsupported Property type, "
+                    << propNode.getAttribute("Type").getValue();
+      }
+
+    return *this;
+  }
+
+  inline void addNamedProperty(Value property) {
+    _namedProperties.push_back(property);
+  }
+
+  inline friend magnet::xml::XmlStream &
+  operator<<(magnet::xml::XmlStream &XML, const PropertyStore &propStore) {
+    XML << magnet::xml::tag("Properties");
+
+    for (const auto &property : propStore._namedProperties)
+      XML << property;
+
+    XML << magnet::xml::endtag("Properties");
+
+    return XML;
+  }
+
+  /*! \brief Function to rescale the units of all Property-s.
+    \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
+    \param rescale The factor to rescale the unit by.
+  */
+  inline const void rescaleUnit(const Property::Units::Dimension dim,
+                                const double rescale) {
+    for (auto &property : _numericProperties)
+      property->rescaleUnit(dim, rescale);
+
+    for (auto &property : _namedProperties)
+      property->rescaleUnit(dim, rescale);
+  }
+
+  /*! \brief Write any XML attributes relevent to Property-s for a
+    single particle.
+
+    \param pID The ID number of the particle whose data is to be
+    written out.
+  */
+  inline void outputParticleXMLData(magnet::xml::XmlStream &XML,
+                                    size_t pID) const {
+    for (const auto &property : _namedProperties)
+      property->outputParticleXMLData(XML, pID);
+  }
+
+  /*! \brief Method for pushing constructed properties into the
+    PropertyStore.
+
+    This method should only be used when dynamod is building a
+    simulation, as the typical method for adding a Property to the
+    PropertyStore is using the \ref getProperty methods.
    */
-  class PropertyStore
-  {
-    typedef shared_ptr<Property> Value;
-    typedef std::vector<Value> Container;
-  
-    /*!\brief Contains the NumericProperty's that are defined by their
-      name.
-      
-      These are only stored in the PropertyStore for unit rescaling.
-    */
-    Container _numericProperties;
-
-    //!Contains the properties that are looked up by their name.
-    Container _namedProperties;
-
-    typedef Container::iterator iterator;
-
-  public:
-    typedef Container::const_iterator const_iterator;
-
-    /*! \brief Request a handle to a property using a string containing
-      the properties name.
-
-      If the name is a string representation of a numeric type, the look-up
-      in the property store will fail but a one-time NumericProperty is
-      created. You may then have lines in the configuration file like so
-
-      For a fixed value
-      <Interaction Elasticity="0.9" ... 
-
-      or for a lookup in the property store
-      <Interaction Elasticity="e" ... For a lookup of the particle property "e"
-
-      \param name An Attribute containing either the name or the value of a property.
-      \return A reference to the property requested or an instance of NumericProperty.
-    */
-    inline Value getProperty(const std::string& name,
-			     const Property::Units& units)
-    {
-      return getPropertyBase(name, units);
+  template <class T> inline Value push(shared_ptr<T> newProp) {
+    if (dynamic_cast<NumericProperty *>(newProp.get())) {
+      _numericProperties.push_back(Value(newProp));
+      return _numericProperties.back();
     }
 
-    /*! \brief Request a handle to a property using an xml attribute
-      containing the properties name. 
-    
-      See getProperty(const std::string& name) for usage info.
-    */
-    inline Value getProperty(const magnet::xml::Attribute& name,
-			     const Property::Units& units)
-    {
-      return getPropertyBase(name.getValue(), units);
+    _namedProperties.push_back(Value(newProp));
+    return _namedProperties.back();
+  }
+
+protected:
+  inline Value getPropertyBase(const std::string name,
+                               const Property::Units &units) {
+    // Try name based lookup first
+    for (const auto &property : _namedProperties)
+      if (property->getName() == name) {
+        if (property->getUnits() == units)
+          return property;
+
+        M_throw() << "Property \"" << name << "\" found with units of "
+                  << std::string(property->getUnits())
+                  << ", but the requested property has units of "
+                  << std::string(units);
+      }
+
+    // Try a name-is-the-value lookup
+    try {
+      return getProperty(boost::lexical_cast<double>(name), units);
+    } catch (boost::bad_lexical_cast &) {
+      M_throw() << "Could not find the property with a name of \"" << name
+                << "\" and units of " << std::string(units);
     }
-
-    /*! \brief Request a handle to a property, but this specialization always
-      returns a new instance of NumericProperty.
-      \sa getProperty(const std::string& name)
-    */
-    inline Value getProperty(const double& name, const Property::Units& units)
-    {
-      Value retval(new NumericProperty(name, units));
-      _numericProperties.push_back(retval);
-      return retval;
-    }
-
-    /*! \brief Method which loads the properties from the XML configuration file.
-      \param node A xml Node at the root dynamoconfig Node of the config file.
-    */
-    inline PropertyStore& operator<<(const magnet::xml::Node& node)
-    {
-      if (node.hasNode("Properties"))
-	for (magnet::xml::Node propNode = node.getNode("Properties").findNode("Property");
-	     propNode.valid(); ++propNode)
-	  {
-	    if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
-	      _namedProperties.push_back(Value(new ParticleProperty(propNode)));
-	    else
-	      M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type").getValue();
-	  }
-    
-      return *this;
-    }
-
-    inline void addNamedProperty(Value property) {
-      _namedProperties.push_back(property);
-    }
-
-    inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const PropertyStore& propStore)
-    {
-      XML << magnet::xml::tag("Properties");
-
-      for (const auto& property : propStore._namedProperties)
-	XML << property;
-
-      XML << magnet::xml::endtag("Properties");
-
-      return XML;
-    }
-
-    /*! \brief Function to rescale the units of all Property-s.
-      \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
-      \param rescale The factor to rescale the unit by.
-    */
-    inline const void rescaleUnit(const Property::Units::Dimension dim, 
-				  const double rescale)
-    {  
-      for (auto& property :_numericProperties)
-	property->rescaleUnit(dim, rescale);
-
-      for (auto& property : _namedProperties)
-	property->rescaleUnit(dim, rescale);
-    }
-
-    /*! \brief Write any XML attributes relevent to Property-s for a
-      single particle.
-    
-      \param pID The ID number of the particle whose data is to be
-      written out.
-    */
-    inline void outputParticleXMLData(magnet::xml::XmlStream& XML, size_t pID) const 
-    {
-      for (const auto& property : _namedProperties)
-	property->outputParticleXMLData(XML, pID);
-    }
-
-    /*! \brief Method for pushing constructed properties into the
-      PropertyStore.
-     
-      This method should only be used when dynamod is building a
-      simulation, as the typical method for adding a Property to the
-      PropertyStore is using the \ref getProperty methods.
-     */
-    template<class T>
-    inline Value push(shared_ptr<T> newProp)
-    {
-      if (dynamic_cast<NumericProperty*>(newProp.get()))
-	{
-	  _numericProperties.push_back(Value(newProp));
-	  return _numericProperties.back();
-	}
-    
-      _namedProperties.push_back(Value(newProp));
-      return _namedProperties.back();
-    }
-
-  protected:
-
-    inline Value getPropertyBase(const std::string name, const Property::Units& units)
-    {
-      //Try name based lookup first
-      for (const auto& property : _namedProperties)
-	if (property->getName() == name)
-	  {
-	    if (property->getUnits() == units) return property;
-	  
-	    M_throw() << "Property \"" << name << "\" found with units of " 
-		      << std::string(property->getUnits())
-		      << ", but the requested property has units of " 
-		      << std::string(units);
-	  }
-
-      //Try a name-is-the-value lookup
-      try {
-	return getProperty(boost::lexical_cast<double>(name), units);
-      } catch (boost::bad_lexical_cast&)
-	{ M_throw() << "Could not find the property with a name of \"" << name << "\" and units of " << std::string(units); }
-    }
-  };
-}
+  }
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,24 +19,23 @@
 #include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  class SysNBListCompressionFix: public System
-  {
-  public:
-    SysNBListCompressionFix(dynamo::Simulation*, double, size_t);
-  
-    virtual NEventData runEvent();
+class SysNBListCompressionFix : public System {
+public:
+  SysNBListCompressionFix(dynamo::Simulation *, double, size_t);
 
-    virtual void initialise(size_t);
-  
-    virtual void operator<<(const magnet::xml::Node&) {}
-    
-    void fixNBlistForOutput();
-  
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const {}
-  
-    double growthRate;
-    double initialSupportedRange;
-    size_t cellID;
-  };
-}
+  virtual NEventData runEvent();
+
+  virtual void initialise(size_t);
+
+  virtual void operator<<(const magnet::xml::Node &) {}
+
+  void fixNBlistForOutput();
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const {}
+
+  double growthRate;
+  double initialSupportedRange;
+  size_t cellID;
+};
+} // namespace dynamo

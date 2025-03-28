@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,35 +17,34 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <vector>
 #include <list>
+#include <vector>
 
 namespace dynamo {
-  class OPMSD;
-  class Topology;
+class OPMSD;
+class Topology;
 
-  class OPPeriodicMSD: public OPTicker
-  {
-  public:
-    OPPeriodicMSD(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPPeriodicMSD : public OPTicker {
+public:
+  OPPeriodicMSD(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    void output(magnet::xml::XmlStream &); 
+  void output(magnet::xml::XmlStream &);
 
-  protected:
-    virtual void stream(double) {}  
-    virtual void ticker();
+protected:
+  virtual void stream(double) {}
+  virtual void ticker();
 
-    typedef std::pair<double, double> localpair;
+  typedef std::pair<double, double> localpair;
 
-    std::list<localpair> results;
+  std::list<localpair> results;
 
-    typedef std::pair<const Topology*, std::list<localpair> > localpair2;
+  typedef std::pair<const Topology *, std::list<localpair>> localpair2;
 
-    std::vector<localpair2> structResults;
-    std::vector<std::vector<localpair> > speciesData;
+  std::vector<localpair2> structResults;
+  std::vector<std::vector<localpair>> speciesData;
 
-    shared_ptr<const OPMSD> ptrOPMSD;
-  };
-}
+  shared_ptr<const OPMSD> ptrOPMSD;
+};
+} // namespace dynamo

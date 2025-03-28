@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,41 +17,43 @@
 
 #pragma once
 
-#include <dynamo/species/species.hpp>
 #include <dynamo/BC/LEBC.hpp>
+#include <dynamo/species/species.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <memory>
 
 namespace Gtk {
-  class VBox;
-  class RadioButton;
-}
+class VBox;
+class RadioButton;
+} // namespace Gtk
 
 namespace dynamo {
-  class SpPoint: public Species
-  {
-  public:
-    template<class T1>
-    SpPoint(dynamo::Simulation* sim, IDRange* r, T1 nmass, std::string nName, unsigned int ID):
-      Species(sim, "SpPoint", r, nmass, nName, ID)
-    {}
-  
-    SpPoint(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
-      Species(nSim, "", NULL, 0, "", nID)
-    { operator<<(XML); }
+class SpPoint : public Species {
+public:
+  template <class T1>
+  SpPoint(dynamo::Simulation *sim, IDRange *r, T1 nmass, std::string nName,
+          unsigned int ID)
+      : Species(sim, "SpPoint", r, nmass, nName, ID) {}
 
-    virtual void initialise() {}
+  SpPoint(const magnet::xml::Node &XML, dynamo::Simulation *nSim,
+          unsigned int nID)
+      : Species(nSim, "", NULL, 0, "", nID) {
+    operator<<(XML);
+  }
 
-    virtual void operator<<(const magnet::xml::Node& XML);
+  virtual void initialise() {}
 
-    virtual double getScalarMomentOfInertia(size_t ID) const 
-    { M_throw() << "Species has no intertia"; }
+  virtual void operator<<(const magnet::xml::Node &XML);
 
-    virtual double getParticleKineticEnergy(size_t ID) const;
+  virtual double getScalarMomentOfInertia(size_t ID) const {
+    M_throw() << "Species has no intertia";
+  }
 
-    virtual double getDOF() const { return NDIM; }
+  virtual double getParticleKineticEnergy(size_t ID) const;
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream& XML) const;
-  };
-}
+  virtual double getDOF() const { return NDIM; }
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const;
+};
+} // namespace dynamo

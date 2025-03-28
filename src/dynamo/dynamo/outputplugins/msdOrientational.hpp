@@ -21,37 +21,35 @@
 #include <vector>
 
 namespace dynamo {
-  class OPMSDOrientational: public OutputPlugin
-  {
-  public:
-    OPMSDOrientational(const dynamo::Simulation*, const magnet::xml::Node&);
-    ~OPMSDOrientational();
+class OPMSDOrientational : public OutputPlugin {
+public:
+  OPMSDOrientational(const dynamo::Simulation *, const magnet::xml::Node &);
+  ~OPMSDOrientational();
 
-    virtual void initialise();
+  virtual void initialise();
 
-    // All null events
-    virtual void eventUpdate(const Event&, const NEventData&) {}
+  // All null events
+  virtual void eventUpdate(const Event &, const NEventData &) {}
 
-    void output(magnet::xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
-    struct msdCalcReturn
-    {
-      double parallel;
-      double perpendicular;
-      double rotational_legendre1;
-      double rotational_legendre2;
-    };
-
-    msdCalcReturn calculate() const;
-
-    typedef std::pair<Vector,Vector> RUpair;
-
-    virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This output plugin hasn't been prepared for changes of system"; }
-
-  protected:
-
-    std::vector<RUpair> initialConfiguration;
-
+  struct msdCalcReturn {
+    double parallel;
+    double perpendicular;
+    double rotational_legendre1;
+    double rotational_legendre2;
   };
-}
+
+  msdCalcReturn calculate() const;
+
+  typedef std::pair<Vector, Vector> RUpair;
+
+  virtual void replicaExchange(OutputPlugin &) {
+    M_throw()
+        << "This output plugin hasn't been prepared for changes of system";
+  }
+
+protected:
+  std::vector<RUpair> initialConfiguration;
+};
+} // namespace dynamo

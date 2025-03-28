@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,51 +19,57 @@
 #include <dynamo/base.hpp>
 #include <dynamo/eventtypes.hpp>
 
-namespace magnet { namespace xml { class Node; class XmlStream; } }
+namespace magnet {
+namespace xml {
+class Node;
+class XmlStream;
+} // namespace xml
+} // namespace magnet
 namespace dynamo {
-  class NEventData;
+class NEventData;
 
-  class System: public dynamo::SimBase
-  {
-  public:
-    System(dynamo::Simulation*);
-  
-    virtual ~System() {}
+class System : public dynamo::SimBase {
+public:
+  System(dynamo::Simulation *);
 
-    inline void stream(const double& ndt) { dt -= ndt; }
+  virtual ~System() {}
 
-    virtual NEventData runEvent() = 0;
+  inline void stream(const double &ndt) { dt -= ndt; }
 
-    virtual void initialise(size_t) = 0;
+  virtual NEventData runEvent() = 0;
 
-    virtual void operator<<(const magnet::xml::Node&) = 0;
+  virtual void initialise(size_t) = 0;
 
-    Event getEvent() const { return Event(ID, dt, SYSTEM, type, ID); }
-  
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
-  
-    static shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::Simulation*);
-    
-    void setName(const std::string& tmp) { sysName = tmp; }
+  virtual void operator<<(const magnet::xml::Node &) = 0;
 
-    const std::string& getName() const { return sysName; }
+  Event getEvent() const { return Event(ID, dt, SYSTEM, type, ID); }
 
-    inline double getdt() const { return dt; }
+  friend magnet::xml::XmlStream &operator<<(magnet::xml::XmlStream &,
+                                            const System &);
 
-    inline const size_t& getID() const { return ID; }
+  static shared_ptr<System> getClass(const magnet::xml::Node &,
+                                     dynamo::Simulation *);
 
-    virtual void replicaExchange(System& s) { 
-      M_throw() << "The System \"" << getName() << "\"Not replica exchange safe";
-    }
+  void setName(const std::string &tmp) { sysName = tmp; }
 
-    virtual void outputData(magnet::xml::XmlStream&) const {}
+  const std::string &getName() const { return sysName; }
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
+  inline double getdt() const { return dt; }
 
-    std::string sysName;  
-    double dt;
-    EEventType type;
-    size_t ID;
-  };
-}
+  inline const size_t &getID() const { return ID; }
+
+  virtual void replicaExchange(System &s) {
+    M_throw() << "The System \"" << getName() << "\"Not replica exchange safe";
+  }
+
+  virtual void outputData(magnet::xml::XmlStream &) const {}
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const = 0;
+
+  std::string sysName;
+  double dt;
+  EEventType type;
+  size_t ID;
+};
+} // namespace dynamo

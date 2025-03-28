@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,69 +16,57 @@
 */
 
 #pragma once
-#include <dynamo/eventtypes.hpp>
-#include <vector>
 #include <algorithm>
+#include <dynamo/eventtypes.hpp>
 #include <functional>
+#include <vector>
 
 namespace dynamo {
-  class HeapPEL {
-    std::vector<Event> _store;
-  public:
-    static const bool partial_invalidate_support = false;
-    
-    inline void push(Event e) {
-      _store.push_back(e);
-      std::push_heap(_store.begin(), _store.end(), std::greater<Event>());
-    }
+class HeapPEL {
+  std::vector<Event> _store;
 
-    inline void clear() {
-      _store.clear();
-    }
+public:
+  static const bool partial_invalidate_support = false;
 
-    inline size_t size() const {
-      return _store.size();
-    }
+  inline void push(Event e) {
+    _store.push_back(e);
+    std::push_heap(_store.begin(), _store.end(), std::greater<Event>());
+  }
 
-    inline bool empty() const {
-      return _store.empty();
-    }
+  inline void clear() { _store.clear(); }
 
-    inline void pop() {
-      std::pop_heap(_store.begin(), _store.end(), std::greater<Event>());
-      _store.pop_back();
-    }
+  inline size_t size() const { return _store.size(); }
 
-    inline Event top() const {
-      if (!empty())
-	return _store.front();
-      else
-	return Event();
-    }
+  inline bool empty() const { return _store.empty(); }
 
-    inline bool operator>(const HeapPEL& FEL) const {
-      return top() > FEL.top();
-    }
+  inline void pop() {
+    std::pop_heap(_store.begin(), _store.end(), std::greater<Event>());
+    _store.pop_back();
+  }
 
-    inline bool operator<(const HeapPEL& FEL) const {
-      return top() < FEL.top();
-    }
-  
-    inline void stream(const double dt) {
-      for (Event& event : _store)
-	event._dt -= dt;
-    }
+  inline Event top() const {
+    if (!empty())
+      return _store.front();
+    else
+      return Event();
+  }
 
-    inline void rescaleTimes(const double scale) { 
-      for (Event& event : _store)
-	event._dt *= scale;
-    }
+  inline bool operator>(const HeapPEL &FEL) const { return top() > FEL.top(); }
 
-    inline void swap(HeapPEL& rhs) {
-      std::swap(_store, rhs._store);
-    }
+  inline bool operator<(const HeapPEL &FEL) const { return top() < FEL.top(); }
 
-    static inline std::string name()
-    { return "Heap"; }
-  };
-}
+  inline void stream(const double dt) {
+    for (Event &event : _store)
+      event._dt -= dt;
+  }
+
+  inline void rescaleTimes(const double scale) {
+    for (Event &event : _store)
+      event._dt *= scale;
+  }
+
+  inline void swap(HeapPEL &rhs) { std::swap(_store, rhs._store); }
+
+  static inline std::string name() { return "Heap"; }
+};
+} // namespace dynamo

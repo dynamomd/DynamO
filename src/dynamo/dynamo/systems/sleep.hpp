@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -18,41 +18,41 @@
 
 #pragma once
 
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 #include <map>
 
 namespace dynamo {
-  class SSleep: public System
-  {
-  public:
-    SSleep(const magnet::xml::Node& XML, dynamo::Simulation*);
+class SSleep : public System {
+public:
+  SSleep(const magnet::xml::Node &XML, dynamo::Simulation *);
 
-    SSleep(dynamo::Simulation*, std::string, IDRange*, double);
-  
-    virtual NEventData runEvent();
+  SSleep(dynamo::Simulation *, std::string, IDRange *, double);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    void particlesUpdated(const NEventData&);
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    void recalculateTime();
+  void particlesUpdated(const NEventData &);
 
-    bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector{0,0,0});
+  void recalculateTime();
 
-    shared_ptr<IDRange> _range;
-    double _sleepDistance;
-    double _sleepTime;
-    double _sleepVelocity;
+  bool sleepCondition(const Particle &part, const Vector &g,
+                      const Vector &vel = Vector{0, 0, 0});
 
-    mutable std::map<size_t, Vector> stateChange;
+  shared_ptr<IDRange> _range;
+  double _sleepDistance;
+  double _sleepTime;
+  double _sleepVelocity;
 
-    std::vector<std::pair<Vector, long double> > _lastData;
-  };
-}
+  mutable std::map<size_t, Vector> stateChange;
+
+  std::vector<std::pair<Vector, long double>> _lastData;
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,19 +20,18 @@
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 
 namespace dynamo {
-  class OPOverlapTest: public OPTicker
-  {
-  public:
-    OPOverlapTest(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPOverlapTest : public OPTicker {
+public:
+  OPOverlapTest(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
-  
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void ticker();
 
-  protected:
-  };
-}
+  virtual void output(magnet::xml::XmlStream &);
+
+protected:
+};
+} // namespace dynamo

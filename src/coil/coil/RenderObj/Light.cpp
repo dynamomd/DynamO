@@ -15,358 +15,399 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/lexical_cast.hpp>
 #include <coil/RenderObj/Light.hpp>
 #include <coil/RenderObj/console.hpp>
-#include <magnet/gtk/numericEntry.hpp>
-#include <magnet/clamp.hpp>
-#include <magnet/GL/objects/cairo.hpp>
-#include <boost/lexical_cast.hpp>
-#include <fstream>
 #include <coil/images/images.hpp>
+#include <fstream>
+#include <magnet/GL/objects/cairo.hpp>
+#include <magnet/clamp.hpp>
+#include <magnet/gtk/numericEntry.hpp>
 
 namespace coil {
-  Glib::RefPtr<Gdk::Pixbuf>
-  RLight::getIcon()
-  { return coil::images::Light_Icon(); }
+Glib::RefPtr<Gdk::Pixbuf> RLight::getIcon() {
+  return coil::images::Light_Icon();
+}
 
-  void 
-  RLight::deinit()
-  {
-    _sphereShader.deinit();
-    _glposition.deinit();
-    _context.reset();
+void RLight::deinit() {
+  _sphereShader.deinit();
+  _glposition.deinit();
+  _context.reset();
+}
+
+void RLight::init(
+    const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue) {
+  RenderObj::init(systemQueue);
+
+  _sphereShader.defines("unshaded") = "true";
+
+  _sphereShader.build();
+
+  magnet::math::Vector loc = getPosition();
+  GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
+  std::vector<GLfloat> position(pos, pos + 3);
+  _glposition.init(position, 3);
+
+  _context = magnet::GL::Context::getContext();
+  initGTK();
+  _initialised = true;
+}
+
+void RLight::interfaceRender(const magnet::GL::Camera &camera,
+                             magnet::GL::objects::CairoSurface &cairo) {
+  if (!_visible)
+    return;
+
+  cairo.getContext()->save();
+  std::array<GLfloat, 4> pos = camera.project(getPosition());
+  Glib::RefPtr<Gdk::Pixbuf> icon = getIcon();
+  Gdk::Cairo::set_source_pixbuf(cairo.getContext(), getIcon(),
+                                pos[0] - icon->get_width() / 2,
+                                pos[1] - icon->get_height() / 2);
+  cairo.getContext()->paint();
+  cairo.getContext()->restore();
+}
+
+void RLight::glRender(const magnet::GL::Camera &cam, RenderMode mode,
+                      const uint32_t offset) {
+  if (!_visible)
+    return;
+  if (mode == RenderObj::SHADOW)
+    return;
+
+  using namespace magnet::GL;
+
+  magnet::math::Vector loc = getPosition();
+  GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
+  std::vector<GLfloat> position(pos, pos + 3);
+  _glposition.init(position, 3);
+  _context->cleanupAttributeArrays();
+
+  if (mode == RenderObj::PICKING)
+    _context->setAttribute(
+        Context::vertexColorAttrIndex, (offset % 256) / 255.0,
+        ((offset / 256) % 256) / 255.0, (((offset / 256) / 256) % 256) / 255.0,
+        ((((offset / 256) / 256) / 256) % 256) / 255.0);
+  else {
+    _context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1],
+                           _color[2], 1);
+
+    if (_context->testExtension("GL_ARB_sample_shading")) {
+      _context->setSampleShading(true);
+      glMinSampleShadingARB(1.0);
+    }
   }
-  
-  void 
-  RLight::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
-  {
-    RenderObj::init(systemQueue);
-    
-    _sphereShader.defines("unshaded") = "true";
+  _sphereShader.attach();
+  _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+  _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+  _sphereShader["global_scale"] = _size;
+  _glposition.drawArray(magnet::GL::element_type::POINTS);
+  _sphereShader.detach();
 
-    _sphereShader.build();
+  if ((mode == RenderObj::PICKING) &&
+      _context->testExtension("GL_ARB_sample_shading"))
+    _context->setSampleShading(false);
+}
 
-    magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
-    std::vector<GLfloat> position(pos, pos + 3);
-    _glposition.init(position, 3);
+void RLight::initGTK() {
+  _optList.reset(new Gtk::VBox);
 
-    _context = magnet::GL::Context::getContext();
-    initGTK();
-    _initialised = true;
-  }
+  { // Intensity and color
+    Gtk::HBox *box = manage(new Gtk::HBox);
+    box->show();
 
-  void 
-  RLight::interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo)
-  {
-    if (!_visible) return;
-    
-    cairo.getContext()->save();
-    std::array<GLfloat, 4> pos =  camera.project(getPosition());
-    Glib::RefPtr<Gdk::Pixbuf> icon = getIcon();
-    Gdk::Cairo::set_source_pixbuf(cairo.getContext(), getIcon(), 
-				  pos[0] - icon->get_width()/2,
-				  pos[1] - icon->get_height()/2);
-    cairo.getContext()->paint();
-    cairo.getContext()->restore();
-  }
+    {
+      Gtk::Label *label = manage(new Gtk::Label("Intensity", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
+    }
 
-  void 
-  RLight::glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
-  {
-    if (!_visible) return;
-    if (mode == RenderObj::SHADOW) return;
-    
-    using namespace magnet::GL;
+    _intensityEntry.reset(new Gtk::Entry);
+    box->pack_start(*_intensityEntry, false, false);
+    _intensityEntry->show();
+    _intensityEntry->set_width_chars(7);
+    _intensityEntry->set_text(boost::lexical_cast<std::string>(_intensity));
 
-    magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
-    std::vector<GLfloat> position(pos, pos + 3);
-    _glposition.init(position, 3);
-    _context->cleanupAttributeArrays();
+    _intensityEntry->signal_changed().connect(
+        sigc::bind(&magnet::gtk::forceNumericEntry, _intensityEntry.get()));
+    _intensityEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
 
-    if (mode == RenderObj::PICKING)
-      _context->setAttribute(Context::vertexColorAttrIndex,
-			     (offset % 256) / 255.0,
-			     ((offset / 256) % 256) / 255.0,
-			     (((offset / 256) / 256) % 256) / 255.0,
-			     ((((offset / 256) / 256) / 256) % 256) / 255.0);
-    else
-      {
-	_context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1], _color[2], 1);
-	
-	if (_context->testExtension("GL_ARB_sample_shading"))
-	  {
-	    _context->setSampleShading(true);
-	    glMinSampleShadingARB(1.0);
-	  }
-      }
-    _sphereShader.attach();
-    _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-    _sphereShader["ViewMatrix"] = cam.getViewMatrix();
-    _sphereShader["global_scale"] = _size;
-    _glposition.drawArray(magnet::GL::element_type::POINTS);
-    _sphereShader.detach();
-    
-    if ((mode == RenderObj::PICKING) && _context->testExtension("GL_ARB_sample_shading"))
-      _context->setSampleShading(false);
-  }
-
-  void
-  RLight::initGTK()
-  {
-    _optList.reset(new Gtk::VBox);
-
-    { //Intensity and color
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
-      
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Intensity", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
-
-      _intensityEntry.reset(new Gtk::Entry);
-      box->pack_start(*_intensityEntry, false, false);
-      _intensityEntry->show(); _intensityEntry->set_width_chars(7);
-      _intensityEntry->set_text(boost::lexical_cast<std::string>(_intensity));
-
-      _intensityEntry->signal_changed()
-	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, _intensityEntry.get()));
-      _intensityEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Color", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
-
-      {
-	_lightColor.reset(new Gtk::ColorButton);
-	_lightColor->set_use_alpha(false);
-	Gdk::Color color;
-	color.set_rgb(_color[0] * G_MAXUSHORT, _color[1] * G_MAXUSHORT, _color[2] * G_MAXUSHORT);
-	_lightColor->set_color(color);
-	box->pack_start(*_lightColor, false, false);
-	_lightColor->show();
-	_lightColor->set_size_request(60, -1);
-	_lightColor->signal_color_set().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-      }
-      _optList->pack_start(*box, false, false); 
+    {
+      Gtk::Label *label = manage(new Gtk::Label("Color", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
     }
 
     {
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Max Variance", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
-      _maxvarianceEntry.reset(new Gtk::Entry);
-      box->pack_start(*_maxvarianceEntry, false, false);
-      _maxvarianceEntry->show(); 
-      _maxvarianceEntry->set_width_chars(7);
-      _maxvarianceEntry->set_text(boost::lexical_cast<std::string>(_maxvariance));
-      _maxvarianceEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _maxvarianceEntry.get()));
-      _maxvarianceEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-      _optList->pack_start(*box, false, false);
+      _lightColor.reset(new Gtk::ColorButton);
+      _lightColor->set_use_alpha(false);
+      Gdk::Color color;
+      color.set_rgb(_color[0] * G_MAXUSHORT, _color[1] * G_MAXUSHORT,
+                    _color[2] * G_MAXUSHORT);
+      _lightColor->set_color(color);
+      box->pack_start(*_lightColor, false, false);
+      _lightColor->show();
+      _lightColor->set_size_request(60, -1);
+      _lightColor->signal_color_set().connect(
+          sigc::mem_fun(*this, &RLight::guiUpdate));
     }
-      
+    _optList->pack_start(*box, false, false);
+  }
+
+  {
+    Gtk::HBox *box = manage(new Gtk::HBox);
+    box->show();
     {
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Bleed Reduction", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
+      Gtk::Label *label = manage(new Gtk::Label("Max Variance", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
+    }
+    _maxvarianceEntry.reset(new Gtk::Entry);
+    box->pack_start(*_maxvarianceEntry, false, false);
+    _maxvarianceEntry->show();
+    _maxvarianceEntry->set_width_chars(7);
+    _maxvarianceEntry->set_text(boost::lexical_cast<std::string>(_maxvariance));
+    _maxvarianceEntry->signal_changed().connect(
+        sigc::bind(&magnet::gtk::forceNumericEntry, _maxvarianceEntry.get()));
+    _maxvarianceEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
+    _optList->pack_start(*box, false, false);
+  }
 
-      _bleedreductionEntry.reset(new Gtk::Entry);
-      box->pack_start(*_bleedreductionEntry, false, false);
-      _bleedreductionEntry->show(); 
-      _bleedreductionEntry->set_width_chars(7);
-      _bleedreductionEntry->set_text(boost::lexical_cast<std::string>(_bleedreduction));
-      _bleedreductionEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _bleedreductionEntry.get()));
-      _bleedreductionEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-      _optList->pack_start(*box, false, false);
+  {
+    Gtk::HBox *box = manage(new Gtk::HBox);
+    box->show();
+    {
+      Gtk::Label *label = manage(new Gtk::Label("Bleed Reduction", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
     }
 
-    { //Specular
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
+    _bleedreductionEntry.reset(new Gtk::Entry);
+    box->pack_start(*_bleedreductionEntry, false, false);
+    _bleedreductionEntry->show();
+    _bleedreductionEntry->set_width_chars(7);
+    _bleedreductionEntry->set_text(
+        boost::lexical_cast<std::string>(_bleedreduction));
+    _bleedreductionEntry->signal_changed().connect(sigc::bind(
+        &magnet::gtk::forceNumericEntry, _bleedreductionEntry.get()));
+    _bleedreductionEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
+    _optList->pack_start(*box, false, false);
+  }
 
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Specular Exponent", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
+  { // Specular
+    Gtk::HBox *box = manage(new Gtk::HBox);
+    box->show();
 
-      _specularExponentEntry.reset(new Gtk::Entry);
-      box->pack_start(*_specularExponentEntry, false, false);
-      _specularExponentEntry->show(); _specularExponentEntry->set_width_chars(7);
-      _specularExponentEntry->set_text(boost::lexical_cast<std::string>(_specularExponent));
-
-      _specularExponentEntry->signal_changed()
-	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, _specularExponentEntry.get()));
-      _specularExponentEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Specular Strength", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
-
-      _specularFactorEntry.reset(new Gtk::Entry);
-      box->pack_start(*_specularFactorEntry, false, false);
-      _specularFactorEntry->show(); _specularFactorEntry->set_width_chars(7);
-      _specularFactorEntry->set_text(boost::lexical_cast<std::string>(_specularFactor));
-
-      _specularFactorEntry->signal_changed()
-	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, _specularFactorEntry.get()));
-      _specularFactorEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      _optList->pack_start(*box, false, false);
+    {
+      Gtk::Label *label =
+          manage(new Gtk::Label("Specular Exponent", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
     }
 
+    _specularExponentEntry.reset(new Gtk::Entry);
+    box->pack_start(*_specularExponentEntry, false, false);
+    _specularExponentEntry->show();
+    _specularExponentEntry->set_width_chars(7);
+    _specularExponentEntry->set_text(
+        boost::lexical_cast<std::string>(_specularExponent));
 
-    { //Position
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
+    _specularExponentEntry->signal_changed().connect(sigc::bind(
+        &magnet::gtk::forceNumericEntry, _specularExponentEntry.get()));
+    _specularExponentEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
 
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Position", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
-
-      _positionXEntry.reset(new Gtk::Entry);
-      box->pack_start(*_positionXEntry, false, false);
-      _positionXEntry->show();
-      _positionXEntry->set_width_chars(8);
-      _positionXEntry->set_text(boost::lexical_cast<std::string>(getPosition()[0]));
-      _positionXEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _positionXEntry.get()));
-      _positionXEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      _positionYEntry.reset(new Gtk::Entry);
-      box->pack_start(*_positionYEntry, false, false);
-      _positionYEntry->show();
-      _positionYEntry->set_width_chars(8);
-      _positionYEntry->set_text(boost::lexical_cast<std::string>(getPosition()[1]));
-      _positionYEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _positionYEntry.get()));
-      _positionYEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      _positionZEntry.reset(new Gtk::Entry);
-      box->pack_start(*_positionZEntry, false, false);
-      _positionZEntry->show();
-      _positionZEntry->set_width_chars(8);
-      _positionZEntry->set_text(boost::lexical_cast<std::string>(getPosition()[2]));
-      _positionZEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _positionZEntry.get()));
-      _positionZEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      _optList->pack_start(*box, false, false);
+    {
+      Gtk::Label *label =
+          manage(new Gtk::Label("Specular Strength", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
     }
 
-    { //Light size
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
+    _specularFactorEntry.reset(new Gtk::Entry);
+    box->pack_start(*_specularFactorEntry, false, false);
+    _specularFactorEntry->show();
+    _specularFactorEntry->set_width_chars(7);
+    _specularFactorEntry->set_text(
+        boost::lexical_cast<std::string>(_specularFactor));
 
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Size", 0.95, 0.5));
-	box->pack_start(*label, true, true); 
-	label->show();
-      }
+    _specularFactorEntry->signal_changed().connect(sigc::bind(
+        &magnet::gtk::forceNumericEntry, _specularFactorEntry.get()));
+    _specularFactorEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
 
-      _sizeEntry.reset(new Gtk::Entry);
-      box->pack_start(*_sizeEntry, false, false);
-      _sizeEntry->show();
-      _sizeEntry->set_width_chars(8);
-      _sizeEntry->set_text(boost::lexical_cast<std::string>(_size));
-      _sizeEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _sizeEntry.get()));
-      _sizeEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+    _optList->pack_start(*box, false, false);
+  }
 
-      _optList->pack_start(*box, false, false);
+  { // Position
+    Gtk::HBox *box = manage(new Gtk::HBox);
+    box->show();
+
+    {
+      Gtk::Label *label = manage(new Gtk::Label("Position", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
     }
 
-    _optList->show();
+    _positionXEntry.reset(new Gtk::Entry);
+    box->pack_start(*_positionXEntry, false, false);
+    _positionXEntry->show();
+    _positionXEntry->set_width_chars(8);
+    _positionXEntry->set_text(
+        boost::lexical_cast<std::string>(getPosition()[0]));
+    _positionXEntry->signal_changed().connect(
+        sigc::bind(&magnet::gtk::forceNumericEntry, _positionXEntry.get()));
+    _positionXEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
 
-    guiUpdate();
+    _positionYEntry.reset(new Gtk::Entry);
+    box->pack_start(*_positionYEntry, false, false);
+    _positionYEntry->show();
+    _positionYEntry->set_width_chars(8);
+    _positionYEntry->set_text(
+        boost::lexical_cast<std::string>(getPosition()[1]));
+    _positionYEntry->signal_changed().connect(
+        sigc::bind(&magnet::gtk::forceNumericEntry, _positionYEntry.get()));
+    _positionYEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
+
+    _positionZEntry.reset(new Gtk::Entry);
+    box->pack_start(*_positionZEntry, false, false);
+    _positionZEntry->show();
+    _positionZEntry->set_width_chars(8);
+    _positionZEntry->set_text(
+        boost::lexical_cast<std::string>(getPosition()[2]));
+    _positionZEntry->signal_changed().connect(
+        sigc::bind(&magnet::gtk::forceNumericEntry, _positionZEntry.get()));
+    _positionZEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
+
+    _optList->pack_start(*box, false, false);
   }
 
-  void
-  RLight::showControls(Gtk::ScrolledWindow* win)
-  {
-    win->remove();
-    _optList->unparent();
-    win->add(*_optList);
-    win->show();
-  }
+  { // Light size
+    Gtk::HBox *box = manage(new Gtk::HBox);
+    box->show();
 
-  void 
-  RLight::dragCallback(Vector cursorPos, uint32_t objID)
-  {
-    _positionXEntry->set_text(boost::lexical_cast<std::string>(cursorPos[0]));
-    _positionYEntry->set_text(boost::lexical_cast<std::string>(cursorPos[1]));
-    _positionZEntry->set_text(boost::lexical_cast<std::string>(cursorPos[2]));
-    guiUpdate();
-  }
-
-  void
-  RLight::setSize(double val)
-  {
-    _sizeEntry->set_text(boost::lexical_cast<std::string>(val));
-    _size = val;
-  }
-  
-  void
-  RLight::setIntensity(double val)
-  {
-    _intensityEntry->set_text(boost::lexical_cast<std::string>(val));
-    _intensity = val;
-  }
-
-  void 
-  RLight::setPosition(magnet::math::Vector newposition)
-  {
-    _positionXEntry->set_text(boost::lexical_cast<std::string>(newposition[0]));
-    _positionYEntry->set_text(boost::lexical_cast<std::string>(newposition[1]));
-    _positionZEntry->set_text(boost::lexical_cast<std::string>(newposition[2]));
-    magnet::GL::CameraHeadTracking::setPosition(newposition);
-  }
-
-  void 
-  RLight::guiUpdate()
-  {
-    try { _intensity = boost::lexical_cast<float>(_intensityEntry->get_text()); } catch (...) {}
-    try { _specularExponent = boost::lexical_cast<float>(_specularExponentEntry->get_text()); } catch (...) {}
-    try { _specularFactor = boost::lexical_cast<float>(_specularFactorEntry->get_text()); } catch (...) {}
-    try { _size = boost::lexical_cast<float>(_sizeEntry->get_text()); } catch (...) {}
-    try { _maxvariance = boost::lexical_cast<float>(_maxvarianceEntry->get_text()); } catch (...) {}
-    try { _bleedreduction = boost::lexical_cast<float>(_bleedreductionEntry->get_text()); } catch (...) {}
-      
-    Gdk::Color color = _lightColor->get_color();
-    _color[0] = GLfloat(color.get_red()) / G_MAXUSHORT;
-    _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
-    _color[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
-
-    {magnet::math::Vector vec = getPosition();
-      if (std::isnan(vec[0]))
-	M_throw() << "isnan!" << vec.toString();
+    {
+      Gtk::Label *label = manage(new Gtk::Label("Size", 0.95, 0.5));
+      box->pack_start(*label, true, true);
+      label->show();
     }
 
-    lookAt(Vector{0,0,0});
+    _sizeEntry.reset(new Gtk::Entry);
+    box->pack_start(*_sizeEntry, false, false);
+    _sizeEntry->show();
+    _sizeEntry->set_width_chars(8);
+    _sizeEntry->set_text(boost::lexical_cast<std::string>(_size));
+    _sizeEntry->signal_changed().connect(
+        sigc::bind(&magnet::gtk::forceNumericEntry, _sizeEntry.get()));
+    _sizeEntry->signal_activate().connect(
+        sigc::mem_fun(*this, &RLight::guiUpdate));
 
+    _optList->pack_start(*box, false, false);
+  }
+
+  _optList->show();
+
+  guiUpdate();
+}
+
+void RLight::showControls(Gtk::ScrolledWindow *win) {
+  win->remove();
+  _optList->unparent();
+  win->add(*_optList);
+  win->show();
+}
+
+void RLight::dragCallback(Vector cursorPos, uint32_t objID) {
+  _positionXEntry->set_text(boost::lexical_cast<std::string>(cursorPos[0]));
+  _positionYEntry->set_text(boost::lexical_cast<std::string>(cursorPos[1]));
+  _positionZEntry->set_text(boost::lexical_cast<std::string>(cursorPos[2]));
+  guiUpdate();
+}
+
+void RLight::setSize(double val) {
+  _sizeEntry->set_text(boost::lexical_cast<std::string>(val));
+  _size = val;
+}
+
+void RLight::setIntensity(double val) {
+  _intensityEntry->set_text(boost::lexical_cast<std::string>(val));
+  _intensity = val;
+}
+
+void RLight::setPosition(magnet::math::Vector newposition) {
+  _positionXEntry->set_text(boost::lexical_cast<std::string>(newposition[0]));
+  _positionYEntry->set_text(boost::lexical_cast<std::string>(newposition[1]));
+  _positionZEntry->set_text(boost::lexical_cast<std::string>(newposition[2]));
+  magnet::GL::CameraHeadTracking::setPosition(newposition);
+}
+
+void RLight::guiUpdate() {
+  try {
+    _intensity = boost::lexical_cast<float>(_intensityEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    _specularExponent =
+        boost::lexical_cast<float>(_specularExponentEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    _specularFactor =
+        boost::lexical_cast<float>(_specularFactorEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    _size = boost::lexical_cast<float>(_sizeEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    _maxvariance = boost::lexical_cast<float>(_maxvarianceEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    _bleedreduction =
+        boost::lexical_cast<float>(_bleedreductionEntry->get_text());
+  } catch (...) {
+  }
+
+  Gdk::Color color = _lightColor->get_color();
+  _color[0] = GLfloat(color.get_red()) / G_MAXUSHORT;
+  _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
+  _color[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
+
+  {
     magnet::math::Vector vec = getPosition();
     if (std::isnan(vec[0]))
       M_throw() << "isnan!" << vec.toString();
-    try { vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());} catch(...) {}
-    try { vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());} catch(...) {}
-    try { vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());} catch(...) {}
-    if (std::isnan(vec[0]))
-      M_throw() << "isnan now!" << vec.toString();
-    magnet::GL::CameraHeadTracking::setPosition(vec);
-    if (std::isnan(vec[0]))
-      M_throw() << "isnan now2!" << vec.toString();
   }
+
+  lookAt(Vector{0, 0, 0});
+
+  magnet::math::Vector vec = getPosition();
+  if (std::isnan(vec[0]))
+    M_throw() << "isnan!" << vec.toString();
+  try {
+    vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());
+  } catch (...) {
+  }
+  try {
+    vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());
+  } catch (...) {
+  }
+  if (std::isnan(vec[0]))
+    M_throw() << "isnan now!" << vec.toString();
+  magnet::GL::CameraHeadTracking::setPosition(vec);
+  if (std::isnan(vec[0]))
+    M_throw() << "isnan now2!" << vec.toString();
 }
+} // namespace coil

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,24 +20,26 @@
 #include <dynamo/ranges/IDRange.hpp>
 
 namespace dynamo {
-  class GCellsShearing: public GCells
-  {
-  public:
-    GCellsShearing(const magnet::xml::Node&, dynamo::Simulation*);
-  
-    GCellsShearing(dynamo::Simulation*, const std::string&);
-  
-    virtual ~GCellsShearing() {}
+class GCellsShearing : public GCells {
+public:
+  GCellsShearing(const magnet::xml::Node &, dynamo::Simulation *);
 
-    virtual void initialise(size_t);
-  
-    virtual Event getEvent(const Particle &) const;
+  GCellsShearing(dynamo::Simulation *, const std::string &);
 
-    virtual void runEvent(Particle&, const double);
+  virtual ~GCellsShearing() {}
 
-  protected:
-    void getParticleNeighbours(const std::array<size_t, 3>&, std::vector<size_t>&) const;
-    void getAdditionalLEParticleNeighbourhood(const Particle&, std::vector<size_t>&) const;
-    void getAdditionalLEParticleNeighbourhood(std::array<size_t, 3>, std::vector<size_t>&) const;
-  };
-}
+  virtual void initialise(size_t);
+
+  virtual Event getEvent(const Particle &) const;
+
+  virtual void runEvent(Particle &, const double);
+
+protected:
+  void getParticleNeighbours(const std::array<size_t, 3> &,
+                             std::vector<size_t> &) const;
+  void getAdditionalLEParticleNeighbourhood(const Particle &,
+                                            std::vector<size_t> &) const;
+  void getAdditionalLEParticleNeighbourhood(std::array<size_t, 3>,
+                                            std::vector<size_t> &) const;
+};
+} // namespace dynamo

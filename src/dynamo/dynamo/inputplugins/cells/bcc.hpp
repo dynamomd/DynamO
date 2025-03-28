@@ -18,59 +18,53 @@
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
 
-namespace dynamo
-{
-  struct CUBCC : public UCell
-  {
-    CUBCC(std::array<long, 3> ncells, Vector ndimensions, UCell *nextCell)
-        : UCell(nextCell),
-          cells(ncells)
-    {
-      _cellDim = ndimensions;
-    }
+namespace dynamo {
+struct CUBCC : public UCell {
+  CUBCC(std::array<long, 3> ncells, Vector ndimensions, UCell *nextCell)
+      : UCell(nextCell), cells(ncells) {
+    _cellDim = ndimensions;
+  }
 
-    std::array<long, 3> cells;
+  std::array<long, 3> cells;
 
-    virtual std::vector<Vector> placeObjects(const Vector &centre)
-    {
-      std::vector<Vector> retval;
+  virtual std::vector<Vector> placeObjects(const Vector &centre) {
+    std::vector<Vector> retval;
 
-      Vector cellWidth;
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-        cellWidth[iDim] = _cellDim[iDim] / cells[iDim];
+    Vector cellWidth;
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      cellWidth[iDim] = _cellDim[iDim] / cells[iDim];
 
-      Vector position;
-      std::array<long, 3> iterVec = {{0, 0, 0}};
+    Vector position;
+    std::array<long, 3> iterVec = {{0, 0, 0}};
 
-      while (iterVec[NDIM - 1] != cells[NDIM - 1])
-      {
-        for (size_t iDim = 0; iDim < NDIM; iDim++)
-          position[iDim] = cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) + 0.25) - 0.5 * _cellDim[iDim] + centre[iDim];
+    while (iterVec[NDIM - 1] != cells[NDIM - 1]) {
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
+        position[iDim] =
+            cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) + 0.25) -
+            0.5 * _cellDim[iDim] + centre[iDim];
 
-        for (const Vector &vec : uc->placeObjects(position))
-          retval.push_back(vec);
+      for (const Vector &vec : uc->placeObjects(position))
+        retval.push_back(vec);
 
-        for (size_t iDim = 0; iDim < NDIM; iDim++)
-          position[iDim] += cellWidth[iDim] / 2.0;
+      for (size_t iDim = 0; iDim < NDIM; iDim++)
+        position[iDim] += cellWidth[iDim] / 2.0;
 
-        const std::vector<Vector> &newsites = uc->placeObjects(position);
-        retval.insert(retval.end(), newsites.begin(), newsites.end());
+      const std::vector<Vector> &newsites = uc->placeObjects(position);
+      retval.insert(retval.end(), newsites.begin(), newsites.end());
 
-        // Now update the displacement vector
-        iterVec[0]++;
+      // Now update the displacement vector
+      iterVec[0]++;
 
-        for (size_t iDim = 1; iDim < NDIM; iDim++)
-        {
-          // This increments the next dimension along when
-          if (iterVec[iDim - 1] == cells[iDim - 1])
-          {
-            iterVec[iDim - 1] = 0;
-            iterVec[iDim] += 1;
-          }
+      for (size_t iDim = 1; iDim < NDIM; iDim++) {
+        // This increments the next dimension along when
+        if (iterVec[iDim - 1] == cells[iDim - 1]) {
+          iterVec[iDim - 1] = 0;
+          iterVec[iDim] += 1;
         }
       }
-
-      return retval;
     }
-  };
-}
+
+    return retval;
+  }
+};
+} // namespace dynamo

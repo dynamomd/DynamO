@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,43 +17,45 @@
 
 #pragma once
 
+#include <boost/algorithm/string.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 #include <vector>
-#include <boost/algorithm/string.hpp>
-
 
 namespace dynamo {
-  class OPRadialDistribution: public OPTicker
-  {
+class OPRadialDistribution : public OPTicker {
   static const size_t N_moments = 5;
 
-  public:
-    OPRadialDistribution(const dynamo::Simulation*, 
-			 const magnet::xml::Node&);
+public:
+  OPRadialDistribution(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
-  
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void ticker();
 
-    void operator<<(const magnet::xml::Node&);
+  virtual void output(magnet::xml::XmlStream &);
 
-    std::vector<std::pair<double, double> > getgrdata(size_t species1ID, size_t species2ID) const;
-    double getBinWidth() const { return binWidth; }
-  protected:
-    double binWidth;
-    size_t length;
-    size_t _sampleCount;
-    double sample_energy; 
-    double sample_energy_bin_width;
-    bool _enable_offset = true;
-    
-    std::vector<std::vector<std::vector<long long> > > gr_accumulator; //The accumulator for the g(r)
-    std::vector<long long> initial_moment; //The moments of the accumulator, a running sum of each.
-    std::vector<double> moments; //The moments of the accumulator, a running sum of each.
-  };
-}
+  void operator<<(const magnet::xml::Node &);
+
+  std::vector<std::pair<double, double>> getgrdata(size_t species1ID,
+                                                   size_t species2ID) const;
+  double getBinWidth() const { return binWidth; }
+
+protected:
+  double binWidth;
+  size_t length;
+  size_t _sampleCount;
+  double sample_energy;
+  double sample_energy_bin_width;
+  bool _enable_offset = true;
+
+  std::vector<std::vector<std::vector<long long>>>
+      gr_accumulator; // The accumulator for the g(r)
+  std::vector<long long>
+      initial_moment; // The moments of the accumulator, a running sum of each.
+  std::vector<double>
+      moments; // The moments of the accumulator, a running sum of each.
+};
+} // namespace dynamo

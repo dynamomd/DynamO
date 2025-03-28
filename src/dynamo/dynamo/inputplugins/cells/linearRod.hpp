@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,38 +16,33 @@
 */
 
 #pragma once
-#include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
+#include <dynamo/inputplugins/cells/cell.hpp>
 
 namespace dynamo {
-  struct CUlinearRod: public UCell
-  {
-    CUlinearRod(size_t pcl, double WL, UCell* nextCell):
-      UCell(nextCell),
-      pairchainlength(pcl),
-      walklength(WL)
-    {
-      if (pcl == 0) M_throw() << "Cant have zero chain length";
+struct CUlinearRod : public UCell {
+  CUlinearRod(size_t pcl, double WL, UCell *nextCell)
+      : UCell(nextCell), pairchainlength(pcl), walklength(WL) {
+    if (pcl == 0)
+      M_throw() << "Cant have zero chain length";
+  }
+
+  size_t pairchainlength;
+  double walklength;
+
+  virtual std::vector<Vector> placeObjects(const Vector &centre) {
+    Vector tmp{0, 0, 0};
+
+    std::vector<Vector> retval;
+
+    for (size_t iStep = 0; iStep < pairchainlength; ++iStep) {
+      tmp[0] = (double(iStep) - (double(walklength) * 0.5)) * walklength;
+
+      const std::vector<Vector> &newsites = uc->placeObjects(tmp + centre);
+      retval.insert(retval.end(), newsites.begin(), newsites.end());
     }
 
-    size_t pairchainlength;  
-    double walklength;
-  
-    virtual std::vector<Vector> placeObjects(const Vector & centre)
-    {
-      Vector tmp{0,0,0};
-
-      std::vector<Vector> retval;
-
-      for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
-	{ 
-	  tmp[0] = (double(iStep) - (double(walklength) * 0.5)) * walklength;
-	
-	  const std::vector<Vector>& newsites = uc->placeObjects(tmp + centre);
-	  retval.insert(retval.end(), newsites.begin(), newsites.end());
-	}
-
-      return retval;
-    }
-  };
-}
+    return retval;
+  }
+};
+} // namespace dynamo

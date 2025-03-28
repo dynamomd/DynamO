@@ -1,6 +1,7 @@
 /*Generated Image header file for coil*/
 #include <gtkmm.h>
-namespace coil { namespace images {
+namespace coil {
+namespace images {
 Glib::RefPtr<Gdk::Pixbuf> DataSet_Icon();
 Glib::RefPtr<Gdk::Pixbuf> Function_Icon();
 Glib::RefPtr<Gdk::Pixbuf> Glyphs_Icon();
@@ -27,4 +28,5 @@ Glib::RefPtr<Gdk::Pixbuf> shadow_off_Icon();
 Glib::RefPtr<Gdk::Pixbuf> shadow_on_Icon();
 Glib::RefPtr<Gdk::Pixbuf> visible_off_Icon();
 Glib::RefPtr<Gdk::Pixbuf> visible_on_Icon();
-}}
+} // namespace images
+} // namespace coil

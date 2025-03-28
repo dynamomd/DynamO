@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,17 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/inputplugins/cells/fcc.hpp>
 #include <dynamo/inputplugins/cells/bcc.hpp>
+#include <dynamo/inputplugins/cells/binary.hpp>
+#include <dynamo/inputplugins/cells/fcc.hpp>
 #include <dynamo/inputplugins/cells/hcp.hpp>
-#include <dynamo/inputplugins/cells/sc.hpp>
-#include <dynamo/inputplugins/cells/randomwalk.hpp>
 #include <dynamo/inputplugins/cells/helix.hpp>
+#include <dynamo/inputplugins/cells/linearRod.hpp>
 #include <dynamo/inputplugins/cells/mirror.hpp>
+#include <dynamo/inputplugins/cells/random.hpp>
+#include <dynamo/inputplugins/cells/randomise.hpp>
+#include <dynamo/inputplugins/cells/randomwalk.hpp>
 #include <dynamo/inputplugins/cells/ringRod.hpp>
 #include <dynamo/inputplugins/cells/ringSnake.hpp>
-#include <dynamo/inputplugins/cells/randomise.hpp>
-#include <dynamo/inputplugins/cells/random.hpp>
-#include <dynamo/inputplugins/cells/linearRod.hpp>
-#include <dynamo/inputplugins/cells/binary.hpp>
+#include <dynamo/inputplugins/cells/sc.hpp>
 #include <dynamo/inputplugins/cells/triangleIntersection.hpp>

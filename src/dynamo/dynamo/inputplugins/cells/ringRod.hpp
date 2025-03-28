@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,55 +16,48 @@
 */
 
 #pragma once
-#include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
+#include <dynamo/inputplugins/cells/cell.hpp>
 
 namespace dynamo {
-  struct CUringRod: public UCell
-  {
-    CUringRod(size_t pcl, double WL, UCell* nextCell):
-      UCell(nextCell),
-      pairchainlength(pcl),
-      walklength(WL)
-    {
-      if (pcl == 0) M_throw() << "Cant have zero chain length";
+struct CUringRod : public UCell {
+  CUringRod(size_t pcl, double WL, UCell *nextCell)
+      : UCell(nextCell), pairchainlength(pcl), walklength(WL) {
+    if (pcl == 0)
+      M_throw() << "Cant have zero chain length";
+  }
+
+  size_t pairchainlength;
+  double walklength;
+
+  virtual std::vector<Vector> placeObjects(const Vector &centre) {
+    std::vector<Vector> localsites;
+
+    for (size_t iStep = 0; iStep < pairchainlength; ++iStep) {
+      Vector tmp{0, 0, 0};
+      tmp[0] = -0.5 * walklength;
+      tmp[1] = walklength * (iStep - 0.5 * (pairchainlength - 1));
+
+      localsites.push_back(tmp + centre);
     }
 
-    size_t pairchainlength;  
-    double walklength;
-  
-    virtual std::vector<Vector  > placeObjects(const Vector & centre)
-    {
-      std::vector<Vector  > localsites;
-        
-      for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
-	{ 
-	  Vector  tmp{0,0,0};
-	  tmp[0] = -0.5 * walklength;
-	  tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
+    for (int iStep = pairchainlength; iStep != 0;) {
+      Vector tmp{0, 0, 0};
 
-	  localsites.push_back(tmp + centre);
-	}
+      --iStep;
+      tmp[0] = 0.5 * walklength;
+      tmp[1] = walklength * (iStep - 0.5 * (pairchainlength - 1));
 
-      for (int iStep = pairchainlength; iStep != 0;)
-	{ 
-	  Vector tmp{0,0,0};
-
-	  --iStep;
-	  tmp[0] = 0.5 * walklength;
-	  tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
-
-	  localsites.push_back(tmp + centre);
-	}
-  
-      std::vector<Vector  > retval;
-      for (const Vector & vec : localsites)
-	{
-	  const std::vector<Vector>& newsites = uc->placeObjects(vec);
-	  retval.insert(retval.end(), newsites.begin(), newsites.end());
-	}
-
-      return retval;    
+      localsites.push_back(tmp + centre);
     }
-  };
-}
+
+    std::vector<Vector> retval;
+    for (const Vector &vec : localsites) {
+      const std::vector<Vector> &newsites = uc->placeObjects(vec);
+      retval.insert(retval.end(), newsites.begin(), newsites.end());
+    }
+
+    return retval;
+  }
+};
+} // namespace dynamo

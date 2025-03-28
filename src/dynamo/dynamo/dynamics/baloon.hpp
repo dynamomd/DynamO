@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,41 +19,57 @@
 #include <dynamo/dynamics/newtonian.hpp>
 
 namespace dynamo {
-  /*! \brief A dynamics class used when the system is compressing (all
-      particles are increasing in size).
-    
-      Although the compression dynamics are implemented through the
-      particles increasing in size, they also correspond to an
-      isotropic compaction of space if you change the
-      reference-frame/length-scale so that a particle diameter remains
-      1.
-   */
-  class DynBaloon: public DynNewtonian
-  {
-  public:
-    DynBaloon(dynamo::Simulation*, const magnet::xml::Node&);
+/*! \brief A dynamics class used when the system is compressing (all
+    particles are increasing in size).
 
-    virtual void initialise();
-    void loadParticleXMLData(const magnet::xml::Node&);
+    Although the compression dynamics are implemented through the
+    particles increasing in size, they also correspond to an
+    isotropic compaction of space if you change the
+    reference-frame/length-scale so that a particle diameter remains
+    1.
+ */
+class DynBaloon : public DynNewtonian {
+public:
+  DynBaloon(dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
-    virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
-    virtual PairEventData SmoothSpheresColl(Event&, const double&, const double&, const EEventType&) const;
-    virtual PairEventData SphereWellEvent(Event&, const double&, const double&, size_t) const;
-    inline double getGrowthRate() const { return growthRate; }
-    virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
-    virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, double, double) const;
-    virtual double getPBCSentinelTime(const Particle&, const double&) const;
-    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not Implemented"; }
-    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const { M_throw() << "Not Implemented"; }
-    virtual PairEventData parallelCubeColl(Event& event, const double& e, const double& d, const EEventType& eType = CORE) const;
-    virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d, const double slip) const;
+  virtual void initialise();
+  void loadParticleXMLData(const magnet::xml::Node &);
 
+  virtual double SphereSphereInRoot(const Particle &p1, const Particle &p2,
+                                    double d) const;
+  virtual double SphereSphereOutRoot(const Particle &p1, const Particle &p2,
+                                     double d) const;
+  virtual double sphereOverlap(const Particle &p1, const Particle &p2,
+                               const double &d) const;
+  virtual PairEventData SmoothSpheresColl(Event &, const double &,
+                                          const double &,
+                                          const EEventType &) const;
+  virtual PairEventData SphereWellEvent(Event &, const double &, const double &,
+                                        size_t) const;
+  inline double getGrowthRate() const { return growthRate; }
+  virtual double getPlaneEvent(const Particle &, const Vector &, const Vector &,
+                               double) const;
+  virtual ParticleEventData runPlaneEvent(Particle &, const Vector &, double,
+                                          double) const;
+  virtual double getPBCSentinelTime(const Particle &, const double &) const;
+  virtual double CubeCubeInRoot(const Particle &p1, const Particle &p2,
+                                double d) const {
+    M_throw() << "Not Implemented";
+  }
+  virtual bool cubeOverlap(const Particle &p1, const Particle &p2,
+                           const double d) const {
+    M_throw() << "Not Implemented";
+  }
+  virtual PairEventData parallelCubeColl(Event &event, const double &e,
+                                         const double &d,
+                                         const EEventType &eType = CORE) const;
+  virtual ParticleEventData runAndersenWallCollision(Particle &, const Vector &,
+                                                     const double &T,
+                                                     const double d,
+                                                     const double slip) const;
 
-
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    double growthRate;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  double growthRate;
+};
+} // namespace dynamo

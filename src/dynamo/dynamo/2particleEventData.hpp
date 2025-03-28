@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,33 +21,28 @@
 #include <dynamo/particle.hpp>
 
 namespace dynamo {
-  class PairEventData
-  {
-  public:
-    PairEventData() {}
+class PairEventData {
+public:
+  PairEventData() {}
 
-    PairEventData(const Particle& part1,
-		  const Particle& part2,
-		  const Species& sp1,
-		  const Species& sp2,
-		  EEventType eType):
-      particle1_(part1, sp1, eType),
-      particle2_(part2, sp2, eType),
-      rij(part1.getPosition() - part2.getPosition()),
-      vijold(part1.getVelocity() - part2.getVelocity())
-    {}
-  
-    ParticleEventData particle1_;
-    ParticleEventData particle2_;
-    Vector  rij;
-    Vector  vijold;
-    Vector  impulse;
-    double rvdot;
+  PairEventData(const Particle &part1, const Particle &part2,
+                const Species &sp1, const Species &sp2, EEventType eType)
+      : particle1_(part1, sp1, eType), particle2_(part2, sp2, eType),
+        rij(part1.getPosition() - part2.getPosition()),
+        vijold(part1.getVelocity() - part2.getVelocity()) {}
 
-    void setType(EEventType nType)
-    { particle1_.setType(nType); particle2_.setType(nType); }
+  ParticleEventData particle1_;
+  ParticleEventData particle2_;
+  Vector rij;
+  Vector vijold;
+  Vector impulse;
+  double rvdot;
 
-    EEventType getType() const
-    { return particle1_.getType(); }
-  };
-}
+  void setType(EEventType nType) {
+    particle1_.setType(nType);
+    particle2_.setType(nType);
+  }
+
+  EEventType getType() const { return particle1_.getType(); }
+};
+} // namespace dynamo

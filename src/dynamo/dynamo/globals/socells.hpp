@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,29 +20,28 @@
 #include <magnet/math/vector.hpp>
 
 namespace dynamo {
-  class GSOCells: public Global
-  {
-  public:
-    GSOCells(const magnet::xml::Node&, dynamo::Simulation*);
+class GSOCells : public Global {
+public:
+  GSOCells(const magnet::xml::Node &, dynamo::Simulation *);
 
-    GSOCells(dynamo::Simulation*, const std::string&);
+  GSOCells(dynamo::Simulation *, const std::string &);
 
-    virtual ~GSOCells() {}
+  virtual ~GSOCells() {}
 
-    virtual Event getEvent(const Particle &) const;
+  virtual Event getEvent(const Particle &) const;
 
-    virtual void runEvent(Particle&, const double);
+  virtual void runEvent(Particle &, const double);
 
-    virtual void initialise(size_t);
+  virtual void initialise(size_t);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void operator<<(const magnet::xml::Node &);
 
-    virtual void outputXML(magnet::xml::XmlStream& XML) const;
+  virtual void outputXML(magnet::xml::XmlStream &XML) const;
 
-      void load_cell_origins(const std::vector<Particle>);
-      
-  protected:
-      double _cellD;
-      std::vector<Vector> cell_origins;
-  };
-}
+  void load_cell_origins(const std::vector<Particle>);
+
+protected:
+  double _cellD;
+  std::vector<Vector> cell_origins;
+};
+} // namespace dynamo

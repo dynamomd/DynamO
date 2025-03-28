@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,32 +17,32 @@
 
 #pragma once
 
+#include <coil/filters/filter.hpp>
 #include <gtkmm.h>
 #include <magnet/GL/shader/bilateralblur.hpp>
-#include <coil/filters/filter.hpp>
 
-namespace coil
-{
-  class BilateralBlurWrapper: public Filter
-  {
-  public:
-    BilateralBlurWrapper();
+namespace coil {
+class BilateralBlurWrapper : public Filter {
+public:
+  BilateralBlurWrapper();
 
-    inline virtual size_t type_id() { return detail::filterEnum<BilateralBlurWrapper>::val; }    
-    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, 
-			       const magnet::GL::Camera& vp);
+  inline virtual size_t type_id() {
+    return detail::filterEnum<BilateralBlurWrapper>::val;
+  }
+  inline virtual void invoke(GLint colorTextureUnit, size_t width,
+                             size_t height, const magnet::GL::Camera &vp);
 
-    virtual void showControls(Gtk::ScrolledWindow*);
+  virtual void showControls(Gtk::ScrolledWindow *);
 
-  protected:
-    magnet::GL::shader::BilateralBlur _filter;
-    GLint _radius;
-    GLfloat _zdiff;
+protected:
+  magnet::GL::shader::BilateralBlur _filter;
+  GLint _radius;
+  GLfloat _zdiff;
 
-    void settingsCallback();
+  void settingsCallback();
 
-    Gtk::HScale _radiusSlider;
-    Gtk::Entry _zdiffEntry;
-    Gtk::HBox _optlist;
-  };
-}
+  Gtk::HScale _radiusSlider;
+  Gtk::Entry _zdiffEntry;
+  Gtk::HBox _optlist;
+};
+} // namespace coil

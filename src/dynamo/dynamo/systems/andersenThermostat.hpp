@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,56 +16,58 @@
 */
 
 #pragma once
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  class SysAndersen: public System
-  {
-  public:
-    SysAndersen(const magnet::xml::Node& XML, dynamo::Simulation*);
+class SysAndersen : public System {
+public:
+  SysAndersen(const magnet::xml::Node &XML, dynamo::Simulation *);
 
-    SysAndersen(dynamo::Simulation*, double, double, std::string);
-  
-    virtual NEventData runEvent();
+  SysAndersen(dynamo::Simulation *, double, double, std::string);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-    double getTemperature() const { return Temp; }
-    double getReducedTemperature() const;
-    void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
-    void setReducedTemperature(double nT);
+  virtual void operator<<(const magnet::xml::Node &);
 
-    virtual void replicaExchange(System& os) { 
-      SysAndersen& s = static_cast<SysAndersen&>(os);
-      std::swap(dt, s.dt);
-      std::swap(meanFreeTime, s.meanFreeTime);
-      std::swap(Temp, s.Temp);
-      std::swap(sqrtTemp, s.sqrtTemp);
-      std::swap(tune, s.tune);
-      std::swap(dimensions, s.dimensions);
-      std::swap(setPoint, s.setPoint);
-      std::swap(eventCount, s.eventCount);
-      std::swap(lastlNColl, s.lastlNColl);
-      std::swap(setFrequency, s.setFrequency);
-    }
-  
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    double meanFreeTime;
-    double Temp, sqrtTemp;
-    bool tune;
-    size_t dimensions;
-    double setPoint;
-    size_t eventCount;
-    size_t lastlNColl;
-    size_t setFrequency;
+  double getTemperature() const { return Temp; }
+  double getReducedTemperature() const;
+  void setTemperature(double nT) {
+    Temp = nT;
+    sqrtTemp = std::sqrt(Temp);
+  }
+  void setReducedTemperature(double nT);
 
-    double getGhostt() const;
-  
-    shared_ptr<IDRange> range;
-  };
-}
+  virtual void replicaExchange(System &os) {
+    SysAndersen &s = static_cast<SysAndersen &>(os);
+    std::swap(dt, s.dt);
+    std::swap(meanFreeTime, s.meanFreeTime);
+    std::swap(Temp, s.Temp);
+    std::swap(sqrtTemp, s.sqrtTemp);
+    std::swap(tune, s.tune);
+    std::swap(dimensions, s.dimensions);
+    std::swap(setPoint, s.setPoint);
+    std::swap(eventCount, s.eventCount);
+    std::swap(lastlNColl, s.lastlNColl);
+    std::swap(setFrequency, s.setFrequency);
+  }
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  double meanFreeTime;
+  double Temp, sqrtTemp;
+  bool tune;
+  size_t dimensions;
+  double setPoint;
+  size_t eventCount;
+  size_t lastlNColl;
+  size_t setFrequency;
+
+  double getGhostt() const;
+
+  shared_ptr<IDRange> range;
+};
+} // namespace dynamo

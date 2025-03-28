@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
@@ -19,40 +19,39 @@
 #pragma once
 
 #include <dynamo/globals/global.hpp>
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace dynamo {
-  class GWaker: public Global
-  {
-  public:
-    GWaker(const magnet::xml::Node&, dynamo::Simulation*);
+class GWaker : public Global {
+public:
+  GWaker(const magnet::xml::Node &, dynamo::Simulation *);
 
-    GWaker(dynamo::Simulation*, const std::string&, IDRange*, const double, const double,
-	   std::string nblist);
-  
-    virtual ~GWaker() {}
+  GWaker(dynamo::Simulation *, const std::string &, IDRange *, const double,
+         const double, std::string nblist);
 
-    virtual Event getEvent(const Particle &) const;
+  virtual ~GWaker() {}
 
-    virtual void runEvent(Particle&, const double);
+  virtual Event getEvent(const Particle &) const;
 
-    virtual void initialise(size_t);
+  virtual void runEvent(Particle &, const double);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-  protected:
-    void particlesUpdated(const NEventData&);
+  virtual void operator<<(const magnet::xml::Node &);
 
-    void nblistCallback(const Particle& part, const size_t& oid) const;
+protected:
+  void particlesUpdated(const NEventData &);
 
-    mutable size_t _neighbors;
+  void nblistCallback(const Particle &part, const size_t &oid) const;
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    double _wakeTime;
-    double _wakeVelocity;
+  mutable size_t _neighbors;
 
-    std::string _nblistName;
-    size_t _NBListID;  
-  };
-}
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  double _wakeTime;
+  double _wakeVelocity;
+
+  std::string _nblistName;
+  size_t _NBListID;
+};
+} // namespace dynamo

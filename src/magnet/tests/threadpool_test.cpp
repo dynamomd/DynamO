@@ -1,12 +1,11 @@
 #include <iostream>
-#include <vector>
-#include <stdexcept>
 #include <magnet/thread/threadpool.hpp>
+#include <stdexcept>
+#include <vector>
 
 std::vector<float> sums;
 
-void function1(int i)
-{  
+void function1(int i) {
   float sum = 0;
   for (int j = 0; j < i; ++j)
     sum += j;
@@ -14,8 +13,7 @@ void function1(int i)
   sums[i] = sum;
 }
 
-void function2(int i)
-{  
+void function2(int i) {
   float sum = 0;
   for (int j = 0; j < i; ++j)
     sum *= j;
@@ -23,18 +21,19 @@ void function2(int i)
   sums[i] = sum;
 }
 
-struct A
-{
+struct A {
   void memberFunc() { std::cerr << "Inside memberfunc\n"; }
 
-  void memberFunc2(int i) { std::cerr << "Inside memberfunc2, i=" << i << "\n"; }
+  void memberFunc2(int i) {
+    std::cerr << "Inside memberfunc2, i=" << i << "\n";
+  }
 
-  void memberFunc3(int& i, int j) 
-  { std::cerr << "Inside memberfunc3, i=" << i << ", j=" << j << "\n"; }
+  void memberFunc3(int &i, int j) {
+    std::cerr << "Inside memberfunc3, i=" << i << ", j=" << j << "\n";
+  }
 };
 
-int main()
-{
+int main() {
   int N = 1000;
   sums.resize(N);
 
@@ -45,54 +44,48 @@ int main()
   pool.setThreadCount(4);
 
   std::cerr << "Using " << pool.getThreadCount() << " threads\n";
-  
-  //const int& val1 = 2;
-  //const int& val2 = 2;
+
+  // const int& val1 = 2;
+  // const int& val2 = 2;
   int val3 = 2;
-  int& val4 = val3;
-  
+  int &val4 = val3;
+
   pool.queueTask(std::bind(&A::memberFunc, &Aclass));
   pool.queueTask(std::bind(&A::memberFunc2, &Aclass, 2));
   pool.queueTask(std::bind(&A::memberFunc3, &Aclass, val4, 4));
 
+  for (size_t loop(0); loop < 1000; ++loop) {
+    // std::cerr << "Function 1\n";
 
-  for (size_t loop(0); loop < 1000; ++loop)
-    {
-      //std::cerr << "Function 1\n";
-      
-      for (int i = 0; i < N; ++i)   
-	pool.queueTask(std::bind(function1, i));
-      
-      pool.wait();
-      
-      for (int i = N-1; i >= 0; --i)
-	{
-	  float tmp = sums[i];
-	  function1(i);
-	  if (sums[i] != tmp) 
-	    {
-	      std::cerr << "Failure in loop " << loop << "\n";
-	      throw std::runtime_error("Muck up in function 1");
-	    }
-	}
-      
-      //std::cerr << "Function 2\n";
-      for (int i = 0; i < N; ++i)    
-	pool.queueTask(std::bind(function2, i));
-      
-      pool.wait();
-      
-      for (int i = N-1; i >= 0; --i)
-	{
-	  float tmp = sums[i];
-	  function2(i);
-	  if (sums[i] != tmp)
-	    {
-	      std::cerr << "Failure in loop " << loop << "\n";
-	      throw std::runtime_error("Muck up in function 2");
-	    }
-	}
+    for (int i = 0; i < N; ++i)
+      pool.queueTask(std::bind(function1, i));
+
+    pool.wait();
+
+    for (int i = N - 1; i >= 0; --i) {
+      float tmp = sums[i];
+      function1(i);
+      if (sums[i] != tmp) {
+        std::cerr << "Failure in loop " << loop << "\n";
+        throw std::runtime_error("Muck up in function 1");
+      }
     }
+
+    // std::cerr << "Function 2\n";
+    for (int i = 0; i < N; ++i)
+      pool.queueTask(std::bind(function2, i));
+
+    pool.wait();
+
+    for (int i = N - 1; i >= 0; --i) {
+      float tmp = sums[i];
+      function2(i);
+      if (sums[i] != tmp) {
+        std::cerr << "Failure in loop " << loop << "\n";
+        throw std::runtime_error("Muck up in function 2");
+      }
+    }
+  }
 
   std::cerr << "Finished\n";
 

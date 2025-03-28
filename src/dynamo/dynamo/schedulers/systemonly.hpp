@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,24 +19,24 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  class SSystemOnly: public Scheduler
-  {
-  public:
-    SSystemOnly(const magnet::xml::Node&, dynamo::Simulation* const);
+class SSystemOnly : public Scheduler {
+public:
+  SSystemOnly(const magnet::xml::Node &, dynamo::Simulation *const);
 
-    SSystemOnly(dynamo::Simulation* const, FEL*);
+  SSystemOnly(dynamo::Simulation *const, FEL *);
 
-    virtual void rebuildList();
+  virtual void rebuildList();
 
-    virtual void initialise();
-    virtual void initialiseNBlist() {}
+  virtual void initialise();
+  virtual void initialiseNBlist() {}
 
-    virtual double getNeighbourhoodDistance() const { return 0; }
-    virtual std::unique_ptr<IDRange> getParticleNeighbours(const Particle&) const;
-    virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const;
-    virtual std::unique_ptr<IDRange> getParticleLocals(const Particle&) const;
+  virtual double getNeighbourhoodDistance() const { return 0; }
+  virtual std::unique_ptr<IDRange>
+  getParticleNeighbours(const Particle &) const;
+  virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector &) const;
+  virtual std::unique_ptr<IDRange> getParticleLocals(const Particle &) const;
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+};
+} // namespace dynamo

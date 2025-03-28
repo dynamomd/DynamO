@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,13 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/interaction.hpp>
-#include <dynamo/units/units.hpp>
+#include <dynamo/BC/BC.hpp>
+#include <dynamo/NparticleEventData.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/globals/global.hpp>
+#include <dynamo/interactions/interaction.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/species/species.hpp>
-#include <dynamo/BC/BC.hpp>
 #include <dynamo/systems/system.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/topology/topology.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/units/units.hpp>

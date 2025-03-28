@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,46 +16,45 @@
 */
 
 #pragma once
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  /*! \brief A rescaling thermostat.
-   
-    This event "attempts" to thermostat the system by simply rescaling
-    the kinetic energy periodically. It does this by multiplying all
-    velocities (linear and angular) with a factor calculated like so
-    \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
-    that the velocities after the event are related to the velocities
-    before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
-   */
-  class SysRescale: public System
-  {
-  public:
-    SysRescale(const magnet::xml::Node& XML, dynamo::Simulation*);
-    SysRescale(dynamo::Simulation*, size_t frequency, std::string name, double kT);
+/*! \brief A rescaling thermostat.
 
-    virtual NEventData runEvent();
+  This event "attempts" to thermostat the system by simply rescaling
+  the kinetic energy periodically. It does this by multiplying all
+  velocities (linear and angular) with a factor calculated like so
+  \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
+  that the velocities after the event are related to the velocities
+  before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
+ */
+class SysRescale : public System {
+public:
+  SysRescale(const magnet::xml::Node &XML, dynamo::Simulation *);
+  SysRescale(dynamo::Simulation *, size_t frequency, std::string name,
+             double kT);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-    void checker(const NEventData&);
-  
-    inline const long double& getScaleFactor() const {return scaleFactor; }
+  virtual void operator<<(const magnet::xml::Node &);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  void checker(const NEventData &);
 
-    size_t _frequency;
+  inline const long double &getScaleFactor() const { return scaleFactor; }
 
-    double _kT, _timestep;
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    mutable long double scaleFactor;
+  size_t _frequency;
 
-    mutable long double LastTime, RealTime;
-  
-  };
-}
+  double _kT, _timestep;
+
+  mutable long double scaleFactor;
+
+  mutable long double LastTime, RealTime;
+};
+} // namespace dynamo

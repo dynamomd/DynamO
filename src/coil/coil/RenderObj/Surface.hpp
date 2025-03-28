@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,33 +17,35 @@
 #pragma once
 
 #include "Triangles.hpp"
-#include <time.h>
 #include <magnet/math/vector.hpp>
+#include <time.h>
 
 namespace coil {
-  class RSurface : public RTriangles
-  {
-  public:
-    RSurface(std::string name, size_t N = 10, Vector origin = Vector{-25,-1.5,-25}, Vector axis1 = Vector{50,0,0},
-	     Vector axis2 = Vector{0,0,50}, Vector axis3 = Vector{0,1,0});
+class RSurface : public RTriangles {
+public:
+  RSurface(std::string name, size_t N = 10,
+           Vector origin = Vector{-25, -1.5, -25},
+           Vector axis1 = Vector{50, 0, 0}, Vector axis2 = Vector{0, 0, 50},
+           Vector axis3 = Vector{0, 1, 0});
 
-    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+  virtual void
+  init(const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue);
 
-    virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
+  virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
-    virtual bool deletable() { return true; }
+  virtual bool deletable() { return true; }
 
-    virtual magnet::math::Vector getMaxCoord() const;
-    virtual magnet::math::Vector getMinCoord() const;
+  virtual magnet::math::Vector getMaxCoord() const;
+  virtual magnet::math::Vector getMinCoord() const;
 
-  protected:
-    void clTick() {}
+protected:
+  void clTick() {}
 
-    size_t _N;
+  size_t _N;
 
-    Vector _origin;
-    Vector _axis1;
-    Vector _axis2;     
-    Vector _axis3;
-  };
-}
+  Vector _origin;
+  Vector _axis1;
+  Vector _axis2;
+  Vector _axis3;
+};
+} // namespace coil

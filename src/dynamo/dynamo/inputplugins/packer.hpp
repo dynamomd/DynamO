@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,34 +16,32 @@
 */
 
 #pragma once
+#include <array>
+#include <boost/program_options.hpp>
 #include <dynamo/base.hpp>
 #include <magnet/math/vector.hpp>
-#include <boost/program_options.hpp>
-#include <array>
 
 using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
 namespace dynamo {
-  class UCell;
+class UCell;
 
-  class IPPacker: public dynamo::SimBase
-  {
-  public:
-    IPPacker(po::variables_map&, dynamo::Simulation* tmp);
+class IPPacker : public dynamo::SimBase {
+public:
+  IPPacker(po::variables_map &, dynamo::Simulation *tmp);
 
-    void initialise();
+  void initialise();
 
-    static po::options_description getOptions();
+  static po::options_description getOptions();
 
-  protected:
-    std::array<long, 3> getCells();
-    Vector  getNormalisedCellDimensions();
-    Vector  getRandVelVec();
-    UCell* standardPackingHelper(UCell*, bool forceRectangular = false);
+protected:
+  std::array<long, 3> getCells();
+  Vector getNormalisedCellDimensions();
+  Vector getRandVelVec();
+  UCell *standardPackingHelper(UCell *, bool forceRectangular = false);
 
-    po::variables_map& vm;
-  };
-}
-
+  po::variables_map &vm;
+};
+} // namespace dynamo

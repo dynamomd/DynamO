@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,28 +20,31 @@
 #include <dynamo/species/inertia.hpp>
 
 namespace dynamo {
-  class SpSphericalTop: public SpInertia
-  {
-  public:
-    SpSphericalTop(dynamo::Simulation*, IDRange*, double nMass, std::string nName, unsigned int ID, double iC);
-  
-    SpSphericalTop(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
+class SpSphericalTop : public SpInertia {
+public:
+  SpSphericalTop(dynamo::Simulation *, IDRange *, double nMass,
+                 std::string nName, unsigned int ID, double iC);
 
-    virtual double getScalarMomentOfInertia(size_t ID) const 
-    { return inertiaConstant * getMass(ID); }
+  SpSphericalTop(const magnet::xml::Node &, dynamo::Simulation *,
+                 unsigned int ID);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual double getScalarMomentOfInertia(size_t ID) const {
+    return inertiaConstant * getMass(ID);
+  }
 
-    virtual double getParticleKineticEnergy(size_t ID) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    virtual double getDOF() const { return NDIM + 2; }
+  virtual double getParticleKineticEnergy(size_t ID) const;
 
-  protected:
+  virtual double getDOF() const { return NDIM + 2; }
 
-    virtual void outputXML(magnet::xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    outputXML(XML, "SphericalTop");
+  }
 
-    void outputXML(magnet::xml::XmlStream& XML, std::string type) const;
-  
-    double inertiaConstant;
-  };
-}
+  void outputXML(magnet::xml::XmlStream &XML, std::string type) const;
+
+  double inertiaConstant;
+};
+} // namespace dynamo

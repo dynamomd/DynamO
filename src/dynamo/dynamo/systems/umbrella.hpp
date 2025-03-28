@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,40 +16,39 @@
 */
 
 #pragma once
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
-#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 #include <map>
 
 namespace dynamo {
-  class SysUmbrella: public System
-  {
-  public:
-    SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation*);
-  
-    virtual NEventData runEvent();
+class SysUmbrella : public System {
+public:
+  SysUmbrella(const magnet::xml::Node &XML, dynamo::Simulation *);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void initialise(size_t);
 
-    virtual void outputData(magnet::xml::XmlStream&) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void outputData(magnet::xml::XmlStream &) const;
 
-    void particlesUpdated(const NEventData&);
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    void recalculateTime();
+  void particlesUpdated(const NEventData &);
 
-    std::size_t _stepID;
-    shared_ptr<Potential> _potential;
-    shared_ptr<IDRange> range1;
-    shared_ptr<IDRange> range2;    
-    double _energyScale;
-    double _lengthScale;
-    mutable std::map<size_t, double> _histogram;
-    mutable long double _lastSystemTime;
-  };
-}
+  void recalculateTime();
+
+  std::size_t _stepID;
+  shared_ptr<Potential> _potential;
+  shared_ptr<IDRange> range1;
+  shared_ptr<IDRange> range2;
+  double _energyScale;
+  double _lengthScale;
+  mutable std::map<size_t, double> _histogram;
+  mutable long double _lastSystemTime;
+};
+} // namespace dynamo

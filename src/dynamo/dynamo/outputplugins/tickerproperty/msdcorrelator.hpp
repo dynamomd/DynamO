@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,35 +16,34 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/circular_buffer.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/vector.hpp>
 #include <vector>
 
 namespace dynamo {
-  class OPMSDCorrelator: public OPTicker
-  {
-  public:
-    OPMSDCorrelator(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPMSDCorrelator : public OPTicker {
+public:
+  OPMSDCorrelator(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    void output(magnet::xml::XmlStream &); 
+  void output(magnet::xml::XmlStream &);
 
-    virtual void operator<<(const magnet::xml::Node&);
-  
-  protected:
-    virtual void stream(double) {}
-    virtual void ticker();
+  virtual void operator<<(const magnet::xml::Node &);
 
-    void accPass();
+protected:
+  virtual void stream(double) {}
+  virtual void ticker();
 
-    std::vector<boost::circular_buffer<Vector> > posHistory;
-    std::vector<std::vector<double> > speciesData;
-    std::vector<std::vector<double> > structData;
-    size_t length;
-    size_t currCorrLength;
-    size_t ticksTaken;
-    bool notReady;
-  };
-}
+  void accPass();
+
+  std::vector<boost::circular_buffer<Vector>> posHistory;
+  std::vector<std::vector<double>> speciesData;
+  std::vector<std::vector<double>> structData;
+  size_t length;
+  size_t currCorrLength;
+  size_t ticksTaken;
+  bool notReady;
+};
+} // namespace dynamo

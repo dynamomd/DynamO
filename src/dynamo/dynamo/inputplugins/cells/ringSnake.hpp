@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,76 +16,68 @@
 */
 
 #pragma once
-#include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
+#include <dynamo/inputplugins/cells/cell.hpp>
 
 namespace dynamo {
-  struct CUringSnake: public UCell
-  {
-    CUringSnake(size_t pcl, double WL, UCell* nextCell):
-      UCell(nextCell),
-      pairchainlength(pcl),
-      walklength(WL)
-    {
-      if (pcl == 0) M_throw() << "Cant have zero chain length";
-    }
+struct CUringSnake : public UCell {
+  CUringSnake(size_t pcl, double WL, UCell *nextCell)
+      : UCell(nextCell), pairchainlength(pcl), walklength(WL) {
+    if (pcl == 0)
+      M_throw() << "Cant have zero chain length";
+  }
 
-    size_t pairchainlength;  
-    double walklength;
-  
-    virtual std::vector<Vector> placeObjects(const Vector & centre)
-    {
-      size_t L = static_cast<size_t>(std::sqrt(static_cast<double>(pairchainlength)));
-    
-      std::vector<Vector  > localsites;
+  size_t pairchainlength;
+  double walklength;
 
-      Vector  x{0,0,0};
+  virtual std::vector<Vector> placeObjects(const Vector &centre) {
+    size_t L =
+        static_cast<size_t>(std::sqrt(static_cast<double>(pairchainlength)));
 
-      double direction(walklength);
-    
-      for (size_t i(0); i < pairchainlength;)
-	{
-	  if (i % L)
-	    x[0] += direction;
-	  else
-	    {
-	      x[1] += walklength;
-	      direction *= -1;
-	    }
+    std::vector<Vector> localsites;
 
-	  localsites.push_back(x);
-	
-	  ++i;
-	}
+    Vector x{0, 0, 0};
 
-      direction *= -1;
-      x[2] += walklength;
+    double direction(walklength);
 
-      for (size_t i(pairchainlength - 1); i != 0;)
-	{
-	  localsites.push_back(x);
-	
-	  if (i % L)
-	    x[0] += direction;
-	  else
-	    {
-	      x[1] -= walklength;
-	      direction *= -1;
-	    }
-
-	  --i;
-	}
+    for (size_t i(0); i < pairchainlength;) {
+      if (i % L)
+        x[0] += direction;
+      else {
+        x[1] += walklength;
+        direction *= -1;
+      }
 
       localsites.push_back(x);
-        
-      std::vector<Vector  > retval;
-      for (const Vector & vec : localsites)
-	{
-	  const std::vector<Vector>& newsites = uc->placeObjects(vec);
-	  retval.insert(retval.end(), newsites.begin(), newsites.end());
-	}
 
-      return retval;    
+      ++i;
     }
-  };
-}
+
+    direction *= -1;
+    x[2] += walklength;
+
+    for (size_t i(pairchainlength - 1); i != 0;) {
+      localsites.push_back(x);
+
+      if (i % L)
+        x[0] += direction;
+      else {
+        x[1] -= walklength;
+        direction *= -1;
+      }
+
+      --i;
+    }
+
+    localsites.push_back(x);
+
+    std::vector<Vector> retval;
+    for (const Vector &vec : localsites) {
+      const std::vector<Vector> &newsites = uc->placeObjects(vec);
+      retval.insert(retval.end(), newsites.begin(), newsites.end());
+    }
+
+    return retval;
+  }
+};
+} // namespace dynamo

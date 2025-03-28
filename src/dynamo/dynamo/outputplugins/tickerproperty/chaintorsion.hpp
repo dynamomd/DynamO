@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,40 +17,36 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <magnet/math/histogram.hpp>
 #include <list>
+#include <magnet/math/histogram.hpp>
 
 namespace dynamo {
-  class TChain;
+class TChain;
 
-  class OPCTorsion: public OPTicker
-  {
-  public:
-    OPCTorsion(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPCTorsion : public OPTicker {
+public:
+  OPCTorsion(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
+  virtual void ticker();
 
-    virtual void output(magnet::xml::XmlStream&);
-  
-  protected:
+  virtual void output(magnet::xml::XmlStream &);
 
-    struct CTCdata
-    {
-      const TChain* chainPtr;
-      magnet::math::Histogram<> gammaMol;
-      magnet::math::Histogram<> gammaSys;
-      magnet::math::Histogram<> f;
-      CTCdata(const TChain* ptr, double binwidth1, double binwidth2, double binwidth3):
-	chainPtr(ptr), gammaMol(binwidth1),
-	gammaSys(binwidth2), f(binwidth3)
-      {}
-
-    };
-
-    std::list<CTCdata> chains;
+protected:
+  struct CTCdata {
+    const TChain *chainPtr;
+    magnet::math::Histogram<> gammaMol;
+    magnet::math::Histogram<> gammaSys;
+    magnet::math::Histogram<> f;
+    CTCdata(const TChain *ptr, double binwidth1, double binwidth2,
+            double binwidth3)
+        : chainPtr(ptr), gammaMol(binwidth1), gammaSys(binwidth2),
+          f(binwidth3) {}
   };
-}
+
+  std::list<CTCdata> chains;
+};
+} // namespace dynamo

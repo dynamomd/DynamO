@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,61 +17,63 @@
 
 #pragma once
 
-#include <dynamo/locals/local.hpp>
 #include <dynamo/coilRenderObj.hpp>
+#include <dynamo/locals/local.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Surface.hpp>
-#endif 
+#include <coil/RenderObj/Surface.hpp>
+#endif
 
 namespace dynamo {
-  class LOscillatingPlate: public Local, public CoilRenderObj
-  {
-  public:
-    LOscillatingPlate(const magnet::xml::Node&, dynamo::Simulation*);
-    LOscillatingPlate(dynamo::Simulation*, Vector, Vector, double, 
-		       double, double, double, double, std::string, IDRange*, 
-		       double timeshift = 0, bool nstrongPlate = false);
+class LOscillatingPlate : public Local, public CoilRenderObj {
+public:
+  LOscillatingPlate(const magnet::xml::Node &, dynamo::Simulation *);
+  LOscillatingPlate(dynamo::Simulation *, Vector, Vector, double, double,
+                    double, double, double, std::string, IDRange *,
+                    double timeshift = 0, bool nstrongPlate = false);
 
-    virtual ~LOscillatingPlate() {}
+  virtual ~LOscillatingPlate() {}
 
-    virtual Event getEvent(const Particle&) const;
+  virtual Event getEvent(const Particle &) const;
 
-    virtual ParticleEventData runEvent(Particle&, const Event&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual ParticleEventData runEvent(Particle &, const Event &) const;
 
-    Vector getPosition() const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    Vector getVelocity() const;
+  Vector getPosition() const;
 
-    double getPlateEnergy() const;
+  Vector getVelocity() const;
 
-    const Vector& getCentre() const { return rw0; }
+  double getPlateEnergy() const;
 
-    virtual bool validateState(const Particle& part, bool textoutput = true) const { return false; }
+  const Vector &getCentre() const { return rw0; }
+
+  virtual bool validateState(const Particle &part,
+                             bool textoutput = true) const {
+    return false;
+  }
 
 #ifdef DYNAMO_visualizer
-    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-    virtual void updateRenderData() const;
+  virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+  virtual void updateRenderData() const;
 #endif
 
-  protected:
+protected:
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RSurface> _renderObj;
+  mutable shared_ptr<coil::RSurface> _renderObj;
 #endif
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    bool strongPlate;
-    Vector rw0;
-    Vector nhat;
-    double omega0;
-    double sigma;
-    double e;
-    mutable double delta;
-    double mass;
-    mutable double timeshift;
-    mutable size_t lastID;
-    mutable long double lastsystemTime;
-  };
-}
+  bool strongPlate;
+  Vector rw0;
+  Vector nhat;
+  double omega0;
+  double sigma;
+  double e;
+  mutable double delta;
+  double mass;
+  mutable double timeshift;
+  mutable size_t lastID;
+  mutable long double lastsystemTime;
+};
+} // namespace dynamo

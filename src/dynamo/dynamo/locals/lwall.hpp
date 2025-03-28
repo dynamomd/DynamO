@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,62 +16,61 @@
 */
 
 #pragma once
-#include <dynamo/locals/local.hpp>
 #include <dynamo/coilRenderObj.hpp>
+#include <dynamo/locals/local.hpp>
 #include <dynamo/simulation.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Surface.hpp>
-#endif 
+#include <coil/RenderObj/Surface.hpp>
+#endif
 #include <memory>
 
 namespace dynamo {
-  class LWall: public Local, public CoilRenderObj
-  {
-  public:
-    LWall(const magnet::xml::Node&, dynamo::Simulation*);
+class LWall : public Local, public CoilRenderObj {
+public:
+  LWall(const magnet::xml::Node &, dynamo::Simulation *);
 
-    template<class T1, class T2>
-    LWall(dynamo::Simulation* nSim, T1 e, T2 d, Vector nnorm, Vector norigin, std::string nname, IDRange* nRange, double sqrtT = 0, double slip = 0):
-      Local(nRange, nSim, "LocalWall"),
-      vNorm(nnorm),
-      vPosition(norigin),
-      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
-      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
-      _sqrtT(sqrtT),
-      _slip(slip)
-    { localName = nname; }
+  template <class T1, class T2>
+  LWall(dynamo::Simulation *nSim, T1 e, T2 d, Vector nnorm, Vector norigin,
+        std::string nname, IDRange *nRange, double sqrtT = 0, double slip = 0)
+      : Local(nRange, nSim, "LocalWall"), vNorm(nnorm), vPosition(norigin),
+        _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+        _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
+        _sqrtT(sqrtT), _slip(slip) {
+    localName = nname;
+  }
 
-    virtual ~LWall() {}
+  virtual ~LWall() {}
 
-    virtual Event getEvent(const Particle&) const;
+  virtual Event getEvent(const Particle &) const;
 
-    virtual ParticleEventData runEvent(Particle&, const Event&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual ParticleEventData runEvent(Particle &, const Event &) const;
 
-    virtual bool validateState(const Particle& part, bool textoutput = true) const;
+  virtual void operator<<(const magnet::xml::Node &);
+
+  virtual bool validateState(const Particle &part,
+                             bool textoutput = true) const;
 
 #ifdef DYNAMO_visualizer
-    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-    virtual void updateRenderData() const;
+  virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+  virtual void updateRenderData() const;
 #endif
 
-  protected:
+protected:
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RSurface> _renderObj;
+  mutable shared_ptr<coil::RSurface> _renderObj;
 #endif
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    Vector  vNorm;
-    Vector  vPosition;
-    shared_ptr<Property> _diameter;
-    shared_ptr<Property> _e;
-    bool render;
-    double _sqrtT;
-    double _frequency;
-    double _amplitude;
-    double _phase_offset;
-    double _slip;
-  };
-}
+  Vector vNorm;
+  Vector vPosition;
+  shared_ptr<Property> _diameter;
+  shared_ptr<Property> _e;
+  bool render;
+  double _sqrtT;
+  double _frequency;
+  double _amplitude;
+  double _phase_offset;
+  double _slip;
+};
+} // namespace dynamo

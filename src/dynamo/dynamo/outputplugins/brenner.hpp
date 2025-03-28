@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,36 +16,35 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <magnet/math/histogram.hpp>
 #include <magnet/math/vector.hpp>
 #include <map>
-#include <magnet/math/histogram.hpp>
 
 namespace dynamo {
-  class Particle;
+class Particle;
 
-  using namespace EventTypeTracking;
+using namespace EventTypeTracking;
 
-  class OPBrenner: public OutputPlugin
-  {
-  public:
-    OPBrenner(const dynamo::Simulation*, const magnet::xml::Node&);
-    ~OPBrenner();
+class OPBrenner : public OutputPlugin {
+public:
+  OPBrenner(const dynamo::Simulation *, const magnet::xml::Node &);
+  ~OPBrenner();
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void eventUpdate(const Event&, const NEventData&);
+  virtual void eventUpdate(const Event &, const NEventData &);
 
-    void output(magnet::xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
-    virtual void replicaExchange(OutputPlugin& plug) { 
-      M_throw() << "Not implemented";
-    }
-  
-  protected:
-    magnet::math::HistogramWeighted<> _sysmomentum_hist[3];
-    Vector _sysMomentum;
-  };
-}
+  virtual void replicaExchange(OutputPlugin &plug) {
+    M_throw() << "Not implemented";
+  }
+
+protected:
+  magnet::math::HistogramWeighted<> _sysmomentum_hist[3];
+  Vector _sysMomentum;
+};
+} // namespace dynamo

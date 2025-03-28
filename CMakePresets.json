@@ -54,7 +54,7 @@
   ],
   "workflowPresets": [
     {
-      "name": "format",
+      "name": "src-format",
       "steps": [
         {
           "name": "ninja-multi-vcpkg",

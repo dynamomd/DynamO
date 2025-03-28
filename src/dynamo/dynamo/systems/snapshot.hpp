@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,45 +19,44 @@
 #include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  //! \brief A System Event which periodically saves the state of the system.
-  class SysSnapshot: public System
-  {
-  public:
-    SysSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
-    SysSnapshot(dynamo::Simulation*, size_t, std::string, std::string, bool);
-  
-    virtual NEventData runEvent();
+//! \brief A System Event which periodically saves the state of the system.
+class SysSnapshot : public System {
+public:
+  SysSnapshot(dynamo::Simulation *, double, std::string, std::string, bool);
+  SysSnapshot(dynamo::Simulation *, size_t, std::string, std::string, bool);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&) {}
+  virtual void initialise(size_t);
 
-    void setdt(double);
+  virtual void operator<<(const magnet::xml::Node &) {}
 
-    void increasedt(double);
+  void setdt(double);
 
-    const double& getPeriod() const { return _period; }
-    
-    virtual void replicaExchange(System& os) { 
-      SysSnapshot& s = static_cast<SysSnapshot&>(os);
-      std::swap(dt, s.dt);
-      std::swap(_period, s._period);
-      std::swap(_applyBC, s._applyBC);
-      std::swap(_format, s._format);
-      std::swap(_saveCounter, s._saveCounter);
-    }
+  void increasedt(double);
 
-    void setTickerPeriod(const double&);
+  const double &getPeriod() const { return _period; }
 
-  protected:
-    void eventCallback(const NEventData&);
-    virtual void outputXML(magnet::xml::XmlStream&) const {}
+  virtual void replicaExchange(System &os) {
+    SysSnapshot &s = static_cast<SysSnapshot &>(os);
+    std::swap(dt, s.dt);
+    std::swap(_period, s._period);
+    std::swap(_applyBC, s._applyBC);
+    std::swap(_format, s._format);
+    std::swap(_saveCounter, s._saveCounter);
+  }
 
-    double _period;
-    bool _applyBC;
-    std::string _format;
-    size_t _saveCounter;
-    size_t _eventPeriod;
-    size_t _lastEventCount;
-  };
-}
+  void setTickerPeriod(const double &);
+
+protected:
+  void eventCallback(const NEventData &);
+  virtual void outputXML(magnet::xml::XmlStream &) const {}
+
+  double _period;
+  bool _applyBC;
+  std::string _format;
+  size_t _saveCounter;
+  size_t _eventPeriod;
+  size_t _lastEventCount;
+};
+} // namespace dynamo

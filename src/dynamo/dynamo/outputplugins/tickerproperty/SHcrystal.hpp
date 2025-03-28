@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,53 +16,50 @@
 */
 
 #pragma once
+#include <complex>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <vector>
-#include <complex>
 
 namespace dynamo {
-  class Particle;
-  class OPSHCrystal: public OPTicker
-  {
-  public:
-    OPSHCrystal(const dynamo::Simulation*, const magnet::xml::Node&);
+class Particle;
+class OPSHCrystal : public OPTicker {
+public:
+  OPSHCrystal(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
-  
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void ticker();
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void output(magnet::xml::XmlStream &);
 
-  protected:
+  virtual void operator<<(const magnet::xml::Node &);
 
-    std::complex<double> localq(const Particle& part, int l, int m);
+protected:
+  std::complex<double> localq(const Particle &part, int l, int m);
 
-    //! Cut-off radius 
-    double rg;
-    size_t maxl;
-    size_t nblistID;
-    long count;
-  
-    std::vector<std::vector<std::complex<double> > > globalcoeff;
+  //! Cut-off radius
+  double rg;
+  size_t maxl;
+  size_t nblistID;
+  long count;
 
-    struct sphericalsum
-    {
-      sphericalsum(const dynamo::Simulation * const, 
-		   const double&, const size_t&);
-    
-      void operator()(const Particle&, const size_t&) const;
-    
-      void clear();
+  std::vector<std::vector<std::complex<double>>> globalcoeff;
 
-      const dynamo::Simulation* const Sim;
-      const double rg;
-      const size_t maxl;
-      mutable size_t count;
-      mutable std::vector<std::vector<std::complex<double> > > coeffsum;
-    };
+  struct sphericalsum {
+    sphericalsum(const dynamo::Simulation *const, const double &,
+                 const size_t &);
+
+    void operator()(const Particle &, const size_t &) const;
+
+    void clear();
+
+    const dynamo::Simulation *const Sim;
+    const double rg;
+    const size_t maxl;
+    mutable size_t count;
+    mutable std::vector<std::vector<std::complex<double>>> coeffsum;
   };
-}
+};
+} // namespace dynamo

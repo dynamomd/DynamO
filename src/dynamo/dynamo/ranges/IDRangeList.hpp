@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,55 +16,48 @@
 */
 
 #pragma once
-#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/particle.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <magnet/exception.hpp>
-#include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <vector>
 
 namespace dynamo {
-  class IDRangeList: public IDRange
-  {
-  public:
-    IDRangeList(const magnet::xml::Node& XML) 
-    { 
-      for (magnet::xml::Node node = XML.findNode("ID"); node.valid(); ++node)
-	IDs.push_back(node.getAttribute("val").as<size_t>());
-    }
+class IDRangeList : public IDRange {
+public:
+  IDRangeList(const magnet::xml::Node &XML) {
+    for (magnet::xml::Node node = XML.findNode("ID"); node.valid(); ++node)
+      IDs.push_back(node.getAttribute("val").as<size_t>());
+  }
 
-    template<class T>
-    IDRangeList(const std::vector<T>& data):
-      IDs(data)
-    {}
+  template <class T> IDRangeList(const std::vector<T> &data) : IDs(data) {}
 
-    IDRangeList() {}
+  IDRangeList() {}
 
-    virtual bool isInRange(const Particle &part) const
-    {
-      for (const unsigned long ID : IDs)
-	if (part.getID() == ID)
-	  return true;
-      return false;
-    }
+  virtual bool isInRange(const Particle &part) const {
+    for (const unsigned long ID : IDs)
+      if (part.getID() == ID)
+        return true;
+    return false;
+  }
 
-    std::vector<size_t>& getContainer() { return IDs; }
-    
-    virtual unsigned long size() const { return IDs.size(); }
+  std::vector<size_t> &getContainer() { return IDs; }
 
-    virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
+  virtual unsigned long size() const { return IDs.size(); }
 
-    virtual unsigned long at(unsigned long i) const { return IDs.at(i); }
+  virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
 
-  protected:
+  virtual unsigned long at(unsigned long i) const { return IDs.at(i); }
 
-    virtual void outputXML(magnet::xml::XmlStream& XML) const
-    {
-      XML << magnet::xml::attr("Type") << "List";
-      for (unsigned long ID : IDs)
-	XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
-    }
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    XML << magnet::xml::attr("Type") << "List";
+    for (unsigned long ID : IDs)
+      XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID
+          << magnet::xml::endtag("ID");
+  }
 
-    std::vector<size_t> IDs;
-  };
-}
+  std::vector<size_t> IDs;
+};
+} // namespace dynamo

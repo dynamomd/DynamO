@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,88 +20,63 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  BCPeriodic::BCPeriodic(const dynamo::Simulation* tmp):
-    BoundaryCondition(tmp, "RPBC")
-  {}
+BCPeriodic::BCPeriodic(const dynamo::Simulation *tmp)
+    : BoundaryCondition(tmp, "RPBC") {}
 
-  void 
-  BCPeriodic::applyBC(Vector & pos) const
-  { 
-    for (size_t n = 0; n < NDIM; ++n)
-      pos[n] = std::remainder(pos[n], Sim->primaryCellSize[n]);
-  }
-
-  void 
-  BCPeriodic::applyBC(Vector & pos, Vector&) const
-  { return applyBC(pos); }
-
-  void 
-  BCPeriodic::applyBC(Vector  &pos, const double&) const 
-  { return applyBC(pos); }
-
-  void 
-  BCPeriodic::outputXML(magnet::xml::XmlStream &XML) const
-  {
-    XML << magnet::xml::attr("Type") << "PBC";
-  }
-
-  void 
-  BCPeriodic::operator<<(const magnet::xml::Node&) 
-  {}
-
-  BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::Simulation* tmp):
-    BCPeriodic(tmp, "NoXPBC")
-  {}
-
-  void 
-  BCPeriodicExceptX::outputXML(magnet::xml::XmlStream &XML) const
-  {
-    XML << magnet::xml::attr("Type") << "NoXPBC";
-  }
-
-  void 
-  BCPeriodicExceptX::operator<<(const magnet::xml::Node&) 
-  {}
-
-  void 
-  BCPeriodicExceptX::applyBC(Vector & pos) const
-  { 
-    for (size_t n = 1; n < NDIM; ++n)
-      pos[n] = std::remainder(pos[n], Sim->primaryCellSize[n]);
-  }
-  
-  void 
-  BCPeriodicExceptX::applyBC(Vector & pos, Vector&) const
-  { return applyBC(pos); }
-
-  void 
-  BCPeriodicExceptX::applyBC(Vector  &pos, const double&) const 
-  { return applyBC(pos); }
-
-  BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::Simulation* tmp):
-    BCPeriodic(tmp, "NoXPBC")
-  {}
-
-  void 
-  BCPeriodicXOnly::outputXML(magnet::xml::XmlStream &XML) const
-  {
-    XML << magnet::xml::attr("Type") << "OnlyXPBC";
-  }
-
-  void 
-  BCPeriodicXOnly::operator<<(const magnet::xml::Node&) 
-  {}
-
-  void 
-  BCPeriodicXOnly::applyBC(Vector & pos) const
-  { 
-    pos[0] = std::remainder(pos[0], Sim->primaryCellSize[0]);
-  }
-  void 
-  BCPeriodicXOnly::applyBC(Vector & pos, Vector&) const
-  { applyBC(pos); }
-
-  void 
-  BCPeriodicXOnly::applyBC(Vector  &pos, const double&) const 
-  { applyBC(pos); }
+void BCPeriodic::applyBC(Vector &pos) const {
+  for (size_t n = 0; n < NDIM; ++n)
+    pos[n] = std::remainder(pos[n], Sim->primaryCellSize[n]);
 }
+
+void BCPeriodic::applyBC(Vector &pos, Vector &) const { return applyBC(pos); }
+
+void BCPeriodic::applyBC(Vector &pos, const double &) const {
+  return applyBC(pos);
+}
+
+void BCPeriodic::outputXML(magnet::xml::XmlStream &XML) const {
+  XML << magnet::xml::attr("Type") << "PBC";
+}
+
+void BCPeriodic::operator<<(const magnet::xml::Node &) {}
+
+BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::Simulation *tmp)
+    : BCPeriodic(tmp, "NoXPBC") {}
+
+void BCPeriodicExceptX::outputXML(magnet::xml::XmlStream &XML) const {
+  XML << magnet::xml::attr("Type") << "NoXPBC";
+}
+
+void BCPeriodicExceptX::operator<<(const magnet::xml::Node &) {}
+
+void BCPeriodicExceptX::applyBC(Vector &pos) const {
+  for (size_t n = 1; n < NDIM; ++n)
+    pos[n] = std::remainder(pos[n], Sim->primaryCellSize[n]);
+}
+
+void BCPeriodicExceptX::applyBC(Vector &pos, Vector &) const {
+  return applyBC(pos);
+}
+
+void BCPeriodicExceptX::applyBC(Vector &pos, const double &) const {
+  return applyBC(pos);
+}
+
+BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::Simulation *tmp)
+    : BCPeriodic(tmp, "NoXPBC") {}
+
+void BCPeriodicXOnly::outputXML(magnet::xml::XmlStream &XML) const {
+  XML << magnet::xml::attr("Type") << "OnlyXPBC";
+}
+
+void BCPeriodicXOnly::operator<<(const magnet::xml::Node &) {}
+
+void BCPeriodicXOnly::applyBC(Vector &pos) const {
+  pos[0] = std::remainder(pos[0], Sim->primaryCellSize[0]);
+}
+void BCPeriodicXOnly::applyBC(Vector &pos, Vector &) const { applyBC(pos); }
+
+void BCPeriodicXOnly::applyBC(Vector &pos, const double &) const {
+  applyBC(pos);
+}
+} // namespace dynamo

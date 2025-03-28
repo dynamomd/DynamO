@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,23 +20,26 @@
 #include <dynamo/interactions/squarewell.hpp>
 
 namespace dynamo {
-  class IThinThread: public ISquareWell
-  {
-  public:
-    IThinThread(const magnet::xml::Node&, dynamo::Simulation*);
-  
-    void operator<<(const magnet::xml::Node&);
+class IThinThread : public ISquareWell {
+public:
+  IThinThread(const magnet::xml::Node &, dynamo::Simulation *);
 
-    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
+  void operator<<(const magnet::xml::Node &);
 
-    /*! \brief This capture test returns false as (initially) there are no bridges.
-     */
-    virtual size_t captureTest(const Particle&, const Particle&) const { return false; }
+  virtual bool validateState(const Particle &p1, const Particle &p2,
+                             bool textoutput = true) const;
 
-    virtual Event getEvent(const Particle&, const Particle&) const;
-  
-    virtual PairEventData runEvent(Particle&, Particle&, Event);
-  
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-  };
-}
+  /*! \brief This capture test returns false as (initially) there are no
+   * bridges.
+   */
+  virtual size_t captureTest(const Particle &, const Particle &) const {
+    return false;
+  }
+
+  virtual Event getEvent(const Particle &, const Particle &) const;
+
+  virtual PairEventData runEvent(Particle &, Particle &, Event);
+
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+};
+} // namespace dynamo

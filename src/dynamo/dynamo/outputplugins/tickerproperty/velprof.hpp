@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,24 +20,22 @@
 #include <vector>
 
 namespace dynamo {
-  class OPVelProfile: public OPTicker
-  {
-  public:
-    OPVelProfile(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPVelProfile : public OPTicker {
+public:
+  OPVelProfile(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
+  virtual void ticker();
 
-    virtual void output(magnet::xml::XmlStream&);
-  
-  protected:
+  virtual void output(magnet::xml::XmlStream &);
 
-    std::vector<std::vector<std::pair<size_t, double> > > vx;
+protected:
+  std::vector<std::vector<std::pair<size_t, double>>> vx;
 
-    size_t samplesTaken;
-    double binWidth;
-  };
-}
+  size_t samplesTaken;
+  double binWidth;
+};
+} // namespace dynamo

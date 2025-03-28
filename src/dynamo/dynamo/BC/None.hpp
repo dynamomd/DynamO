@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,31 +19,30 @@
 #include <dynamo/BC/BC.hpp>
 
 namespace dynamo {
-  /*! \brief An infinite system boundary condition
-   * 
-   * Performs no rounding at the simulation boundaries. This is useful
-   * for isolated polymer simulations but you must remember that
-   * positions can overflow eventually.
-   */
-  class BCNone: virtual public BoundaryCondition
-  {
-  public:
-    BCNone(const dynamo::Simulation*);
-  
-    virtual ~BCNone();
-    
-    virtual void applyBC(Vector&)const;
+/*! \brief An infinite system boundary condition
+ *
+ * Performs no rounding at the simulation boundaries. This is useful
+ * for isolated polymer simulations but you must remember that
+ * positions can overflow eventually.
+ */
+class BCNone : virtual public BoundaryCondition {
+public:
+  BCNone(const dynamo::Simulation *);
 
-    virtual void applyBC(Vector&, Vector&) const;
+  virtual ~BCNone();
 
-    virtual void applyBC(Vector&, const double&) const;
+  virtual void applyBC(Vector &) const;
 
-    virtual void update(const double&);
+  virtual void applyBC(Vector &, Vector &) const;
 
-    virtual void outputXML(magnet::xml::XmlStream &XML) const;
+  virtual void applyBC(Vector &, const double &) const;
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void update(const double &);
 
-    virtual void rounding(Vector &) const;
-  };
-}
+  virtual void outputXML(magnet::xml::XmlStream &XML) const;
+
+  virtual void operator<<(const magnet::xml::Node &);
+
+  virtual void rounding(Vector &) const;
+};
+} // namespace dynamo

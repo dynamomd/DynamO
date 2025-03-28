@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,94 +16,94 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/outputplugin.hpp>
+#include <chrono>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <magnet/math/correlators.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/math/timeaveragedproperty.hpp>
-#include <magnet/math/correlators.hpp>
-#include <chrono>
 #include <map>
 
 namespace dynamo {
-  using namespace EventTypeTracking;
+using namespace EventTypeTracking;
 
-  class OPMisc: public OutputPlugin
-  {
+class OPMisc : public OutputPlugin {
 
-  public:
-    OPMisc(const dynamo::Simulation*, const magnet::xml::Node&);
-  
-    virtual void initialise();
-  
-    virtual void eventUpdate(const Event&, const NEventData&);
-  
-    void output(magnet::xml::XmlStream &); 
-  
-    void periodicOutput();
-  
-    double getMFT() const;
-  
-    void replicaExchange(OutputPlugin&);
+public:
+  OPMisc(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    double getDuration() const;
-    double getEventsPerSecond() const;
-    double getSimTimePerSecond() const;
+  virtual void initialise();
 
-    void temperatureRescale(const double&);
+  virtual void eventUpdate(const Event &, const NEventData &);
 
-    double getMeankT() const;
-    double getMeanSqrkT() const;
-    double getCurrentkT() const;
+  void output(magnet::xml::XmlStream &);
 
-    Vector getMeanMomentum() const { return _sysMomentum.mean(); }
-    Vector getCurrentMomentum() const { return _sysMomentum.current(); }
+  void periodicOutput();
 
-    double getTotalEnergy() const { return _internalE.current() + _KE.current(); }
+  double getMFT() const;
 
-    double getMeanUConfigurational() const;
-    double getMeanSqrUConfigurational() const;
-    inline double getConfigurationalU() const { return _internalE.current(); }
+  void replicaExchange(OutputPlugin &);
 
-    Matrix getPressureTensor() const;
+  double getDuration() const;
+  double getEventsPerSecond() const;
+  double getSimTimePerSecond() const;
 
-  protected:
-    void stream(double dt);
+  void temperatureRescale(const double &);
 
-    typedef std::pair<EventSourceKey, EEventType> CounterKey;
+  double getMeankT() const;
+  double getMeanSqrkT() const;
+  double getCurrentkT() const;
 
-    struct CounterData
-    {
-      CounterData(): count(0), netimpulse({0,0,0}), netKEchange(0), netUchange(0) {}
-      size_t count;
-      Vector netimpulse;
-      double netKEchange;
-      double netUchange;
-    };
+  Vector getMeanMomentum() const { return _sysMomentum.mean(); }
+  Vector getCurrentMomentum() const { return _sysMomentum.current(); }
 
-    std::map<CounterKey, CounterData> _counters;
-    std::chrono::system_clock::time_point _starttime;
-    unsigned long _dualEvents;
-    unsigned long _singleEvents;
-    unsigned long _virtualEvents;
-    size_t _reverseEvents;
-    magnet::math::TimeAveragedProperty<double> _KE;
-    magnet::math::TimeAveragedProperty<double> _internalE;
-    magnet::math::TimeAveragedProperty<Vector> _sysMomentum;
-    magnet::math::TimeAveragedProperty<Matrix> _kineticP;
-    magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
-    magnet::math::LogarithmicTimeCorrelator<Matrix> _viscosity;
-    magnet::math::LogarithmicTimeCorrelator<double> _bulkVisc;
-    magnet::math::LogarithmicTimeCorrelator<Vector> _crossVisc;
-    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _thermalDiffusion;
-    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _mutualDiffusion;
-    std::vector<double> _internalEnergy;
-    std::vector<double> _speciesMasses;
-    std::vector<Vector> _speciesMomenta;
-    double _systemMass;
+  double getTotalEnergy() const { return _internalE.current() + _KE.current(); }
 
-    Matrix collisionalP;
+  double getMeanUConfigurational() const;
+  double getMeanSqrUConfigurational() const;
+  inline double getConfigurationalU() const { return _internalE.current(); }
 
-    /*! \brief Flag to note when the late init is complete. */
-    bool _lateInitComplete;
+  Matrix getPressureTensor() const;
+
+protected:
+  void stream(double dt);
+
+  typedef std::pair<EventSourceKey, EEventType> CounterKey;
+
+  struct CounterData {
+    CounterData()
+        : count(0), netimpulse({0, 0, 0}), netKEchange(0), netUchange(0) {}
+    size_t count;
+    Vector netimpulse;
+    double netKEchange;
+    double netUchange;
   };
-}
+
+  std::map<CounterKey, CounterData> _counters;
+  std::chrono::system_clock::time_point _starttime;
+  unsigned long _dualEvents;
+  unsigned long _singleEvents;
+  unsigned long _virtualEvents;
+  size_t _reverseEvents;
+  magnet::math::TimeAveragedProperty<double> _KE;
+  magnet::math::TimeAveragedProperty<double> _internalE;
+  magnet::math::TimeAveragedProperty<Vector> _sysMomentum;
+  magnet::math::TimeAveragedProperty<Matrix> _kineticP;
+  magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
+  magnet::math::LogarithmicTimeCorrelator<Matrix> _viscosity;
+  magnet::math::LogarithmicTimeCorrelator<double> _bulkVisc;
+  magnet::math::LogarithmicTimeCorrelator<Vector> _crossVisc;
+  std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>>
+      _thermalDiffusion;
+  std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>> _mutualDiffusion;
+  std::vector<double> _internalEnergy;
+  std::vector<double> _speciesMasses;
+  std::vector<Vector> _speciesMomenta;
+  double _systemMass;
+
+  Matrix collisionalP;
+
+  /*! \brief Flag to note when the late init is complete. */
+  bool _lateInitComplete;
+};
+} // namespace dynamo

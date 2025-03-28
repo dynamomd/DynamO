@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,15 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/interactions/squarewell.hpp>
-#include <dynamo/interactions/thinthread.hpp>
-#include <dynamo/interactions/swsequence.hpp>
-#include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/interactions/nullInteraction.hpp>
-#include <dynamo/interactions/lines.hpp>
 #include <dynamo/interactions/DSMC.hpp>
-#include <dynamo/interactions/dumbbells.hpp>
 #include <dynamo/interactions/PRIME.hpp>
+#include <dynamo/interactions/dumbbells.hpp>
+#include <dynamo/interactions/hardsphere.hpp>
+#include <dynamo/interactions/lines.hpp>
+#include <dynamo/interactions/nullInteraction.hpp>
 #include <dynamo/interactions/parallelcubes.hpp>
+#include <dynamo/interactions/squarebond.hpp>
+#include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/interactions/stepped.hpp>
+#include <dynamo/interactions/swsequence.hpp>
+#include <dynamo/interactions/thinthread.hpp>

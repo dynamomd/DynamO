@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,26 +20,26 @@
 #include <fstream>
 
 namespace dynamo {
-  class OPTrajectory: public OutputPlugin
-  {
-  public:
-    OPTrajectory(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPTrajectory : public OutputPlugin {
+public:
+  OPTrajectory(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    OPTrajectory(const OPTrajectory&);
-  
-    ~OPTrajectory() {}
+  OPTrajectory(const OPTrajectory &);
 
-    void eventUpdate(const Event&, const NEventData&);
+  ~OPTrajectory() {}
 
-    virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This output plugin hasn't been prepared for changes of system"; }
+  void eventUpdate(const Event &, const NEventData &);
 
-    virtual void initialise();
+  virtual void replicaExchange(OutputPlugin &) {
+    M_throw()
+        << "This output plugin hasn't been prepared for changes of system";
+  }
 
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void initialise();
 
-  private:
+  virtual void output(magnet::xml::XmlStream &);
 
-    mutable std::ofstream logfile;
-  };
-}
+private:
+  mutable std::ofstream logfile;
+};
+} // namespace dynamo

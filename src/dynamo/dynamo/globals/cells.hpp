@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,155 +19,164 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/particle.hpp>
 #ifdef DYNAMO_JUDY
-# include <magnet/containers/judy.hpp>
+#include <magnet/containers/judy.hpp>
 #endif
-#include <magnet/containers/vector_set.hpp>
 #include <magnet/containers/multimaps.hpp>
 #include <magnet/containers/ordering.hpp>
+#include <magnet/containers/vector_set.hpp>
 #include <unordered_map>
 #include <vector>
 
 namespace dynamo {
-  namespace detail {
-    /*! \brief A container for storing the cell contents (and which
-        particle is in which cell).
-	
-	\tparam CellList A type which gives a multimap-style container
-	mapping from cell ids to particle ids. Examples include
-	SetCellList<JudySet<uint64_t>>, and
-	VectorSetCellList<JudySet<size_t>> although
-	Vector_Multimap<VectorSet<size_t>> appears to be the most
-	performant.
+namespace detail {
+/*! \brief A container for storing the cell contents (and which
+    particle is in which cell).
 
-	\tparam Map A map container which links particle IDs to cell
-	IDs. Examples include std::unordered_map<size_t, size_t> but
-	JudyMap<size_t, size_t> appears to be the best.
-     */
-    template<typename CellList, typename Map>
-    class CellParticleList {
-      CellList _cellcontents;
-      Map _particleCell;
-     
-    public:
-      void add(size_t cell, size_t particle) {
-	_cellcontents.insert(cell, particle);
-	_particleCell[particle] = cell;
-      }
-      
-      void remove(size_t cell, size_t particle) {
-	_cellcontents.erase(cell, particle);
-	_particleCell.erase(particle);
-      }
+    \tparam CellList A type which gives a multimap-style container
+    mapping from cell ids to particle ids. Examples include
+    SetCellList<JudySet<uint64_t>>, and
+    VectorSetCellList<JudySet<size_t>> although
+    Vector_Multimap<VectorSet<size_t>> appears to be the most
+    performant.
 
-      void moveTo(size_t oldcell, size_t newcell, size_t particle) {
-	_cellcontents.erase(oldcell, particle);
-	_cellcontents.insert(newcell, particle);
-	_particleCell[particle] = newcell;
-      }
+    \tparam Map A map container which links particle IDs to cell
+    IDs. Examples include std::unordered_map<size_t, size_t> but
+    JudyMap<size_t, size_t> appears to be the best.
+ */
+template <typename CellList, typename Map> class CellParticleList {
+  CellList _cellcontents;
+  Map _particleCell;
 
-      typename CellList::RangeType getCellContents(const size_t cellID) const {
-	return _cellcontents.getKeyContents(cellID);
-      }
-
-      size_t getCellID(const size_t particle) const {
-#ifdef MAGNET_DEBUG
-	if (_particleCell.find(particle) == _particleCell.end())
-	  M_throw() << "Could not find the cell for particle " << particle << " during cell look-up";
-#endif
-	return _particleCell.find(particle)->second;
-      }
-
-      void resize(size_t cellcount, size_t N) { 
-	_cellcontents.resize(cellcount); 
-      }
-
-      size_t size() const { return _particleCell.size(); }
-      void clear() { _particleCell.clear(); _cellcontents.clear(); }
-    };
+public:
+  void add(size_t cell, size_t particle) {
+    _cellcontents.insert(cell, particle);
+    _particleCell[particle] = cell;
   }
 
-  /*! \brief A regular cell neighbour list implementation.
-    
-    This neighbour list is the main neighbour list implemenetation for
-    dynamo. It uses a regular grid of cells into which the particles
-    are sorted to accelerate calculating the neighbourhood of a single
-    particle.
+  void remove(size_t cell, size_t particle) {
+    _cellcontents.erase(cell, particle);
+    _particleCell.erase(particle);
+  }
 
-    There are several "unusual" properties of this neighbour list
-    which are used to optimise its behaviour.
-    
-    Although the neighbour list is a regular grid of cells, each cell
-    overlaps with its neighbours. This means that if you cross from
-    one cell into another, you enter the other cell some finite
-    distance from the cells border. This helps remove "rattling"
-    events where particles rapidly pass between two cells.
+  void moveTo(size_t oldcell, size_t newcell, size_t particle) {
+    _cellcontents.erase(oldcell, particle);
+    _cellcontents.insert(newcell, particle);
+    _particleCell[particle] = newcell;
+  }
 
-    The second property is that the contents of each cell is stored as
-    a std::vector. In theory, a linked list is far more memory
-    efficient however, the vector is much more cache friendly and can
-    boost performance by 50% in cases where the cell has multiple
-    particles inside of it.
-   */
-  class GCells: public GNeighbourList
-  {
-  public:
-    GCells(const magnet::xml::Node&, dynamo::Simulation*);
-    GCells(Simulation*, const std::string&);
+  typename CellList::RangeType getCellContents(const size_t cellID) const {
+    return _cellcontents.getKeyContents(cellID);
+  }
 
-    virtual ~GCells() {}
+  size_t getCellID(const size_t particle) const {
+#ifdef MAGNET_DEBUG
+    if (_particleCell.find(particle) == _particleCell.end())
+      M_throw() << "Could not find the cell for particle " << particle
+                << " during cell look-up";
+#endif
+    return _particleCell.find(particle)->second;
+  }
 
-    virtual Event getEvent(const Particle &) const;
+  void resize(size_t cellcount, size_t N) { _cellcontents.resize(cellcount); }
 
-    virtual void runEvent(Particle&, const double);
+  size_t size() const { return _particleCell.size(); }
+  void clear() {
+    _particleCell.clear();
+    _cellcontents.clear();
+  }
+};
+} // namespace detail
 
-    virtual void initialise(size_t);
+/*! \brief A regular cell neighbour list implementation.
 
-    virtual void reinitialise();
+  This neighbour list is the main neighbour list implemenetation for
+  dynamo. It uses a regular grid of cells into which the particles
+  are sorted to accelerate calculating the neighbourhood of a single
+  particle.
 
-    void getParticleNeighbours(const Particle&, std::vector<size_t>&) const;
-    void getParticleNeighbours(const Vector&, std::vector<size_t>&) const;
-    
-    virtual void operator<<(const magnet::xml::Node&);
+  There are several "unusual" properties of this neighbour list
+  which are used to optimise its behaviour.
 
-    Vector getCellDimensions() const 
-    { return _cellDimension; }
+  Although the neighbour list is a regular grid of cells, each cell
+  overlaps with its neighbours. This means that if you cross from
+  one cell into another, you enter the other cell some finite
+  distance from the cells border. This helps remove "rattling"
+  events where particles rapidly pass between two cells.
 
-    virtual double getMaxSupportedInteractionLength() const;
+  The second property is that the contents of each cell is stored as
+  a std::vector. In theory, a linked list is far more memory
+  efficient however, the vector is much more cache friendly and can
+  boost performance by 50% in cases where the cell has multiple
+  particles inside of it.
+ */
+class GCells : public GNeighbourList {
+public:
+  GCells(const magnet::xml::Node &, dynamo::Simulation *);
+  GCells(Simulation *, const std::string &);
 
-    void setConfigOutput(bool val) { _inConfig = val; }
+  virtual ~GCells() {}
 
-  protected:
-    virtual void getParticleNeighbours(const std::array<size_t, 3>&, std::vector<size_t>&) const;
+  virtual Event getEvent(const Particle &) const;
 
-    typedef magnet::containers::RowMajorOrdering<3> Ordering;
-    Ordering _ordering;
+  virtual void runEvent(Particle &, const double);
 
-    Vector _cellDimension;
-    Vector _cellLatticeWidth;
-    Vector _cellOffset;
+  virtual void initialise(size_t);
 
-    bool _inConfig;
-    size_t overlink;
+  virtual void reinitialise();
+
+  void getParticleNeighbours(const Particle &, std::vector<size_t> &) const;
+  void getParticleNeighbours(const Vector &, std::vector<size_t> &) const;
+
+  virtual void operator<<(const magnet::xml::Node &);
+
+  Vector getCellDimensions() const { return _cellDimension; }
+
+  virtual double getMaxSupportedInteractionLength() const;
+
+  void setConfigOutput(bool val) { _inConfig = val; }
+
+protected:
+  virtual void getParticleNeighbours(const std::array<size_t, 3> &,
+                                     std::vector<size_t> &) const;
+
+  typedef magnet::containers::RowMajorOrdering<3> Ordering;
+  Ordering _ordering;
+
+  Vector _cellDimension;
+  Vector _cellLatticeWidth;
+  Vector _cellOffset;
+
+  bool _inConfig;
+  size_t overlink;
 
 #ifdef DYNAMO_JUDY
-    detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
-			     magnet::containers::JudyMap<size_t, size_t>> _cellData;
+  detail::CellParticleList<magnet::containers::Vector_Multimap<
+                               magnet::containers::VectorSet<size_t>>,
+                           magnet::containers::JudyMap<size_t, size_t>>
+      _cellData;
 #else
-    detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
-			     std::unordered_map<size_t, size_t> > _cellData;
+  detail::CellParticleList<magnet::containers::Vector_Multimap<
+                               magnet::containers::VectorSet<size_t>>,
+                           std::unordered_map<size_t, size_t>>
+      _cellData;
 #endif
-    GCells(const GCells&);
+  GCells(const GCells &);
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    std::array<size_t, 3> getCellCoords(Vector) const;
+  std::array<size_t, 3> getCellCoords(Vector) const;
 
-    void addCells(std::array<size_t, 3> cellCount);
-    void buildCells();
+  void addCells(std::array<size_t, 3> cellCount);
+  void buildCells();
 
-    Vector calcPosition(const size_t cellIndex, const Particle& part) const { return calcPosition(_ordering.toCoord(cellIndex), part);}
-    Vector calcPosition(const std::array<size_t, 3>& coords, const Particle& part) const ;
-    Vector calcPosition(const size_t cellIndex) const { return calcPosition(_ordering.toCoord(cellIndex));}
-    Vector calcPosition(const std::array<size_t, 3>& coords) const;
-  };
-}
+  Vector calcPosition(const size_t cellIndex, const Particle &part) const {
+    return calcPosition(_ordering.toCoord(cellIndex), part);
+  }
+  Vector calcPosition(const std::array<size_t, 3> &coords,
+                      const Particle &part) const;
+  Vector calcPosition(const size_t cellIndex) const {
+    return calcPosition(_ordering.toCoord(cellIndex));
+  }
+  Vector calcPosition(const std::array<size_t, 3> &coords) const;
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -21,43 +21,44 @@
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class IDSMC: public ICapture
-  {
-  public:
-    template<class T1, class T2>
-    IDSMC(dynamo::Simulation* tmp, T1 l, T2 e, IDPairRange* nR, std::string name):
-      ICapture(tmp, nR),
-      _length(Sim->_properties.getProperty(l, Property::Units::Length())),
-      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
-    { intName = name; }
+class IDSMC : public ICapture {
+public:
+  template <class T1, class T2>
+  IDSMC(dynamo::Simulation *tmp, T1 l, T2 e, IDPairRange *nR, std::string name)
+      : ICapture(tmp, nR),
+        _length(Sim->_properties.getProperty(l, Property::Units::Length())),
+        _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())) {
+    intName = name;
+  }
 
-    virtual std::array<double, 4> getGlyphSize(size_t ID) const;
+  virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
-    virtual GLYPH_TYPE getDefaultGlyphType() const { return SPHERE_GLYPH; }
+  virtual GLYPH_TYPE getDefaultGlyphType() const { return SPHERE_GLYPH; }
 
-    IDSMC(const magnet::xml::Node&, dynamo::Simulation*);
+  IDSMC(const magnet::xml::Node &, dynamo::Simulation *);
 
-    void operator<<(const magnet::xml::Node&);
+  void operator<<(const magnet::xml::Node &);
 
-    virtual void initialise(size_t);
+  virtual void initialise(size_t);
 
-    virtual double maxIntDist() const;
+  virtual double maxIntDist() const;
 
-    virtual double getExcludedVolume(size_t) const { return 0; }
+  virtual double getExcludedVolume(size_t) const { return 0; }
 
-    virtual Event getEvent(const Particle&, const Particle&) const;
- 
-    virtual PairEventData runEvent(Particle&, Particle&, Event);
-   
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual Event getEvent(const Particle &, const Particle &) const;
 
-    using ICapture::validateState;
-    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
- 
-    virtual size_t captureTest(const Particle&, const Particle&) const;
+  virtual PairEventData runEvent(Particle &, Particle &, Event);
 
-  protected:
-    shared_ptr<Property> _length;
-    shared_ptr<Property> _e;
-  };
-}
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+
+  using ICapture::validateState;
+  virtual bool validateState(const Particle &p1, const Particle &p2,
+                             bool textoutput = true) const;
+
+  virtual size_t captureTest(const Particle &, const Particle &) const;
+
+protected:
+  shared_ptr<Property> _length;
+  shared_ptr<Property> _e;
+};
+} // namespace dynamo

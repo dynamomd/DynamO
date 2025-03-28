@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,43 +17,42 @@
 
 #pragma once
 
+#include <array>
+#include <coil/RenderObj/RenderObj.hpp>
 #include <gtkmm.h>
+#include <iostream>
+#include <list>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/GL/shader/render.hpp>
-#include <coil/RenderObj/RenderObj.hpp>
-#include <array>
 #include <memory>
 #include <sstream>
-#include <list>
-#include <iostream>
 
 namespace coil {
-  class Console: public RenderObj
-  {
-  public:
-    struct end {};
-    
-    inline Console(std::array<GLfloat, 3> color):
-      RenderObj("Console")
-    {}
-    
-    void interfaceRender(const magnet::GL::Camera& cam, magnet::GL::objects::CairoSurface& cairo);
+class Console : public RenderObj {
+public:
+  struct end {};
 
-    void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
-    void showControls(Gtk::ScrolledWindow* win);
-    void deinit();
-    void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset = 0);
-    
-  private:
-    void initGTK();
-    void guiUpdate();
+  inline Console(std::array<GLfloat, 3> color) : RenderObj("Console") {}
 
-    int _glutLastTime;
+  void interfaceRender(const magnet::GL::Camera &cam,
+                       magnet::GL::objects::CairoSurface &cairo);
 
-    magnet::GL::shader::RenderShader _renderShader;
-    magnet::GL::Buffer<GLfloat> _gridVertices;
-    std::unique_ptr<Gtk::VBox> _optList;
-    std::unique_ptr<Gtk::CheckButton> _showGrid;
-    std::unique_ptr<Gtk::CheckButton> _showAxis;
-  };
-}
+  void init(const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue);
+  void showControls(Gtk::ScrolledWindow *win);
+  void deinit();
+  void glRender(const magnet::GL::Camera &cam, RenderMode mode,
+                const uint32_t offset = 0);
+
+private:
+  void initGTK();
+  void guiUpdate();
+
+  int _glutLastTime;
+
+  magnet::GL::shader::RenderShader _renderShader;
+  magnet::GL::Buffer<GLfloat> _gridVertices;
+  std::unique_ptr<Gtk::VBox> _optList;
+  std::unique_ptr<Gtk::CheckButton> _showGrid;
+  std::unique_ptr<Gtk::CheckButton> _showAxis;
+};
+} // namespace coil

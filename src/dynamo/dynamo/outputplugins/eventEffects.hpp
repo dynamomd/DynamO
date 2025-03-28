@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,47 +16,45 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/math/vector.hpp>
 #include <map>
 
 namespace dynamo {
-  class Particle;
+class Particle;
 
-  using namespace EventTypeTracking;
+using namespace EventTypeTracking;
 
-  class OPEventEffects: public OutputPlugin
-  {
-  public:
-    OPEventEffects(const dynamo::Simulation*, const magnet::xml::Node&);
-    ~OPEventEffects();
+class OPEventEffects : public OutputPlugin {
+public:
+  OPEventEffects(const dynamo::Simulation *, const magnet::xml::Node &);
+  ~OPEventEffects();
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void eventUpdate(const Event&, const NEventData&);
+  virtual void eventUpdate(const Event &, const NEventData &);
 
-    void output(magnet::xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
-    //This is fine to replica exchange as the interaction, global and
-    //system lookups are done using id's
-    virtual void replicaExchange(OutputPlugin& plug) { 
-      std::swap(counters, static_cast<OPEventEffects&>(plug).counters); 
-    }
-  
-  protected:
+  // This is fine to replica exchange as the interaction, global and
+  // system lookups are done using id's
+  virtual void replicaExchange(OutputPlugin &plug) {
+    std::swap(counters, static_cast<OPEventEffects &>(plug).counters);
+  }
 
-    void newEvent(const EEventType&, const EventSourceKey&, const double&, const Vector &);
-  
-    struct counterData
-    {
-      counterData():count(0), energyLoss(0), momentumChange({0,0,0}) {}
-      unsigned long count;
-      double energyLoss;
-      Vector  momentumChange;
-    };
-  
-    std::map<EventKey, counterData> counters;
+protected:
+  void newEvent(const EEventType &, const EventSourceKey &, const double &,
+                const Vector &);
+
+  struct counterData {
+    counterData() : count(0), energyLoss(0), momentumChange({0, 0, 0}) {}
+    unsigned long count;
+    double energyLoss;
+    Vector momentumChange;
   };
-}
+
+  std::map<EventKey, counterData> counters;
+};
+} // namespace dynamo

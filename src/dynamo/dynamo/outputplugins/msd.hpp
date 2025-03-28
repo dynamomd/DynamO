@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,35 +16,34 @@
 */
 
 #pragma once
-#include <vector>
-#include <magnet/math/vector.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <magnet/math/vector.hpp>
+#include <vector>
 
 namespace dynamo {
-  class Topology;
+class Topology;
 
-  class OPMSD: public OutputPlugin
-  {
-  public:
-    OPMSD(const dynamo::Simulation*, const magnet::xml::Node&);
-    ~OPMSD();
+class OPMSD : public OutputPlugin {
+public:
+  OPMSD(const dynamo::Simulation *, const magnet::xml::Node &);
+  ~OPMSD();
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void eventUpdate(const Event&, const NEventData&) {}
+  virtual void eventUpdate(const Event &, const NEventData &) {}
 
-    void output(magnet::xml::XmlStream &); 
+  void output(magnet::xml::XmlStream &);
 
-    Vector calcMSD(const IDRange& range) const;
-    Vector calcD(const IDRange& range) const;
+  Vector calcMSD(const IDRange &range) const;
+  Vector calcD(const IDRange &range) const;
 
-    Vector calcStructMSD(const Topology&) const;
+  Vector calcStructMSD(const Topology &) const;
 
-    virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This plugin hasn't been prepared for changes of system"; }
-  
-  protected:
-  
-    std::vector<Vector> initPos;
-  };
-}
+  virtual void replicaExchange(OutputPlugin &) {
+    M_throw() << "This plugin hasn't been prepared for changes of system";
+  }
+
+protected:
+  std::vector<Vector> initPos;
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,18 +18,17 @@
 #pragma once
 
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/RenderObj.hpp>
-# include <magnet/GL/context.hpp>
-# include <dynamo/base.hpp>
+#include <coil/RenderObj/RenderObj.hpp>
+#include <dynamo/base.hpp>
+#include <magnet/GL/context.hpp>
 #endif
 
 namespace dynamo {
-  struct CoilRenderObj
-  {
+struct CoilRenderObj {
 #ifdef DYNAMO_visualizer
-    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
-    virtual void initRenderData(magnet::GL::Context::ContextPtr) const {}
-    virtual void updateRenderData() const = 0;
+  virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
+  virtual void initRenderData(magnet::GL::Context::ContextPtr) const {}
+  virtual void updateRenderData() const = 0;
 #endif
-  };
-}
+};
+} // namespace dynamo

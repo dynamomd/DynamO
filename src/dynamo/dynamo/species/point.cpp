@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,51 +15,50 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/species/include.hpp>
+#include <cstring>
+#include <dynamo/particle.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
-#include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
+#include <dynamo/species/include.hpp>
 #include <dynamo/units/units.hpp>
-#include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <cstring>
+#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  void 
-  SpPoint::operator<<(const magnet::xml::Node& XML)
-  {
-    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-    _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"), Property::Units::Mass());
-    spName = XML.getAttribute("Name");
-  }
+void SpPoint::operator<<(const magnet::xml::Node &XML) {
+  range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
+  _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
+                                       Property::Units::Mass());
+  spName = XML.getAttribute("Name");
+}
 
-  void 
-  SpPoint::outputXML(magnet::xml::XmlStream& XML) const
-  {
-    XML << magnet::xml::attr("Mass") 
-	<< _mass->getName()
-	<< magnet::xml::attr("Name") << spName
-	<< magnet::xml::attr("Type") << "Point"
-	<< *range;
-  }
-  
-  double
-  SpPoint::getParticleKineticEnergy(size_t ID)  const {
-    const Particle& part = Sim->particles[ID];
+void SpPoint::outputXML(magnet::xml::XmlStream &XML) const {
+  XML << magnet::xml::attr("Mass") << _mass->getName()
+      << magnet::xml::attr("Name") << spName << magnet::xml::attr("Type")
+      << "Point" << *range;
+}
+
+double SpPoint::getParticleKineticEnergy(size_t ID) const {
+  const Particle &part = Sim->particles[ID];
 
 #ifdef DYNAMO_DEBUG
-    if (!isSpecies(part))
-      M_throw() << "Getting the energy of a particle which does not belong to this Species!";
+  if (!isSpecies(part))
+    M_throw() << "Getting the energy of a particle which does not belong to "
+                 "this Species!";
 #endif
 
-    const double mass = getMass(ID);
-    if (std::isinf(mass))
-      return 0;
-    
-    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-      return 0.5 * static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
-    else
-      return 0.5 * part.getVelocity().nrm2() * mass;
-  }
+  const double mass = getMass(ID);
+  if (std::isinf(mass))
+    return 0;
+
+  if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+    return 0.5 *
+           static_cast<const BCLeesEdwards &>(*Sim->BCs)
+               .getPeculiarVelocity(part)
+               .nrm2() *
+           mass;
+  else
+    return 0.5 * part.getVelocity().nrm2() * mass;
 }
+} // namespace dynamo

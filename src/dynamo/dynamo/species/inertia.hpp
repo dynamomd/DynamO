@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,16 +20,15 @@
 #include <dynamo/species/point.hpp>
 
 namespace dynamo {
-  /*! \brief A thin class to just dynamically check that a species has inertia*/
-  class SpInertia: public SpPoint
-  {
-  public:
-    SpInertia(dynamo::Simulation* sim, IDRange* r, double nMass, std::string nName, unsigned int ID):
-      SpPoint(sim, r, nMass, nName, ID)
-    {}
+/*! \brief A thin class to just dynamically check that a species has inertia*/
+class SpInertia : public SpPoint {
+public:
+  SpInertia(dynamo::Simulation *sim, IDRange *r, double nMass,
+            std::string nName, unsigned int ID)
+      : SpPoint(sim, r, nMass, nName, ID) {}
 
-    SpInertia(const magnet::xml::Node& XML, dynamo::Simulation* Sim, unsigned int ID):
-      SpPoint(XML,Sim,ID)
-    {}
-  };
-}
+  SpInertia(const magnet::xml::Node &XML, dynamo::Simulation *Sim,
+            unsigned int ID)
+      : SpPoint(XML, Sim, ID) {}
+};
+} // namespace dynamo

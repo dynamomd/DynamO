@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,36 +19,36 @@
 #include <coil/filters/filter.hpp>
 #include <magnet/GL/shader/SSAO.hpp>
 
-namespace coil 
-{
-  class SSAOWrapper: public Filter
-  {
-  public:
-    SSAOWrapper();
-    ~SSAOWrapper();
+namespace coil {
+class SSAOWrapper : public Filter {
+public:
+  SSAOWrapper();
+  ~SSAOWrapper();
 
-    inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
+  inline virtual size_t type_id() {
+    return detail::filterEnum<SSAOWrapper>::val;
+  }
 
-    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
-			       const magnet::GL::Camera& vp);
+  inline virtual void invoke(GLint colorTextureUnit, size_t width,
+                             size_t height, const magnet::GL::Camera &vp);
 
-    virtual void showControls(Gtk::ScrolledWindow*);
+  virtual void showControls(Gtk::ScrolledWindow *);
 
-  protected:
-    magnet::GL::shader::SSAOShader _filter;
-    Glib::RefPtr<Gtk::Builder> _refXml;
-    GLfloat _radius;
-    GLfloat _totStrength;
-    GLfloat _dropoff;
+protected:
+  magnet::GL::shader::SSAOShader _filter;
+  Glib::RefPtr<Gtk::Builder> _refXml;
+  GLfloat _radius;
+  GLfloat _totStrength;
+  GLfloat _dropoff;
 
-    GLuint _randomTexture;
+  GLuint _randomTexture;
 
-    void settingsCallback();
-    
-    Gtk::Entry _radiusSlider;
-    Gtk::Entry _totStrengthSlider;
-    Gtk::Entry _dropoffSlider;
-    Gtk::HBox _optlist;
-    static const size_t _randomTextureSize = 64;
-  };
-}
+  void settingsCallback();
+
+  Gtk::Entry _radiusSlider;
+  Gtk::Entry _totStrengthSlider;
+  Gtk::Entry _dropoffSlider;
+  Gtk::HBox _optlist;
+  static const size_t _randomTextureSize = 64;
+};
+} // namespace coil

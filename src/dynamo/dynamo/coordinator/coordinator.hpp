@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,131 +22,128 @@
 
 #pragma once
 
+#include <boost/program_options.hpp>
 #include <dynamo/coordinator/engine/engine.hpp>
 #include <magnet/thread/threadpool.hpp>
-#include <boost/program_options.hpp>
 #include <vector>
 #ifdef _WIN32
-# include <windows.h>
+#include <windows.h>
 #endif
 
 namespace dynamo {
 
-  /*! \brief The main class for the dynarun program.
-   
-    This class is responsible for sorting out the correct simulation Engine to 
-    run and initialising computational node specific objects like the 
-    ThreadPool.
+/*! \brief The main class for the dynarun program.
+
+  This class is responsible for sorting out the correct simulation Engine to
+  run and initialising computational node specific objects like the
+  ThreadPool.
+ */
+class Coordinator {
+private:
+  /*! \brief The default constructor.
+
+    This constructor is hidden as part of the singleton nature of
+    this coordinator (i.e., there can only ever be one coordinator
+    in a single program).
    */
-  class Coordinator
-  {
-  private:
+  Coordinator() {}
 
-    /*! \brief The default constructor.
+public:
+  void enableVisualisation() { _enableVisualisation = true; }
 
-      This constructor is hidden as part of the singleton nature of
-      this coordinator (i.e., there can only ever be one coordinator
-      in a single program).
-     */
-    Coordinator() {}
+  /*! \brief This is how the singleton Coordinator class is
+      accessed.
+   */
+  static Coordinator &get() {
+    static Coordinator _coordinator;
+    return _coordinator;
+  }
 
-  public:
-    void enableVisualisation() { _enableVisualisation = true; }
+  /*! \brief Parses the command line options, including any engine specific
+    options.
 
+    This function must know how to get the command line options for
+    all available engines.
 
-    /*! \brief This is how the singleton Coordinator class is
-        accessed.
-     */
-    static Coordinator& get() 
-    { 
-      static Coordinator _coordinator;
-      return _coordinator; 
-    }
+    \return The parsed options vm is returned in case the owning
+    class/function needs to inspect them.
 
-    /*! \brief Parses the command line options, including any engine specific options.
-     
-      This function must know how to get the command line options for
-      all available engines. 
-     
-      \return The parsed options vm is returned in case the owning
-      class/function needs to inspect them.
-     
-      \param argc The number of command line arguments.
-      \param argv A pointer to the array of command line arguments.
-     */
-    boost::program_options::variables_map& parseOptions(int argc, char* argv[]);
+    \param argc The number of command line arguments.
+    \param argv A pointer to the array of command line arguments.
+   */
+  boost::program_options::variables_map &parseOptions(int argc, char *argv[]);
 
-    /*! \brief Creates the specified Engine according to the command
-      line options and initialises it.
-     */
-    void initialise();
+  /*! \brief Creates the specified Engine according to the command
+    line options and initialises it.
+   */
+  void initialise();
 
-    /*! \brief Calls Engine::runSimulation() if there are collisions to execute.
-     */
-    void runSimulation();
+  /*! \brief Calls Engine::runSimulation() if there are collisions to execute.
+   */
+  void runSimulation();
 
-    /*! \brief Outputs any simulation data collected using Engine::outputData().
-     
-      In the future this will also output any data collected on the engine or 
-      system state, i.e. the mpi subsystem.
-     */ 
-    void outputData();
-  
-    /*! \brief Calls Engine::outputConfigs() to print the final configurations
-     * if any dynamics was actually run.
-     */
-    void outputConfigs();
+  /*! \brief Outputs any simulation data collected using Engine::outputData().
 
-    /*! \brief The signal handler for the dynarun.
-     
-      The purpose of this function is to respond to singals
-      gracefully. If the user presses Ctrl-c they will be presented with a menu
-      describing the options available.
-     
-      When the program is run in a batch control system like PBS or SGE
-      and the job approaches its time limits the queuing system sends
-      SIGUSR1 and SIGUSR2 shortly before to allow the program to
-      gracefully exit. We catch these signals and shutdown as quickly
-      as possible.
-     */
-    static void setup_signal_handler();
+    In the future this will also output any data collected on the engine or
+    system state, i.e. the mpi subsystem.
+   */
+  void outputData();
 
-    /*! \brief The signal handler for the dynarun.
-     
-      The purpose of this function is to respond to singals
-      gracefully. If the user presses Ctrl-c they will be presented with a menu
-      describing the options available.
-     
-      When the program is run in a batch control system like PBS or SGE
-      and the job approaches its time limits the queuing system sends
-      SIGUSR1 and SIGUSR2 shortly before to allow the program to
-      gracefully exit. We catch these signals and shutdown as quickly
-      as possible.
-     */
+  /*! \brief Calls Engine::outputConfigs() to print the final configurations
+   * if any dynamics was actually run.
+   */
+  void outputConfigs();
+
+  /*! \brief The signal handler for the dynarun.
+
+    The purpose of this function is to respond to singals
+    gracefully. If the user presses Ctrl-c they will be presented with a menu
+    describing the options available.
+
+    When the program is run in a batch control system like PBS or SGE
+    and the job approaches its time limits the queuing system sends
+    SIGUSR1 and SIGUSR2 shortly before to allow the program to
+    gracefully exit. We catch these signals and shutdown as quickly
+    as possible.
+   */
+  static void setup_signal_handler();
+
+  /*! \brief The signal handler for the dynarun.
+
+    The purpose of this function is to respond to singals
+    gracefully. If the user presses Ctrl-c they will be presented with a menu
+    describing the options available.
+
+    When the program is run in a batch control system like PBS or SGE
+    and the job approaches its time limits the queuing system sends
+    SIGUSR1 and SIGUSR2 shortly before to allow the program to
+    gracefully exit. We catch these signals and shutdown as quickly
+    as possible.
+   */
 #ifdef _WIN32
-    static BOOL signal_handler(DWORD);
+  static BOOL signal_handler(DWORD);
 #else
-    static void signal_handler(int);
+  static void signal_handler(int);
 #endif
-    
-  private:
-    /*! \brief Contains the parsed command line options, engines carry references
-      to these values.
-     */
-    boost::program_options::variables_map vm;
 
-    /*! \brief A smart pointer to the Engine being run.
-     */
-    shared_ptr<Engine> _engine;
+private:
+  /*! \brief Contains the parsed command line options, engines carry references
+    to these values.
+   */
+  boost::program_options::variables_map vm;
 
-    /*! \brief A thread pool to utilise multiple cores on the
-      computational node.
-      
-      This ThreadPool is used/referenced by all code in a single
-      dynarun process.
-    */
-    magnet::thread::ThreadPool _threads;
-    
-    bool _enableVisualisation;
-  };
-}
+  /*! \brief A smart pointer to the Engine being run.
+   */
+  shared_ptr<Engine> _engine;
+
+  /*! \brief A thread pool to utilise multiple cores on the
+    computational node.
+
+    This ThreadPool is used/referenced by all code in a single
+    dynarun process.
+  */
+  magnet::thread::ThreadPool _threads;
+
+  bool _enableVisualisation;
+};
+} // namespace dynamo

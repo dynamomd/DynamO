@@ -1,11 +1,11 @@
 #define BOOST_TEST_MODULE Intersection_GeneralAlgorithm_Tests
 #include <boost/test/included/unit_test.hpp>
-#include <magnet/intersection/generic_algorithm.hpp>
-#include <magnet/intersection/polynomial.hpp>
-#include <magnet/intersection/parabola_sphere.hpp>
-#include <magnet/intersection/offcentre_spheres.hpp>
-#include <magnet/math/matrix.hpp>
 #include <iostream>
+#include <magnet/intersection/generic_algorithm.hpp>
+#include <magnet/intersection/offcentre_spheres.hpp>
+#include <magnet/intersection/parabola_sphere.hpp>
+#include <magnet/intersection/polynomial.hpp>
+#include <magnet/math/matrix.hpp>
 #include <random>
 
 std::mt19937 RNG;
@@ -25,60 +25,66 @@ Vector random_unit_vec() {
 
 using namespace magnet::intersection;
 
-template<size_t Order>
-class PolyGeneral {
+template <size_t Order> class PolyGeneral {
 public:
-  PolyGeneral(const magnet::intersection::detail::PolynomialFunction<Order>& f,
-	      double t_min, double t_max): _f(f), _t_min(t_min), _t_max(t_max) {}
+  PolyGeneral(const magnet::intersection::detail::PolynomialFunction<Order> &f,
+              double t_min, double t_max)
+      : _f(f), _t_min(t_min), _t_max(t_max) {}
 
-  template<size_t first_deriv=0, size_t nderivs = 1>
+  template <size_t first_deriv = 0, size_t nderivs = 1>
   std::array<double, nderivs> eval(double dt) const {
     return _f.template eval<first_deriv, nderivs>(dt);
   }
 
-  template<size_t Deriv=0>
-  double max() const {
+  template <size_t Deriv = 0> double max() const {
     double accum(0);
     for (size_t i(Deriv); i < Order + 1; ++i) {
-      accum += std::max(std::pow(_t_min,i) * _f[i], std::pow(_t_max,i) * _f[i])  / factorial(i);
+      accum +=
+          std::max(std::pow(_t_min, i) * _f[i], std::pow(_t_max, i) * _f[i]) /
+          factorial(i);
     }
     return accum;
   }
 
 private:
-  static constexpr uint64_t factorial(uint64_t n) { 
-    return n == 0 ? 1  :  n * factorial(n-1); 
+  static constexpr uint64_t factorial(uint64_t n) {
+    return n == 0 ? 1 : n * factorial(n - 1);
   }
 
-  const magnet::intersection::detail::PolynomialFunction<Order>& _f;
+  const magnet::intersection::detail::PolynomialFunction<Order> &_f;
   const double _t_min;
-  const double _t_max;  
+  const double _t_max;
 };
 
-BOOST_AUTO_TEST_CASE( GravitySphere_Test )
-{
+BOOST_AUTO_TEST_CASE(GravitySphere_Test) {
   RNG.seed(5489u);
   const size_t tests = 100000;
 
-  for (size_t i(0); i < tests; ++i){
+  for (size_t i(0); i < tests; ++i) {
     const Vector aij = random_unit_vec();
     const Vector rij = random_unit_vec() * 1.5;
     const Vector vij = random_vec();
     const double r = 1;
-  
-    magnet::intersection::detail::PolynomialFunction<4> f_radical{rij.nrm2() - r * r, 2 * (vij | rij), 2 * (vij.nrm2() + (aij | rij)), 6 * (aij | vij), 6 * aij.nrm2()};
-    double radical_root = magnet::intersection::detail::nextEvent(f_radical, r * r);
+
+    magnet::intersection::detail::PolynomialFunction<4> f_radical{
+        rij.nrm2() - r * r, 2 * (vij | rij), 2 * (vij.nrm2() + (aij | rij)),
+        6 * (aij | vij), 6 * aij.nrm2()};
+    double radical_root =
+        magnet::intersection::detail::nextEvent(f_radical, r * r);
 
     PolyGeneral<4> f_numerical(f_radical, 0, 10);
 
     const double t_max = 10;
-    auto numerical_root = magnet::intersection::nextEvent(f_numerical, 0, t_max);
+    auto numerical_root =
+        magnet::intersection::nextEvent(f_numerical, 0, t_max);
     while (!numerical_root.first && !std::isinf(numerical_root.second))
-      numerical_root = magnet::intersection::nextEvent(f_numerical, numerical_root.second, t_max);
-    
-    if (std::isinf(radical_root) != std::isinf(numerical_root.second))
-      { BOOST_CHECK(false); }
-    else if (!std::isinf(radical_root))
-      { BOOST_CHECK_CLOSE(radical_root, numerical_root.second, 1e-12); }
+      numerical_root = magnet::intersection::nextEvent(
+          f_numerical, numerical_root.second, t_max);
+
+    if (std::isinf(radical_root) != std::isinf(numerical_root.second)) {
+      BOOST_CHECK(false);
+    } else if (!std::isinf(radical_root)) {
+      BOOST_CHECK_CLOSE(radical_root, numerical_root.second, 1e-12);
+    }
   }
 }

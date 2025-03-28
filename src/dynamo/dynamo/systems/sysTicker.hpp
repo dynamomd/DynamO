@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,34 +19,33 @@
 #include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  class SysTicker: public System
-  {
-  public:
-    SysTicker(dynamo::Simulation*, double, std::string);
-  
-    virtual NEventData runEvent();
+class SysTicker : public System {
+public:
+  SysTicker(dynamo::Simulation *, double, std::string);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&) {}
+  virtual void initialise(size_t);
 
-    void setdt(double);
+  virtual void operator<<(const magnet::xml::Node &) {}
 
-    void increasedt(double);
+  void setdt(double);
 
-    void setTickerPeriod(const double&);
+  void increasedt(double);
 
-    const double& getPeriod() const { return period; }
+  void setTickerPeriod(const double &);
 
-    virtual void replicaExchange(System& os) { 
-      SysTicker& s = static_cast<SysTicker&>(os);
-      std::swap(dt, s.dt);
-      std::swap(period, s.period);
-    }
+  const double &getPeriod() const { return period; }
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const {}
+  virtual void replicaExchange(System &os) {
+    SysTicker &s = static_cast<SysTicker &>(os);
+    std::swap(dt, s.dt);
+    std::swap(period, s.period);
+  }
 
-    double period;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const {}
+
+  double period;
+};
+} // namespace dynamo

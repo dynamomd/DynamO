@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,100 +17,104 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/schedulers/sorters/FEL.hpp>
-#include <magnet/math/vector.hpp>
-#include <magnet/function/delegate.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/schedulers/sorters/FEL.hpp>
+#include <magnet/function/delegate.hpp>
+#include <magnet/math/vector.hpp>
 #include <memory>
 #include <vector>
 
-namespace magnet { namespace xml { class Node; } }
+namespace magnet {
+namespace xml {
+class Node;
+}
+} // namespace magnet
 
 namespace dynamo {
-  class Particle;
-  class Event;
-  
-  class Scheduler: public dynamo::SimBase
-  {
-  public:
-    Scheduler(dynamo::Simulation* const, const char *, FEL*);
-  
-    virtual ~Scheduler() = 0;
+class Particle;
+class Event;
 
-    virtual void initialise();
-    virtual void initialiseNBlist() = 0;
+class Scheduler : public dynamo::SimBase {
+public:
+  Scheduler(dynamo::Simulation *const, const char *, FEL *);
 
-    void rebuildList();
-  
-    /*! \brief Retest for events for a single particle.
-     */
-    inline void fullUpdate(Particle& part)
-    {
-      invalidateEvents(part);
-      addEvents(part);
-    }
+  virtual ~Scheduler() = 0;
 
-    /*! \brief Retest for events for two particles.
+  virtual void initialise();
+  virtual void initialiseNBlist() = 0;
 
-      Even though we would have less invalid events in the queue if we
-      interleaved the following updates, we only want one valid event
-      for the (p1,p2) interaction. So we still split the p1 and p2
-      interactions.
-      
-      We want only one valid p1,p2 interaction to help prevent loops in
-      the event recalculation code. So if we try to exectue one p1,p2
-      interaction, but find the p2,p1 interaction is sooner by a
-      numerically insignificant amount caused by being pushed into the
-      sorter, we will enter a loop which has to be broken by the
-      _interactionRejectionCounter logic.
-    */
-    inline void fullUpdate(Particle& p1, Particle& p2)
-    {
-      fullUpdate(p1);
-      fullUpdate(p2);
-    }
+  void rebuildList();
 
-    void invalidateEvents(const Particle&);
+  /*! \brief Retest for events for a single particle.
+   */
+  inline void fullUpdate(Particle &part) {
+    invalidateEvents(part);
+    addEvents(part);
+  }
 
-    void addEvents(Particle&);
+  /*! \brief Retest for events for two particles.
 
-    void popNextEvent();
+    Even though we would have less invalid events in the queue if we
+    interleaved the following updates, we only want one valid event
+    for the (p1,p2) interaction. So we still split the p1 and p2
+    interactions.
 
-    void pushEvent(const Event&);
-  
-    void stream(const double dt) { sorter->stream(dt); }
-  
-    void runNextEvent();
+    We want only one valid p1,p2 interaction to help prevent loops in
+    the event recalculation code. So if we try to exectue one p1,p2
+    interaction, but find the p2,p1 interaction is sooner by a
+    numerically insignificant amount caused by being pushed into the
+    sorter, we will enter a loop which has to be broken by the
+    _interactionRejectionCounter logic.
+  */
+  inline void fullUpdate(Particle &p1, Particle &p2) {
+    fullUpdate(p1);
+    fullUpdate(p2);
+  }
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Scheduler&);
+  void invalidateEvents(const Particle &);
 
-    static shared_ptr<Scheduler>
-    getClass(const magnet::xml::Node&, dynamo::Simulation* const);
+  void addEvents(Particle &);
 
-    virtual void operator<<(const magnet::xml::Node&);
-  
-    void rescaleTimes(const double& scale) { sorter->rescaleTimes(scale); }
+  void popNextEvent();
 
-    const shared_ptr<FEL>& getSorter() const { return sorter; }
+  void pushEvent(const Event &);
 
-    void rebuildSystemEvents() const;
+  void stream(const double dt) { sorter->stream(dt); }
 
-    void addInteractionEvent(const Particle&, const size_t&) const;
-    
-    void addLocalEvent(const Particle&, const size_t&) const;
-    
-    
-    virtual double getNeighbourhoodDistance() const = 0;
-    virtual std::unique_ptr<IDRange> getParticleNeighbours(const Particle&) const = 0;
-    virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const = 0;
-    virtual std::unique_ptr<IDRange> getParticleLocals(const Particle&) const = 0;
-    
-  protected:
-    mutable shared_ptr<FEL> sorter;
-  
-    size_t _interactionRejectionCounter;
-    size_t _localRejectionCounter;
+  void runNextEvent();
 
-    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
-  };
-}
+  friend magnet::xml::XmlStream &operator<<(magnet::xml::XmlStream &,
+                                            const Scheduler &);
+
+  static shared_ptr<Scheduler> getClass(const magnet::xml::Node &,
+                                        dynamo::Simulation *const);
+
+  virtual void operator<<(const magnet::xml::Node &);
+
+  void rescaleTimes(const double &scale) { sorter->rescaleTimes(scale); }
+
+  const shared_ptr<FEL> &getSorter() const { return sorter; }
+
+  void rebuildSystemEvents() const;
+
+  void addInteractionEvent(const Particle &, const size_t &) const;
+
+  void addLocalEvent(const Particle &, const size_t &) const;
+
+  virtual double getNeighbourhoodDistance() const = 0;
+  virtual std::unique_ptr<IDRange>
+  getParticleNeighbours(const Particle &) const = 0;
+  virtual std::unique_ptr<IDRange>
+  getParticleNeighbours(const Vector &) const = 0;
+  virtual std::unique_ptr<IDRange>
+  getParticleLocals(const Particle &) const = 0;
+
+protected:
+  mutable shared_ptr<FEL> sorter;
+
+  size_t _interactionRejectionCounter;
+  size_t _localRejectionCounter;
+
+  virtual void outputXML(magnet::xml::XmlStream &) const = 0;
+};
+} // namespace dynamo

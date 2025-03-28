@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,129 +16,125 @@
 */
 
 #pragma once
-#include <magnet/stream/formattedostream.hpp>
-#include <magnet/exception.hpp>
-#include <memory>
-#include <iostream>
-#include <iomanip>
-#include <limits>
 #include <functional>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <magnet/exception.hpp>
+#include <magnet/stream/formattedostream.hpp>
+#include <memory>
 
-namespace dynamo
-{
-  using std::shared_ptr;
+namespace dynamo {
+using std::shared_ptr;
 
-  class Simulation;
+class Simulation;
 
-  /*! \brief Provides some basic IO functionality to a derived class.
-    
-    This class is the Base class for most of the classes in
-    DynamO. Its purpose is to provide some helpful functionality,
-    such as formatted screen output.
+/*! \brief Provides some basic IO functionality to a derived class.
+
+  This class is the Base class for most of the classes in
+  DynamO. Its purpose is to provide some helpful functionality,
+  such as formatted screen output.
+ */
+class Base {
+public:
+  /*! \brief Initialises the Base class.
+
+    \param aName The name of the class.
    */
-  class Base
-  {
-  public:
-    /*! \brief Initialises the Base class.
-     
-      \param aName The name of the class.
-     */
-    Base(const std::string name);
+  Base(const std::string name);
 
-  protected:
-    void setOutputPrefix(const std::string& prefix);
+protected:
+  void setOutputPrefix(const std::string &prefix);
 
-    /*! \brief A std::cout style output stream. 
-     
-      This member is meant as a replacement to std::cout, as it
-      provides automatic formatting of the output.
-     
-      \note Before any output will appear on the screen, the stream
-      must be flushed. The most convenient way of doing this is to
-      always end your output with a std::endl like so:
-      \code dout << "An example output" << std::endl; \endcode
-     */
-    mutable magnet::stream::FormattedOStream dout;
+  /*! \brief A std::cout style output stream.
 
-    /*! \brief See \ref dout for more information. */
-    mutable magnet::stream::FormattedOStream derr;
+    This member is meant as a replacement to std::cout, as it
+    provides automatic formatting of the output.
 
-    /*! \brief This constructor is only available for virtual
-      inheritance. The concrete derived class must call the other
-      constructor.
-    */
-    Base();
-
-  private:
-    /*! \brief Generate a random console text-color command based off
-      a string.
-     
-      This function is used to automatically pick a color for the
-      formatted output of a class, by using a hash of the classes
-      name.
-     */
-    std::string colorCode(std::string str);
-  };
-
-  /*! \brief A Base class which contains a writable pointer to a
-    Simulation structure.
-   
-    This class must be able to change the Simulation struct it points
-    to.
+    \note Before any output will appear on the screen, the stream
+    must be flushed. The most convenient way of doing this is to
+    always end your output with a std::endl like so:
+    \code dout << "An example output" << std::endl; \endcode
    */
-  class SimBase: public Base
-  {
-  public:
-    /*! \brief Constructor
-     
-      \param SD Pointer to the Simulation class.
-      \param aName The name of the class deriving from this class.
-     */
-    SimBase(Simulation* const SD, const std::string aName);
-    
-    Simulation* const getSimPointer() { return Sim; }
+  mutable magnet::stream::FormattedOStream dout;
 
-  protected:
-    /*! \brief This constructor is only available for virtual
-      inheritance. The concrete derived class must call the other
-      constructor.
-    */
-    SimBase();
+  /*! \brief See \ref dout for more information. */
+  mutable magnet::stream::FormattedOStream derr;
 
-    /*! \brief A pointer to a Simulation, which allows the simulation
-        to be altered.*/
-    Simulation* const Sim;
-  };
-  
-  /*! \brief Similar to the SimBase class except it contains a const
-    pointer to a Simulation class.
-   
-    This class must be able to change the Simulation struct it points to.
+  /*! \brief This constructor is only available for virtual
+    inheritance. The concrete derived class must call the other
+    constructor.
+  */
+  Base();
+
+private:
+  /*! \brief Generate a random console text-color command based off
+    a string.
+
+    This function is used to automatically pick a color for the
+    formatted output of a class, by using a hash of the classes
+    name.
    */
-  class SimBase_const: public Base
-  {
-  public:
-    /*! \brief Constructor
-     
-      \param SD Const pointer to the Simulation struct
-      \param aName The name of the class deriving from this
-      \param aColor The colour of the output from this class.
-     */
-    SimBase_const(const Simulation* const SD, const std::string aName);
+  std::string colorCode(std::string str);
+};
 
-    /*! \brief A pointer to a Simulation, which does not allow the
-      simulation to be altered.*/
-    const Simulation * const  getSimPointer() { return Sim; }
+/*! \brief A Base class which contains a writable pointer to a
+  Simulation structure.
 
-  protected:
-    /*! \brief This constructor is only available for virtual
-     inheritance. The concrete derived class must call the other
-     constructor.
-    */
-    SimBase_const();
+  This class must be able to change the Simulation struct it points
+  to.
+ */
+class SimBase : public Base {
+public:
+  /*! \brief Constructor
 
-    /*! \brief A const pointer to a Simulation class.*/
-    const Simulation * const Sim;
-  };
+    \param SD Pointer to the Simulation class.
+    \param aName The name of the class deriving from this class.
+   */
+  SimBase(Simulation *const SD, const std::string aName);
 
-}
+  Simulation *const getSimPointer() { return Sim; }
+
+protected:
+  /*! \brief This constructor is only available for virtual
+    inheritance. The concrete derived class must call the other
+    constructor.
+  */
+  SimBase();
+
+  /*! \brief A pointer to a Simulation, which allows the simulation
+      to be altered.*/
+  Simulation *const Sim;
+};
+
+/*! \brief Similar to the SimBase class except it contains a const
+  pointer to a Simulation class.
+
+  This class must be able to change the Simulation struct it points to.
+ */
+class SimBase_const : public Base {
+public:
+  /*! \brief Constructor
+
+    \param SD Const pointer to the Simulation struct
+    \param aName The name of the class deriving from this
+    \param aColor The colour of the output from this class.
+   */
+  SimBase_const(const Simulation *const SD, const std::string aName);
+
+  /*! \brief A pointer to a Simulation, which does not allow the
+    simulation to be altered.*/
+  const Simulation *const getSimPointer() { return Sim; }
+
+protected:
+  /*! \brief This constructor is only available for virtual
+   inheritance. The concrete derived class must call the other
+   constructor.
+  */
+  SimBase_const();
+
+  /*! \brief A const pointer to a Simulation class.*/
+  const Simulation *const Sim;
+};
+
+} // namespace dynamo

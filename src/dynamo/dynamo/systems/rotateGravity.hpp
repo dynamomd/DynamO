@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,33 +16,33 @@
 */
 
 #pragma once
-#include <dynamo/systems/system.hpp>
-#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  /*! \brief An event which periodically rotates the gravity vector
-      some amount, to approximate the system being rotated.
-   */
-  class SysRotateGravity: public System
-  {
-  public:
-    SysRotateGravity(const magnet::xml::Node& XML, dynamo::Simulation*);
-    SysRotateGravity(dynamo::Simulation*, std::string name, double timestep, double angularvel, Vector axis);
+/*! \brief An event which periodically rotates the gravity vector
+    some amount, to approximate the system being rotated.
+ */
+class SysRotateGravity : public System {
+public:
+  SysRotateGravity(const magnet::xml::Node &XML, dynamo::Simulation *);
+  SysRotateGravity(dynamo::Simulation *, std::string name, double timestep,
+                   double angularvel, Vector axis);
 
-    virtual NEventData runEvent();
+  virtual NEventData runEvent();
 
-    virtual void initialise(size_t);
+  virtual void initialise(size_t);
 
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void operator<<(const magnet::xml::Node &);
 
-    Vector getAxis() const { return _rotationaxis; }
+  Vector getAxis() const { return _rotationaxis; }
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
 
-    double _timestep;
-    double _angularvel;
-    Vector _rotationaxis;
-  };
-}
+  double _timestep;
+  double _angularvel;
+  Vector _rotationaxis;
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,71 +19,68 @@
 #include <dynamo/BC/BC.hpp>
 
 namespace dynamo {
-  /*! \brief A simple rectangular periodic boundary condition, also a
-      base class for all periodic systems to allow them to be easily
-      identified.
-    
-    See the BoundaryCondition base class for member descriptions.
-   */
-  class BCPeriodic: public BoundaryCondition
-  {
-  public:
-    BCPeriodic(const dynamo::Simulation*);
+/*! \brief A simple rectangular periodic boundary condition, also a
+    base class for all periodic systems to allow them to be easily
+    identified.
 
-    virtual void applyBC(Vector &) const;
-  
-    virtual void applyBC(Vector &, Vector &) const;
+  See the BoundaryCondition base class for member descriptions.
+ */
+class BCPeriodic : public BoundaryCondition {
+public:
+  BCPeriodic(const dynamo::Simulation *);
 
-    virtual void applyBC(Vector &, const double&) const;
+  virtual void applyBC(Vector &) const;
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual void applyBC(Vector &, Vector &) const;
 
-  protected:
-    BCPeriodic(const dynamo::Simulation* const SD, const char *aName):
-      BoundaryCondition(SD, aName) {}
-  };
+  virtual void applyBC(Vector &, const double &) const;
 
-  /*! \brief This class ignores the x direction but is periodic in others.
-   
-    Used to check that a system bounded by walls in the x direction has
-    no leaks as these are not rounded and would show up in animations
-    or inspections.
-   */
-  class BCPeriodicExceptX: public BCPeriodic
-  {
-  public:
-    BCPeriodicExceptX(const dynamo::Simulation*);
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-    virtual void applyBC(Vector& pos) const;
-  
-    virtual void applyBC(Vector& pos, Vector&) const;
-  
-    virtual void applyBC(Vector& pos, const double&) const;
+protected:
+  BCPeriodic(const dynamo::Simulation *const SD, const char *aName)
+      : BoundaryCondition(SD, aName) {}
+};
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    virtual void operator<<(const magnet::xml::Node&);
-  };
+/*! \brief This class ignores the x direction but is periodic in others.
 
-  /*! \brief This class ignores all directions but is periodic in
-    the x.
-    
-     Used to check that a system bounded by walls in the x direction has
-     no leaks as these are not rounded and would show up in animations
-     or inspections.
-    */
-  class BCPeriodicXOnly: public BCPeriodic
-  {
-  public:
-    BCPeriodicXOnly(const dynamo::Simulation*);
+  Used to check that a system bounded by walls in the x direction has
+  no leaks as these are not rounded and would show up in animations
+  or inspections.
+ */
+class BCPeriodicExceptX : public BCPeriodic {
+public:
+  BCPeriodicExceptX(const dynamo::Simulation *);
 
-    virtual void applyBC(Vector& pos) const;
-  
-    virtual void applyBC(Vector& pos, Vector&) const;
-  
-    virtual void applyBC(Vector& pos, const double&) const;
+  virtual void applyBC(Vector &pos) const;
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-    virtual void operator<<(const magnet::xml::Node&);
-  };
-}
+  virtual void applyBC(Vector &pos, Vector &) const;
+
+  virtual void applyBC(Vector &pos, const double &) const;
+
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  virtual void operator<<(const magnet::xml::Node &);
+};
+
+/*! \brief This class ignores all directions but is periodic in
+  the x.
+
+   Used to check that a system bounded by walls in the x direction has
+   no leaks as these are not rounded and would show up in animations
+   or inspections.
+  */
+class BCPeriodicXOnly : public BCPeriodic {
+public:
+  BCPeriodicXOnly(const dynamo::Simulation *);
+
+  virtual void applyBC(Vector &pos) const;
+
+  virtual void applyBC(Vector &pos, Vector &) const;
+
+  virtual void applyBC(Vector &pos, const double &) const;
+
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+  virtual void operator<<(const magnet::xml::Node &);
+};
+} // namespace dynamo

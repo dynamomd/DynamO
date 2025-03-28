@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,24 +16,26 @@
 */
 
 #pragma once
+#include <cstring>
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <cstring>
 
 namespace dynamo {
-  class IDPairRangeAll:public IDPairRange
-  {
-  public:
-    IDPairRangeAll() {}
+class IDPairRangeAll : public IDPairRange {
+public:
+  IDPairRangeAll() {}
 
-    IDPairRangeAll(const magnet::xml::Node& XML, const dynamo::Simulation*) {}
+  IDPairRangeAll(const magnet::xml::Node &XML, const dynamo::Simulation *) {}
 
-    virtual bool isInRange(const Particle&, const Particle&) const { return true; }
-    virtual bool isInRange(const Particle&) const { return true; }
-    
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Type") << "All"; }
-  };
-}
+  virtual bool isInRange(const Particle &, const Particle &) const {
+    return true;
+  }
+  virtual bool isInRange(const Particle &) const { return true; }
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    XML << magnet::xml::attr("Type") << "All";
+  }
+};
+} // namespace dynamo

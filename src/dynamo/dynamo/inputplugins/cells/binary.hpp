@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,33 +16,24 @@
 */
 
 #pragma once
-#include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
+#include <dynamo/inputplugins/cells/cell.hpp>
 
 namespace dynamo {
-  struct CUBinary: public UCell
-  {
-    CUBinary(size_t x, UCell* nextCell1, UCell* nextCell2):
-      UCell(nextCell1),
-      uc2(nextCell2),
-      count(0),
-      countA(x)
-    {}
+struct CUBinary : public UCell {
+  CUBinary(size_t x, UCell *nextCell1, UCell *nextCell2)
+      : UCell(nextCell1), uc2(nextCell2), count(0), countA(x) {}
 
-    std::unique_ptr<UCell> uc2;
-    size_t count;
-    const size_t countA;
-  
-    virtual std::vector<Vector> placeObjects(const Vector & centre)
-    {
-      if (count < countA)
-	{
-	  ++count;
-	  return uc->placeObjects(centre);
-	}
-      else
-	return uc2->placeObjects(centre);
-    }
+  std::unique_ptr<UCell> uc2;
+  size_t count;
+  const size_t countA;
 
-  };
-}
+  virtual std::vector<Vector> placeObjects(const Vector &centre) {
+    if (count < countA) {
+      ++count;
+      return uc->placeObjects(centre);
+    } else
+      return uc2->placeObjects(centre);
+  }
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,38 +17,35 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <list>
 #include <magnet/math/histogram.hpp>
 #include <vector>
-#include <list>
 
 namespace dynamo {
-  class OPChainBondAngles: public OPTicker
-  {
-  public:
-    OPChainBondAngles(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPChainBondAngles : public OPTicker {
+public:
+  OPChainBondAngles(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
+  virtual void ticker();
 
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream &);
 
-    virtual void operator<<(const magnet::xml::Node&);
-  
-  protected:
+  virtual void operator<<(const magnet::xml::Node &);
 
-    struct Cdata
-    {
-      Cdata(size_t, size_t, double);
-      const size_t chainID;
-      std::vector<magnet::math::Histogram<> > BondCorrelations;
-      std::vector<double> BondCorrelationsAvg;
-      std::vector<size_t> BondCorrelationsSamples;
-    };
-
-    std::list<Cdata> chains;
-    double binwidth;
+protected:
+  struct Cdata {
+    Cdata(size_t, size_t, double);
+    const size_t chainID;
+    std::vector<magnet::math::Histogram<>> BondCorrelations;
+    std::vector<double> BondCorrelationsAvg;
+    std::vector<size_t> BondCorrelationsSamples;
   };
-}
+
+  std::list<Cdata> chains;
+  double binwidth;
+};
+} // namespace dynamo

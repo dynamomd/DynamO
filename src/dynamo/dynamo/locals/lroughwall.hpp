@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,33 +19,33 @@
 #include <dynamo/locals/local.hpp>
 
 namespace dynamo {
-  class LRoughWall: public Local
-  {
-  public:
-    LRoughWall(const magnet::xml::Node&, dynamo::Simulation*);
-    LRoughWall(dynamo::Simulation*, double, double, double, Vector , Vector , 
-	       std::string, IDRange*, bool nrender = true);
+class LRoughWall : public Local {
+public:
+  LRoughWall(const magnet::xml::Node &, dynamo::Simulation *);
+  LRoughWall(dynamo::Simulation *, double, double, double, Vector, Vector,
+             std::string, IDRange *, bool nrender = true);
 
-    virtual ~LRoughWall() {}
+  virtual ~LRoughWall() {}
 
-    virtual Event getEvent(const Particle&) const;
+  virtual Event getEvent(const Particle &) const;
 
-    virtual void initialise(size_t nID);
+  virtual void initialise(size_t nID);
 
-    virtual ParticleEventData runEvent(Particle&, const Event&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual ParticleEventData runEvent(Particle &, const Event &) const;
 
-    virtual bool validateState(const Particle& part, bool textoutput = true) const;
+  virtual void operator<<(const magnet::xml::Node &);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual bool validateState(const Particle &part,
+                             bool textoutput = true) const;
 
-    Vector  vNorm;
-    Vector  vPosition;
-    double e;
-    double et;
-    double r;
-    bool render;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+
+  Vector vNorm;
+  Vector vPosition;
+  double e;
+  double et;
+  double r;
+  bool render;
+};
+} // namespace dynamo

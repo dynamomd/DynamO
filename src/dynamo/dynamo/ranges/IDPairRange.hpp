@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,29 +18,36 @@
 #pragma once
 #include <memory>
 
-namespace magnet { namespace xml { class Node; class XmlStream; } }
-namespace dynamo { 
-  using std::shared_ptr;
-  class Simulation;
-  class Particle;
+namespace magnet {
+namespace xml {
+class Node;
+class XmlStream;
+} // namespace xml
+} // namespace magnet
+namespace dynamo {
+using std::shared_ptr;
+class Simulation;
+class Particle;
 
-  class IDPairRange
-  {
-  public:
-    virtual ~IDPairRange() {}
- 
-    /*! \brief Test if the pair of particles are represented in this
-      Range. */
-    virtual bool isInRange(const Particle&, const Particle&) const = 0;
+class IDPairRange {
+public:
+  virtual ~IDPairRange() {}
 
-    /*! \brief Test if this one particle is within the Range, with any
-      other particle. */
-    virtual bool isInRange(const Particle&) const = 0;
+  /*! \brief Test if the pair of particles are represented in this
+    Range. */
+  virtual bool isInRange(const Particle &, const Particle &) const = 0;
 
-    static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
-    
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const IDPairRange& range);
- protected:
-    virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
-  };
-}
+  /*! \brief Test if this one particle is within the Range, with any
+    other particle. */
+  virtual bool isInRange(const Particle &) const = 0;
+
+  static IDPairRange *getClass(const magnet::xml::Node &,
+                               const dynamo::Simulation *);
+
+  friend magnet::xml::XmlStream &operator<<(magnet::xml::XmlStream &XML,
+                                            const IDPairRange &range);
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const = 0;
+};
+} // namespace dynamo

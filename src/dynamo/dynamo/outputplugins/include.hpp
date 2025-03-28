@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,14 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/tickerproperty/include.hpp>
-#include <dynamo/outputplugins/collMatrix.hpp>
-#include <dynamo/outputplugins/eventtypetracking.hpp>
-#include <dynamo/outputplugins/msdOrientational.hpp>
-#include <dynamo/outputplugins/trajectory.hpp>
-#include <dynamo/outputplugins/contactmap.hpp>
-#include <dynamo/outputplugins/misc.hpp>
-#include <dynamo/outputplugins/eventEffects.hpp>
-#include <dynamo/outputplugins/intEnergyHist.hpp>
-#include <dynamo/outputplugins/msd.hpp>
 #include <dynamo/outputplugins/brenner.hpp>
+#include <dynamo/outputplugins/collMatrix.hpp>
+#include <dynamo/outputplugins/contactmap.hpp>
+#include <dynamo/outputplugins/eventEffects.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/outputplugins/intEnergyHist.hpp>
+#include <dynamo/outputplugins/misc.hpp>
+#include <dynamo/outputplugins/msd.hpp>
+#include <dynamo/outputplugins/msdOrientational.hpp>
+#include <dynamo/outputplugins/tickerproperty/include.hpp>
+#include <dynamo/outputplugins/trajectory.hpp>

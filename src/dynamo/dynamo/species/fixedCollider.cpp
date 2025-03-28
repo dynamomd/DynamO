@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,32 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/species/fixedCollider.hpp>
 #include <dynamo/simulation.hpp>
+#include <dynamo/species/fixedCollider.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  void 
-  SpFixedCollider::initialise()
-  {
-    SpPoint::initialise();
+void SpFixedCollider::initialise() {
+  SpPoint::initialise();
 
-    for (size_t ID : *range)
-      Sim->particles[ID].clearState(Particle::DYNAMIC);
-  }
-
-  void 
-  SpFixedCollider::operator<<(const magnet::xml::Node& XML)
-  {
-    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-    spName = XML.getAttribute("Name");
-  }
-
-  void 
-  SpFixedCollider::outputXML(magnet::xml::XmlStream& XML) const
-  {
-    XML << magnet::xml::attr("Name") << spName
-	<< magnet::xml::attr("Type") << "FixedCollider";
-    XML << *range;
-  }
+  for (size_t ID : *range)
+    Sim->particles[ID].clearState(Particle::DYNAMIC);
 }
+
+void SpFixedCollider::operator<<(const magnet::xml::Node &XML) {
+  range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
+  spName = XML.getAttribute("Name");
+}
+
+void SpFixedCollider::outputXML(magnet::xml::XmlStream &XML) const {
+  XML << magnet::xml::attr("Name") << spName << magnet::xml::attr("Type")
+      << "FixedCollider";
+  XML << *range;
+}
+} // namespace dynamo

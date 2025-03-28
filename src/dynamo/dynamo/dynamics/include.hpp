@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/newtonian.hpp>
+#include <dynamo/dynamics/baloon.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/dynamics/multicanonical_contactmap.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/dynamics/viscous.hpp>
-#include <dynamo/dynamics/baloon.hpp>

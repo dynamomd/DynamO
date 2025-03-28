@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,30 +20,31 @@
 #include <dynamo/interactions/interaction.hpp>
 
 namespace dynamo {
-  class INull: public Interaction
-  {
-  public:
-    INull(dynamo::Simulation*, IDPairRange*, std::string);
+class INull : public Interaction {
+public:
+  INull(dynamo::Simulation *, IDPairRange *, std::string);
 
-    INull(const magnet::xml::Node&, dynamo::Simulation*);
+  INull(const magnet::xml::Node &, dynamo::Simulation *);
 
-    void operator<<(const magnet::xml::Node&);
+  void operator<<(const magnet::xml::Node &);
 
-    virtual double getInternalEnergy() const { return 0; }
+  virtual double getInternalEnergy() const { return 0; }
 
-    virtual void initialise(size_t);
+  virtual void initialise(size_t);
 
-    virtual double maxIntDist() const { return 0; }
+  virtual double maxIntDist() const { return 0; }
 
-    virtual double getExcludedVolume(size_t) const { return 0; }
+  virtual double getExcludedVolume(size_t) const { return 0; }
 
-    virtual Event getEvent(const Particle&, const Particle&) const;
- 
-    virtual PairEventData runEvent(Particle&, Particle&, Event);
-   
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+  virtual Event getEvent(const Particle &, const Particle &) const;
 
-    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const { return false; }
-  };
-}
+  virtual PairEventData runEvent(Particle &, Particle &, Event);
 
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+
+  virtual bool validateState(const Particle &p1, const Particle &p2,
+                             bool textoutput = true) const {
+    return false;
+  }
+};
+} // namespace dynamo

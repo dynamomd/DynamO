@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,20 +20,19 @@
 #include <vector>
 
 namespace dynamo {
-  class GParabolaSentinel: public Global
-  {
-  public:
-    GParabolaSentinel(dynamo::Simulation*, const std::string&);
-  
-    virtual ~GParabolaSentinel() {}
+class GParabolaSentinel : public Global {
+public:
+  GParabolaSentinel(dynamo::Simulation *, const std::string &);
 
-    virtual Event getEvent(const Particle &) const;
+  virtual ~GParabolaSentinel() {}
 
-    virtual void runEvent(Particle&, const double);
+  virtual Event getEvent(const Particle &) const;
 
-    virtual void operator<<(const magnet::xml::Node&) {}
+  virtual void runEvent(Particle &, const double);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const {}
-  };
-}
+  virtual void operator<<(const magnet::xml::Node &) {}
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const {}
+};
+} // namespace dynamo

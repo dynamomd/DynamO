@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,56 +16,54 @@
 */
 
 #pragma once
-#include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/base.hpp>
 #include <dynamo/particle.hpp>
-#include <magnet/xmlwriter.hpp>
-#include <magnet/xmlreader.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <list>
+#include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  class IDPairRangeUnion:public IDPairRange, dynamo::SimBase_const
-  {
-  public:
-    IDPairRangeUnion(const dynamo::Simulation* nSim):
-      SimBase_const(nSim, "IDPairRangeUnion") {}
+class IDPairRangeUnion : public IDPairRange, dynamo::SimBase_const {
+public:
+  IDPairRangeUnion(const dynamo::Simulation *nSim)
+      : SimBase_const(nSim, "IDPairRangeUnion") {}
 
-    IDPairRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
-      SimBase_const(nSim, "IDPairRangeUnion")
-    {
-      for (magnet::xml::Node node = XML.findNode("IDPairRange"); node.valid(); ++node)
-	{
-	  shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
-	  ranges.push_back(ptr);
-	}
+  IDPairRangeUnion(const magnet::xml::Node &XML, const dynamo::Simulation *nSim)
+      : SimBase_const(nSim, "IDPairRangeUnion") {
+    for (magnet::xml::Node node = XML.findNode("IDPairRange"); node.valid();
+         ++node) {
+      shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
+      ranges.push_back(ptr);
     }
-    
-    virtual bool isInRange(const Particle&p1, const Particle&p2) const
-    {
-      for (const shared_ptr<IDPairRange>& rPtr : ranges)
-	if (rPtr->isInRange(p1, p2)) return true;
-      return false;
-    }
+  }
 
-    virtual bool isInRange(const Particle&p1) const
-    {
-      for (const shared_ptr<IDPairRange>& rPtr : ranges)
-	if (rPtr->isInRange(p1)) return true;
-      return false;
-    }
+  virtual bool isInRange(const Particle &p1, const Particle &p2) const {
+    for (const shared_ptr<IDPairRange> &rPtr : ranges)
+      if (rPtr->isInRange(p1, p2))
+        return true;
+    return false;
+  }
 
-    void addRange(IDPairRange* nRange)
-    { ranges.push_back(shared_ptr<IDPairRange>(nRange)); }
-  
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream& XML) const
-    {
-      XML << magnet::xml::attr("Type") << "Union";
+  virtual bool isInRange(const Particle &p1) const {
+    for (const shared_ptr<IDPairRange> &rPtr : ranges)
+      if (rPtr->isInRange(p1))
+        return true;
+    return false;
+  }
 
-      for (const shared_ptr<IDPairRange>& rPtr : ranges)
-	XML << rPtr;
-    }
+  void addRange(IDPairRange *nRange) {
+    ranges.push_back(shared_ptr<IDPairRange>(nRange));
+  }
 
-    std::list<shared_ptr<IDPairRange> > ranges;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    XML << magnet::xml::attr("Type") << "Union";
+
+    for (const shared_ptr<IDPairRange> &rPtr : ranges)
+      XML << rPtr;
+  }
+
+  std::list<shared_ptr<IDPairRange>> ranges;
+};
+} // namespace dynamo

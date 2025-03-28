@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -15,152 +15,141 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <iostream>
 #include <magnet/CL/radixsort_NVIDIA.hpp>
-#include <algorithm>
 
-template<class T>
-bool testOutput(const std::vector<T>& input, const std::vector<T>& output)
-{
+template <class T>
+bool testOutput(const std::vector<T> &input, const std::vector<T> &output) {
   std::vector<T> answer(input);
-  
+
   std::sort(answer.begin(), answer.end());
-  
+
   bool result = true;
   for (size_t i(0); i < output.size(); ++i)
-    if (output[i] != answer[i])
-      {
-	//std::cout << "Error i = " << i 
-	//	  << " output = " << output[i]
-	//	  << " answer = " << answer[i]
-	//	  << "\n";
-	result = false;
-      }
+    if (output[i] != answer[i]) {
+      // std::cout << "Error i = " << i
+      //	  << " output = " << output[i]
+      //	  << " answer = " << answer[i]
+      //	  << "\n";
+      result = false;
+    }
 
   return result;
 }
 
-template<class T>
-bool runTestType(cl::Context context, cl::CommandQueue queue)
-{
+template <class T>
+bool runTestType(cl::Context context, cl::CommandQueue queue) {
   cl_uint size = 1024 * 5;
 
   std::vector<T> input(size);
 
-  std::cout << "##Testing NVIDIA radix sort for " << input.size() << " elements and type " 
-	    << magnet::CL::detail::traits<T>::kernel_type();
-  
-  for(size_t i = 0; i < input.size(); ++i)
+  std::cout << "##Testing NVIDIA radix sort for " << input.size()
+            << " elements and type "
+            << magnet::CL::detail::traits<T>::kernel_type();
+
+  for (size_t i = 0; i < input.size(); ++i)
     input[i] = input.size() - i - 1;
-  
+
   // create input buffer using pinned memory
-  cl::Buffer bufferIn(context, CL_MEM_ALLOC_HOST_PTR |
-		      CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE, 
-		      sizeof(T) * input.size(), &input[0])
-    ;
-  
+  cl::Buffer bufferIn(
+      context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE,
+      sizeof(T) * input.size(), &input[0]);
+
   magnet::CL::radixSortNVIDIA<T> radixSortFunctor;
   radixSortFunctor.build(queue, context);
   radixSortFunctor(bufferIn, bufferIn);
 
   std::vector<T> output(size);
- 
-  queue.enqueueReadBuffer(bufferIn, CL_TRUE, 0, input.size() *
-			  sizeof(T), &output[0]);
+
+  queue.enqueueReadBuffer(bufferIn, CL_TRUE, 0, input.size() * sizeof(T),
+                          &output[0]);
 
   bool failed = !testOutput(input, output);
 
-  std::cout << " key(only) " << (failed ? "FAILED" : "PASSED") << ", "; 
+  std::cout << " key(only) " << (failed ? "FAILED" : "PASSED") << ", ";
 
-  //Now test with some data!
-  //Refresh the input array
-  queue.enqueueWriteBuffer(bufferIn, CL_TRUE, 0, input.size() *
-			   sizeof(T), &input[0]);
+  // Now test with some data!
+  // Refresh the input array
+  queue.enqueueWriteBuffer(bufferIn, CL_TRUE, 0, input.size() * sizeof(T),
+                           &input[0]);
 
-  //Write a data array
+  // Write a data array
   std::vector<cl_uint> data(size);
-  for(size_t i = 0; i < input.size(); ++i)
+  for (size_t i = 0; i < input.size(); ++i)
     data[i] = i;
 
-  cl::Buffer dataIn(context, CL_MEM_ALLOC_HOST_PTR |
-		    CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE, 
-		    sizeof(cl_uint) * data.size(), &data[0])
-    ;
+  cl::Buffer dataIn(
+      context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE,
+      sizeof(cl_uint) * data.size(), &data[0]);
 
   radixSortFunctor(bufferIn, dataIn, bufferIn, dataIn);
-  
-  queue.enqueueReadBuffer(dataIn, CL_TRUE, 0, data.size() *
-			  sizeof(cl_uint), &data[0]);
+
+  queue.enqueueReadBuffer(dataIn, CL_TRUE, 0, data.size() * sizeof(cl_uint),
+                          &data[0]);
 
   bool keyfail = !testOutput(input, output);
 
-  std::cout << " key " << (keyfail ? "FAILED" : "PASSED"); 
+  std::cout << " key " << (keyfail ? "FAILED" : "PASSED");
 
   bool datafail = false;
-  for(size_t i = 0; i < input.size(); ++i)
+  for (size_t i = 0; i < input.size(); ++i)
     if (data[i] != input.size() - 1 - i)
       datafail = true;
 
   std::cout << " data " << (datafail ? "FAILED" : "PASSED") << std::endl;
-  
+
   return failed || keyfail || datafail;
 }
 
-bool runTest(cl::Context context, cl::CommandQueue queue)
-{
-  bool fail = runTestType<cl_uint>(context, queue)
-    || runTestType<cl_int>(context, queue)
-    || runTestType<cl_float>(context, queue);
+bool runTest(cl::Context context, cl::CommandQueue queue) {
+  bool fail = runTestType<cl_uint>(context, queue) ||
+              runTestType<cl_int>(context, queue) ||
+              runTestType<cl_float>(context, queue);
 
   return fail;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   bool fail = false;
   try {
-    //Test all devices and platforms for compatability
+    // Test all devices and platforms for compatability
     std::vector<cl::Platform> platforms;
     cl::Platform::get(&platforms);
 
-    for(std::vector<cl::Platform>::const_iterator pltfmIt =
-	  platforms.begin(); pltfmIt != platforms.end(); ++pltfmIt) 
-      {
-	std::cout << "OpenCL platform [" << pltfmIt - platforms.begin() << "]: " <<
-	  pltfmIt->getInfo<CL_PLATFORM_NAME>() << std::endl;
-      
-	std::vector<cl::Device> allDevices;
-	pltfmIt->getDevices(CL_DEVICE_TYPE_ALL, &allDevices);
-      
-	for(std::vector<cl::Device>::const_iterator devIt = allDevices.begin(); 
-	    devIt != allDevices.end(); ++devIt)
-	  {
-	    std::cout << "#OpenCL device [" << devIt - allDevices.begin() << "]: " <<
-	      devIt->getInfo<CL_DEVICE_NAME>() << std::endl;
-	  
-	    std::vector<cl::Device> devices;
-	    devices.push_back(*devIt);
-	  
-	    cl::Context context(devices);
-	    cl::CommandQueue queue(context, devices.front());
-	  
-	    fail |= runTest(context, queue);
-	  
-	  }
+    for (std::vector<cl::Platform>::const_iterator pltfmIt = platforms.begin();
+         pltfmIt != platforms.end(); ++pltfmIt) {
+      std::cout << "OpenCL platform [" << pltfmIt - platforms.begin()
+                << "]: " << pltfmIt->getInfo<CL_PLATFORM_NAME>() << std::endl;
+
+      std::vector<cl::Device> allDevices;
+      pltfmIt->getDevices(CL_DEVICE_TYPE_ALL, &allDevices);
+
+      for (std::vector<cl::Device>::const_iterator devIt = allDevices.begin();
+           devIt != allDevices.end(); ++devIt) {
+        std::cout << "#OpenCL device [" << devIt - allDevices.begin()
+                  << "]: " << devIt->getInfo<CL_DEVICE_NAME>() << std::endl;
+
+        std::vector<cl::Device> devices;
+        devices.push_back(*devIt);
+
+        cl::Context context(devices);
+        cl::CommandQueue queue(context, devices.front());
+
+        fail |= runTest(context, queue);
       }
-  } catch(magnet::exception& err) {
-    std::cerr << "Magnet error: " << err.what()
-	      << std::endl;
+    }
+  } catch (magnet::exception &err) {
+    std::cerr << "Magnet error: " << err.what() << std::endl;
 
     return 1;
-    
-  } catch(cl::Error& err) {
-    std::cerr << "OpenCL error: " << err.what() << "(" << err.err() 
-	      << ")" << std::endl;
 
-    return 1;//Test failed
-  } 
-  
+  } catch (cl::Error &err) {
+    std::cerr << "OpenCL error: " << err.what() << "(" << err.err() << ")"
+              << std::endl;
+
+    return 1; // Test failed
+  }
+
   return fail;
 }
-

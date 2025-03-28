@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,37 +22,33 @@
 #include <vector>
 
 namespace dynamo {
-  class TChain;
-  class IDRange;
+class TChain;
+class IDRange;
 
-  class OPCContactMap: public OPTicker
-  {
-  public:
-    OPCContactMap(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPCContactMap : public OPTicker {
+public:
+  OPCContactMap(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
+  virtual void ticker();
 
-    virtual void replicaExchange(OutputPlugin&);
+  virtual void replicaExchange(OutputPlugin &);
 
-    virtual void output(magnet::xml::XmlStream&);
-  
-  protected:
+  virtual void output(magnet::xml::XmlStream &);
 
-    struct Cdata
-    {
-      Cdata(const TChain*, unsigned long);
+protected:
+  struct Cdata {
+    Cdata(const TChain *, unsigned long);
 
-      const TChain* chainPtr;
-      std::unique_ptr<unsigned long[]> array;
-      unsigned long counter;
-      unsigned long chainlength;
-    };
-
-    std::vector<Cdata> chains;
-
+    const TChain *chainPtr;
+    std::unique_ptr<unsigned long[]> array;
+    unsigned long counter;
+    unsigned long chainlength;
   };
-}
+
+  std::vector<Cdata> chains;
+};
+} // namespace dynamo

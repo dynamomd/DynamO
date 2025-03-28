@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,15 +16,17 @@
 */
 
 #pragma once
-#include <magnet/intersection/ray_sphere.hpp>
+#include <magnet/intersection/parabola_sphere.hpp>
 
-namespace magnet {
-  namespace intersection {
+namespace magnet
+{
+  namespace intersection
+  {
     /*! \brief A parabola-cylinder intersection test.
-      
+
       This test ignores the back face of the cylinder, it is used to
       detect when a ray will enter a cylinder.
-      
+
       \param T The origin of the ray relative to a point on the cylinder axis.
       \param D The direction/velocity of the ray.
       \param Aray The acceleration acting on the ray
@@ -32,9 +34,9 @@ namespace magnet {
       \param r Radius of the cylinder.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double parabola_cylinder(math::Vector T, math::Vector D, math::Vector Aray, const math::Vector& A, const double r)
+    inline double parabola_cylinder(math::Vector T, math::Vector D, math::Vector Aray, const math::Vector &A, const double r)
     {
-      //Project off the axial component of the position, velocity and acceleration
+      // Project off the axial component of the position, velocity and acceleration
       T -= math::Vector((T | A) * A);
       D -= math::Vector((D | A) * A);
       Aray -= math::Vector((Aray | A) * A);

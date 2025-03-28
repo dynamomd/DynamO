@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,26 +17,26 @@
 
 #pragma once
 #include <dynamo/eventtypes.hpp>
-#include <utility>
 #include <string>
+#include <utility>
 
-namespace dynamo
-{
-  class Simulation;
-  class Interaction;
-  class System;
+namespace dynamo {
+class Simulation;
+class Interaction;
+class System;
 
-  namespace EventTypeTracking {
-  
-    //! Keeps the ID and type of the event source
-    typedef std::pair<size_t, EventSource> EventSourceKey;
+namespace EventTypeTracking {
 
-    //! Event source And Type
-    typedef std::pair<EventSourceKey, EEventType> EventKey;
+//! Keeps the ID and type of the event source
+typedef std::pair<size_t, EventSource> EventSourceKey;
 
-    std::string getEventSourceName(const EventSourceKey&, const dynamo::Simulation*);
-    std::string getEventSourceTypeName(const EventSourceKey&);
+//! Event source And Type
+typedef std::pair<EventSourceKey, EEventType> EventKey;
 
-    EventSourceKey getEventSourceKey(const Event&);
-  }
-}
+std::string getEventSourceName(const EventSourceKey &,
+                               const dynamo::Simulation *);
+std::string getEventSourceTypeName(const EventSourceKey &);
+
+EventSourceKey getEventSourceKey(const Event &);
+} // namespace EventTypeTracking
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,34 +17,33 @@
 
 #pragma once
 
+#include <array>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 #include <magnet/math/vector.hpp>
-#include <array>
 
 namespace dynamo {
-  class OPKEnergyTicker: public OPTicker
-  {
-  public:
-    OPKEnergyTicker(const dynamo::Simulation*, const magnet::xml::Node&);
+class OPKEnergyTicker : public OPTicker {
+public:
+  OPKEnergyTicker(const dynamo::Simulation *, const magnet::xml::Node &);
 
-    typedef std::array<double, NDIM> col;
-    typedef std::array<col, NDIM> matrix;
+  typedef std::array<double, NDIM> col;
+  typedef std::array<col, NDIM> matrix;
 
-    virtual void initialise();
+  virtual void initialise();
 
-    virtual void stream(double) {}
+  virtual void stream(double) {}
 
-    virtual void ticker();
-  
-    virtual void output(magnet::xml::XmlStream&);
+  virtual void ticker();
 
-    void operator<<(const magnet::xml::Node&);
+  virtual void output(magnet::xml::XmlStream &);
 
-    virtual void periodicOutput();
+  void operator<<(const magnet::xml::Node &);
 
-  protected:
-    size_t count;
-    matrix sum;
-  };
-}
+  virtual void periodicOutput();
+
+protected:
+  size_t count;
+  matrix sum;
+};
+} // namespace dynamo

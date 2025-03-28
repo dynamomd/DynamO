@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,19 +19,17 @@
 #include <dynamo/topology/topology.hpp>
 
 namespace dynamo {
-  class TChain: public Topology
-  {
-  public:  
-    TChain(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
+class TChain : public Topology {
+public:
+  TChain(const magnet::xml::Node &, dynamo::Simulation *, unsigned int ID);
 
-    TChain(dynamo::Simulation*, unsigned int ID, std::string);
+  TChain(dynamo::Simulation *, unsigned int ID, std::string);
 
-    virtual ~TChain() {}
-  
-    virtual void operator<<(const magnet::xml::Node&);
+  virtual ~TChain() {}
 
-  protected:
-  
-    virtual void outputXML(magnet::xml::XmlStream&) const;
-  };
-}
+  virtual void operator<<(const magnet::xml::Node &);
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const;
+};
+} // namespace dynamo

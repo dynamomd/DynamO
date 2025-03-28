@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,26 +19,25 @@
 #include "filter.hpp"
 #include <magnet/GL/shader/multiplyTexture.hpp>
 
-namespace coil 
-{
-  class MultiplyFilter: public Filter
-  {
-  public:
-    MultiplyFilter() { _filter.build(); }
+namespace coil {
+class MultiplyFilter : public Filter {
+public:
+  MultiplyFilter() { _filter.build(); }
 
-    inline virtual size_t type_id() { return detail::filterEnum<MultiplyFilter>::val; }
-    inline virtual bool isEditable() { return false; }
-    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
-			       const magnet::GL::Camera& vp)
-    { 
-      _filter.attach();
-      _filter["u_Texture0"] = colorTextureUnit;
-      _filter["u_Texture1"] = 0;
-      _filter.invoke(); 
-      _filter.detach();
-    }
+  inline virtual size_t type_id() {
+    return detail::filterEnum<MultiplyFilter>::val;
+  }
+  inline virtual bool isEditable() { return false; }
+  inline virtual void invoke(GLint colorTextureUnit, size_t width,
+                             size_t height, const magnet::GL::Camera &vp) {
+    _filter.attach();
+    _filter["u_Texture0"] = colorTextureUnit;
+    _filter["u_Texture1"] = 0;
+    _filter.invoke();
+    _filter.detach();
+  }
 
-  protected:
-    magnet::GL::shader::MultiplyTexture _filter;
-  };
-}
+protected:
+  magnet::GL::shader::MultiplyTexture _filter;
+};
+} // namespace coil

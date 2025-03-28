@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,38 +16,36 @@
 */
 
 #pragma once
-#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/ranges/IDPairRange.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 
 namespace dynamo {
-  class IDPairRangePair:public IDPairRange
-  {
-  public:
-    IDPairRangePair(IDRange* r1, IDRange* r2 ):range1(r1), range2(r2) {}
+class IDPairRangePair : public IDPairRange {
+public:
+  IDPairRangePair(IDRange *r1, IDRange *r2) : range1(r1), range2(r2) {}
 
-    IDPairRangePair(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
-    { 
-      magnet::xml::Node subRangeXML = XML.getNode("IDRange");
-      range1 = shared_ptr<IDRange>(IDRange::getClass(subRangeXML, Sim));
-      ++subRangeXML;
-      range2 = shared_ptr<IDRange>(IDRange::getClass(subRangeXML, Sim));
-    }
+  IDPairRangePair(const magnet::xml::Node &XML, const dynamo::Simulation *Sim) {
+    magnet::xml::Node subRangeXML = XML.getNode("IDRange");
+    range1 = shared_ptr<IDRange>(IDRange::getClass(subRangeXML, Sim));
+    ++subRangeXML;
+    range2 = shared_ptr<IDRange>(IDRange::getClass(subRangeXML, Sim));
+  }
 
-    virtual bool isInRange(const Particle&p1, const Particle&p2) const
-    { return (range1->isInRange(p1) && range2->isInRange(p2)) || (range1->isInRange(p2) && range2->isInRange(p1)); }
+  virtual bool isInRange(const Particle &p1, const Particle &p2) const {
+    return (range1->isInRange(p1) && range2->isInRange(p2)) ||
+           (range1->isInRange(p2) && range2->isInRange(p1));
+  }
 
-    virtual bool isInRange(const Particle&p1) const
-    { return range1->isInRange(p1) || range2->isInRange(p1); }
+  virtual bool isInRange(const Particle &p1) const {
+    return range1->isInRange(p1) || range2->isInRange(p1);
+  }
 
-  protected:
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    XML << magnet::xml::attr("Type") << "Pair" << range1 << range2;
+  }
 
-    virtual void outputXML(magnet::xml::XmlStream& XML) const
-    {
-      XML << magnet::xml::attr("Type") << "Pair"
-	  << range1 << range2;
-    }
-
-    shared_ptr<IDRange> range1;
-    shared_ptr<IDRange> range2;
-  };
-}
+  shared_ptr<IDRange> range1;
+  shared_ptr<IDRange> range2;
+};
+} // namespace dynamo

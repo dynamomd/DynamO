@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,59 +16,44 @@
 */
 
 #pragma once
-#include <dynamo/species/species.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/particle.hpp>
+#include <dynamo/species/species.hpp>
 
 namespace dynamo {
-  class ParticleEventData
-  {
-  public:
-    ParticleEventData() {}
+class ParticleEventData {
+public:
+  ParticleEventData() {}
 
-    ParticleEventData(const Particle& part, const Species& sp,
-		      EEventType eType):
-      particleID(part.getID()), 
-      oldVelVec(part.getVelocity()),
-      speciesID(sp.getID()), Type_(eType),
-      deltaU(0.0),
-      oldKE(sp.getParticleKineticEnergy(part))
-    {}
+  ParticleEventData(const Particle &part, const Species &sp, EEventType eType)
+      : particleID(part.getID()), oldVelVec(part.getVelocity()),
+        speciesID(sp.getID()), Type_(eType), deltaU(0.0),
+        oldKE(sp.getParticleKineticEnergy(part)) {}
 
-    inline size_t getParticleID() const
-    { return particleID; }
-  
-    inline Vector getOldVel() const
-    { return oldVelVec; }
+  inline size_t getParticleID() const { return particleID; }
 
-    inline Vector getOldPosition() const
-    { M_throw() << "Not yet Implemented"; }
+  inline Vector getOldVel() const { return oldVelVec; }
 
-    inline size_t getSpeciesID() const
-    { return speciesID; }
+  inline Vector getOldPosition() const { M_throw() << "Not yet Implemented"; }
 
-    inline void setType(EEventType nType)
-    { Type_ = nType; }
+  inline size_t getSpeciesID() const { return speciesID; }
 
-    inline double getDeltaU() const
-    { return deltaU; }
-  
-    inline void setDeltaU(const double& dU)
-    { deltaU = dU; }
+  inline void setType(EEventType nType) { Type_ = nType; }
 
-    inline EEventType getType() const
-    { return Type_; }
+  inline double getDeltaU() const { return deltaU; }
 
-    inline double getOldKE() const {
-      return oldKE;
-    }
-    
-  private:
-    size_t particleID;
-    Vector  oldVelVec;
-    size_t speciesID;
-    EEventType Type_;
-    double deltaU;
-    double oldKE;
-  };
-}
+  inline void setDeltaU(const double &dU) { deltaU = dU; }
+
+  inline EEventType getType() const { return Type_; }
+
+  inline double getOldKE() const { return oldKE; }
+
+private:
+  size_t particleID;
+  Vector oldVelVec;
+  size_t speciesID;
+  EEventType Type_;
+  double deltaU;
+  double oldKE;
+};
+} // namespace dynamo

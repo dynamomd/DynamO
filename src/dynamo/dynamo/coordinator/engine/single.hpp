@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,48 +22,47 @@
 #include <dynamo/coordinator/engine/engine.hpp>
 
 namespace dynamo {
-  /*! \brief An Engine for simulating a single system.
+/*! \brief An Engine for simulating a single system.
+ *
+ * This merely sets up and exectues a single Simulation instance.
+ */
+class ESingleSimulation : public Engine {
+public:
+  /*! \brief Only constructor.
    *
-   * This merely sets up and exectues a single Simulation instance.
+   * \param vm A reference to the Coordinator's parsed command line variables.
+   * \param tp A reference to the thread pool of the dynarun instance.
    */
-  class ESingleSimulation: public Engine
-  {
-  public:
-    /*! \brief Only constructor.
-     *
-     * \param vm A reference to the Coordinator's parsed command line variables.
-     * \param tp A reference to the thread pool of the dynarun instance.
-     */ 
-    ESingleSimulation(const boost::program_options::variables_map& vm, 
-		      magnet::thread::ThreadPool& tp);
+  ESingleSimulation(const boost::program_options::variables_map &vm,
+                    magnet::thread::ThreadPool &tp);
 
-    /*! \brief Trivial virtual destructor */
-    virtual ~ESingleSimulation() {}
-    
-    /*! \brief Just runs the Simulation::runSimulation() loop and
-     * provides a peek functionality.
-     */
-    virtual void runSimulation();
+  /*! \brief Trivial virtual destructor */
+  virtual ~ESingleSimulation() {}
 
-    /*! \brief Just wraps the Simulation::outputData(const char*) function.
-     */
-    virtual void outputData();
-  
-    /*! \brief Just wraps the Simulation::writeXMLfile(const char*) function.
-     */
-    virtual void outputConfigs();
+  /*! \brief Just runs the Simulation::runSimulation() loop and
+   * provides a peek functionality.
+   */
+  virtual void runSimulation();
 
-    /*! \brief No Engine finalisation required.
-     */
-    virtual void finaliseRun() {}
+  /*! \brief Just wraps the Simulation::outputData(const char*) function.
+   */
+  virtual void outputData();
 
-    /*! \brief Performs the minimum steps to initialise a simulation.
-     */
-    virtual void initialisation();
+  /*! \brief Just wraps the Simulation::writeXMLfile(const char*) function.
+   */
+  virtual void outputConfigs();
 
-  protected:
-    /*! \brief The single instance of a Simulation required.
-     */
-    Simulation simulation;
-  };
-}
+  /*! \brief No Engine finalisation required.
+   */
+  virtual void finaliseRun() {}
+
+  /*! \brief Performs the minimum steps to initialise a simulation.
+   */
+  virtual void initialisation();
+
+protected:
+  /*! \brief The single instance of a Simulation required.
+   */
+  Simulation simulation;
+};
+} // namespace dynamo

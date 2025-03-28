@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,32 +19,31 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 
 namespace dynamo {
-  /*! \brief An output plugin marker class for periodically 'ticked'
-   * plugins, ticked by the SysTicker class.
-   *
-   * This class doesn't require any Dynamics::updateParticle or
-   * Dynamics::updateAllParticles as this is done in the SysTicker
-   * class. This is optimal as most ticker plugins need it anyway
-   */
-  class OPTicker: public OutputPlugin
-  {
-  public:
-    OPTicker(const dynamo::Simulation*, const char*);
+/*! \brief An output plugin marker class for periodically 'ticked'
+ * plugins, ticked by the SysTicker class.
+ *
+ * This class doesn't require any Dynamics::updateParticle or
+ * Dynamics::updateAllParticles as this is done in the SysTicker
+ * class. This is optimal as most ticker plugins need it anyway
+ */
+class OPTicker : public OutputPlugin {
+public:
+  OPTicker(const dynamo::Simulation *, const char *);
 
-    //Non virtual to warn if you use them,
-    void eventUpdate(const Event&, const NEventData&) {}
+  // Non virtual to warn if you use them,
+  void eventUpdate(const Event &, const NEventData &) {}
 
-    virtual void output(magnet::xml::XmlStream&) {}
+  virtual void output(magnet::xml::XmlStream &) {}
 
-    virtual void ticker() = 0;
-  
-    virtual void periodicOutput() {}
+  virtual void ticker() = 0;
 
-    virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This System type hasn't been prepared for changes of system"; }
+  virtual void periodicOutput() {}
 
-  protected:
+  virtual void replicaExchange(OutputPlugin &) {
+    M_throw() << "This System type hasn't been prepared for changes of system";
+  }
 
-    double getTickerTime() const;
-  };
-}
+protected:
+  double getTickerTime() const;
+};
+} // namespace dynamo

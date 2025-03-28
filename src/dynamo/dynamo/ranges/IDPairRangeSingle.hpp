@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,35 +16,36 @@
 */
 
 #pragma once
-#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/ranges/IDPairRange.hpp>
-#include <magnet/xmlwriter.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  class IDPairRangeSingle:public IDPairRange
-  {
-  public:
-    IDPairRangeSingle(IDRange* r1):range(r1) {}
-  
-    IDPairRangeSingle(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
-    { range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim)); }
+class IDPairRangeSingle : public IDPairRange {
+public:
+  IDPairRangeSingle(IDRange *r1) : range(r1) {}
 
-    virtual bool isInRange(const Particle&p1, const Particle&p2) const
-    { return range->isInRange(p1) && range->isInRange(p2); }
+  IDPairRangeSingle(const magnet::xml::Node &XML,
+                    const dynamo::Simulation *Sim) {
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
+  }
 
-    virtual bool isInRange(const Particle&p1) const
-    { return range->isInRange(p1); }
+  virtual bool isInRange(const Particle &p1, const Particle &p2) const {
+    return range->isInRange(p1) && range->isInRange(p2);
+  }
 
-    const shared_ptr<IDRange>& getRange() const { return range; }
+  virtual bool isInRange(const Particle &p1) const {
+    return range->isInRange(p1);
+  }
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream& XML) const
-    {
-      XML << magnet::xml::attr("Type") << "Single" 
-	  << range;
-    }
+  const shared_ptr<IDRange> &getRange() const { return range; }
 
-    shared_ptr<IDRange> range;
-  };
-}
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &XML) const {
+    XML << magnet::xml::attr("Type") << "Single" << range;
+  }
+
+  shared_ptr<IDRange> range;
+};
+} // namespace dynamo

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,27 +19,26 @@
 #include <dynamo/systems/system.hpp>
 
 namespace dynamo {
-  class SystHalt: public System
-  {
-  public:
-    SystHalt(dynamo::Simulation*, double, std::string);
-  
-    virtual NEventData runEvent();
+class SystHalt : public System {
+public:
+  SystHalt(dynamo::Simulation *, double, std::string);
 
-    virtual void initialise(size_t);
+  virtual NEventData runEvent();
 
-    virtual void operator<<(const magnet::xml::Node&) {}
+  virtual void initialise(size_t);
 
-    void setdt(double);
+  virtual void operator<<(const magnet::xml::Node &) {}
 
-    void increasedt(double);
+  void setdt(double);
 
-    virtual void replicaExchange(System& os) {
-      auto s = static_cast<SystHalt&>(os);
-      std::swap(dt, s.dt);
-    }
+  void increasedt(double);
 
-  protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const {}
-  };
-}
+  virtual void replicaExchange(System &os) {
+    auto s = static_cast<SystHalt &>(os);
+    std::swap(dt, s.dt);
+  }
+
+protected:
+  virtual void outputXML(magnet::xml::XmlStream &) const {}
+};
+} // namespace dynamo

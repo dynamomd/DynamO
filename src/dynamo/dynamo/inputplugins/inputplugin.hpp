@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,30 +20,29 @@
 #include <magnet/math/vector.hpp>
 
 namespace dynamo {
-  class InputPlugin: public dynamo::SimBase
-  {
-  public:
-    InputPlugin(dynamo::Simulation*, const char *aName);
+class InputPlugin : public dynamo::SimBase {
+public:
+  InputPlugin(dynamo::Simulation *, const char *aName);
 
-    virtual ~InputPlugin() {};
+  virtual ~InputPlugin() {};
 
-    virtual void initialise() {};
+  virtual void initialise() {};
 
-    //Rescaling system
-    void rescaleVels(double val = 1.0);
+  // Rescaling system
+  void rescaleVels(double val = 1.0);
 
-    void zeroMomentum();  
+  void zeroMomentum();
 
-    void setCOMVelocity(const Vector);
+  void setCOMVelocity(const Vector);
 
-    void zeroCentreOfMass();  
-  
-    void setPackFrac(double);
+  void zeroCentreOfMass();
 
-    void mirrorDirection(unsigned int);
+  void setPackFrac(double);
 
-    void zeroVelComp(size_t);
-  
-  protected:  
-  };
-}
+  void mirrorDirection(unsigned int);
+
+  void zeroVelComp(size_t);
+
+protected:
+};
+} // namespace dynamo
