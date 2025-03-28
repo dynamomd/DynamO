@@ -65,14 +65,9 @@ jobs:
       # in the CMakePresets.json file.
       # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
       # store the built packages artifacts.
-      - name: Restore from cache the dependencies and generate project files
+      - name: Configure the build system
         run: |
           cmake --preset ninja-multi-vcpkg
-
-      - name: Check code formatting
-        if: runner.os == 'Linux'
-        run: |
-          cmake --workflow --preset check-src-format
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       #
@@ -87,3 +82,17 @@ jobs:
       - name: Test (Release configuration)
         run: |
           ctest --preset test-release --output-on-failure
+
+      - name: Package
+        run: |
+          cmake --build --preset ninja-vcpkg-release -t package
+
+      - name: Package (windows installer)
+        if: runner.os == 'Windows'
+        run: |
+          cmake --build --preset ninja-vcpkg-release -t package-wix
+
+      - name: Check code formatting
+        if: runner.os == 'Linux'
+        run: |
+          cmake --workflow --preset check-src-format

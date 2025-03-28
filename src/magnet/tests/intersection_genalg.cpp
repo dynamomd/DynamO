@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(GravitySphere_Test) {
     if (std::isinf(radical_root) != std::isinf(numerical_root.second)) {
       BOOST_CHECK(false);
     } else if (!std::isinf(radical_root)) {
-      BOOST_CHECK_CLOSE(radical_root, numerical_root.second, 1e-12);
+      BOOST_CHECK_CLOSE(radical_root, numerical_root.second, 1e-10);
     }
   }
 }

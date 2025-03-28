@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.25)
+cmake_minimum_required (VERSION 3.30)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -351,13 +351,13 @@ if(VISUALIZER_SUPPORT)
   # Add coilvol as a dependency
   add_executable(coilvol ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/programs/coilvol.cpp)
   target_link_libraries(coilvol PUBLIC coil Boost::program_options Boost::filesystem Boost::system)
-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/coilvol DESTINATION bin)
+  install(TARGETS coilvol RUNTIME DESTINATION bin)
 endif()
 
 function(dynamo_exe name) #Registers a dynamo executable given the source file name
   add_executable(${name} ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/${name}.cpp)
   target_link_libraries(${name} dynamo)
-  install(PROGRAMS $<TARGET_FILE:${name}> DESTINATION bin)
+  install(TARGETS ${name} RUNTIME DESTINATION bin)
 endfunction(dynamo_exe)
 
 dynamo_exe(dynarun)
@@ -370,7 +370,7 @@ if(VISUALIZER_SUPPORT)
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
   set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
   target_link_libraries(dynavis dynamo)
-  install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/dynavis DESTINATION bin)
+  install(TARGETS dynavis RUNTIME DESTINATION bin)
 endif()
 
 # scripts
