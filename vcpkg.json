@@ -1,5 +1,11 @@
 {
   "name": "main",
   "version-string": "latest",
-  "dependencies": ["boost", "eigen3", "libpng"]
+  "dependencies": [
+    "boost-filesystem",
+    "boost-program-options",
+    "boost-test",
+    "eigen3",
+    "libpng"
+  ]
 }
