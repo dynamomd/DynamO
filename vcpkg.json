@@ -5,6 +5,7 @@
     "boost-filesystem",
     "boost-program-options",
     "boost-test",
+    "boost-rational",
     "eigen3",
     "libpng"
   ]
