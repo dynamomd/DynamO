@@ -14,6 +14,7 @@
     "boost-math",
     "boost-mpl",
     "boost-serialization",
+    "boost-numeric",
     "eigen3",
     "libpng"
   ]
