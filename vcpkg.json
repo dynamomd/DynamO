@@ -1,0 +1,5 @@
+{
+  "name": "main",
+  "version-string": "latest",
+  "dependencies": ["fmt", "boost", "eigen3", "libpng"]
+}

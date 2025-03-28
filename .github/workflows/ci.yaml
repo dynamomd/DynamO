@@ -5,52 +5,84 @@ on:
   - pull_request
 jobs:
   build-project:
-    name: Build Project
-    strategy:
-      matrix:
-        os: [ubuntu-24.04, windows-2022]
+    name: ${{ matrix.os }}-${{ github.workflow }}
     runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2022]
+    env:
+      # Indicates the location of the vcpkg as a Git submodule of the project repository.
+      # Not using "VCPKG_ROOT" because a variable with the same name is defined in the VS's
+      # Developer Command Prompt environment in VS 2022 17.6, which would override this one
+      # if it had the same name.
+      _VCPKG_: ${{ github.workspace }}/vcpkg
+      # Tells vcpkg where binary packages are stored.
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/bincache
+      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+      VCPKG_BINARY_SOURCES:
+        "clear;x-gha,readwrite"
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up pre-requisites (linux)
-        if: startsWith(matrix.os, 'ubuntu')
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+        shell: bash
+      # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
+      - uses: lukka/get-cmake@latest
+
+      # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
+      # when it is being run afterwards by CMake.
+      - name: Restore vcpkg
+        uses: actions/cache@v4
+        with:
+          # The first path is the location of vcpkg: it contains the vcpkg executable and data files, as long as the
+          # built package archives (aka binary cache) which are located by VCPKG_DEFAULT_BINARY_CACHE env var.
+          # The other paths starting with '!' are exclusions: they contain termporary files generated during the build of the installed packages.
+          path: |
+            ${{ env._VCPKG_ }}
+            !${{ env._VCPKG_ }}/buildtrees
+            !${{ env._VCPKG_ }}/packages
+            !${{ env._VCPKG_ }}/downloads
+            !${{ env._VCPKG_ }}/installed
+          # The key is composed in a way that it gets properly invalidated whenever a different version of vcpkg is being used.
+          key: |
+            ${{ hashFiles( '.git/modules/vcpkg/HEAD' )}}
+
+      # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
+      # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
+      - uses: ilammy/msvc-dev-cmd@v1
+      
+      # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
+      # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
+      # in the CMakePresets.json file.
+      # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
+      # store the built packages artifacts.
+      - name: Restore from cache the dependencies and generate project files
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y --force-yes g++ cmake libboost-all-dev libbz2-dev libeigen3-dev libgtkmm-3.0-dev freeglut3-dev libavcodec-dev libglew-dev libxmu-dev
-      - name: Set up pre-requisites (windows)
-        if: startsWith(matrix.os, 'windows')
+          cmake --preset ninja-multi-vcpkg
+
+      - name: check-format
+        if: runner.os == 'Linux'
         run: |
-          choco install -y cmake boost eigen3 gtkmm freeglut glew
-          setx PATH "%PATH%;C:\Program Files\CMake\bin;C:\Program Files\boost\bin;C:\Program Files\eigen3\bin;C:\Program Files\gtkmm\bin;C:\Program Files\freeglut\bin;C:\Program Files\glew\bin"
-      - name: Build (windows)
-        if: startsWith(matrix.os, 'windows')
+          cmake --workflow --preset check-format
+
+      # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
+      #
+      # Note: if the preset misses the "configuration", it is possible to explicitly select the
+      # configuration with the `--config` flag, e.g.:
+      # run: cmake --build --preset ninja-vcpkg --config Release
+      - name: Build (Release configuration)
         run: |
-          mkdir build
-          cd build
-          cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DBOOSTROOT="C:\Program Files\boost" -DBOOST_LIBRARYDIR="C:\Program Files\boost\lib" -DPACKAGE_SUFFIX=-${{ matrix.os }}
-          cmake --build . --config Release -- /m
-      - name: Build (linux)
-        if: startsWith(matrix.os, 'ubuntu')
+          cmake --build --preset ninja-vcpkg-release
+
+      # Test the whole project with CTest, again Release configuration only.
+      - name: Test (Release configuration)
         run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$INSTPRF -DPACKAGE_SUFFIX=-${{ matrix.os }}
-          cmake --build . --config Release -- -j2
-      - name: Package
-        run: |
-          cpack --verbose -G ZIP
-          cpack --verbose
-      - name: Unit Testing
-        run: |
-          CTEST_OUTPUT_ON_FAILURE=1 ctest --build-config Release -j2
-      - name: Upload Package
-        if: success()
-        run: |
-          if [[ ${{ matrix.os }} == 'ubuntu-22.04' ]]; then
-            export RELEASE_PKG_FILE=$(ls build/*.deb)
-          else
-            export RELEASE_PKG_FILE=$(ls build/*.zip)
-          fi
-          echo "Package file: $RELEASE_PKG_FILE"
-          echo "::set-output name=package_file::$RELEASE_PKG_FILE"
+          ctest --preset test-release
