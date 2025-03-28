@@ -13,11 +13,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Compiler
+      - name: Set up pre-requisites (linux)
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y --force-yes git build-essential cmake libboost-all-dev libbz2-dev libeigen3-dev libgtkmm-3.0-dev freeglut3-dev libavcodec-dev libglew-dev libxmu-dev
-      - name: Build
+          sudo apt-get install -y --force-yes g++ cmake libboost-all-dev libbz2-dev libeigen3-dev libgtkmm-3.0-dev freeglut3-dev libavcodec-dev libglew-dev libxmu-dev
+      - name: Set up pre-requisites (windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          choco install -y cmake boost eigen3 gtkmm freeglut glew
+          setx PATH "%PATH%;C:\Program Files\CMake\bin;C:\Program Files\boost\bin;C:\Program Files\eigen3\bin;C:\Program Files\gtkmm\bin;C:\Program Files\freeglut\bin;C:\Program Files\glew\bin"
+      - name: Build (windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DBOOSTROOT="C:\Program Files\boost" -DBOOST_LIBRARYDIR="C:\Program Files\boost\lib" -DPACKAGE_SUFFIX=-${{ matrix.os }}
+          cmake --build . --config Release -- /m
+      - name: Build (linux)
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           mkdir build
           cd build
