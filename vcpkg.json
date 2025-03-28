@@ -6,6 +6,13 @@
     "boost-program-options",
     "boost-test",
     "boost-rational",
+    "boost-circular-buffer",
+    "boost-chrono",
+    "boost-tokenizer",
+    "boost-lexical-cast",
+    "boost-bimap",
+    "boost-math",
+    "boost-mpl",
     "eigen3",
     "libpng"
   ]
