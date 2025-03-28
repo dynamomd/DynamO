@@ -119,26 +119,9 @@ endif()
 ##########   DEBUG MODE
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG -DMAGNET_DEBUG")
 
-######################################################################
-########## COMPILER C++11/C++0x SUPPORT TESTS
-######################################################################
-### First check if the compiler supports C++11 or C++0x at all
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORT_CXX11)
-if(COMPILER_SUPPORT_CXX11)
-  add_compile_options(-std=c++14)
-else()
-  check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORT_CXX0X)
-  if(COMPILER_SUPPORT_CXX0X)
-    add_compile_options(-std=c++0x)
-    check_cxx_source_compiles("int main(int, const char**) {int array[5] = {1,2,3,4,5}; for(int& x: array) x *= 2;}" CXX0X_RANGE_BASED_FOR)
-    if(NOT CXX0X_RANGE_BASED_FOR)
-      message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has limited C++11 support. You must install a more modern C++ compiler.")
-    endif()
-  else()
-    message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. You must install a more modern C++ compiler.")
-  endif()
-endif()
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_EXTENSIONS OFF) #Disable compiler specific extensions
 
 include_directories(./extern/stator/)
 include_directories(./extern/)
@@ -316,6 +299,7 @@ endif(JUDY_SUPPORT)
 
 if(AVCodec_FOUND)
   set(CMAKE_REQUIRED_INCLUDES ${AVCodec_INCLUDE_DIRS})
+  include(CheckCXXCompilerFlag)
   check_cxx_source_compiles("#include <libavcodec/avcodec.h>
 int main() { &avcodec_send_frame; return 0; }" AVCodec_Send_Frame_Avail)
   if(${AVCodec_Send_Frame_Avail})
