@@ -86,4 +86,4 @@ jobs:
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
         run: |
-          ctest --preset test-release
+          ctest --preset test-release --output-on-failure
