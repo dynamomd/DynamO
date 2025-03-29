@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(cubic_triple_roots) {
             std::sort(actual_roots, actual_roots + 3);
             std::sort(roots, roots + rootcount);
 
-            BOOST_CHECK_EQUAL(rootcount, 3);
+            BOOST_CHECK_EQUAL(rootcount, 3u);
 
             if (rootcount == 3)
               for (size_t i = 0; i < 3; ++i) {
