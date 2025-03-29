@@ -95,7 +95,7 @@ jobs:
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: package-${{ matrix.os }}
+          name: dynamo-${{ matrix.os }}
           path: |
             ${{ github.workspace }}/builds/configure-preset/*.deb
             ${{ github.workspace }}/builds/configure-preset/*.sh
