@@ -93,7 +93,7 @@ jobs:
           cmake --build -j 4 --preset release-build -t package
 
       - name: Upload packages as artifacts
-        using: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: |
