@@ -29,10 +29,14 @@ namespace detail {
 /*! \brief A class used to provide read-only iterators for
     Judy array sets and maps.
  */
-template <typename Container, typename value_type>
-class ConstJudyIterator
-    : public std::iterator<std::bidirectional_iterator_tag, value_type> {
+template <typename Container, typename value_type> class ConstJudyIterator {
 public:
+  using iterator_category = std::bidirectional_iterator_tag;
+  using value_type = value_type;
+  using difference_type = std::ptrdiff_t;
+  using pointer = value_type *;
+  using reference = value_type &;
+
   ConstJudyIterator(const Container &container, value_type value)
       : _container(container), _value(value) {}
   ConstJudyIterator &operator++() { return *this = _container.next(*this); }

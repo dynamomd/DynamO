@@ -28,8 +28,7 @@
 
 #include <string>
 
-namespace magnet
-{
+namespace magnet {
 
 /*! \brief This function will attempt to generate a string
  * representation of the stack at runtime.
@@ -43,43 +42,39 @@ namespace magnet
  */
 #ifdef MAGNET_DEBUG
 #ifdef MAGNET_STACKTRACE
-  inline std::string stacktrace(int skip = 1)
-  {
-    const int nMaxFrames = 128;
-    void *callstack[nMaxFrames]; // The return addresses, including return offsets
-    int nFrames = backtrace(callstack, nMaxFrames);
-    char **symbols = backtrace_symbols(callstack, nFrames);
+inline std::string stacktrace(int skip = 1) {
+  const int nMaxFrames = 128;
+  void *callstack[nMaxFrames]; // The return addresses, including return offsets
+  int nFrames = backtrace(callstack, nMaxFrames);
+  char **symbols = backtrace_symbols(callstack, nFrames);
 
-    std::ostringstream trace_buf;
-    for (int i = skip; i < nFrames; i++)
-    {
-      Dl_info info;
-      if (dladdr(callstack[i], &info))
-      {
-        int status;
-        char *demangled = abi::__cxa_demangle(info.dli_sname, NULL, 0, &status);
+  std::ostringstream trace_buf;
+  for (int i = skip; i < nFrames; i++) {
+    Dl_info info;
+    if (dladdr(callstack[i], &info)) {
+      int status;
+      char *demangled = abi::__cxa_demangle(info.dli_sname, NULL, 0, &status);
 
-        trace_buf << i << " " << callstack[i] << " "
-                  << (status == 0 ? demangled : info.dli_sname)
-                  << " + return offset="
-                  << ((char *)callstack[i] - (char *)info.dli_saddr) << "\n";
+      trace_buf << i << " " << callstack[i] << " "
+                << (status == 0 ? demangled : info.dli_sname)
+                << " + return offset="
+                << ((char *)callstack[i] - (char *)info.dli_saddr) << "\n";
 
-        free(demangled);
-      }
-      else
-        trace_buf << i << " " << callstack[i] << "\n";
-    }
-    free(symbols);
-
-    if (nFrames == nMaxFrames)
-      trace_buf << "[truncated]\n";
-
-    return trace_buf.str();
+      free(demangled);
+    } else
+      trace_buf << i << " " << callstack[i] << "\n";
   }
+  free(symbols);
+
+  if (nFrames == nMaxFrames)
+    trace_buf << "[truncated]\n";
+
+  return trace_buf.str();
+}
 #else
-  inline std::string stacktrace(int skip = 1) { return std::string(); }
+inline std::string stacktrace(int skip = 1) { return std::string(); }
 #endif
 #else
-  inline std::string stacktrace(int skip = 1) { return std::string(); }
+inline std::string stacktrace(int skip = 1) { return std::string(); }
 #endif
 } // namespace magnet

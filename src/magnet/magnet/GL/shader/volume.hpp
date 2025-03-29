@@ -93,7 +93,7 @@ public:
         uniform vec3 lightPosition[LIGHT_COUNT];
         uniform vec3 lightColor[LIGHT_COUNT];
         uniform vec3 lightFactors[LIGHT_COUNT]; //(UNUSED, SpecularExponent,
-                                                //SpecularFactor)
+                                                // SpecularFactor)
 
         uniform vec3 volumeMin; uniform vec3 volumeMax;
         uniform vec3 invVolumeDimensions;

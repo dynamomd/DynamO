@@ -38,9 +38,14 @@ template <size_t NDim, typename Derived> class OrderingBase {
 public:
   typedef std::array<size_t, NDim> ArrayType;
 
-  class const_iterator
-      : public std::iterator<std::forward_iterator_tag, size_t> {
+  class const_iterator {
   public:
+    using value_type = size_t;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const size_t *;
+    using reference = const size_t &;
+    using iterator_category = std::forward_iterator_tag;
+
     const_iterator(const Derived &container, const ArrayType &start,
                    const ArrayType &distance)
         : _container(container), _start(start), _distance(distance),

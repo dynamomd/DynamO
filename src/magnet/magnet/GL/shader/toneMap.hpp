@@ -151,7 +151,8 @@ public:
 
                        // This automatic scene parameter determination was taken
                        // from "Parameter Estimation for Photographic Tone
-                       //Reproduction" by Erik Reinhard. frag_scene_key = 0.18 *
+                       // Reproduction" by Erik Reinhard. frag_scene_key = 0.18
+                       // *
                        // pow(4.0, (2.0 * log2(Lavg) - log2(Lmin) - log2(Lmax))
                        // / (log2(Lmax) - log2(Lmin))); frag_Lpwhite = 1.5 *
                        // pow(2.0, log2(Lmax) - log2(Lmin) - 5.0);
