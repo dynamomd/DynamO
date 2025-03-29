@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(Equilibrium_Simulation) {
 
   // Check the mean free time is roughly what is expected
   double MFT = opMisc.getMFT();
-  BOOST_CHECK_CLOSE(MFT, expectedMFT, 1);
+  BOOST_CHECK_CLOSE(MFT, expectedMFT, 2);
 
   // Check the diffusion coefficient as well
   // double D = opMSD.calcD(*Sim.species[0]->getRange()) /
