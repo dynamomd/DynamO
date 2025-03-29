@@ -73,7 +73,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cmake --workflow --preset check-src-format
-          
+
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       #
       # Note: if the preset misses the "configuration", it is possible to explicitly select the
@@ -81,7 +81,7 @@ jobs:
       # run: cmake --build --preset ninja-vcpkg --config Release
       - name: Build (Release configuration)
         run: |
-          cmake -j 4 --build --preset release-build
+          cmake --build -j 4 --preset release-build
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
@@ -90,4 +90,4 @@ jobs:
 
       - name: Package
         run: |
-          cmake -j 4 --build --preset ninja-vcpkg-release -t package
+          cmake --build -j 4 --preset ninja-vcpkg-release -t package
