@@ -1,6 +1,5 @@
-build/
+build
 *~
-scripts/SWTether2_RadialDist/InitState_FCC/Lambda_1.57/N_4000/PhiT_inf/Rso_inf/kT_0.5/ndensity_1.19/RadDist.out.xml.bz2
 *.bz2
 *.xml
 *.pyc
@@ -8,3 +7,5 @@ scripts/SWTether2_RadialDist/InitState_FCC/Lambda_1.57/N_4000/PhiT_inf/Rso_inf/k
 *.pkl
 .venv
 builds
+__pycache__
+
