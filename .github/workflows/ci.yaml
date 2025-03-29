@@ -90,4 +90,4 @@ jobs:
 
       - name: Package
         run: |
-          cmake --build -j 4 --preset ninja-vcpkg-release -t package
+          cmake --build -j 4 --preset release-build -t package
