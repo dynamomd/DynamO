@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,38 +22,36 @@
 #include <sstream>
 
 namespace magnet {
-  /*! \brief A reentrant, and C++ form of the strerror C function.
-    
-    \param errnum The error number to generate a string for.
-   */
-  inline std::string strerror(const int errnum)
-  {
-#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE) || defined(__APPLE__)
-    std::vector<char> buf(128);
+/*! \brief A reentrant, and C++ form of the strerror C function.
 
-    int val = strerror_r(errnum, &buf[0], buf.size());
+  \param errnum The error number to generate a string for.
+ */
+inline std::string strerror(const int errnum) {
+#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE) ||  \
+    defined(__APPLE__)
+  std::vector<char> buf(128);
 
-    while (val == ERANGE) 
-      { 
-	buf.resize(buf.size() * 2); 
-	val = strerror_r(errnum, &buf[0], buf.size());
-      }
+  int val = strerror_r(errnum, &buf[0], buf.size());
 
-    if (val == EINVAL) 
-      {
-	std::ostringstream os;
-	os << "Unknown error number passed to strerror: " << errnum;
-	return os.str();
-      }
-
-    if (val == -1) return std::string("Call to strerror_r failed");
-
-    return std::string(buf.begin(), buf.end());
-#else
-    char buf[512];
-    char* realbuf = strerror_r(errnum, buf, 512);
-    return std::string(realbuf);
-#endif
+  while (val == ERANGE) {
+    buf.resize(buf.size() * 2);
+    val = strerror_r(errnum, &buf[0], buf.size());
   }
-}
 
+  if (val == EINVAL) {
+    std::ostringstream os;
+    os << "Unknown error number passed to strerror: " << errnum;
+    return os.str();
+  }
+
+  if (val == -1)
+    return std::string("Call to strerror_r failed");
+
+  return std::string(buf.begin(), buf.end());
+#else
+  char buf[512];
+  char *realbuf = strerror_r(errnum, buf, 512);
+  return std::string(realbuf);
+#endif
+}
+} // namespace magnet

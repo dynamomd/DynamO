@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -19,31 +19,26 @@
 #define STRINGIFY(A) #A
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      /*! \brief Simple \ref Shader to multiply two textures.*/
-      class MultiplyTexture : public detail::SSShader
-      {
-      public:
-	virtual std::string initFragmentShaderSource()
-	{
-	  return STRINGIFY(
-uniform sampler2D u_Texture0; //input
-uniform sampler2D u_Texture1; //Depth buffer
+namespace GL {
+namespace shader {
+/*! \brief Simple \ref Shader to multiply two textures.*/
+class MultiplyTexture : public detail::SSShader {
+public:
+  virtual std::string initFragmentShaderSource() {
+    return STRINGIFY(uniform sampler2D u_Texture0; // input
+                     uniform sampler2D u_Texture1; // Depth buffer
 
-smooth in vec2 screenCoord;
-layout (location = 0) out vec4 color_out;
+                     smooth in vec2 screenCoord;
+                     layout(location = 0) out vec4 color_out;
 
-void main(void)
-{
-  color_out 
-    = texture(u_Texture0, screenCoord) 
-    * texture(u_Texture1, screenCoord);
-});
-	}
-      };
-    }
+                     void main(void) {
+                       color_out = texture(u_Texture0, screenCoord) *
+                                   texture(u_Texture1, screenCoord);
+                     });
   }
-}
+};
+} // namespace shader
+} // namespace GL
+} // namespace magnet
 
 #undef STRINGIFY

@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,12 +19,13 @@
 #include <algorithm>
 
 namespace magnet {
-  /*! \brief A C++ equivalent of the OpenCL and OpenGL clamp function.
-   *
-   * \param Val The value to clamp.
-   * \param Min The lower bound to return if Val < Min.
-   * \param Max The upper bound to return if Val > Max.
-   */
-  template<class T>
-  inline T clamp(T Val, T Min, T Max) { return std::max(std::min(Val, Max), Min); }
+/*! \brief A C++ equivalent of the OpenCL and OpenGL clamp function.
+ *
+ * \param Val The value to clamp.
+ * \param Min The lower bound to return if Val < Min.
+ * \param Max The upper bound to return if Val > Max.
+ */
+template <class T> inline T clamp(T Val, T Min, T Max) {
+  return std::max(std::min(Val, Max), Min);
 }
+} // namespace magnet

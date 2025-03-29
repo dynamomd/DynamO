@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,25 +16,28 @@
 */
 
 #pragma once
-#include <magnet/math/vector.hpp>
 #include <magnet/intersection/polynomial.hpp>
+#include <magnet/math/vector.hpp>
 
 namespace magnet {
-  namespace intersection {
-    /*! \brief A stable particle and thick plane intersection test.
-    
-      \param R The origin of the particle relative to a location on the plane.
-      \param V The direction/velocity of the particle.
-      \param N The normal of the plane.
-      \param d The interaction distance to the plane (the plane's thickness).
-      \return The time until the intersection, or HUGE_VAL if no intersection.
-    */
-    inline double ray_plane(const math::Vector& R, const math::Vector& V, math::Vector N, const double d)
-    {
-      double r = R | N;
-      if (r < 0) { r = -r; N = -N; }
-      detail::PolynomialFunction<1> f(r - d, V | N);
-      return detail::nextEvent(f);
-    }
+namespace intersection {
+/*! \brief A stable particle and thick plane intersection test.
+
+  \param R The origin of the particle relative to a location on the plane.
+  \param V The direction/velocity of the particle.
+  \param N The normal of the plane.
+  \param d The interaction distance to the plane (the plane's thickness).
+  \return The time until the intersection, or HUGE_VAL if no intersection.
+*/
+inline double ray_plane(const math::Vector &R, const math::Vector &V,
+                        math::Vector N, const double d) {
+  double r = R | N;
+  if (r < 0) {
+    r = -r;
+    N = -N;
   }
+  detail::PolynomialFunction<1> f(r - d, V | N);
+  return detail::nextEvent(f);
 }
+} // namespace intersection
+} // namespace magnet

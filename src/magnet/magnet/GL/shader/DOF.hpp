@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -19,60 +19,54 @@
 #define STRINGIFY(A) #A
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      /*! \brief A Depth Of Field Shader.
-       *
-       * This shader will give a depth of field effect, by blending
-       * two textures together according to the pixel depth.
-       *
-       * The u_Texture0 uniform should contain a very "blurred" image.
-       *
-       * The u_Texture1 uniform should contain a "sharp" image.
-       *
-       * The u_Texture2 uniform should contain the depth information of the scene.
-       *
-       * For each pixel, the depth is looked up in u_Texture2. If this
-       * pixel is in focus (set by the focalDistance uniform) then it
-       * will be sampled from u_Texture1. If the pixel is out of focus
-       * it is sampled from u_Texture0. The two textures are smoothly
-       * blended together over a range set by the focalRange uniform.
-       */
-      class DOFShader : public detail::SSShader
-      {
-      public:
-	/*! \brief The actual DOF filter. */
-	virtual std::string initFragmentShaderSource()
-	{
-	  return STRINGIFY(
-uniform sampler2D u_Texture0; //Blurred image
-uniform sampler2D u_Texture1; //Original
-uniform sampler2DMS u_Texture2; //Position Buffer
-uniform float focalDistance;
-uniform float focalRange;
-uniform float nearDist;
-uniform float farDist;
+namespace GL {
+namespace shader {
+/*! \brief A Depth Of Field Shader.
+ *
+ * This shader will give a depth of field effect, by blending
+ * two textures together according to the pixel depth.
+ *
+ * The u_Texture0 uniform should contain a very "blurred" image.
+ *
+ * The u_Texture1 uniform should contain a "sharp" image.
+ *
+ * The u_Texture2 uniform should contain the depth information of the scene.
+ *
+ * For each pixel, the depth is looked up in u_Texture2. If this
+ * pixel is in focus (set by the focalDistance uniform) then it
+ * will be sampled from u_Texture1. If the pixel is out of focus
+ * it is sampled from u_Texture0. The two textures are smoothly
+ * blended together over a range set by the focalRange uniform.
+ */
+class DOFShader : public detail::SSShader {
+public:
+  /*! \brief The actual DOF filter. */
+  virtual std::string initFragmentShaderSource() {
+    return STRINGIFY(
+        uniform sampler2D u_Texture0;   // Blurred image
+        uniform sampler2D u_Texture1;   // Original
+        uniform sampler2DMS u_Texture2; // Position Buffer
+        uniform float focalDistance; uniform float focalRange;
+        uniform float nearDist; uniform float farDist;
 
-smooth in vec2 screenCoord;
-layout (location = 0) out vec4 color_out;
+        smooth in vec2 screenCoord; layout(location = 0) out vec4 color_out;
 
-void main(void)
-{
-  float fcldist = -focalDistance;
-  if (focalDistance == 0) //Automatic mode
-    fcldist = texelFetch(u_Texture2, textureSize(u_Texture2) / 2, 0).z;
-  
-  vec4 original = texture(u_Texture1, screenCoord);
-  vec4 blurred = texture(u_Texture0, screenCoord);
-  
-  float depth = texelFetch(u_Texture2, ivec2(gl_FragCoord.xy), 0).z;
-  float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
-  
-  color_out = original + blur * (blurred - original);
-});
-	}
-      };
-    }
+        void main(void) {
+          float fcldist = -focalDistance;
+          if (focalDistance == 0) // Automatic mode
+            fcldist = texelFetch(u_Texture2, textureSize(u_Texture2) / 2, 0).z;
+
+          vec4 original = texture(u_Texture1, screenCoord);
+          vec4 blurred = texture(u_Texture0, screenCoord);
+
+          float depth = texelFetch(u_Texture2, ivec2(gl_FragCoord.xy), 0).z;
+          float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
+
+          color_out = original + blur * (blurred - original);
+        });
   }
-}
+};
+} // namespace shader
+} // namespace GL
+} // namespace magnet
 #undef STRINGIFY

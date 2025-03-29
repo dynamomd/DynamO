@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -16,45 +16,47 @@
  */
 #pragma once
 
-#define BASE_GL_TYPE_FACTORY(F)		\
-  F(GL_BYTE, GLbyte)			\
-  F(GL_UNSIGNED_BYTE, GLubyte)		\
-  F(GL_SHORT, GLshort)			\
-  F(GL_UNSIGNED_SHORT, GLushort)	\
-  F(GL_INT, GLint)			\
-  F(GL_UNSIGNED_INT, GLuint)		\
-  F(GL_FLOAT, GLfloat)			\
+#define BASE_GL_TYPE_FACTORY(F)                                                \
+  F(GL_BYTE, GLbyte)                                                           \
+  F(GL_UNSIGNED_BYTE, GLubyte)                                                 \
+  F(GL_SHORT, GLshort)                                                         \
+  F(GL_UNSIGNED_SHORT, GLushort)                                               \
+  F(GL_INT, GLint)                                                             \
+  F(GL_UNSIGNED_INT, GLuint)                                                   \
+  F(GL_FLOAT, GLfloat)                                                         \
   F(GL_DOUBLE, GLdouble)
 
-
 namespace magnet {
-  namespace GL {
-    namespace detail {
-      /*! \brief Type trait to convert GL type enums into actual GL C types.
-       */
-      template <GLenum T> struct gl_enum_to_c_type {};
+namespace GL {
+namespace detail {
+/*! \brief Type trait to convert GL type enums into actual GL C types.
+ */
+template <GLenum T> struct gl_enum_to_c_type {};
 
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
 
-#define GL_ENUM_TO_C_TYPE(GL_ENUM_VAL, C_TYPE)				\
-      template <> struct gl_enum_to_c_type<GL_ENUM_VAL> { typedef C_TYPE Type; };
+#define GL_ENUM_TO_C_TYPE(GL_ENUM_VAL, C_TYPE)                                 \
+  template <> struct gl_enum_to_c_type<GL_ENUM_VAL> {                          \
+    typedef C_TYPE Type;                                                       \
+  };
 
-      BASE_GL_TYPE_FACTORY(GL_ENUM_TO_C_TYPE)
+BASE_GL_TYPE_FACTORY(GL_ENUM_TO_C_TYPE)
 #undef GL_ENUM_TO_C_TYPE
 
+/*! \brief Type trait to convert GL C types into GL enum values.
+ */
+template <class T> struct c_type_to_gl_enum {};
 
-      /*! \brief Type trait to convert GL C types into GL enum values.
-       */
-      template <class T> struct c_type_to_gl_enum {};
+#define C_TYPE_TO_GL_ENUM(GL_ENUM_VAL, C_TYPE)                                 \
+  template <> struct c_type_to_gl_enum<C_TYPE> {                               \
+    static const GLenum val = GL_ENUM_VAL;                                     \
+  };
 
-#define C_TYPE_TO_GL_ENUM(GL_ENUM_VAL, C_TYPE)				\
-      template <> struct c_type_to_gl_enum<C_TYPE> { static const GLenum val = GL_ENUM_VAL; };
-
-      BASE_GL_TYPE_FACTORY(C_TYPE_TO_GL_ENUM)
+BASE_GL_TYPE_FACTORY(C_TYPE_TO_GL_ENUM)
 #undef C_TYPE_TO_GL_ENUM
 
 #endif
-    }
-  }
-}
+} // namespace detail
+} // namespace GL
+} // namespace magnet
 #undef BASE_GL_TYPE_FACTORY

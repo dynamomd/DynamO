@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -16,37 +16,37 @@
 */
 
 #pragma once
-#include <vector>
 #include <magnet/exception.hpp>
 #include <thread>
+#include <vector>
 
 namespace magnet {
-  namespace thread {
-    class ThreadGroup
-    {
-    public:
-      inline ThreadGroup() {}
+namespace thread {
+class ThreadGroup {
+public:
+  inline ThreadGroup() {}
 
-      inline ~ThreadGroup() { join_all(); }
+  inline ~ThreadGroup() { join_all(); }
 
-      template< class Function, class... Args >
-      inline void create_thread(Function&& f, Args&&... args)
-      { _threads.push_back(std::thread(f, args...)); }
-
-      inline size_t size() const { return _threads.size(); }
-      
-      inline void join_all()
-      {
-	for (auto& thread : _threads) 
-	  if (thread.joinable()) thread.join();
-	_threads.clear();
-      }
-
-    protected:
-      std::vector<std::thread> _threads;
-
-      ThreadGroup(const ThreadGroup&);
-      ThreadGroup& operator=(const ThreadGroup&);
-    };
+  template <class Function, class... Args>
+  inline void create_thread(Function &&f, Args &&...args) {
+    _threads.push_back(std::thread(f, args...));
   }
-}
+
+  inline size_t size() const { return _threads.size(); }
+
+  inline void join_all() {
+    for (auto &thread : _threads)
+      if (thread.joinable())
+        thread.join();
+    _threads.clear();
+  }
+
+protected:
+  std::vector<std::thread> _threads;
+
+  ThreadGroup(const ThreadGroup &);
+  ThreadGroup &operator=(const ThreadGroup &);
+};
+} // namespace thread
+} // namespace magnet

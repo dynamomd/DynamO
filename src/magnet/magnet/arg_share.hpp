@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,36 +20,34 @@
 #include <magnet/exception.hpp>
 
 namespace magnet {
-  struct ArgShare {
-    ArgShare():_argc(NULL), _argv(NULL) {}
+struct ArgShare {
+  ArgShare() : _argc(NULL), _argv(NULL) {}
 
-    inline static ArgShare& getInstance() 
-    {
-      static ArgShare instance;
-      return instance;
-    }
-    
-    void setArgs(int& argc, char**& argv)
-    {
-      _argc = &argc;
-      _argv = &argv;
-    }
+  inline static ArgShare &getInstance() {
+    static ArgShare instance;
+    return instance;
+  }
 
-    int& getArgc()
-    {
-      if (_argc == NULL) M_throw() << "Command line args not passed to ArgShare";
-      return *_argc;
-    }
+  void setArgs(int &argc, char **&argv) {
+    _argc = &argc;
+    _argv = &argv;
+  }
 
-    char**& getArgv()
-    {
-      if (_argv == NULL) M_throw() << "Command line args not passed to ArgShare";
+  int &getArgc() {
+    if (_argc == NULL)
+      M_throw() << "Command line args not passed to ArgShare";
+    return *_argc;
+  }
 
-      return *_argv;
-    }
+  char **&getArgv() {
+    if (_argv == NULL)
+      M_throw() << "Command line args not passed to ArgShare";
 
-  private:
-    int* _argc;
-    char*** _argv;
-  };
-}
+    return *_argv;
+  }
+
+private:
+  int *_argc;
+  char ***_argv;
+};
+} // namespace magnet

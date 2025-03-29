@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -20,134 +20,122 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace magnet {
-  namespace math {
-    template<bool shiftBin=false>
-    class Histogram : public magnet::containers::FuzzyArray<unsigned long, shiftBin>
-    {
-      typedef typename magnet::containers::FuzzyArray<unsigned long,shiftBin> Container;
+namespace math {
+template <bool shiftBin = false>
+class Histogram
+    : public magnet::containers::FuzzyArray<unsigned long, shiftBin> {
+  typedef typename magnet::containers::FuzzyArray<unsigned long, shiftBin>
+      Container;
 
-    public:
-      Histogram(double binwidth):
-	Container(binwidth),
-	sampleCount(0)
-      {}
-  
-      Histogram():
-	sampleCount(0)
-      {}
-  
-      void addVal(const double& val)
-      {
-	++(Container::operator[](val));
-	++sampleCount;
-      }
-  
-      void outputHistogram(magnet::xml::XmlStream& XML, double scalex) const
-      {
+public:
+  Histogram(double binwidth) : Container(binwidth), sampleCount(0) {}
 
-	XML << magnet::xml::tag("Histogram")
-	    << magnet::xml::attr("SampleCount")
-	    << sampleCount
-	    << magnet::xml::attr("Dimension") << 1
-	    << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
-  
-	double avgSum = 0.0;
-	for (const typename Container::value_type &p1 : *this)
-	  avgSum += (static_cast<double>(p1.first) + 0.5 * shiftBin) * p1.second;
-  
-	XML << magnet::xml::attr("AverageVal")
-	    << (avgSum * Container::getBinWidth() * scalex / sampleCount)
-	    << magnet::xml::chardata();
-  
-	for (const typename Container::value_type &p1 : *this)
-	  XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex << " " 
-	      << static_cast<double>(p1.second)
-	  /(Container::getBinWidth() * sampleCount * scalex) << "\n";
-  
-	XML << magnet::xml::endtag("Histogram");
-      }
+  Histogram() : sampleCount(0) {}
 
-      inline unsigned long getSampleCount() const { return sampleCount; }
-
-    protected:
-      unsigned long sampleCount;
-    };
-
-    template<bool shiftBin=false>
-    class HistogramWeighted: public magnet::containers::FuzzyArray<double,shiftBin>
-    {
-      typedef magnet::containers::FuzzyArray<double> Container;
-    public:
-      HistogramWeighted(double binwidth):
-	Container(binwidth),
-	sampleCount(0)
-      {}
-  
-      HistogramWeighted():
-	sampleCount(0)
-      {}
-  
-      void addVal(double val, double weight)
-      {
-	Container::operator[](val) += weight;
-	sampleCount += weight;
-      }
-    
-      void outputHistogram(magnet::xml::XmlStream& XML, double scalex) const
-      {
-	XML << magnet::xml::tag("HistogramWeighted")
-	    << magnet::xml::attr("TotalWeight")
-	    << sampleCount
-	    << magnet::xml::attr("Dimension") << 1
-	    << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
-  
-	double avgSum = 0.0;
-	for (const Container::value_type &p1 : *this)
-	  avgSum += static_cast<double>(p1.first + 0.5 * shiftBin) * p1.second;
-  
-	XML << magnet::xml::attr("AverageVal")
-	    << avgSum * Container::getBinWidth() * scalex / sampleCount
-	    << magnet::xml::chardata();
-  
-	//This gives mathmatically correct but not really pretty
-	for (const Container::value_type &p1 : *this)
-	  XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex << " "
-	      << static_cast<double>(p1.second)
-	  / (Container::getBinWidth() * sampleCount * scalex) << "\n";
-  
-	XML << magnet::xml::endtag("HistogramWeighted");
-      }
-
-
-      void outputClearHistogram(magnet::xml::XmlStream& XML, 
-				double scalex) const
-      {
-	XML << magnet::xml::tag("HistogramWeighted")
-	    << magnet::xml::attr("TotalWeight")
-	    << sampleCount
-	    << magnet::xml::attr("Dimension") << 1
-	    << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
-  
-	double avgSum = 0.0;
-	for (const Container::value_type &p1 : *this)
-	  avgSum += static_cast<double>(p1.first + 0.5 * shiftBin)* p1.second;
-  
-	XML << magnet::xml::attr("AverageVal")
-	    << (avgSum * Container::getBinWidth() / sampleCount)
-	    << magnet::xml::chardata();
-    
-	//This one gives histograms usable by the reweight program
-	for (const Container::value_type &p1 : *this)
-	  XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex << " " 
-	      << static_cast<double>(p1.second)
-	  / (Container::getBinWidth() * sampleCount * scalex) << "\n";
-  
-	XML << magnet::xml::endtag("HistogramWeighted");
-      }
-  
-      inline double getSampleCount() const { return sampleCount; }
-    protected:
-      double sampleCount;
-    };
+  void addVal(const double &val) {
+    ++(Container::operator[](val));
+    ++sampleCount;
   }
-}
+
+  void outputHistogram(magnet::xml::XmlStream &XML, double scalex) const {
+
+    XML << magnet::xml::tag("Histogram") << magnet::xml::attr("SampleCount")
+        << sampleCount << magnet::xml::attr("Dimension") << 1
+        << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
+
+    double avgSum = 0.0;
+    for (const typename Container::value_type &p1 : *this)
+      avgSum += (static_cast<double>(p1.first) + 0.5 * shiftBin) * p1.second;
+
+    XML << magnet::xml::attr("AverageVal")
+        << (avgSum * Container::getBinWidth() * scalex / sampleCount)
+        << magnet::xml::chardata();
+
+    for (const typename Container::value_type &p1 : *this)
+      XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex
+          << " "
+          << static_cast<double>(p1.second) /
+                 (Container::getBinWidth() * sampleCount * scalex)
+          << "\n";
+
+    XML << magnet::xml::endtag("Histogram");
+  }
+
+  inline unsigned long getSampleCount() const { return sampleCount; }
+
+protected:
+  unsigned long sampleCount;
+};
+
+template <bool shiftBin = false>
+class HistogramWeighted
+    : public magnet::containers::FuzzyArray<double, shiftBin> {
+  typedef magnet::containers::FuzzyArray<double> Container;
+
+public:
+  HistogramWeighted(double binwidth) : Container(binwidth), sampleCount(0) {}
+
+  HistogramWeighted() : sampleCount(0) {}
+
+  void addVal(double val, double weight) {
+    Container::operator[](val) += weight;
+    sampleCount += weight;
+  }
+
+  void outputHistogram(magnet::xml::XmlStream &XML, double scalex) const {
+    XML << magnet::xml::tag("HistogramWeighted")
+        << magnet::xml::attr("TotalWeight") << sampleCount
+        << magnet::xml::attr("Dimension") << 1 << magnet::xml::attr("BinWidth")
+        << Container::getBinWidth() * scalex;
+
+    double avgSum = 0.0;
+    for (const Container::value_type &p1 : *this)
+      avgSum += static_cast<double>(p1.first + 0.5 * shiftBin) * p1.second;
+
+    XML << magnet::xml::attr("AverageVal")
+        << avgSum * Container::getBinWidth() * scalex / sampleCount
+        << magnet::xml::chardata();
+
+    // This gives mathmatically correct but not really pretty
+    for (const Container::value_type &p1 : *this)
+      XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex
+          << " "
+          << static_cast<double>(p1.second) /
+                 (Container::getBinWidth() * sampleCount * scalex)
+          << "\n";
+
+    XML << magnet::xml::endtag("HistogramWeighted");
+  }
+
+  void outputClearHistogram(magnet::xml::XmlStream &XML, double scalex) const {
+    XML << magnet::xml::tag("HistogramWeighted")
+        << magnet::xml::attr("TotalWeight") << sampleCount
+        << magnet::xml::attr("Dimension") << 1 << magnet::xml::attr("BinWidth")
+        << Container::getBinWidth() * scalex;
+
+    double avgSum = 0.0;
+    for (const Container::value_type &p1 : *this)
+      avgSum += static_cast<double>(p1.first + 0.5 * shiftBin) * p1.second;
+
+    XML << magnet::xml::attr("AverageVal")
+        << (avgSum * Container::getBinWidth() / sampleCount)
+        << magnet::xml::chardata();
+
+    // This one gives histograms usable by the reweight program
+    for (const Container::value_type &p1 : *this)
+      XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex
+          << " "
+          << static_cast<double>(p1.second) /
+                 (Container::getBinWidth() * sampleCount * scalex)
+          << "\n";
+
+    XML << magnet::xml::endtag("HistogramWeighted");
+  }
+
+  inline double getSampleCount() const { return sampleCount; }
+
+protected:
+  double sampleCount;
+};
+} // namespace math
+} // namespace magnet

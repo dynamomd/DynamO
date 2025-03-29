@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -18,19 +18,17 @@
 #include <magnet/GL/shader/detail/filter.hpp>
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      class CopyShader : public detail::SSKernelShader
-      {
-      public:
-	void build() { SSKernelShader::build(1); }
+namespace GL {
+namespace shader {
+class CopyShader : public detail::SSKernelShader {
+public:
+  void build() { SSKernelShader::build(1); }
 
-	virtual const GLfloat* weights()
-	{
-	  static const GLfloat weights[1][1] = { {1} };
-	  return (const GLfloat*)weights;
-	}
-      };
-    }
+  virtual const GLfloat *weights() {
+    static const GLfloat weights[1][1] = {{1}};
+    return (const GLfloat *)weights;
   }
-}
+};
+} // namespace shader
+} // namespace GL
+} // namespace magnet

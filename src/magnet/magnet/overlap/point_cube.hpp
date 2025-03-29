@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,22 +19,21 @@
 #include <magnet/math/vector.hpp>
 
 namespace magnet {
-  namespace overlap {
-    /*! \brief Discovers if a cube and a point intersect.
-      
-      \param CubeOrigin The location of the cube relative to the point.
-      \param CubeDimensions The size of the cube sides.
-      \return If the point is inside/on the cube.
-     */
-    inline bool point_cube(const magnet::math::Vector& CubeOrigin, 
-			   const magnet::math::Vector& CubeDimensions,
-			   const double tol = 0)
-    {
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	if (fabs(CubeOrigin[iDim]) > (CubeDimensions[iDim] / 2))
-	  return false;
-      
-      return true;
-    }
-  }
+namespace overlap {
+/*! \brief Discovers if a cube and a point intersect.
+
+  \param CubeOrigin The location of the cube relative to the point.
+  \param CubeDimensions The size of the cube sides.
+  \return If the point is inside/on the cube.
+ */
+inline bool point_cube(const magnet::math::Vector &CubeOrigin,
+                       const magnet::math::Vector &CubeDimensions,
+                       const double tol = 0) {
+  for (size_t iDim(0); iDim < NDIM; ++iDim)
+    if (fabs(CubeOrigin[iDim]) > (CubeDimensions[iDim] / 2))
+      return false;
+
+  return true;
 }
+} // namespace overlap
+} // namespace magnet

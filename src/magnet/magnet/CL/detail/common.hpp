@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -13,11 +13,11 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #pragma once
 
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
-#include <magnet/exception.hpp>
-#include <magnet/CL/detail/traits.hpp>
 #include <magnet/CL/detail/program.hpp>
+#include <magnet/CL/detail/traits.hpp>
+#include <magnet/exception.hpp>

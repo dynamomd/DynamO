@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,85 +15,85 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <magnet/GL/buffer.hpp>
 #include <array>
+#include <magnet/GL/buffer.hpp>
 
 namespace magnet {
-  namespace GL {
-    namespace objects {
-      /*! \brief A regular grid object.
-       *
-       * This object is a regular grid with a set number of lines in
-       * the x and y directions.
-       *
-       * This grid is centered on [0,0,0] and lies in
-       * [\f$\pm0.5\f$,\f$\pm0.5\f$,0]. If you need the grid at
-       * another location or with a different size then modify the
-       * modelview matrix with scale and translate commands.
-       */
-      class Grid
-      {
-      public:
-	//! \brief Destructor
-	inline ~Grid() { deinit(); }
+namespace GL {
+namespace objects {
+/*! \brief A regular grid object.
+ *
+ * This object is a regular grid with a set number of lines in
+ * the x and y directions.
+ *
+ * This grid is centered on [0,0,0] and lies in
+ * [\f$\pm0.5\f$,\f$\pm0.5\f$,0]. If you need the grid at
+ * another location or with a different size then modify the
+ * modelview matrix with scale and translate commands.
+ */
+class Grid {
+public:
+  //! \brief Destructor
+  inline ~Grid() { deinit(); }
 
-	//! \brief Release any associated OpenGL resources.
-	inline void deinit() { _vertexData.deinit(); _xGridLines = _yGridLines = 0; }
-
-	/*! \brief Sets up the vertex buffer objects for the regular
-	  grid.
-	 
-	  \param xlines The number of grid lines in the x dimension.
-	  \param ylines The number of grid lines in the y dimension.
-	 */
-	inline void init(size_t xlines, size_t ylines)
-	{
-	  _xGridLines = xlines;
-	  _yGridLines = ylines;
-
-	  std::vector<GLfloat> data(6 * (_xGridLines + _yGridLines));
-
-	  for (size_t i(0); i < _xGridLines; ++i)
-	    {
-	      data[(i * 2 + 0) * 3 + 0] = -0.5f + i / float(_xGridLines - 1);
-	      data[(i * 2 + 0) * 3 + 1] = -0.5f;
-	      data[(i * 2 + 0) * 3 + 2] = 0;
-	      data[(i * 2 + 1) * 3 + 0] = -0.5f + i / float(_xGridLines - 1);
-	      data[(i * 2 + 1) * 3 + 1] = 0.5f;
-	      data[(i * 2 + 1) * 3 + 2] = 0;
-	    }
-    
-	  for (size_t i(0); i < _yGridLines; ++i)
-	    {
-	      data[((i + _xGridLines) * 2 + 0) * 3 + 0] = -0.5f;
-	      data[((i + _xGridLines) * 2 + 0) * 3 + 1] = -0.5f + i / float(_yGridLines - 1);
-	      data[((i + _xGridLines) * 2 + 0) * 3 + 2] = 0;
-	      data[((i + _xGridLines) * 2 + 1) * 3 + 0] = 0.5f;
-	      data[((i + _xGridLines) * 2 + 1) * 3 + 1] = -0.5f + i / float(_yGridLines - 1);
-	      data[((i + _xGridLines) * 2 + 1) * 3 + 2] = 0;
-	    }
-
-	  _vertexData.init(data);
-	}
-
-	/*! \brief Attaches the vertex buffer and renders the regular grid.
-	 
-	  The color of the grid should be set before calling this
-	  function.
-	 */
-	inline void glRender()
-	{
-	  if (!(_xGridLines + _yGridLines))
-	    M_throw() << "Cannot render uninitialized Grid object.";
-
-	  _vertexData.drawArray(magnet::GL::element_type::LINES);
-	}
-
-      protected:
-	magnet::GL::Buffer<GLfloat> _vertexData;
-	size_t _xGridLines;
-	size_t _yGridLines;
-      };
-    }
+  //! \brief Release any associated OpenGL resources.
+  inline void deinit() {
+    _vertexData.deinit();
+    _xGridLines = _yGridLines = 0;
   }
-}
+
+  /*! \brief Sets up the vertex buffer objects for the regular
+    grid.
+
+    \param xlines The number of grid lines in the x dimension.
+    \param ylines The number of grid lines in the y dimension.
+   */
+  inline void init(size_t xlines, size_t ylines) {
+    _xGridLines = xlines;
+    _yGridLines = ylines;
+
+    std::vector<GLfloat> data(6 * (_xGridLines + _yGridLines));
+
+    for (size_t i(0); i < _xGridLines; ++i) {
+      data[(i * 2 + 0) * 3 + 0] = -0.5f + i / float(_xGridLines - 1);
+      data[(i * 2 + 0) * 3 + 1] = -0.5f;
+      data[(i * 2 + 0) * 3 + 2] = 0;
+      data[(i * 2 + 1) * 3 + 0] = -0.5f + i / float(_xGridLines - 1);
+      data[(i * 2 + 1) * 3 + 1] = 0.5f;
+      data[(i * 2 + 1) * 3 + 2] = 0;
+    }
+
+    for (size_t i(0); i < _yGridLines; ++i) {
+      data[((i + _xGridLines) * 2 + 0) * 3 + 0] = -0.5f;
+      data[((i + _xGridLines) * 2 + 0) * 3 + 1] =
+          -0.5f + i / float(_yGridLines - 1);
+      data[((i + _xGridLines) * 2 + 0) * 3 + 2] = 0;
+      data[((i + _xGridLines) * 2 + 1) * 3 + 0] = 0.5f;
+      data[((i + _xGridLines) * 2 + 1) * 3 + 1] =
+          -0.5f + i / float(_yGridLines - 1);
+      data[((i + _xGridLines) * 2 + 1) * 3 + 2] = 0;
+    }
+
+    _vertexData.init(data);
+  }
+
+  /*! \brief Attaches the vertex buffer and renders the regular grid.
+
+    The color of the grid should be set before calling this
+    function.
+   */
+  inline void glRender() {
+    if (!(_xGridLines + _yGridLines))
+      M_throw() << "Cannot render uninitialized Grid object.";
+
+    _vertexData.drawArray(magnet::GL::element_type::LINES);
+  }
+
+protected:
+  magnet::GL::Buffer<GLfloat> _vertexData;
+  size_t _xGridLines;
+  size_t _yGridLines;
+};
+} // namespace objects
+} // namespace GL
+} // namespace magnet

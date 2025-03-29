@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -22,15 +22,14 @@
 #include <magnet/exception.hpp>
 
 namespace magnet {
-  namespace color {
-    inline void SebastiantoRGB(GLfloat color[4], float h) 
-    {
-      h = clamp(h, 0.0f, 1.0f);
+namespace color {
+inline void SebastiantoRGB(GLfloat color[4], float h) {
+  h = clamp(h, 0.0f, 1.0f);
 
-      color[0] = h;
-      color[1] = 4 * h * (1 - h);
-      color[2] = (1 - h);
-      color[3] = 1;
-    }
-  }
+  color[0] = h;
+  color[1] = 4 * h * (1 - h);
+  color[2] = (1 - h);
+  color[3] = 1;
 }
+} // namespace color
+} // namespace magnet

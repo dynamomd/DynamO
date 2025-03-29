@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -21,26 +21,25 @@
 #include <string>
 
 namespace magnet {
-  namespace CL {
-    namespace detail {
-      //Check if a device supports an OpenCL extension
-      inline bool detectExtension(cl::Device device, const std::string extension)
-      {
-	std::string extensions = device.getInfo<CL_DEVICE_EXTENSIONS>();
-	return extensions.find(extension) != std::string::npos;
-      }
-
-      //Check if all devices in a context support an OpenCL extension
-      inline bool detectExtension(cl::Context context, const std::string extension)
-      {
-	std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
-
-	for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
-	     devPtr != devices.end(); ++devPtr)
-	  if (!detectExtension(*devPtr, extension)) return false;
-
-	return true;
-      }
-    }
-  }
+namespace CL {
+namespace detail {
+// Check if a device supports an OpenCL extension
+inline bool detectExtension(cl::Device device, const std::string extension) {
+  std::string extensions = device.getInfo<CL_DEVICE_EXTENSIONS>();
+  return extensions.find(extension) != std::string::npos;
 }
+
+// Check if all devices in a context support an OpenCL extension
+inline bool detectExtension(cl::Context context, const std::string extension) {
+  std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+
+  for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
+       devPtr != devices.end(); ++devPtr)
+    if (!detectExtension(*devPtr, extension))
+      return false;
+
+  return true;
+}
+} // namespace detail
+} // namespace CL
+} // namespace magnet

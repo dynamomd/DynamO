@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,11 +17,11 @@
 
 #pragma once
 
-#include <cmath>
 #include <algorithm>
 #include <array>
+#include <cmath>
 
-/* 
+/*
    This work is heavily derived from the public domain work of Don
    Herbison-Evans. The original code is available in
    src/magnet/test/quartic_original.cpp. The code has been refactored
@@ -30,39 +30,43 @@
 */
 
 namespace magnet {
-  namespace math {
-    inline double quarticError(const double& a, const double& b, const double& c, const double& d,
-			       const double roots[4], const size_t rootCount)
-    {
-      std::array<double, 4> errors = {{0, 0, 0, 0}};
+namespace math {
+inline double quarticError(const double &a, const double &b, const double &c,
+                           const double &d, const double roots[4],
+                           const size_t rootCount) {
+  std::array<double, 4> errors = {{0, 0, 0, 0}};
 
-      for (size_t root = 0; root < rootCount; ++ root)
-	{
-	  const double value = (((roots[root]+a) * roots[root] + b) * roots[root] + c) * roots[root] + d;
+  for (size_t root = 0; root < rootCount; ++root) {
+    const double value =
+        (((roots[root] + a) * roots[root] + b) * roots[root] + c) *
+            roots[root] +
+        d;
 
-	  if (value == 0) { errors[root] = 0; continue; }
+    if (value == 0) {
+      errors[root] = 0;
+      continue;
+    }
 
-	  const double deriv = ((4 * roots[root] + 3 * a) * roots[root] + 2 * b) * roots[root] + c;
-      
-	  if (deriv != 0) 
-	    errors[root] = std::abs(value / deriv);
-	  else
-	    {
-	      const double secDeriv = (12 * roots[root] + 6 * a) * roots[root] + 2 * b;
-	      if (secDeriv != 0)
-		errors[root] = std::sqrt(std::abs(value / secDeriv));
-	      else
-		{
-		  const double thirdDeriv = 24 * roots[root] + 6 * a;
-		  if (thirdDeriv != 0)
-		    errors[root] = std::pow(std::abs(value / thirdDeriv), 1.0/3.0);
-		  else
-		    errors[root] = std::sqrt(std::sqrt(std::abs(value)/24));
-		}
-	    }
-	}
+    const double deriv =
+        ((4 * roots[root] + 3 * a) * roots[root] + 2 * b) * roots[root] + c;
 
-      return *std::max_element(errors.begin(), errors.begin()+rootCount);
+    if (deriv != 0)
+      errors[root] = std::abs(value / deriv);
+    else {
+      const double secDeriv = (12 * roots[root] + 6 * a) * roots[root] + 2 * b;
+      if (secDeriv != 0)
+        errors[root] = std::sqrt(std::abs(value / secDeriv));
+      else {
+        const double thirdDeriv = 24 * roots[root] + 6 * a;
+        if (thirdDeriv != 0)
+          errors[root] = std::pow(std::abs(value / thirdDeriv), 1.0 / 3.0);
+        else
+          errors[root] = std::sqrt(std::sqrt(std::abs(value) / 24));
+      }
     }
   }
+
+  return *std::max_element(errors.begin(), errors.begin() + rootCount);
 }
+} // namespace math
+} // namespace magnet

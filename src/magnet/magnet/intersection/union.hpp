@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -19,38 +19,37 @@
 #include <algorithm>
 
 namespace magnet {
-  namespace intersection {
-    namespace detail {
-      /*! \brief Implementation of unions of overlap functions. */
-      template<class TA, class TB>
-      class UnionOverlapFunction {
-      public:
-	UnionOverlapFunction(const TA& fA, const TB& fB):
-	  _fA(fA), _fB(fB) {}
-	
-	inline double operator()(double dt = 0) const {
-	  return std::min(_fA(dt), _fB(dt));
-	}
+namespace intersection {
+namespace detail {
+/*! \brief Implementation of unions of overlap functions. */
+template <class TA, class TB> class UnionOverlapFunction {
+public:
+  UnionOverlapFunction(const TA &fA, const TB &fB) : _fA(fA), _fB(fB) {}
 
-	void flipSign() {
-	  _fA.flipSign();
-	  _fB.flipSign();
-	}
-
-	double nextEvent() const {
-	  return std::min(_fA.nextEvent(), _fB.nextEvent());
-	}
-
-      private:
-	TA _fA;
-	TB _fB;
-      };
-
-      /*! \brief Helper function for creating unions of overlap
-	functions. */
-      template<class TA, class TB>
-      UnionOverlapFunction<TA, TB> make_union(const TA& fA, const TB& fB)
-      { return UnionOverlapFunction<TA, TB>(fA, fB); }
-    }
+  inline double operator()(double dt = 0) const {
+    return std::min(_fA(dt), _fB(dt));
   }
+
+  void flipSign() {
+    _fA.flipSign();
+    _fB.flipSign();
+  }
+
+  double nextEvent() const {
+    return std::min(_fA.nextEvent(), _fB.nextEvent());
+  }
+
+private:
+  TA _fA;
+  TB _fB;
+};
+
+/*! \brief Helper function for creating unions of overlap
+  functions. */
+template <class TA, class TB>
+UnionOverlapFunction<TA, TB> make_union(const TA &fA, const TB &fB) {
+  return UnionOverlapFunction<TA, TB>(fA, fB);
 }
+} // namespace detail
+} // namespace intersection
+} // namespace magnet

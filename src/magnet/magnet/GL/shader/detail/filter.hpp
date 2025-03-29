@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -20,94 +20,91 @@
 #define STRINGIFY(A) #A
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      namespace detail {
-	/*! \brief A base class for OpenGL Shaders implementing a
-	 * Screen Space filter using a square kernel.
-	 *
-	 * This class can be used to implement simple kernel-based
-	 * effects like a Gaussian blur, box filter or laplacian.
-	 *
-	 * Most simple screen space filters typically take the form of
-	 * a "kernel". This kernel takes a square of pixels
-	 * surrounding the input pixel, and \ref weights() these
-	 * surrounding pixels together to calculate the output pixel.
-	 *
-	 * Derived classes only need to provide the size
-	 * of the kernel to the constructor, and define the \ref
-	 * weights() function which specifies a square array
-	 * specifying the scaling factors applied to the surrounding
-	 * pixels before they are summed together to form the output
-	 * pixel.
-	 */
-	class SSKernelShader : public SSShader
-	{
-	protected:
-	  /*! \brief Builds the screen space shader and allocates the
-	   * associated OpenGL objects.
-	   *
-	   * This calls the underlying \ref Shader::build() function,
-	   * and then loads the weights uniform with the kernel of the
-	   * filter.
-	   *
-	   * \param stencilwidth The width/height of the filter kernel.
-	   */
-	  void build(int stencilwidth)
-	  {
-	    defines("stencilwidth") = stencilwidth;
+namespace GL {
+namespace shader {
+namespace detail {
+/*! \brief A base class for OpenGL Shaders implementing a
+ * Screen Space filter using a square kernel.
+ *
+ * This class can be used to implement simple kernel-based
+ * effects like a Gaussian blur, box filter or laplacian.
+ *
+ * Most simple screen space filters typically take the form of
+ * a "kernel". This kernel takes a square of pixels
+ * surrounding the input pixel, and \ref weights() these
+ * surrounding pixels together to calculate the output pixel.
+ *
+ * Derived classes only need to provide the size
+ * of the kernel to the constructor, and define the \ref
+ * weights() function which specifies a square array
+ * specifying the scaling factors applied to the surrounding
+ * pixels before they are summed together to form the output
+ * pixel.
+ */
+class SSKernelShader : public SSShader {
+protected:
+  /*! \brief Builds the screen space shader and allocates the
+   * associated OpenGL objects.
+   *
+   * This calls the underlying \ref Shader::build() function,
+   * and then loads the weights uniform with the kernel of the
+   * filter.
+   *
+   * \param stencilwidth The width/height of the filter kernel.
+   */
+  void build(int stencilwidth) {
+    defines("stencilwidth") = stencilwidth;
 
-	    SSShader::build();
-	    //Get the shader args
-	    attach();
-	    //Set the weights now
-	    GLint weightsUniform = glGetUniformLocationARB(_programHandle, "weights");
-	    glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
-	    detach();
-	  }
+    SSShader::build();
+    // Get the shader args
+    attach();
+    // Set the weights now
+    GLint weightsUniform = glGetUniformLocationARB(_programHandle, "weights");
+    glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
+    detach();
+  }
 
-	public:
-	  /*! \brief Generates the fragment shader source according to
-	   * the kernel's size.
-	   */
-	  virtual std::string initFragmentShaderSource()
-	  {
-	    return STRINGIFY(
-uniform vec2 u_Scale;
-uniform float weights[stencilwidth * stencilwidth];
-uniform sampler2D u_Texture0;
+public:
+  /*! \brief Generates the fragment shader source according to
+   * the kernel's size.
+   */
+  virtual std::string initFragmentShaderSource() {
+    return STRINGIFY(
+        uniform vec2 u_Scale;
+        uniform float weights[stencilwidth * stencilwidth];
+        uniform sampler2D u_Texture0;
 
-smooth in vec2 screenCoord;
-layout (location = 0) out vec4 color_out;
+        smooth in vec2 screenCoord; layout(location = 0) out vec4 color_out;
 
-void main()
-{
-  vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-  for(int x = 0; x < stencilwidth; ++x)
-    for(int y = 0; y < stencilwidth; ++y)
-      color += weights[y * stencilwidth + x] * texture(u_Texture0, screenCoord
-						       + vec2((x - stencilwidth / 2) * u_Scale.x, 
-							      (y - stencilwidth / 2) * u_Scale.y));
-  
-  color_out = vec4(color.rgb, 1.0);
-});
-	  }
+        void main() {
+          vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+          for (int x = 0; x < stencilwidth; ++x)
+            for (int y = 0; y < stencilwidth; ++y)
+              color += weights[y * stencilwidth + x] *
+                       texture(u_Texture0,
+                               screenCoord +
+                                   vec2((x - stencilwidth / 2) * u_Scale.x,
+                                        (y - stencilwidth / 2) * u_Scale.y));
 
-	protected:
-	  /*! \brief Returns the weights that make up the kernel of
-	   * the filter.
-	   *
-	   * This needs to be a _stencilwidth x _stencilwidth array of
-	   * floats and the sum of the elements of the array should
-	   * equal 1 (for a normalized filter).
-	   */
-	  virtual const GLfloat* weights() = 0;
+          color_out = vec4(color.rgb, 1.0);
+        });
+  }
 
-	  int _stencilwidth; 
-	}; 
-      }
-    } 
-  } 
-}
+protected:
+  /*! \brief Returns the weights that make up the kernel of
+   * the filter.
+   *
+   * This needs to be a _stencilwidth x _stencilwidth array of
+   * floats and the sum of the elements of the array should
+   * equal 1 (for a normalized filter).
+   */
+  virtual const GLfloat *weights() = 0;
+
+  int _stencilwidth;
+};
+} // namespace detail
+} // namespace shader
+} // namespace GL
+} // namespace magnet
 
 #undef STRINGIFY

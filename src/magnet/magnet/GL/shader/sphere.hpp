@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -19,133 +19,115 @@
 #define STRINGIFY(A) #A
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      /*! \brief A deffered rendering (G-Buffer) shader which
-          billboards/raytraces spheres.
+namespace GL {
+namespace shader {
+/*! \brief A deffered rendering (G-Buffer) shader which
+    billboards/raytraces spheres.
 
-	  This shader provides an extremely fast method to render
-	  perfect spheres in OpenGL. This method appears to outperform
-	  even the most poorly tesselated spheres. Only the position
-	  of the sphere (the input type is GL_POINTS) is needed as
-	  input (The radius of the sphere is passed in through the
-	  iScale vertex attribute). A geometry shader then converts
-	  each POINT into two triangles as a square bilboard. When the
-	  billboard is rasterized into fragments, in the fragment
-	  shader, each fragment is used to ray trace a sphere within
-	  the billboard. Thus, we only draw the front face of the
-	  sphere, using the absolute minimum input data, only two
-	  triangles at the cost of a slightly expensive fragment
-	  shader and an additional (trivial) geometry shader stage.
+    This shader provides an extremely fast method to render
+    perfect spheres in OpenGL. This method appears to outperform
+    even the most poorly tesselated spheres. Only the position
+    of the sphere (the input type is GL_POINTS) is needed as
+    input (The radius of the sphere is passed in through the
+    iScale vertex attribute). A geometry shader then converts
+    each POINT into two triangles as a square bilboard. When the
+    billboard is rasterized into fragments, in the fragment
+    shader, each fragment is used to ray trace a sphere within
+    the billboard. Thus, we only draw the front face of the
+    sphere, using the absolute minimum input data, only two
+    triangles at the cost of a slightly expensive fragment
+    shader and an additional (trivial) geometry shader stage.
 
-	  Anti-aliasing can be achieved by forcing the GL state to
-	  evaluate all samples of the fragments using the
-	  GL_ARB_sample_shading extension when available. Something
-	  like \code glEnable(SAMPLE_SHADING_ARB);
-	  glMinSampleShadingARB(1.0); \endcode will enable
-	  multisampling on the spheres when possible.
+    Anti-aliasing can be achieved by forcing the GL state to
+    evaluate all samples of the fragments using the
+    GL_ARB_sample_shading extension when available. Something
+    like \code glEnable(SAMPLE_SHADING_ARB);
+    glMinSampleShadingARB(1.0); \endcode will enable
+    multisampling on the spheres when possible.
 
-	  A discussion of this technique is given in the excellent
-	  online GL book by Jason L. McKesson at \url
-	  http://www.arcsynthesis.org/gltut/index.html in the chapter
-	  on lies and IMPOSTORS.
-       */
-      class SphereShader: public detail::Shader
-      {
-      public:
-	SphereShader()
-	{ 
-	  defines("unshaded") = "false";
-	}
+    A discussion of this technique is given in the excellent
+    online GL book by Jason L. McKesson at \url
+    http://www.arcsynthesis.org/gltut/index.html in the chapter
+    on lies and IMPOSTORS.
+ */
+class SphereShader : public detail::Shader {
+public:
+  SphereShader() { defines("unshaded") = "false"; }
 
-	virtual std::string initVertexShaderSource()
-	{
-	  return STRINGIFY(
-uniform mat4 ViewMatrix;
-uniform float global_scale;
+  virtual std::string initVertexShaderSource() {
+    return STRINGIFY(uniform mat4 ViewMatrix; uniform float global_scale;
 
-layout (location = 0) in vec4 vPosition;
-layout (location = 1) in vec4 vColor;
-layout (location = 4) in vec4 iOrientation;
-layout (location = 5) in vec4 iScale;
+                     layout(location = 0) in vec4 vPosition;
+                     layout(location = 1) in vec4 vColor;
+                     layout(location = 4) in vec4 iOrientation;
+                     layout(location = 5) in vec4 iScale;
 
-out vec4 color;
-out float radius;
+                     out vec4 color; out float radius;
 
-void main()
-{
-  color = vColor;
-  radius = (iScale.x + float(iScale.x == 0.0)) * global_scale * 0.5;
-  gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
-});
-	}
-	
-	virtual std::string initGeometryShaderSource()
-	{
-	  return STRINGIFY(
-uniform mat4 ProjectionMatrix;
+                     void main() {
+                       color = vColor;
+                       radius = (iScale.x + float(iScale.x == 0.0)) *
+                                global_scale * 0.5;
+                       gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
+                     });
+  }
 
-layout(points) in;
-layout(triangle_strip) out;
-layout(max_vertices = 4) out;
+  virtual std::string initGeometryShaderSource() {
+    return STRINGIFY(
+        uniform mat4 ProjectionMatrix;
 
-in vec4 color[];
-in float radius[];
+        layout(points) in; layout(triangle_strip) out;
+        layout(max_vertices = 4) out;
 
-flat out vec4 vert_color;
-flat out vec3 frag_center;
-flat out float frag_radius;
-smooth out vec3 frag_pos;
+        in vec4 color[]; in float radius[];
 
-//Function to emit a bilboard vertex with all the correct output given
-//the displacement
-void VertexEmit(in vec2 displacement)
-{
-  //The billboards need to be slightly larger to accommodate perspective warping.
-  const float overdraw = 1.1;
-  displacement *= overdraw;
-  frag_radius = radius[0];
-  vert_color = color[0];
-  frag_center = gl_in[0].gl_Position.xyz;
-  vec3 position = gl_in[0].gl_Position.xyz + vec3(radius[0] * displacement, radius[0]);
-  frag_pos = position;
-  gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
-  EmitVertex();
-}
+        flat out vec4 vert_color; flat out vec3 frag_center;
+        flat out float frag_radius; smooth out vec3 frag_pos;
 
-void main()
-{
-  //Standard data for each fragment
-  VertexEmit(vec2(-1.0, -1.0));
-  VertexEmit(vec2(-1.0, +1.0));
-  VertexEmit(vec2(+1.0, -1.0));
-  VertexEmit(vec2(+1.0, +1.0));
-  EndPrimitive();
-});
-	}
+        // Function to emit a bilboard vertex with all the correct output given
+        // the displacement
+        void VertexEmit(in vec2 displacement) {
+          // The billboards need to be slightly larger to accommodate
+          // perspective warping.
+          const float overdraw = 1.1;
+          displacement *= overdraw;
+          frag_radius = radius[0];
+          vert_color = color[0];
+          frag_center = gl_in[0].gl_Position.xyz;
+          vec3 position = gl_in[0].gl_Position.xyz +
+                          vec3(radius[0] * displacement, radius[0]);
+          frag_pos = position;
+          gl_Position =
+              ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
+          EmitVertex();
+        }
 
-	virtual std::string initFragmentShaderSource()
-	{
-	  return
-	    "#ifdef GL_ARB_conservative_depth\n"
-	    "#extension GL_ARB_conservative_depth : enable\n"
-	    "layout (depth_greater) out float gl_FragDepth;"
-	    "#endif\n"
-	    STRINGIFY(
-uniform mat4 ProjectionMatrix;
+        void main() {
+          // Standard data for each fragment
+          VertexEmit(vec2(-1.0, -1.0));
+          VertexEmit(vec2(-1.0, +1.0));
+          VertexEmit(vec2(+1.0, -1.0));
+          VertexEmit(vec2(+1.0, +1.0));
+          EndPrimitive();
+        });
+  }
 
-flat in vec4 vert_color;
-flat in vec3 frag_center;
-flat in float frag_radius;
-smooth in vec3 frag_pos;
+  virtual std::string initFragmentShaderSource() {
+    return "#ifdef GL_ARB_conservative_depth\n"
+           "#extension GL_ARB_conservative_depth : enable\n"
+           "layout (depth_greater) out float gl_FragDepth;"
+           "#endif\n" STRINGIFY(
+               uniform mat4 ProjectionMatrix;
 
-layout (location = 0) out vec4 color_out;
-layout (location = 1) out vec4 normal_out;
-layout (location = 2) out vec4 position_out;
+               flat in vec4 vert_color; flat in vec3 frag_center;
+               flat in float frag_radius; smooth in vec3 frag_pos;
 
-void main()
-{
-  normal_out = vec4(0.0);
+               layout(location = 0) out vec4 color_out;
+               layout(location = 1) out vec4 normal_out;
+               layout(location = 2) out vec4 position_out;
+
+               void main() {
+                 normal_out = vec4(0.0);
 ) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
   position_out = vec4(frag_pos, 1.0);
   vec4 screen_pos = ProjectionMatrix * vec4(frag_pos, 1.0);
@@ -171,28 +153,23 @@ void main()
   gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
 ) "\n#endif\n" STRINGIFY(
   color_out = vert_color;
-});
-	}
-      };
+               });
+  }
+};
 
-      /*! \brief A variant of the SphereShader used for variance
-          shadow mapping.
-       */
-      class SphereVSMShader: public SphereShader
-      {
-	virtual std::string initFragmentShaderSource()
-	{
-	  return STRINGIFY(
-uniform mat4 ProjectionMatrix;
+/*! \brief A variant of the SphereShader used for variance
+    shadow mapping.
+ */
+class SphereVSMShader : public SphereShader {
+  virtual std::string initFragmentShaderSource() {
+    return STRINGIFY(uniform mat4 ProjectionMatrix;
 
-flat in vec3 frag_center;
-flat in float frag_radius;
-smooth in vec3 frag_pos;
+                     flat in vec3 frag_center; flat in float frag_radius;
+                     smooth in vec3 frag_pos;
 
-layout (location = 0) out vec4 moments_out;
+                     layout(location = 0) out vec4 moments_out;
 
-void main()
-{
+                     void main() {
 ) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
   vec3 world_pos = frag_pos;
 ) "\n#else\n" STRINGIFY(
@@ -216,14 +193,11 @@ void main()
   float dy = dFdy(moment1);
   moment2 += 0.25 * (dx * dx + dy * dy);
   moments_out = vec4(moment1, moment2, 0.0, 1.0);
-});
-	}
-
-      };
-    }
+                     });
   }
-}
+};
+} // namespace shader
+} // namespace GL
+} // namespace magnet
 
 #undef STRINGIFY
-
-

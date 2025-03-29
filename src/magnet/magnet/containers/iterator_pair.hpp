@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2008  Todd Wease <->
@@ -21,31 +21,33 @@
 #pragma once
 
 namespace magnet {
-  namespace containers {
-    /*! \brief This container allows a pair of iterators to be used in
-        a range-based for loop.
+namespace containers {
+/*! \brief This container allows a pair of iterators to be used in
+    a range-based for loop.
 
-	An example usage, using the helper function, is this:
+    An example usage, using the helper function, is this:
 
-	\code
-	std::vector<int> vector;
-	for (auto& value : IteratorPairRange<>)
-	\endcode
-    */
-    template<class Iterator>
-    class IteratorPairRange {
-    public:
-      IteratorPairRange(Iterator begin, Iterator end): _begin(begin), _end(end) {}
-      const Iterator& begin() const { return _begin; }
-      const Iterator& end() const { return _end; }
-    private:
-      const Iterator _begin;
-      const Iterator _end;
-    };
-    
-    /*! \brief Helper function for IteratorPairRange. */
-    template<class Iterator>
-    IteratorPairRange<Iterator> makeIteratorRange(Iterator begin, Iterator end) { return IteratorPairRange<Iterator>(begin, end); }
-    
-  }
+    \code
+    std::vector<int> vector;
+    for (auto& value : IteratorPairRange<>)
+    \endcode
+*/
+template <class Iterator> class IteratorPairRange {
+public:
+  IteratorPairRange(Iterator begin, Iterator end) : _begin(begin), _end(end) {}
+  const Iterator &begin() const { return _begin; }
+  const Iterator &end() const { return _end; }
+
+private:
+  const Iterator _begin;
+  const Iterator _end;
+};
+
+/*! \brief Helper function for IteratorPairRange. */
+template <class Iterator>
+IteratorPairRange<Iterator> makeIteratorRange(Iterator begin, Iterator end) {
+  return IteratorPairRange<Iterator>(begin, end);
 }
+
+} // namespace containers
+} // namespace magnet

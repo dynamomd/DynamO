@@ -319,16 +319,14 @@ target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
 ######################################################################
 # Test for libbz2 (for compressed files)
 ######################################################################
-if(NOT WIN32)
-  find_package(BZip2)
-  if(BZIP2_FOUND)
-    target_include_directories(dynamo PRIVATE ${BZIP2_INCLUDE_DIR})
-    target_link_libraries(dynamo PRIVATE ${BZIP2_LIBRARIES})
-    target_compile_definitions(dynamo PUBLIC DYNAMO_bzip2_support=1)
-    message(STATUS "libbz2 found - compressed file support enabled")
-  else()
-    message(WARNING "libbz2 not found - compressed file support disabled")
-  endif()
+find_package(BZip2)
+if(BZIP2_FOUND)
+  target_include_directories(dynamo PRIVATE ${BZIP2_INCLUDE_DIR})
+  target_link_libraries(dynamo PRIVATE ${BZIP2_LIBRARIES})
+  target_compile_definitions(dynamo PUBLIC DYNAMO_bzip2_support=1)
+  message(STATUS "libbz2 found - compressed file support enabled")
+else()
+  message(WARNING "libbz2 not found - compressed file support disabled")
 endif()
 
 ### Coil
@@ -462,7 +460,7 @@ set(
   CPP_SOURCE_FILES
   ${dynamo_SRC_hpp} ${dynamo_SRC_cpp}
   ${coil_SRC_hpp} ${coil_SRC_cpp}
-  #${magnet_SRC_hpp} 
+  ${magnet_SRC_hpp} 
   ${magnet_SRC_cpp}
 )
 

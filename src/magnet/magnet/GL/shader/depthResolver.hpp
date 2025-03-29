@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -19,46 +19,41 @@
 #define STRINGIFY(A) #A
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      /*! \brief Deffered lighting calculation shader.
+namespace GL {
+namespace shader {
+/*! \brief Deffered lighting calculation shader.
 
-	This class performs the lighting calculations for the current
-	scene.
-       */
-      class DepthResolverShader: public detail::SSShader
-      {
-      public:
-	virtual std::string initFragmentShaderSource()
-	{
-	  return STRINGIFY(
-layout (location = 0) out vec4 color_out;
-uniform sampler2DMS posTex;
-uniform int samples;
-uniform mat4 ProjectionMatrix;
+  This class performs the lighting calculations for the current
+  scene.
+ */
+class DepthResolverShader : public detail::SSShader {
+public:
+  virtual std::string initFragmentShaderSource() {
+    return STRINGIFY(
+        layout(location = 0) out vec4 color_out; uniform sampler2DMS posTex;
+        uniform int samples; uniform mat4 ProjectionMatrix;
 
-void main()
-{
-  //Now calculate the color from the samples
-  float out_depth = 1.0;
-  for (int sample_id = 0; sample_id < samples; sample_id++)
-    {
-      //Fetch the eye-space position
-      vec3 eye_pos = texelFetch(posTex, ivec2(gl_FragCoord.xy), 0/*sample_id*/).xyz;
-      vec4 clip_pos = ProjectionMatrix * vec4(eye_pos, 1.0);
-      vec3 device_pos = clip_pos.xyz / clip_pos.w;
-      
-      out_depth = min((device_pos.z + 1.0) / 2.0, out_depth);
-    }
-  
-  gl_FragDepth = out_depth;
+        void main() {
+          // Now calculate the color from the samples
+          float out_depth = 1.0;
+          for (int sample_id = 0; sample_id < samples; sample_id++) {
+            // Fetch the eye-space position
+            vec3 eye_pos =
+                texelFetch(posTex, ivec2(gl_FragCoord.xy), 0 /*sample_id*/).xyz;
+            vec4 clip_pos = ProjectionMatrix * vec4(eye_pos, 1.0);
+            vec3 device_pos = clip_pos.xyz / clip_pos.w;
 
-  color_out = vec4(1.0);
-});
-	}
-      };
-    }
+            out_depth = min((device_pos.z + 1.0) / 2.0, out_depth);
+          }
+
+          gl_FragDepth = out_depth;
+
+          color_out = vec4(1.0);
+        });
   }
-}
+};
+} // namespace shader
+} // namespace GL
+} // namespace magnet
 
 #undef STRINGIFY

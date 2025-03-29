@@ -128,7 +128,7 @@ bool runTest(cl::Context context, cl::CommandQueue queue) {
   //   {
   //     if (runTestType<cl_double>(context, queue))
   //	std::cerr << "EXPECTED FAIL: AMD double precision radix sort fails due
-  //to a bug in the stream SDK.\n";
+  // to a bug in the stream SDK.\n";
   //     else
   //	M_throw() << "The bug in the ATI stream SDK has been fixed!";
   //   }

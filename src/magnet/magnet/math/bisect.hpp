@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,37 +18,36 @@
 #pragma once
 
 namespace magnet {
-  namespace math {
+namespace math {
 #ifdef MAGNET_DEBUG
-    namespace {
-      inline bool comparesign(double a, double b)
-      { return (a < 0) == (b < 0); }
-    }
+namespace {
+inline bool comparesign(double a, double b) { return (a < 0) == (b < 0); }
+} // namespace
 #endif
 
-    template<class Functor>
-    inline double bisect(const Functor& func, double t1, double t2, double rootthreshold, const size_t nIt = 5000)
-    {
+template <class Functor>
+inline double bisect(const Functor &func, double t1, double t2,
+                     double rootthreshold, const size_t nIt = 5000) {
 #ifdef MAGNET_DEBUG
-      if (comparesign(func(t1), func(t2)))
-	M_throw() << "No sign change in the interval!";
+  if (comparesign(func(t1), func(t2)))
+    M_throw() << "No sign change in the interval!";
 #endif
-      bool negative_min = func(t1) < 0;
+  bool negative_min = func(t1) < 0;
 
-      for (size_t i(0); i < nIt; ++i)
-	{
-	  double tm = 0.5 * (t1 + t2);
-	  double f = func(tm);
-	    
-	  if (std::abs(f) < rootthreshold) return tm;
+  for (size_t i(0); i < nIt; ++i) {
+    double tm = 0.5 * (t1 + t2);
+    double f = func(tm);
 
-	  if ((f < 0.0) == negative_min)
-	    t1 = tm;
-	  else 
-	    t2 = tm;
-	}
+    if (std::abs(f) < rootthreshold)
+      return tm;
 
-      return t1;
-    }
+    if ((f < 0.0) == negative_min)
+      t1 = tm;
+    else
+      t2 = tm;
   }
+
+  return t1;
 }
+} // namespace math
+} // namespace magnet

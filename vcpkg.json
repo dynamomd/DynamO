@@ -2,20 +2,21 @@
   "name": "main",
   "version-string": "latest",
   "dependencies": [
-    "boost-filesystem",
-    "boost-program-options",
-    "boost-test",
-    "boost-rational",
-    "boost-circular-buffer",
-    "boost-chrono",
-    "boost-tokenizer",
-    "boost-lexical-cast",
     "boost-bimap",
+    "boost-chrono",
+    "boost-circular-buffer",
+    "boost-filesystem",
+    "boost-lexical-cast",
     "boost-math",
     "boost-mpl",
+    "boost-program-options",
+    "boost-rational",
     "boost-serialization",
+    "boost-test",
+    "boost-tokenizer",
     "boost-ublas",
     "eigen3",
-    "libpng"
+    "libpng",
+    "bzip2"
   ]
 }

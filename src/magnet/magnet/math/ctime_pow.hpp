@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -18,24 +18,20 @@
 #pragma once
 
 namespace magnet {
-  namespace math {
-    //!\brief A template metafunction for calculating the power of an integer.
-    template<int X, int Y>
-    struct ctime_pow {
-      static const int result = X * ctime_pow<X, Y-1>::result;
-    };
-    
+namespace math {
+//!\brief A template metafunction for calculating the power of an integer.
+template <int X, int Y> struct ctime_pow {
+  static const int result = X * ctime_pow<X, Y - 1>::result;
+};
+
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
-    template<int X>
-    struct ctime_pow<X,1> {
-      static const int result = X;
-    };
+template <int X> struct ctime_pow<X, 1> {
+  static const int result = X;
+};
 
-    template<int X>
-    struct ctime_pow<X,0> {
-      static const int result = 1;
-    };
+template <int X> struct ctime_pow<X, 0> {
+  static const int result = 1;
+};
 #endif
-  }
-}
-
+} // namespace math
+} // namespace magnet

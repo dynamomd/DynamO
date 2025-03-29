@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -17,57 +17,51 @@
 
 #pragma once
 
-#include <queue>
-#include <mutex>
 #include <functional>
+#include <mutex>
+#include <queue>
 
 namespace magnet {
-  namespace thread {
-    class TaskQueue
-    {
-    public:
-      //Actual queuer
-      inline virtual void queueTask(std::function<void()> threadfunc)
-      {
-	std::lock_guard<std::mutex> lock(_queue_mutex);
-	_waitingFunctors.push(threadfunc);
-      }
-
-      inline virtual void queueTasks(std::vector<std::function<void()>>& threadfuncs)
-      {
-	std::lock_guard<std::mutex> lock(_queue_mutex);    
-
-	for (const auto& func : threadfuncs)
-	  _waitingFunctors.push(func);
-
-	threadfuncs.clear();
-      }
-
-      void drainQueue()
-      {
-	_queue_mutex.lock();
-
-	while (!_waitingFunctors.empty())
-	  {
-	    std::function<void()> task = _waitingFunctors.front();
-	    _waitingFunctors.pop();
-	    _queue_mutex.unlock();
-	    task();
-	    _queue_mutex.lock();
-	  }
-	_queue_mutex.unlock();
-      }
-
-      virtual ~TaskQueue()
-      {
-	std::lock_guard<std::mutex> lock(_queue_mutex);    
-	_waitingFunctors = std::queue<std::function<void()> >();
-      }
-
-    protected:
-      std::queue<std::function<void()> > _waitingFunctors;
-      std::mutex _queue_mutex;
-
-    };
+namespace thread {
+class TaskQueue {
+public:
+  // Actual queuer
+  inline virtual void queueTask(std::function<void()> threadfunc) {
+    std::lock_guard<std::mutex> lock(_queue_mutex);
+    _waitingFunctors.push(threadfunc);
   }
-}
+
+  inline virtual void
+  queueTasks(std::vector<std::function<void()>> &threadfuncs) {
+    std::lock_guard<std::mutex> lock(_queue_mutex);
+
+    for (const auto &func : threadfuncs)
+      _waitingFunctors.push(func);
+
+    threadfuncs.clear();
+  }
+
+  void drainQueue() {
+    _queue_mutex.lock();
+
+    while (!_waitingFunctors.empty()) {
+      std::function<void()> task = _waitingFunctors.front();
+      _waitingFunctors.pop();
+      _queue_mutex.unlock();
+      task();
+      _queue_mutex.lock();
+    }
+    _queue_mutex.unlock();
+  }
+
+  virtual ~TaskQueue() {
+    std::lock_guard<std::mutex> lock(_queue_mutex);
+    _waitingFunctors = std::queue<std::function<void()>>();
+  }
+
+protected:
+  std::queue<std::function<void()>> _waitingFunctors;
+  std::mutex _queue_mutex;
+};
+} // namespace thread
+} // namespace magnet

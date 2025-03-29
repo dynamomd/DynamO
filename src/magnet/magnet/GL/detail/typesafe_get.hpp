@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -19,62 +19,72 @@
 #include <magnet/GL/detail/error_check.hpp>
 
 namespace magnet {
-  namespace GL {
-    namespace detail {
+namespace GL {
+namespace detail {
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
 
-      template<GLenum val> struct glget_enum_to_type {};
+template <GLenum val> struct glget_enum_to_type {};
 
-#define GL_GET_ENUM_TYPE_TRAIT_FACTORY(F)		\
-      F(GL_VIEWPORT, GLint, 4)				\
-      F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)                \
-      F(GL_MAX_COLOR_ATTACHMENTS_EXT, GLint, 1)		\
-      F(GL_MAJOR_VERSION, GLint, 1)			\
-      F(GL_MINOR_VERSION, GLint, 1)			\
-      F(GL_MAX_DRAW_BUFFERS, GLint, 1)			\
-      F(GL_NUM_EXTENSIONS, GLint, 1)			\
-      F(GL_MAX_SAMPLES, GLint, 1)			\
-      F(GL_MAX_COLOR_TEXTURE_SAMPLES, GLint, 1)		\
-      F(GL_MAX_DEPTH_TEXTURE_SAMPLES, GLint, 1)
+#define GL_GET_ENUM_TYPE_TRAIT_FACTORY(F)                                      \
+  F(GL_VIEWPORT, GLint, 4)                                                     \
+  F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)                                           \
+  F(GL_MAX_COLOR_ATTACHMENTS_EXT, GLint, 1)                                    \
+  F(GL_MAJOR_VERSION, GLint, 1)                                                \
+  F(GL_MINOR_VERSION, GLint, 1)                                                \
+  F(GL_MAX_DRAW_BUFFERS, GLint, 1)                                             \
+  F(GL_NUM_EXTENSIONS, GLint, 1)                                               \
+  F(GL_MAX_SAMPLES, GLint, 1)                                                  \
+  F(GL_MAX_COLOR_TEXTURE_SAMPLES, GLint, 1)                                    \
+  F(GL_MAX_DEPTH_TEXTURE_SAMPLES, GLint, 1)
 
-      template<size_t width, class T> struct return_type { typedef std::array<T, width> Type; };
-      template<class T> struct return_type<1, T> { typedef T Type; };
-      
-#define GL_GET_TO_C_TYPE(GL_ENUM_VAL, C_TYPE, WIDTH)		\
-      template<> struct glget_enum_to_type<GL_ENUM_VAL>		\
-      {								\
-	typedef C_TYPE Type;					\
-	typedef return_type<WIDTH, C_TYPE>::Type ReturnType;	\
-      };
-      
-      GL_GET_ENUM_TYPE_TRAIT_FACTORY(GL_GET_TO_C_TYPE)
+template <size_t width, class T> struct return_type {
+  typedef std::array<T, width> Type;
+};
+template <class T> struct return_type<1, T> {
+  typedef T Type;
+};
+
+#define GL_GET_TO_C_TYPE(GL_ENUM_VAL, C_TYPE, WIDTH)                           \
+  template <> struct glget_enum_to_type<GL_ENUM_VAL> {                         \
+    typedef C_TYPE Type;                                                       \
+    typedef return_type<WIDTH, C_TYPE>::Type ReturnType;                       \
+  };
+
+GL_GET_ENUM_TYPE_TRAIT_FACTORY(GL_GET_TO_C_TYPE)
 #undef GL_ENUM_TO_C_TYPE
 #undef GL_GET_ENUM_TYPE_TRAIT_FACTORY
 
-      inline void glGetWorker(GLenum val, GLboolean* ptr)
-      { glGetBooleanv(val, ptr); errorCheck(); }
+inline void glGetWorker(GLenum val, GLboolean *ptr) {
+  glGetBooleanv(val, ptr);
+  errorCheck();
+}
 
-      inline void glGetWorker(GLenum val, GLdouble* ptr)
-      { glGetDoublev(val, ptr); errorCheck(); }
+inline void glGetWorker(GLenum val, GLdouble *ptr) {
+  glGetDoublev(val, ptr);
+  errorCheck();
+}
 
-      inline void glGetWorker(GLenum val, GLfloat* ptr)
-      { glGetFloatv(val, ptr); errorCheck(); }
+inline void glGetWorker(GLenum val, GLfloat *ptr) {
+  glGetFloatv(val, ptr);
+  errorCheck();
+}
 
-      inline void glGetWorker(GLenum val, GLint* ptr)
-      { glGetIntegerv(val, ptr); errorCheck(); }
+inline void glGetWorker(GLenum val, GLint *ptr) {
+  glGetIntegerv(val, ptr);
+  errorCheck();
+}
 
 #endif
 
-      /*! \brief A type safe glGet command, to fetch parameters of the
-        current OpenGL state.
-       */
-      template<GLenum ENUM>
-      typename glget_enum_to_type<ENUM>::ReturnType glGet()
-      {	
-	typename glget_enum_to_type<ENUM>::ReturnType retval;
-	glGetWorker(ENUM, reinterpret_cast<typename glget_enum_to_type<ENUM>::Type*>(&retval));
-	return retval;
-      }
-    }
-  }
+/*! \brief A type safe glGet command, to fetch parameters of the
+  current OpenGL state.
+ */
+template <GLenum ENUM> typename glget_enum_to_type<ENUM>::ReturnType glGet() {
+  typename glget_enum_to_type<ENUM>::ReturnType retval;
+  glGetWorker(ENUM, reinterpret_cast<typename glget_enum_to_type<ENUM>::Type *>(
+                        &retval));
+  return retval;
 }
+} // namespace detail
+} // namespace GL
+} // namespace magnet

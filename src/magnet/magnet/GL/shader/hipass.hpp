@@ -1,4 +1,4 @@
-/*    dynamo:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator
  *    http://www.dynamomd.org
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -18,53 +18,41 @@
 #include <magnet/GL/shader/detail/filter.hpp>
 
 namespace magnet {
-  namespace GL {
-    namespace shader {
-      /*! \brief Implements a 3x3 HiPass Shader.
-	
-	These screen space filters sharpen images by only allowing
-	high frequency data through.
-       */
-      class HiPass3x3 : public detail::SSKernelShader
-      {
-      public:
-	void build() { SSKernelShader::build(3); }
+namespace GL {
+namespace shader {
+/*! \brief Implements a 3x3 HiPass Shader.
 
-	virtual const GLfloat* weights()
-	{
-	  static const GLfloat weights[3][3] = 
-	    {
-	      {-1, -1, -1},
-	      {-1,  9, -1},
-	      {-1, -1, -1}
-	    };
-	
-	  return (const GLfloat*)weights;
-	}
-	
-      };
+  These screen space filters sharpen images by only allowing
+  high frequency data through.
+ */
+class HiPass3x3 : public detail::SSKernelShader {
+public:
+  void build() { SSKernelShader::build(3); }
 
-      /*! \brief Implements a 5x5 HiPass filter. */
-      class HiPass5x5 : public detail::SSKernelShader
-      {
-      public:
-	void build() { SSKernelShader::build(5); }
-      
-	virtual const GLfloat* weights()
-	{
-	  static const GLfloat weights[5][5] = 
-	    {
-	      {-1/1.0, -1/1.0, -1/1.0, -1/1.0, -1/1.0},
-	      {-1/1.0, -1/1.0, -1/1.0, -1/1.0, -1/1.0},
-	      {-1/1.0, -1/1.0, 25/1.0, -1/1.0, -1/1.0},
-	      {-1/1.0, -1/1.0, -1/1.0, -1/1.0, -1/1.0},
-	      {-1/1.0, -1/1.0, -1/1.0, -1/1.0, -1/1.0}
-	    };
-	
-	  return (const GLfloat*)weights;
-	}	
-      };
-    }
+  virtual const GLfloat *weights() {
+    static const GLfloat weights[3][3] = {
+        {-1, -1, -1}, {-1, 9, -1}, {-1, -1, -1}};
+
+    return (const GLfloat *)weights;
   }
-}
+};
 
+/*! \brief Implements a 5x5 HiPass filter. */
+class HiPass5x5 : public detail::SSKernelShader {
+public:
+  void build() { SSKernelShader::build(5); }
+
+  virtual const GLfloat *weights() {
+    static const GLfloat weights[5][5] = {
+        {-1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0},
+        {-1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0},
+        {-1 / 1.0, -1 / 1.0, 25 / 1.0, -1 / 1.0, -1 / 1.0},
+        {-1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0},
+        {-1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0, -1 / 1.0}};
+
+    return (const GLfloat *)weights;
+  }
+};
+} // namespace shader
+} // namespace GL
+} // namespace magnet
