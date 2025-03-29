@@ -441,6 +441,18 @@ if(Python3_Interpreter_FOUND)
   endif()
 endif()
 
+
+#######################################################################
+# Checking and applying formatting to source files
+#######################################################################
+# Check if clang-format is available
+find_program(CLANG_FORMAT_EXECUTABLE NAMES clang-format)
+if(CLANG_FORMAT_EXECUTABLE)
+  message(STATUS "clang-format found: ${CLANG_FORMAT_EXECUTABLE}")
+else()
+  message(WARNING "clang-format not found. Skipping formatting checks.")
+endif()
+
 file(GLOB_RECURSE dynamo_SRC_hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/*.hpp)
 file(GLOB_RECURSE dynamo_SRC_cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/*.cpp)
 file(GLOB_RECURSE coil_SRC_hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/*.hpp)
@@ -458,7 +470,7 @@ set(
 
 add_custom_target(
     check-src-format
-    COMMAND clang-format --dry-run ${CPP_SOURCE_FILES}
+    COMMAND ${CLANG_FORMAT_EXECUTABLE} --dry-run ${CPP_SOURCE_FILES}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "checking format of source files..."
 )
@@ -469,3 +481,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Formatting all source files in src..."
 )
+

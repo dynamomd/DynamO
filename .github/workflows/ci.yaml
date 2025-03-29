@@ -67,8 +67,13 @@ jobs:
       # store the built packages artifacts.
       - name: Configure the build system
         run: |
-          cmake --preset ninja-multi-vcpkg
+          cmake --preset configure-preset
 
+      - name: Check code formatting
+        if: runner.os == 'Linux'
+        run: |
+          cmake --workflow --preset check-src-format
+          
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       #
       # Note: if the preset misses the "configuration", it is possible to explicitly select the
@@ -76,23 +81,13 @@ jobs:
       # run: cmake --build --preset ninja-vcpkg --config Release
       - name: Build (Release configuration)
         run: |
-          cmake --build --preset ninja-vcpkg-release
+          cmake -j 4 --build --preset release-build
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
         run: |
-          ctest --preset test-release --output-on-failure
+          ctest -j 4 --preset test-release --output-on-failure
 
       - name: Package
         run: |
-          cmake --build --preset ninja-vcpkg-release -t package
-
-      - name: Package (windows installer)
-        if: runner.os == 'Windows'
-        run: |
-          cmake --build --preset ninja-vcpkg-release -t package-wix
-
-      - name: Check code formatting
-        if: runner.os == 'Linux'
-        run: |
-          cmake --workflow --preset check-src-format
+          cmake -j 4 --build --preset ninja-vcpkg-release -t package

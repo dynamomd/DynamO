@@ -7,7 +7,7 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-multi-vcpkg",
+      "name": "configure-preset",
       "displayName": "Ninja Multi-Config",
       "description": "Configure with vcpkg toolchain and generate Ninja project files for all configurations",
       "binaryDir": "${sourceDir}/builds/${presetName}",
@@ -17,36 +17,29 @@
   ],
   "buildPresets": [
     {
-      "name": "ninja-vcpkg-debug",
-      "configurePreset": "ninja-multi-vcpkg",
+      "name": "debug-build",
+      "configurePreset": "configure-preset",
       "displayName": "Build (Debug)",
       "description": "Build with Ninja/vcpkg (Debug)",
       "configuration": "Debug"
     },
     {
-      "name": "ninja-vcpkg-release",
-      "configurePreset": "ninja-multi-vcpkg",
+      "name": "release-build",
+      "configurePreset": "configure-preset",
       "displayName": "Build (Release)",
       "description": "Build with Ninja/vcpkg (Release)",
       "configuration": "Release"
     },
     {
-      "name": "ninja-vcpkg",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build",
-      "description": "Build with Ninja/vcpkg",
-      "hidden": true
-    },
-    {
-      "name": "ninja-vcpkg-check-src-format",
-      "configurePreset": "ninja-multi-vcpkg",
+      "name": "check-src-format",
+      "configurePreset": "configure-preset",
       "displayName": "Check source code formatting",
       "targets": ["check-src-format"],
       "description": "Build with Ninja/vcpkg check-src-format"
     },
     {
-      "name": "ninja-vcpkg-src-format",
-      "configurePreset": "ninja-multi-vcpkg",
+      "name": "src-format",
+      "configurePreset": "configure-preset",
       "displayName": "Automatically format source code",
       "targets": ["src-format"],
       "description": "Build with Ninja/vcpkg src-format"
@@ -57,11 +50,11 @@
       "name": "src-format",
       "steps": [
         {
-          "name": "ninja-multi-vcpkg",
+          "name": "configure-preset",
           "type": "configure"
         },
         {
-          "name": "ninja-vcpkg-src-format",
+          "name": "src-format",
           "type": "build"
         }
       ]
@@ -70,11 +63,11 @@
       "name": "check-src-format",
       "steps": [
         {
-          "name": "ninja-multi-vcpkg",
+          "name": "configure-preset",
           "type": "configure"
         },
         {
-          "name": "ninja-vcpkg-check-src-format",
+          "name": "check-src-format",
           "type": "build"
         }
       ]
@@ -82,8 +75,8 @@
   ],
   "testPresets": [
     {
-      "name": "test-ninja-vcpkg",
-      "configurePreset": "ninja-multi-vcpkg",
+      "name": "test",
+      "configurePreset": "configure-preset",
       "hidden": true
     },
     {
@@ -91,14 +84,14 @@
       "description": "Test (Debug)",
       "displayName": "Test (Debug)",
       "configuration": "Debug",
-      "inherits": ["test-ninja-vcpkg"]
+      "inherits": ["test"]
     },
     {
       "name": "test-release",
       "description": "Test (Release)",
       "displayName": "Test (Release)",
       "configuration": "Release",
-      "inherits": ["test-ninja-vcpkg"]
+      "inherits": ["test"]
     }
   ]
 }
