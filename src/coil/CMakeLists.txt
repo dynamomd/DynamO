@@ -43,7 +43,11 @@ endif()
 ##########################################################################
 ### Coil
 ##########################################################################
-set(Coil_FOUND (VISUALIZER_SUPPORT AND VISUALIZER_ENABLED) CACHE BOOL "Coil library available")
+if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
+  set(Coil_FOUND TRUE  CACHE BOOL "Coil library available")
+else()
+  set(Coil_FOUND FALSE CACHE BOOL "Coil library available")
+endif()
 
 if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
   message(STATUS "Visualizer dependencies satisfied.")

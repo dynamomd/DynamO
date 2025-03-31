@@ -1,13 +1,13 @@
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMAGNET_DEBUG")
 
-find_package(Boost 1.70.0 REQUIRED unit_test_framework)
-
+find_package(Boost 1.70.0 REQUIRED)
 
 add_library(magnet INTERFACE)
 target_include_directories(magnet INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
   ${CMAKE_CURRENT_SOURCE_DIR}/../../extern
+  ${Boost_INCLUDE_DIRS}
 )
 
 ######################################################################
