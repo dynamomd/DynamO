@@ -36,7 +36,7 @@ endif()
 
 function(magnet_test name) #Registers a magnet unit-test
   add_executable(magnet_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}.cpp)
-  target_link_libraries(magnet_${name}_exe magnet Boost::unit_test_framework)
+  target_link_libraries(magnet_${name}_exe magnet)
   add_test(magnet_${name} magnet_${name}_exe)
 endfunction(magnet_test)
 

@@ -116,6 +116,8 @@ add_library(dynamo STATIC ${dynamo_SRC})
 target_link_libraries(dynamo PUBLIC magnet Boost::program_options Boost::system Boost::filesystem Eigen3::Eigen)
 target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
 
+message(STATUS "Coil_FOUND: ${Coil_FOUND}")
+
 if (Coil_FOUND)
   # Patch into DynamO
   target_compile_definitions(dynamo PRIVATE DYNAMO_visualizer)
