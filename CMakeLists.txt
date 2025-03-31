@@ -5,49 +5,60 @@ if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the wa
 endif()
 
 project(DynamO) #Project name
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 enable_testing() #Enable build of test executables and 'make test' command
 include(CTest)
 
+# Include our custom CMAKE modules
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+# Define any build options
+option(VISUALIZER_ENABLED "Enable the visualizer" ON)
+
+######################################################################
+########## COMPILER FLAGS
+######################################################################
+# Set the C++ standard to C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Check the build type has been configured
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
     "Choose the type of build, options are: Debug Release
 RelWithDebInfo MinSizeRel."
     FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
-
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+# Fix some compiler flags for MSVC
+if(MSVC)
+  #MSVC has crazy warnings for -Wall, we'll build up support to the higher warning levels
+  add_compile_options(-W1)
+  #Enable the math defines (like M_PI!)
+  add_definitions(-D_USE_MATH_DEFINES)
+  #MSVC Crazily has "min" and "max" (yes, lowercase!) Macros defined
+  #which conflict with the C++ standard algorithms! This define
+  #instructs the compiler to not be an idiot and define those macros
+  add_definitions(-DNOMINMAX)
+else()
+  add_compile_options(-Wall)
+  link_libraries(debug dl)
+endif()
+
+# Set some compiler flags for debug mode
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG")
 
 ######################################################################
-##########  Boost support
+########## Git information and check submodules are installed
 ######################################################################
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
-
-# Add the magnet library
-add_subdirectory(src/magnet)
-
 find_package(Git QUIET)
 
-include(SystemInformation)
 include(GetGitRevisionDescription)
 git_describe(GIT_RESULT --match initial-commit)
 message(STATUS "Git description is ${GIT_RESULT}")
 string(REGEX MATCH "[0-9]+" BUILD_NUMBER ${GIT_RESULT})
 message(STATUS "Build number is ${BUILD_NUMBER}")
 
-option(VISUALIZER_ENABLED "Enable the visualizer" ON)
-
-######################################################################
-########## Git submodules 
-######################################################################
 ########## Check we have git submodules installed!
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 # Update submodules as needed
@@ -68,56 +79,28 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/stator/CMakeLists.txt")
 endif()
 
 ######################################################################
-########## COMPILER FLAGS
+######### Dependencies
 ######################################################################
-##########   RELEASE MODE
-if(WIN32)
-  add_definitions(-D_USE_MATH_DEFINES)
-  add_definitions(-DNOMINMAX)
-endif()
 
-if(NOT WIN32)
-  link_libraries(debug dl)
-endif()
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
 
-if(MSVC)
-  #MSVC has crazy warnings for -Wall, we'll build up support to the higher warning levels
-  add_compile_options(-W1)
-  #Enable the math defines (like M_PI!)
-  add_definitions(-D_USE_MATH_DEFINES)
-  #MSVC Crazily has "min" and "max" (yes, lowercase!) Macros defined
-  #which conflict with the C++ standard algorithms! This define
-  #instructs the compiler to not be an idiot and define those macros
-  add_definitions(-DNOMINMAX)
-else()
-  add_compile_options(-Wall)
-endif()
-
-##########   DEBUG MODE
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG")
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF) #Disable compiler specific extensions
-
-######################################################################
-######### TARGETS
-######################################################################
+add_subdirectory(src/magnet)
 find_package(Eigen3)
-
-# Add the magnet library
 add_subdirectory(src/coil)
 
 ######################################################################
 ### DynamO
 ######################################################################
+
 file(GLOB_RECURSE dynamo_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/dynamo/*.cpp)
 add_library(dynamo STATIC ${dynamo_SRC})
 target_link_libraries(dynamo PUBLIC magnet Boost::program_options Boost::system Boost::filesystem Eigen3::Eigen)
 target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
 
 message(STATUS "Coil_FOUND: ${Coil_FOUND}")
-
 if (Coil_FOUND)
   # Patch into DynamO
   target_compile_definitions(dynamo PRIVATE DYNAMO_visualizer)
@@ -169,7 +152,6 @@ dynamo_exe(dynarun)
 dynamo_exe(dynamod)
 dynamo_exe(dynahist_rw)
 dynamo_exe(dynapotential)
-#dynamo_exe(dynacollide)
 
 # scripts
 find_package(Python3 COMPONENTS Interpreter NumPy)
