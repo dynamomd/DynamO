@@ -18,7 +18,9 @@
 #include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/single.hpp>
 #include <dynamo/systems/snapshot.hpp>
+#ifdef DYNAMO_visualizer
 #include <dynamo/systems/visualizer.hpp>
+#endif
 #include <stdio.h>
 
 namespace dynamo {

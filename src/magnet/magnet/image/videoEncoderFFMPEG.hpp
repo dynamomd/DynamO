@@ -211,7 +211,7 @@ public:
     _outputFile.write(reinterpret_cast<const char *>(endcode), sizeof(endcode));
     _outputFile.close();
 
-    avcodec_close(_context);
+    avcodec_free_context(&_context);
     av_free(_context);
     av_free(_picture);
     free(_pictureBuffer);
