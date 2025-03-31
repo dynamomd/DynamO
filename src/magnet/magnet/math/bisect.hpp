@@ -17,6 +17,10 @@
 
 #pragma once
 
+#ifdef MAGNET_DEBUG
+#include <magnet/exception.hpp>
+#endif
+
 namespace magnet {
 namespace math {
 #ifdef MAGNET_DEBUG
