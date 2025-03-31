@@ -43,9 +43,10 @@ endif()
 ##########################################################################
 ### Coil
 ##########################################################################
+set(Coil_FOUND (VISUALIZER_SUPPORT AND VISUALIZER_ENABLED) CACHE BOOL "Coil library available")
+
 if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
   message(STATUS "Visualizer dependencies satisfied.")
-  set(COIL_FOUND true)
 
   # Coil library
   file(GLOB_RECURSE coil_SRC ${CMAKE_CURRENT_SOURCE_DIR}/coil/*.cpp)

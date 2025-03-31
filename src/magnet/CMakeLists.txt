@@ -1,5 +1,8 @@
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMAGNET_DEBUG")
 
+find_package(Boost 1.70.0 REQUIRED unit_test_framework)
+
+
 add_library(magnet INTERFACE)
 target_include_directories(magnet INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -33,7 +36,7 @@ endif()
 
 function(magnet_test name) #Registers a magnet unit-test
   add_executable(magnet_${name}_exe ${CMAKE_CURRENT_SOURCE_DIR}/tests/${name}.cpp)
-  target_link_libraries(magnet_${name}_exe magnet)
+  target_link_libraries(magnet_${name}_exe magnet Boost::unit_test_framework)
   add_test(magnet_${name} magnet_${name}_exe)
 endfunction(magnet_test)
 

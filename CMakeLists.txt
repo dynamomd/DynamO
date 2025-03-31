@@ -23,6 +23,14 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+######################################################################
+##########  Boost support
+######################################################################
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
+
 # Add the magnet library
 add_subdirectory(src/magnet)
 
@@ -93,14 +101,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_EXTENSIONS OFF) #Disable compiler specific extensions
 
 ######################################################################
-##########  Boost support
-######################################################################
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
-
-######################################################################
 ######### TARGETS
 ######################################################################
 find_package(Eigen3)
@@ -116,13 +116,13 @@ add_library(dynamo STATIC ${dynamo_SRC})
 target_link_libraries(dynamo PUBLIC magnet Boost::program_options Boost::system Boost::filesystem Eigen3::Eigen)
 target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
 
-if (COIL_FOUND)
+if (Coil_FOUND)
   # Patch into DynamO
   target_compile_definitions(dynamo PRIVATE DYNAMO_visualizer)
   target_link_libraries(dynamo PRIVATE coil)
   # Add the dynavis program
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
-  target_compile_definitions(dynavis PRIVATE DYNAMO_visualizer)
+  target_compile_definitions(dynavis PRIVATE DYNAMO_loadvisualizer)
   target_link_libraries(dynavis dynamo)
   install(TARGETS dynavis RUNTIME DESTINATION bin)
 endif()
