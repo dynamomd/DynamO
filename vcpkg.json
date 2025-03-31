@@ -16,7 +16,6 @@
     "boost-tokenizer",
     "boost-ublas",
     "eigen3",
-    "libpng",
     "bzip2"
   ]
 }
