@@ -117,7 +117,7 @@ public:
   void sigint() { _SIGINT = true; }
   void sigterm() { _SIGTERM = true; }
 
-  void enableVisualisation() { _loadVisualiser = true; }
+  void enableVisualisation() { _loadVisualizer = true; }
 
 protected:
   /*! \brief Code common to most engines pre simulation initialisation.
@@ -144,7 +144,7 @@ protected:
   std::string outputFormat;
   bool _SIGINT;
   bool _SIGTERM;
-  bool _loadVisualiser;
+  bool _loadVisualizer;
   magnet::thread::ThreadPool &threads;
 };
 } // namespace dynamo

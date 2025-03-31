@@ -55,7 +55,7 @@ SVisualizer::SVisualizer(dynamo::Simulation *nSim, std::string nName,
   // Initialise the window (and its GL context)
   _coil.getInstance().addWindow(_window);
 
-  // Cannot continue setting up the coil visualiser yet, as the other
+  // Cannot continue setting up the coil visualizer yet, as the other
   // dynamo classes have not been initialised.
 }
 
@@ -128,7 +128,7 @@ void SVisualizer::initialise(size_t nID) {
   updateRenderData();
 
   _lastUpdate = boost::posix_time::microsec_clock::local_time();
-  /* Now request that the visualiser rescales to the best dimensions for the
+  /* Now request that the visualizer rescales to the best dimensions for the
    * current system */
   _window->autoscaleView();
 

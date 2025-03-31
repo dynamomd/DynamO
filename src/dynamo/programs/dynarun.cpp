@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
       }
 
     dynamo::Coordinator::get().parseOptions(args, argv);
-#ifdef DYNAMO_loadvisualiser
+#ifdef DYNAMO_loadvisualizer
     dynamo::Coordinator::get().enableVisualisation();
 #endif
     dynamo::Coordinator::get().initialise();

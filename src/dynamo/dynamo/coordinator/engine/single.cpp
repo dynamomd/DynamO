@@ -86,7 +86,7 @@ void ESingleSimulation::initialisation() {
   setupSim(simulation, vm["config-file"].as<std::vector<std::string>>()[0]);
 
 #ifdef DYNAMO_visualizer
-  if (_loadVisualiser)
+  if (_loadVisualizer)
     simulation.systems.push_back(shared_ptr<System>(new SVisualizer(
         &simulation, vm["config-file"].as<std::vector<std::string>>()[0],
         simulation.lastRunMFT)));

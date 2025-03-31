@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 3.28)
-cmake_policy(SET CMP0167 NEW) # Use the new boost configuration
+option(VISUALIZER_ENABLED "Enable the visualizer" ON)
+
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -20,7 +24,6 @@ options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release
 RelWithDebInfo MinSizeRel.")
 ENDIF()
 
-##########   OPTIONS
 project(DynamO) #Project name
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -143,11 +146,6 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-# if cmake version is higher than 3.20 we can use the new boost configuration
-if(POLICY CMP0167)
-  cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
-endif()
-
 find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
 
 include_directories(${Boost_INCLUDE_DIRS})
@@ -189,7 +187,7 @@ endif()
 
 
 ######################################################################
-# Visualiser support
+# Visualizer support
 ######################################################################
 INCLUDE (CheckIncludeFiles)
 set(OpenGL_GL_PREFERENCE "LEGACY")
@@ -202,28 +200,28 @@ find_package(Eigen3)
 find_package(PkgConfig)
 pkg_check_modules(GTKMM gtkmm-3.0)
 
-set(VISUALIZER_SUPPORT TRUE CACHE BOOL "Attempt to enable the visualiser")
-function(visualiser_dependency varname message)
+set(VISUALIZER_SUPPORT TRUE CACHE BOOL "Visualizer build supported")
+function(visualizer_dependency varname message)
   if(${varname})
     message(STATUS "${message} found.")
   else()
-    message(STATUS "${message} not found - visualiser will not be built.")
+    message(STATUS "${message} not found - visualizer cannot be built.")
     set(VISUALIZER_SUPPORT FALSE PARENT_SCOPE)
   endif()
-endfunction(visualiser_dependency)
+endfunction(visualizer_dependency)
 
-visualiser_dependency(OPENGL_FOUND "OpenGL libraries")
-visualiser_dependency(GTKMM_FOUND "GTK/GTKMM 3 library")
-visualiser_dependency(PNG_FOUND "libPNG library")
-visualiser_dependency(GLUT_FOUND "GLUT/freeGLUT library")
-visualiser_dependency(GLEW_FOUND "GLEW library")
-#visualiser_dependency(GLX_FOUND "GLX library")
+visualizer_dependency(OPENGL_FOUND "OpenGL libraries")
+visualizer_dependency(GTKMM_FOUND "GTK/GTKMM 3 library")
+visualizer_dependency(PNG_FOUND "libPNG library")
+visualizer_dependency(GLUT_FOUND "GLUT/freeGLUT library")
+visualizer_dependency(GLEW_FOUND "GLEW library")
+#visualizer_dependency(GLX_FOUND "GLX library")
 
 find_path(CAIROMM_INCLUDE_PATH "cairomm.h" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm")
 find_path(CAIROMM_CONFIG_PATH "cairommconfig.h" PATHS "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}" "/usr/lib64/${CMAKE_LIBRARY_ARCHITECTURE}" PATH_SUFFIXES "cairomm" "cairomm-1.0/cairomm" "cairomm-1.0/include" "lib/cairomm-1.0/include")
 
 if(${CAIROMM_INCLUDE_PATH} STREQUAL "CAIROMM_INCLUDE_PATH-NOTFOUND" OR ${CAIROMM_CONFIG_PATH} STREQUAL "CAIROMM_CONFIG_PATH-NOTFOUND")
-  message("-- Cairomm headers not found - visualiser will not be built")
+  message("-- Cairomm headers not found - visualizer cannot be built")
   unset(CAIROMM_INCLUDE_PATH CACHE)
   unset(CAIROMM_CONFIG_PATH CACHE)
   set(VISUALIZER_SUPPORT FALSE)
@@ -231,7 +229,7 @@ else()
   message("-- Cairomm headers found")
 endif()
 
-if(VISUALIZER_SUPPORT)
+if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
   check_include_files(cwiid.h CWIID_H_AVAILABLE)
   check_library_exists(cwiid  cwiid_open "" CWIID_LIB_AVAILABLE)
   if(CWIID_H_AVAILABLE AND CWIID_LIB_AVAILABLE)
@@ -332,8 +330,8 @@ endif()
 
 ### Coil
 # configuration
-if(VISUALIZER_SUPPORT)
-  message(STATUS "Visualiser dependencies satisfied.")
+if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
+  message(STATUS "Visualizer dependencies satisfied.")
   
   # Coil library
   file(GLOB_RECURSE coil_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/coil/coil/*.cpp)
@@ -362,10 +360,10 @@ dynamo_exe(dynamod)
 dynamo_exe(dynahist_rw)
 dynamo_exe(dynapotential)
 #dynamo_exe(dynacollide)
-if(VISUALIZER_SUPPORT)
+if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
   #we do dynavis by hand, as its just dynarun with some changes
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
-  set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualiser")
+  set_target_properties(dynavis PROPERTIES COMPILE_DEFINITIONS "DYNAMO_loadvisualizer")
   target_link_libraries(dynavis dynamo)
   install(TARGETS dynavis RUNTIME DESTINATION bin)
 endif()

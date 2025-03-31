@@ -62,7 +62,7 @@ void Engine::getCommonOptions(
 Engine::Engine(const boost::program_options::variables_map &nvm,
                std::string configFile, std::string outputFile,
                magnet::thread::ThreadPool &tp)
-    : vm(nvm), _SIGINT(false), _SIGTERM(false), _loadVisualiser(false),
+    : vm(nvm), _SIGINT(false), _SIGTERM(false), _loadVisualizer(false),
       threads(tp) {
 
 #ifdef DYNAMO_bzip2_support
