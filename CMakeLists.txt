@@ -102,11 +102,14 @@ target_include_directories(dynamo PUBLIC ${PROJECT_SOURCE_DIR}/src/dynamo/)
 
 message(STATUS "Coil_FOUND: ${Coil_FOUND}")
 if (Coil_FOUND)
-  # Patch into DynamO
-  target_compile_definitions(dynamo PRIVATE DYNAMO_visualizer)
-  target_link_libraries(dynamo PRIVATE coil)
+  # This needs to be PUBLIC as anything using the headers (i.e. unit tests)
+  # needs to know about coil being enabled, otherwise we get memory layouts of
+  # locals being different in different translation units
+  target_compile_definitions(dynamo PUBLIC DYNAMO_visualizer)
+  target_link_libraries(dynamo PUBLIC coil)
   # Add the dynavis program
   add_executable(dynavis ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamo/programs/dynarun.cpp)
+  # This define is only used in dynarun.cpp
   target_compile_definitions(dynavis PRIVATE DYNAMO_loadvisualizer)
   target_link_libraries(dynavis dynamo)
   install(TARGETS dynavis RUNTIME DESTINATION bin)

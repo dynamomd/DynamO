@@ -22,6 +22,9 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
+#ifdef DYNAMO_visualizer
+#include <coil/RenderObj/TriangleMesh.hpp>
+#endif
 
 namespace dynamo {
 LTriangleMesh::LTriangleMesh(const magnet::xml::Node &XML,

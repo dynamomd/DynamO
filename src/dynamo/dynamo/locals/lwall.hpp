@@ -19,11 +19,11 @@
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/simulation.hpp>
-#ifdef DYNAMO_visualizer
-#include <coil/RenderObj/Surface.hpp>
-#endif
 #include <memory>
 
+namespace coil {
+class RSurface;
+}
 namespace dynamo {
 class LWall : public Local, public CoilRenderObj {
 public:

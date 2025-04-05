@@ -19,10 +19,10 @@
 
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/locals/local.hpp>
-#ifdef DYNAMO_visualizer
-#include <coil/RenderObj/Surface.hpp>
-#endif
 
+namespace coil {
+class RSurface;
+}
 namespace dynamo {
 class LOscillatingPlate : public Local, public CoilRenderObj {
 public:

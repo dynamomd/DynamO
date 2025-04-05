@@ -23,6 +23,9 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/overlap/cube_plane.hpp>
+#ifdef DYNAMO_visualizer
+#include <coil/RenderObj/Surface.hpp>
+#endif
 
 namespace dynamo {
 LWall::LWall(const magnet::xml::Node &XML, dynamo::Simulation *tmp)

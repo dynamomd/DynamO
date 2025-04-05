@@ -19,9 +19,10 @@
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/simulation.hpp>
-#ifdef DYNAMO_visualizer
-#include <coil/RenderObj/TriangleMesh.hpp>
-#endif
+
+namespace coil {
+class RTriangleMesh;
+}
 
 namespace dynamo {
 class LCylinder : public Local, public CoilRenderObj {

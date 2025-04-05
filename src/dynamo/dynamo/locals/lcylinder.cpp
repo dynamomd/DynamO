@@ -24,6 +24,7 @@
 #include <dynamo/units/units.hpp>
 #include <magnet/math/quaternion.hpp>
 #ifdef DYNAMO_visualizer
+#include <coil/RenderObj/TriangleMesh.hpp>
 #include <magnet/GL/objects/primitives/cylinder.hpp>
 #endif
 

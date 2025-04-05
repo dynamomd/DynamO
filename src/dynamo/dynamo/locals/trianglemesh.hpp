@@ -22,9 +22,9 @@
 #include <tuple>
 #include <vector>
 
-#ifdef DYNAMO_visualizer
-#include <coil/RenderObj/TriangleMesh.hpp>
-#endif
+namespace coil {
+class RTriangleMesh;
+}
 
 namespace dynamo {
 class LTriangleMesh : public Local, public CoilRenderObj {
