@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.28)
+cmake_minimum_required(VERSION 3.28)
 
 if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the warning
   cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
