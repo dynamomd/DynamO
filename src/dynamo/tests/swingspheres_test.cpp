@@ -44,7 +44,7 @@ void init(dynamo::Simulation &Sim) {
       new dynamo::DynGravity(&Sim, dynamo::Vector{0, -1, 0}, 0, 0.01));
   Sim.BCs =
       dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
+  Sim.scheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
       new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
 
   dynamo::shared_ptr<dynamo::ParticleProperty> D(new dynamo::ParticleProperty(

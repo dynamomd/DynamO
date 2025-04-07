@@ -72,7 +72,7 @@ void GCellsShearing::runEvent(Particle &part, const double) {
 
   // Get rid of the virtual event that is next, update is delayed
   // till after all events are added
-  Sim->ptrScheduler->popNextEvent();
+  Sim->scheduler->popNextEvent();
 
   const size_t oldCellIndex(_cellData.getCellID(part.getID()));
   const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
@@ -134,7 +134,7 @@ void GCellsShearing::runEvent(Particle &part, const double) {
     std::vector<size_t> nbs;
     getAdditionalLEParticleNeighbourhood(part, nbs);
     for (const size_t &id2 : nbs) {
-      Sim->ptrScheduler->addInteractionEvent(part, id2);
+      Sim->scheduler->addInteractionEvent(part, id2);
       _sigNewNeighbour(part, id2);
     }
   } else {
@@ -174,7 +174,7 @@ void GCellsShearing::runEvent(Particle &part, const double) {
 
   // Push the next virtual event, this is the reason the scheduler
   // doesn't need a second callback
-  Sim->ptrScheduler->pushEvent(getEvent(part));
+  Sim->scheduler->pushEvent(getEvent(part));
   _sigCellChange(part, oldCellIndex);
 }
 

@@ -39,7 +39,7 @@ void init(dynamo::Simulation &Sim, const double density) {
       new dynamo::DynGravity(&Sim, dynamo::Vector{0, -1, 0}));
   Sim.BCs =
       dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
+  Sim.scheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
       new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
   Sim.primaryCellSize = dynamo::Vector{52, 52, 52};
 

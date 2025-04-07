@@ -85,7 +85,7 @@ void GCells::runEvent(Particle &part, const double) {
   // Get rid of the virtual event we're running, an updated event is
   // pushed after the callbacks are complete (the callbacks may also
   // add events so this must be done first).
-  Sim->ptrScheduler->popNextEvent();
+  Sim->scheduler->popNextEvent();
 
   const size_t oldCellIndex = _cellData.getCellID(part.getID());
   const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
@@ -121,7 +121,7 @@ void GCells::runEvent(Particle &part, const double) {
 
   // Push the next virtual event, this is the reason the scheduler
   // doesn't need a second callback
-  Sim->ptrScheduler->pushEvent(getEvent(part));
+  Sim->scheduler->pushEvent(getEvent(part));
   _sigCellChange(part, oldCellIndex);
 }
 

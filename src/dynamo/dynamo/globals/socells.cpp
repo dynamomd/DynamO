@@ -111,7 +111,7 @@ Event GSOCells::getEvent(const Particle &part) const {
 
 void GSOCells::runEvent(Particle &part, const double) {
   Sim->dynamics->updateParticle(part);
-  Sim->ptrScheduler->popNextEvent();
+  Sim->scheduler->popNextEvent();
   Event iEvent = getEvent(part);
 
 #ifdef DYNAMO_DEBUG
@@ -125,7 +125,7 @@ void GSOCells::runEvent(Particle &part, const double) {
 
   // Move the system forward to the time of the event
   Sim->systemTime += iEvent._dt;
-  Sim->ptrScheduler->stream(iEvent._dt);
+  Sim->scheduler->stream(iEvent._dt);
   Sim->stream(iEvent._dt);
   ++Sim->eventCount;
 
@@ -156,7 +156,7 @@ void GSOCells::runEvent(Particle &part, const double) {
 
   // Now we're past the event update everything
   Sim->_sigParticleUpdate(EDat);
-  Sim->ptrScheduler->fullUpdate(part);
+  Sim->scheduler->fullUpdate(part);
   for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }

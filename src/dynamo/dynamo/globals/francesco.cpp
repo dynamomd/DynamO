@@ -83,7 +83,7 @@ void GFrancesco::runEvent(Particle &part, const double) {
   Event iEvent(part, dt, GLOBAL, GAUSSIAN, ID);
 
   Sim->systemTime += dt;
-  Sim->ptrScheduler->stream(dt);
+  Sim->scheduler->stream(dt);
   Sim->stream(dt);
 
   Sim->dynamics->updateParticle(part);
@@ -98,6 +98,6 @@ void GFrancesco::runEvent(Particle &part, const double) {
   Sim->_sigParticleUpdate(EDat);
   for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
-  Sim->ptrScheduler->fullUpdate(part);
+  Sim->scheduler->fullUpdate(part);
 }
 } // namespace dynamo

@@ -192,7 +192,7 @@ void SSleep::particlesUpdated(const NEventData &PDat) {
 
   if (!stateChange.empty()) {
     recalculateTime();
-    Sim->ptrScheduler->rebuildSystemEvents();
+    Sim->scheduler->rebuildSystemEvents();
   }
 }
 

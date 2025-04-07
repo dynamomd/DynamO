@@ -142,7 +142,7 @@ void SVisualizer::particlesUpdated(const NEventData &) {
   if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) >
       boost::posix_time::milliseconds(100)) {
     dt = -std::numeric_limits<float>::infinity();
-    Sim->ptrScheduler->rebuildSystemEvents();
+    Sim->scheduler->rebuildSystemEvents();
   }
 }
 

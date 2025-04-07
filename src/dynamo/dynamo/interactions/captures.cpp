@@ -30,8 +30,7 @@ void ICapture::initCaptureMap() {
     clear();
 
     for (const auto &p1 : Sim->particles) {
-      std::unique_ptr<IDRange> ids(
-          Sim->ptrScheduler->getParticleNeighbours(p1));
+      std::unique_ptr<IDRange> ids(Sim->scheduler->getParticleNeighbours(p1));
       for (size_t ID2 : *ids)
         if (ID2 != p1.getID()) {
           if (Sim->getInteraction(p1, Sim->particles[ID2]).get() ==

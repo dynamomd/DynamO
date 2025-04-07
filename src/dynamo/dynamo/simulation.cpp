@@ -47,12 +47,11 @@ typedef BoundedPQFEL<MinMaxPEL<3>> DefaultSorter;
 Simulation::Simulation()
     : Base("Simulation"), BCs(new BCPeriodic(this)),
       dynamics(new DynNewtonian(this)),
-      ptrScheduler(new SNeighbourList(this, new DefaultSorter())),
-      systemTime(0.0), eventCount(0), endEventCount(100000),
-      eventPrintInterval(50000), nextPrintEvent(0), _force_unwrapped(false),
-      primaryCellSize({1, 1, 1}), ranGenerator(std::random_device()()),
-      lastRunMFT(0.0), simID(0), stateID(0), replexExchangeNumber(0),
-      status(START) {}
+      scheduler(new SNeighbourList(this, new DefaultSorter())), systemTime(0.0),
+      eventCount(0), endEventCount(100000), eventPrintInterval(50000),
+      nextPrintEvent(0), _force_unwrapped(false), primaryCellSize({1, 1, 1}),
+      ranGenerator(std::random_device()()), lastRunMFT(0.0), simID(0),
+      stateID(0), replexExchangeNumber(0), status(START) {}
 
 namespace {
 /*! \brief Hidden functor used for sorting containers of
@@ -147,7 +146,7 @@ void Simulation::initialise() {
   status = DYNAMICS_INIT;
 
   dout << "Initialising Scheduler Neighbourlist" << std::endl;
-  ptrScheduler->initialiseNBlist();
+  scheduler->initialiseNBlist();
 
   dout << "Initialising Interactions" << std::endl;
   {
@@ -221,13 +220,13 @@ void Simulation::initialise() {
 
   status = ENSEMBLE_INIT;
 
-  if (ptrScheduler == NULL)
+  if (scheduler == NULL)
     M_throw() << "The scheduler has not been set!";
 
   dout << "Initialising Scheduler" << std::endl;
   if (endEventCount)
     // Only initialise the scheduler if we're simulating
-    ptrScheduler->initialise();
+    scheduler->initialise();
 
   status = SCHEDULER_INIT;
 
@@ -419,7 +418,7 @@ void Simulation::loadXMLfile(std::string fileName) {
       systems.push_back(System::getClass(node, this));
   }
 
-  ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
+  scheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
   // Fixes or conversions once system is loaded
   lastRunMFT *= units.unitTime();
@@ -461,7 +460,7 @@ void Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round) {
       XML << xml::attr("lastMFT") << lastRunMFT;
   }
 
-  XML << xml::tag("Scheduler") << ptrScheduler << xml::endtag("Scheduler")
+  XML << xml::tag("Scheduler") << scheduler << xml::endtag("Scheduler")
       << xml::tag("SimulationSize") << primaryCellSize / units.unitLength()
       << xml::endtag("SimulationSize") << xml::tag("Genus");
 
@@ -532,15 +531,15 @@ void Simulation::replexerSwap(Simulation &other) {
     part.getVelocity() *= scale1;
   // This assumes that scaling the velocities just changes the time
   // unit of the simulation. This is not true for systems with external forces!
-  other.ptrScheduler->rescaleTimes(scale1);
+  other.scheduler->rescaleTimes(scale1);
 
   double scale2(1.0 / scale1);
   for (Particle &part : other.particles)
     part.getVelocity() *= scale2;
-  ptrScheduler->rescaleTimes(scale2);
+  scheduler->rescaleTimes(scale2);
 
-  ptrScheduler->rebuildSystemEvents();
-  other.ptrScheduler->rebuildSystemEvents();
+  scheduler->rebuildSystemEvents();
+  other.scheduler->rebuildSystemEvents();
 
   // Globals?
 #ifdef DYNAMO_DEBUG
@@ -765,7 +764,7 @@ bool Simulation::runSimulationStep(bool silentMode) {
     M_throw() << "Bad state for runSimulation()";
 
   try {
-    ptrScheduler->runNextEvent();
+    scheduler->runNextEvent();
 
     // Periodic work
     if ((eventCount >= _nextPrint) && !silentMode && outputPlugins.size()) {

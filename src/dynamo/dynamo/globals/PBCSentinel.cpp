@@ -57,7 +57,7 @@ void GPBCSentinel::runEvent(Particle &part, const double dt) {
 
   Sim->systemTime += iEvent._dt;
 
-  Sim->ptrScheduler->stream(iEvent._dt);
+  Sim->scheduler->stream(iEvent._dt);
 
   Sim->stream(iEvent._dt);
 
@@ -68,6 +68,6 @@ void GPBCSentinel::runEvent(Particle &part, const double dt) {
   for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 
-  Sim->ptrScheduler->fullUpdate(part);
+  Sim->scheduler->fullUpdate(part);
 }
 } // namespace dynamo

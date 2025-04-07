@@ -244,7 +244,6 @@ void EReplicaExchangeSimulation::ReplexSwap(Replex_Mode_Type localMode) {
 
       AttemptSwap(ID1, ID2);
     }
-
   } break;
   case RandomSelection: {
     std::uniform_int_distribution<size_t> tmpDist(0, 1);
@@ -498,7 +497,7 @@ void EReplicaExchangeSimulation::runSimulation() {
 
         tmpRef->increasedt(vm["replex-interval"].as<double>() * tFactor);
 
-        Simulations[i].ptrScheduler->rebuildSystemEvents();
+        Simulations[i].scheduler->rebuildSystemEvents();
 
         // Reset the max collisions
         Simulations[i].endEventCount = vm["events"].as<size_t>();

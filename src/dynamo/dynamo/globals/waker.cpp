@@ -88,7 +88,7 @@ Event GWaker::getEvent(const Particle &part) const {
 void GWaker::runEvent(Particle &part, const double dt) {
   Event iEvent = getEvent(part);
   iEvent._dt = dt; // We only trust the schedulers time, as we don't
-  // track the motion of the system in Globals
+                   // track the motion of the system in Globals
 
 #ifdef DYNAMO_DEBUG
   if (std::isnan(iEvent._dt))
@@ -102,7 +102,7 @@ void GWaker::runEvent(Particle &part, const double dt) {
 
   Sim->systemTime += iEvent._dt;
 
-  Sim->ptrScheduler->stream(iEvent._dt);
+  Sim->scheduler->stream(iEvent._dt);
 
   Sim->stream(iEvent._dt);
 
@@ -114,7 +114,7 @@ void GWaker::runEvent(Particle &part, const double dt) {
   _neighbors = 0;
 
   // Add the interaction events
-  std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+  std::unique_ptr<IDRange> ids(Sim->scheduler->getParticleNeighbours(part));
   for (const size_t &id1 : *ids)
     nblistCallback(part, id1);
 
@@ -134,7 +134,7 @@ void GWaker::runEvent(Particle &part, const double dt) {
     Ptr->eventUpdate(iEvent, EDat);
 
   // Now we're past the event, update the scheduler and plugins
-  Sim->ptrScheduler->fullUpdate(part);
+  Sim->scheduler->fullUpdate(part);
 }
 
 void GWaker::outputXML(magnet::xml::XmlStream &XML) const {

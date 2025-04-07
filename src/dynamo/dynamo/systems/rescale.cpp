@@ -55,7 +55,7 @@ SysRescale::SysRescale(dynamo::Simulation *tmp, size_t frequency,
 void SysRescale::checker(const NEventData &) {
   if (!(Sim->eventCount % _frequency)) {
     dt = 0;
-    Sim->ptrScheduler->rebuildSystemEvents();
+    Sim->scheduler->rebuildSystemEvents();
   }
 }
 

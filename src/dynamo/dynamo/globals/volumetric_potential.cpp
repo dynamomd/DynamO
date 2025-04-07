@@ -67,7 +67,7 @@ void GVolumetricPotential::runEvent(Particle &part, const double dt) {
 #endif
 
   Sim->systemTime += iEvent._dt;
-  Sim->ptrScheduler->stream(iEvent._dt);
+  Sim->scheduler->stream(iEvent._dt);
   Sim->stream(iEvent._dt);
 
   // Calculate which cell the particle might end up in
@@ -101,7 +101,7 @@ void GVolumetricPotential::runEvent(Particle &part, const double dt) {
 
   // Now we're past the event update the scheduler and plugins
   Sim->_sigParticleUpdate(EDat);
-  Sim->ptrScheduler->fullUpdate(part);
+  Sim->scheduler->fullUpdate(part);
   for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 }

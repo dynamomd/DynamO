@@ -63,7 +63,7 @@ NEventData SysFrancesco::runEvent() {
   // Locate surrounding particles, and calculate the average direction
   size_t n = 0;
   Vector avgV{0, 0, 0};
-  std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+  std::unique_ptr<IDRange> ids(Sim->scheduler->getParticleNeighbours(part));
   for (size_t ID2 : *ids) {
     auto &p2 = Sim->particles[ID2];
     Vector rij = part.getPosition() - p2.getPosition();
@@ -93,7 +93,7 @@ void SysFrancesco::initialise(size_t nID) {
   eventCount = 0;
   lastlNColl = 0;
 
-  if (_R > Sim->ptrScheduler->getNeighbourhoodDistance())
+  if (_R > Sim->scheduler->getNeighbourhoodDistance())
     M_throw() << "The neighbourhood is too small for the R set in the "
                  "Francesco System.";
 }

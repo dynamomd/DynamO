@@ -66,6 +66,6 @@ void SysTicker::setTickerPeriod(const double &nP) {
   dt = nP;
 
   if ((Sim->status >= INITIALISED) && Sim->endEventCount)
-    Sim->ptrScheduler->rebuildSystemEvents();
+    Sim->scheduler->rebuildSystemEvents();
 }
 } // namespace dynamo

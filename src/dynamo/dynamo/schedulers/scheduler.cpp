@@ -300,7 +300,7 @@ void Scheduler::runNextEvent() {
         Sim->interactions[Event._sourceID]->runEvent(p1, p2, Event);
 
     Sim->_sigParticleUpdate(eventdata);
-    Sim->ptrScheduler->fullUpdate(p1, p2);
+    Sim->scheduler->fullUpdate(p1, p2);
     for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(Event, eventdata);
     break;
@@ -367,7 +367,7 @@ void Scheduler::runNextEvent() {
 
     const ParticleEventData data = Sim->locals[localID]->runEvent(part, iEvent);
     Sim->_sigParticleUpdate(data);
-    Sim->ptrScheduler->fullUpdate(part);
+    Sim->scheduler->fullUpdate(part);
     for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, data);
     break;

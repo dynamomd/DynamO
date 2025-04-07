@@ -70,8 +70,7 @@ void OPOrientationalOrder::ticker() {
   for (const Particle &part : Sim->particles) {
     Neighbours nbs;
 
-    std::unique_ptr<IDRange> ids(
-        Sim->ptrScheduler->getParticleNeighbours(part));
+    std::unique_ptr<IDRange> ids(Sim->scheduler->getParticleNeighbours(part));
     for (const size_t &id1 : *ids)
       nbs.addNeighbour(part, id1);
 

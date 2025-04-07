@@ -37,7 +37,7 @@ void init(dynamo::Simulation &Sim) {
 
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(
       new dynamo::BCPeriodicExceptX(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
+  Sim.scheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
       new dynamo::SNeighbourList(&Sim, new dynamo::CBTFEL<dynamo::HeapPEL>()));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(
       new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));

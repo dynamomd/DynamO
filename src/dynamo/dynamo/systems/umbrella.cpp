@@ -127,7 +127,7 @@ void SysUmbrella::particlesUpdated(const NEventData &PDat) {
     if (range1->isInRange(Sim->particles[pdat.getParticleID()]) ||
         range2->isInRange(Sim->particles[pdat.getParticleID()])) {
       recalculateTime();
-      Sim->ptrScheduler->rebuildSystemEvents();
+      Sim->scheduler->rebuildSystemEvents();
       return;
     }
 
@@ -137,7 +137,7 @@ void SysUmbrella::particlesUpdated(const NEventData &PDat) {
         range1->isInRange(Sim->particles[pdat.particle2_.getParticleID()]) ||
         range2->isInRange(Sim->particles[pdat.particle2_.getParticleID()])) {
       recalculateTime();
-      Sim->ptrScheduler->rebuildSystemEvents();
+      Sim->scheduler->rebuildSystemEvents();
       return;
     }
 }

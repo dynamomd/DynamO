@@ -3250,7 +3250,7 @@ void IPPacker::initialise() {
     Sim->primaryCellSize = Vector{2 * R + 1, 2 * R + 1, double(depth)};
 
     // Set up a standard simulation
-    Sim->ptrScheduler = shared_ptr<SNeighbourList>(
+    Sim->scheduler = shared_ptr<SNeighbourList>(
         new SNeighbourList(Sim, new CBTFEL<HeapPEL>()));
 
     incline *= M_PI / 180.0;

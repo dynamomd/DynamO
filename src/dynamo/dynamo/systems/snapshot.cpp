@@ -57,7 +57,7 @@ void SysSnapshot::eventCallback(const NEventData &) {
   if ((Sim->eventCount - _lastEventCount) >= _eventPeriod) {
     _lastEventCount = Sim->eventCount;
     dt = -std::numeric_limits<float>::infinity();
-    Sim->ptrScheduler->rebuildSystemEvents();
+    Sim->scheduler->rebuildSystemEvents();
   }
 }
 
@@ -117,6 +117,6 @@ void SysSnapshot::setTickerPeriod(const double &nP) {
   dt = nP;
 
   if ((Sim->status >= INITIALISED) && Sim->endEventCount)
-    Sim->ptrScheduler->rebuildSystemEvents();
+    Sim->scheduler->rebuildSystemEvents();
 }
 } // namespace dynamo

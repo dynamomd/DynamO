@@ -49,7 +49,7 @@ void GParabolaSentinel::runEvent(Particle &part, const double) {
   if (iEvent._dt == std::numeric_limits<float>::infinity()) {
     // We've numerically drifted slightly passed the parabola, so
     // just reschedule the particles events, no need to enforce anything
-    Sim->ptrScheduler->fullUpdate(part);
+    Sim->scheduler->fullUpdate(part);
     return;
   }
 
@@ -61,7 +61,7 @@ void GParabolaSentinel::runEvent(Particle &part, const double) {
 
   Sim->systemTime += iEvent._dt;
 
-  Sim->ptrScheduler->stream(iEvent._dt);
+  Sim->scheduler->stream(iEvent._dt);
 
   Sim->stream(iEvent._dt);
 
@@ -72,6 +72,6 @@ void GParabolaSentinel::runEvent(Particle &part, const double) {
   for (shared_ptr<OutputPlugin> &Ptr : Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);
 
-  Sim->ptrScheduler->fullUpdate(part);
+  Sim->scheduler->fullUpdate(part);
 }
 } // namespace dynamo

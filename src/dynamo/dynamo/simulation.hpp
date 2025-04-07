@@ -146,7 +146,7 @@ public:
   shared_ptr<Dynamics> dynamics;
 
   /*! \brief A ptr to the Scheduler of the system. */
-  shared_ptr<Scheduler> ptrScheduler;
+  shared_ptr<Scheduler> scheduler;
 
   Container<Topology> topology;
 

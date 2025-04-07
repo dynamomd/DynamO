@@ -78,8 +78,7 @@ void OPSHCrystal::ticker() {
   sphericalsum ssum(Sim, rg, maxl);
 
   for (const Particle &part : Sim->particles) {
-    std::unique_ptr<IDRange> ids(
-        Sim->ptrScheduler->getParticleNeighbours(part));
+    std::unique_ptr<IDRange> ids(Sim->scheduler->getParticleNeighbours(part));
     for (const size_t &id1 : *ids)
       ssum(part, id1);
 

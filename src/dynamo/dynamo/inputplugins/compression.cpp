@@ -56,7 +56,7 @@ void IPCompression::RestoreSystem() {
   // Required to finish off the compression dynamics
   Sim->dynamics->updateAllParticles();
 
-  if (std::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler)) {
+  if (std::dynamic_pointer_cast<SNeighbourList>(Sim->scheduler)) {
     for (shared_ptr<System> &ptr : Sim->systems)
       if (std::dynamic_pointer_cast<SysNBListCompressionFix>(ptr))
         static_cast<SysNBListCompressionFix &>(*ptr).fixNBlistForOutput();
