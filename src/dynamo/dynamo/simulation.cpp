@@ -19,13 +19,17 @@
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/BC/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/globals/PBCSentinel.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
+#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/systems/sysTicker.hpp>
@@ -38,8 +42,13 @@
 static const std::string configFileVersion("1.5.0");
 
 namespace dynamo {
+typedef BoundedPQFEL<MinMaxPEL<3>> DefaultSorter;
+
 Simulation::Simulation()
-    : Base("Simulation"), systemTime(0.0), eventCount(0), endEventCount(100000),
+    : Base("Simulation"), BCs(new BCPeriodic(this)),
+      dynamics(new DynNewtonian(this)),
+      ptrScheduler(new SNeighbourList(this, new DefaultSorter())),
+      systemTime(0.0), eventCount(0), endEventCount(100000),
       eventPrintInterval(50000), nextPrintEvent(0), _force_unwrapped(false),
       primaryCellSize({1, 1, 1}), ranGenerator(std::random_device()()),
       lastRunMFT(0.0), simID(0), stateID(0), replexExchangeNumber(0),

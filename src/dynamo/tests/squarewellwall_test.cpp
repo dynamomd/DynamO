@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE SquareWellWall_test
 #include <boost/test/included/unit_test.hpp>
 #include <dynamo/BC/include.hpp>
-#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/inputplugins/include.hpp>
@@ -36,8 +35,6 @@ void init(dynamo::Simulation &Sim) {
 
   Sim.primaryCellSize = dynamo::Vector{6.1, 10, 10};
 
-  Sim.dynamics =
-      dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(
       new dynamo::BCPeriodicExceptX(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(

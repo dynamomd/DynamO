@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE Polymer_test
 #include <boost/test/included/unit_test.hpp>
 #include <dynamo/BC/include.hpp>
-#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/inputplugins/include.hpp>
@@ -44,8 +43,6 @@ void init(dynamo::Simulation &Sim) {
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
-  Sim.dynamics =
-      dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs =
       dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(

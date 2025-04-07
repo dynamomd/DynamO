@@ -31,8 +31,7 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
-#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
+#include <dynamo/schedulers/sorters/CBTFEL.hpp>
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/include.hpp>
@@ -47,7 +46,6 @@
 #include <memory>
 
 namespace dynamo {
-typedef BoundedPQFEL<MinMaxPEL<3>> DefaultSorter;
 
 namespace {
 struct speciesData {
@@ -114,14 +112,6 @@ po::options_description IPPacker::getOptions() {
 }
 
 void IPPacker::initialise() {
-  // Set the default dynamics
-  Sim->dynamics = shared_ptr<Dynamics>(new DynNewtonian(Sim));
-  // Set the default Boundary Conditions
-  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
-  // Setup a default scheduler
-  Sim->ptrScheduler =
-      shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
   std::string defaultOptionText =
       " Options\n"
       "  -C [ --NCells ] arg (=7)    Set the default number of lattice "
@@ -1956,10 +1946,6 @@ void IPPacker::initialise() {
     double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(),
                               double(1.0 / 3.0)) *
                           boxlimit;
-
-    // Set up a standard simulation
-    Sim->ptrScheduler = shared_ptr<SNeighbourList>(
-        new SNeighbourList(Sim, new DefaultSorter()));
 
     Sim->locals.push_back(shared_ptr<Local>(
         new LCylinder(Sim, 1.0, particleDiam, Vector{1, 0, 0}, Vector{0, 0, 0},

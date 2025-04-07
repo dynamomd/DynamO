@@ -1,7 +1,5 @@
 #define BOOST_TEST_MODULE Infinite_Mass_Spheres_test
 #include <boost/test/included/unit_test.hpp>
-#include <dynamo/BC/include.hpp>
-#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/inputplugins/include.hpp>
@@ -9,16 +7,12 @@
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/msd.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
-#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/fixedCollider.hpp>
 #include <dynamo/species/point.hpp>
 #include <random>
 
 std::mt19937 RNG;
-typedef dynamo::BoundedPQFEL<dynamo::MinMaxPEL<3>> DefaultSorter;
 
 dynamo::Vector getRandVelVec() {
   // See http://mathworld.wolfram.com/SpherePointPicking.html
@@ -36,13 +30,6 @@ void init(dynamo::Simulation &Sim, const double density) {
   Sim.ranGenerator.seed(std::random_device()());
 
   double L = std::cbrt(1372 / density);
-
-  Sim.dynamics =
-      dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
-  Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(
-      new dynamo::BCPeriodic(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
-      new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
   std::unique_ptr<dynamo::UCell> packptr(
       new dynamo::CUFCC(std::array<long, 3>{{7, 7, 7}}, dynamo::Vector{L, L, L},

@@ -1,8 +1,7 @@
 #define BOOST_TEST_MODULE Lines_test
 #include <boost/test/included/unit_test.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/BC/include.hpp>
-#include <dynamo/dynamics/newtonian.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/inputplugins/include.hpp>
@@ -10,16 +9,12 @@
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/msd.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
-#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/point.hpp>
 #include <dynamo/species/sphericalTop.hpp>
 #include <random>
 
 std::mt19937 RNG;
-typedef dynamo::BoundedPQFEL<dynamo::MinMaxPEL<3>> DefaultSorter;
 
 dynamo::Vector getRandVelVec() {
   // See http://mathworld.wolfram.com/SpherePointPicking.html
@@ -38,12 +33,6 @@ void init(dynamo::Simulation &Sim, const double density) {
 
   const double elasticity = 1.0;
   const size_t N = 1000;
-  Sim.dynamics =
-      dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
-  Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(
-      new dynamo::BCPeriodic(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
-      new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
   dynamo::CURandom packroutine(N, dynamo::Vector{1, 1, 1},
                                new dynamo::UParticle());

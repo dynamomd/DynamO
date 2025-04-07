@@ -45,6 +45,13 @@ else()
   link_libraries(debug dl)
 endif()
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  # GCC incorrectly determines array accesses are out of bounds
+  # when using std::sort on std::vector. This is a known issue
+  # with GCC and std::sort. See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107986
+  add_compile_options(-Wno-array-bounds)
+endif()
+
 # Set some compiler flags for debug mode
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDYNAMO_DEBUG")
 

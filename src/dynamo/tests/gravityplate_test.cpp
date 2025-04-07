@@ -9,15 +9,11 @@
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
-#include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/point.hpp>
 #include <random>
 
 std::mt19937 RNG;
-typedef dynamo::BoundedPQFEL<dynamo::MinMaxPEL<3>> DefaultSorter;
 
 dynamo::Vector getRandVelVec() {
   // See http://mathworld.wolfram.com/SpherePointPicking.html
@@ -51,8 +47,6 @@ void init(dynamo::Simulation &Sim, const double density) {
       new dynamo::DynGravity(&Sim, dynamo::Vector{0, -particleDiam, 0}));
   Sim.BCs =
       dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCNone(&Sim));
-  Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(
-      new dynamo::SNeighbourList(&Sim, new DefaultSorter()));
 
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(
       new dynamo::IHardSphere(&Sim, particleDiam, elasticity,

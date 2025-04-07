@@ -1,20 +1,15 @@
 #define BOOST_TEST_MODULE Scheduler_Sorter_test
 #include <boost/test/included/unit_test.hpp>
-#include <dynamo/BC/include.hpp>
-#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/schedulers/include.hpp>
-#include <dynamo/schedulers/sorters/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/point.hpp>
 #include <random>
 
 std::mt19937 RNG;
-typedef dynamo::FELBoundedPQ<dynamo::PELMinMax<3>> DefaultSorter;
 
 template <class Scheduler, class Sorter> void runTest() {
   dynamo::Simulation Sim;
@@ -22,12 +17,6 @@ template <class Scheduler, class Sorter> void runTest() {
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
-  Sim.dynamics =
-      dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
-  Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(
-      new dynamo::BCPeriodic(&Sim));
-  Sim.ptrScheduler =
-      dynamo::shared_ptr<dynamo::Scheduler>(new Scheduler(&Sim, new Sorter()));
   Sim.primaryCellSize = dynamo::Vector(11, 11, 11);
   Sim.interactions.push_back(
       dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(

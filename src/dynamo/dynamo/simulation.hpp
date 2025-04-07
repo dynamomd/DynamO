@@ -145,6 +145,9 @@ public:
 
   shared_ptr<Dynamics> dynamics;
 
+  /*! \brief A ptr to the Scheduler of the system. */
+  shared_ptr<Scheduler> ptrScheduler;
+
   Container<Topology> topology;
 
   Container<Interaction> interactions;
@@ -351,9 +354,6 @@ public:
 
   /*! \brief The Particle's of the system. */
   std::vector<Particle> particles;
-
-  /*! \brief A ptr to the Scheduler of the system. */
-  shared_ptr<Scheduler> ptrScheduler;
 
   /*! The property store, a list of properties the particles have. */
   PropertyStore _properties;
