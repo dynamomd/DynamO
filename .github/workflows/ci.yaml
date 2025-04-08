@@ -62,38 +62,30 @@ jobs:
       # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
       - uses: ilammy/msvc-dev-cmd@v1
 
-      - name: "Create directory '${{ github.workspace }}/build'"
-        run: mkdir -p ${{ github.workspace }}/build
-        shell: bash
-
       # Run CMake to generate Ninja project files.
       - name: Configure the build system
-        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake ..
+          cmake -B ${{github.workspace}}/build
 
       - name: Check code formatting
         if: runner.os == 'Linux'
-        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build . -j4 -t check-src-format
+          cmake --build ${{github.workspace}}/build -j4 -t check-src-format
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       - name: Build (Release configuration)
-        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build . -j4
+          cmake --build ${{github.workspace}}/build -j4
 
       # Test the whole project with CTest
       - name: Test (Release configuration)
-        working-directory: ${{ github.workspace }}/build
+        working-directory: ${{github.workspace}}/build
         run: |
           ctest -j 4 --output-on-failure
 
       - name: Package the project (python packages include more)
-        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build . -j4 -t package
+          cmake --build ${{github.workspace}}/build -j4 -t package
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
