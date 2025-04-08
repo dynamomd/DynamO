@@ -100,5 +100,5 @@ if(VISUALIZER_SUPPORT AND VISUALIZER_ENABLED)
   # Add coilvol program
   add_executable(coilvol ${CMAKE_CURRENT_SOURCE_DIR}/programs/coilvol.cpp)
   target_link_libraries(coilvol PUBLIC coil Boost::program_options Boost::filesystem Boost::system)
-  install(TARGETS coilvol RUNTIME DESTINATION bin)
+  install(TARGETS coilvol DESTINATION "${SKBUILD_SCRIPTS_DIR}")
 endif()
