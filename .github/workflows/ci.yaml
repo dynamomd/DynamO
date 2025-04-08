@@ -32,9 +32,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
         shell: bash
+
       # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
       - uses: lukka/get-cmake@latest
 
@@ -66,13 +68,15 @@ jobs:
       # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
       # store the built packages artifacts.
       - name: Configure the build system
+        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --preset configure-preset
+          cmake ..
 
       - name: Check code formatting
         if: runner.os == 'Linux'
+        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --workflow --preset check-src-format
+          cmake --build . -j4 -t check-src-format
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       #
@@ -80,24 +84,27 @@ jobs:
       # configuration with the `--config` flag, e.g.:
       # run: cmake --build --preset ninja-vcpkg --config Release
       - name: Build (Release configuration)
+        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build -j 4 --preset release-build
+          cmake --build . -j4 -t all
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
+        working-directory: ${{ github.workspace }}/build
         run: |
-          ctest -j 4 --preset test-release --output-on-failure
+          ctest -j 4 --output-on-failure
 
       - name: Package
+        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build -j 4 --preset release-build -t package
+          cmake --build . -j4 -t package
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dynamo-${{ matrix.os }}
           path: |
-            ${{ github.workspace }}/builds/configure-preset/*.deb
-            ${{ github.workspace }}/builds/configure-preset/*.sh
-            ${{ github.workspace }}/builds/configure-preset/*.tar.gz
-            ${{ github.workspace }}/builds/configure-preset/*.exe
+            ${{ github.workspace }}/build/*.deb
+            ${{ github.workspace }}/build/*.sh
+            ${{ github.workspace }}/build/*.tar.gz
+            ${{ github.workspace }}/build/*.exe
