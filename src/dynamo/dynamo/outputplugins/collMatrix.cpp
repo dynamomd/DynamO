@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/include.hpp>
-#include <dynamo/interactions/include.hpp>
+#include <dynamo/interactions/captures.hpp>
 #include <dynamo/outputplugins/collMatrix.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>

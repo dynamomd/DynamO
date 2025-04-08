@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/include.hpp>
-#include <dynamo/interactions/include.hpp>
 #include <dynamo/outputplugins/eventEffects.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>

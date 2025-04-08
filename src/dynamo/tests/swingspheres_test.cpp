@@ -7,7 +7,10 @@
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/ranges/include.hpp>
+#include <dynamo/ranges/IDPairRangeAll.hpp>
+#include <dynamo/ranges/IDPairRangeChains.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
+#include <dynamo/ranges/IDRangeRange.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/CBTFEL.hpp>
 #include <dynamo/schedulers/sorters/heapPEL.hpp>

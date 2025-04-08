@@ -16,6 +16,8 @@
 */
 
 #include <dynamo/base.hpp>
+#include <iomanip>
+#include <limits>
 #include <magnet/stream/console_specials.hpp>
 
 namespace dynamo {

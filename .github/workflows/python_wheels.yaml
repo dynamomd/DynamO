@@ -23,6 +23,8 @@ jobs:
           submodules: true
 
       - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.23.2
@@ -31,6 +33,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: auto64 # Seems 32 bit vcpkg dependencies are missing, so force 64 bit on linux
+          CIBW_SKIP: "*-musllinux_*" # Skip musllinux builds for now as they fail, and skip pypy builds
 
       - uses: actions/upload-artifact@v4
         with:

@@ -16,10 +16,6 @@
 */
 
 #pragma once
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <limits>
 #include <magnet/exception.hpp>
 #include <magnet/stream/formattedostream.hpp>
 #include <memory>

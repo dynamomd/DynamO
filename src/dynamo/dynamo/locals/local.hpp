@@ -20,7 +20,6 @@
 #include <dynamo/1particleEventData.hpp>
 #include <dynamo/base.hpp>
 #include <dynamo/eventtypes.hpp>
-#include <dynamo/ranges/IDRange.hpp>
 #include <magnet/math/vector.hpp>
 #include <string>
 
@@ -34,6 +33,7 @@ class XmlStream;
 }
 namespace dynamo {
 class NEventData;
+class IDRange;
 
 /*! \brief Represents 1-particle event sources which are Local in space.
 

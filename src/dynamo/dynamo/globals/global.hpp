@@ -18,7 +18,6 @@
 #pragma once
 #include <dynamo/base.hpp>
 #include <dynamo/eventtypes.hpp>
-#include <dynamo/ranges/IDRange.hpp>
 
 namespace magnet {
 namespace xml {
@@ -31,6 +30,7 @@ class XmlStream;
 
 namespace dynamo {
 class NEventData;
+class IDRange;
 
 /*! \brief Base class for Non-\ref Local single-particle events.
 
