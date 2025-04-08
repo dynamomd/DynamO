@@ -63,7 +63,7 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
 
       - name: "Create directory '${{ github.workspace }}/build'"
-        run: mkdir -p '${{ github.workspace }}/build
+        run: mkdir -p ${{ github.workspace }}/build
         shell: bash
 
       # Run CMake to generate Ninja project files.
