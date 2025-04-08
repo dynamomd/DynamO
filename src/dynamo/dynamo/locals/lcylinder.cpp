@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>

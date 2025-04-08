@@ -21,7 +21,6 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
-#include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {
 LRoughWall::LRoughWall(dynamo::Simulation *nSim, double ne, double net,

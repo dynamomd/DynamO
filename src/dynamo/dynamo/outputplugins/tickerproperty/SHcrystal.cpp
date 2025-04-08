@@ -22,7 +22,6 @@
 #include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
-#include <fstream>
 #include <limits>
 #include <magnet/math/wigner3J.hpp>
 #include <magnet/xmlreader.hpp>

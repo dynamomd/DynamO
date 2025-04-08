@@ -13,7 +13,6 @@
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/point.hpp>
-#include <dynamo/systems/andersenThermostat.hpp>
 #include <random>
 
 std::mt19937 RNG;

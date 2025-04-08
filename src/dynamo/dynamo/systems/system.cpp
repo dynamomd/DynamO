@@ -17,7 +17,6 @@
 
 #include <cstring>
 #include <dynamo/particle.hpp>
-#include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/systems/francesco.hpp>
@@ -26,7 +25,6 @@
 #include <dynamo/systems/sleep.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/systems/umbrella.hpp>
-#include <dynamo/systems/visualizer.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

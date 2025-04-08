@@ -18,8 +18,6 @@
 #include <coil/RenderObj/console.hpp>
 #include <magnet/GL/objects/cairo.hpp>
 #include <magnet/GL/objects/primitives/grid.hpp>
-#include <magnet/clamp.hpp>
-#include <magnet/exception.hpp>
 
 namespace coil {
 void Console::init(

@@ -20,7 +20,6 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
 

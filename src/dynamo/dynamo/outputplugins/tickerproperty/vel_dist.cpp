@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/tickerproperty/vel_dist.hpp>

@@ -18,21 +18,10 @@
 
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/viscous.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/units/units.hpp>
-#include <magnet/intersection/line_line.hpp>
-#include <magnet/intersection/overlapfuncs/oscillatingplate.hpp>
-#include <magnet/intersection/ray_cube.hpp>
-#include <magnet/intersection/ray_plane.hpp>
-#include <magnet/intersection/ray_rod.hpp>
-#include <magnet/intersection/ray_sphere.hpp>
-#include <magnet/intersection/ray_triangle.hpp>
-#include <magnet/math/matrix.hpp>
-#include <magnet/overlap/point_cube.hpp>
-#include <magnet/overlap/point_prism.hpp>
 #include <magnet/xmlwriter.hpp>
 
 #include <magnet/intersection/polynomial.hpp>

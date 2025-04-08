@@ -20,7 +20,6 @@
 #include <dynamo/dynamics/baloon.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <magnet/intersection/offcentre_spheres.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/xmlwriter.hpp>

@@ -19,11 +19,9 @@
 #include <cmath>
 #include <complex>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <fstream>
-#include <limits>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {

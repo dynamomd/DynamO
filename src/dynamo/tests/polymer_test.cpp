@@ -2,12 +2,10 @@
 #include <boost/test/included/unit_test.hpp>
 #include <dynamo/BC/include.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
-#include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/outputplugins/misc.hpp>
-#include <dynamo/outputplugins/msd.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/CBTFEL.hpp>

@@ -18,17 +18,13 @@
 #include <algorithm>
 #include <cstdio>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/globals/cells.hpp>
-#include <dynamo/ranges/IDRangeAll.hpp>
-#include <dynamo/ranges/IDRangeList.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <set>
 
 namespace dynamo {
 GCells::GCells(dynamo::Simulation *nSim, const std::string &name)

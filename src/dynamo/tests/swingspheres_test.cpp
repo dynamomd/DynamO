@@ -7,8 +7,6 @@
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/locals/lwall.hpp>
-#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/CBTFEL.hpp>

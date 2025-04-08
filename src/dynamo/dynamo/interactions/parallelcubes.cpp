@@ -25,9 +25,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <iomanip>
 #include <magnet/xmlwriter.hpp>
-#include <sstream>
 
 namespace dynamo {
 IParallelCubes::IParallelCubes(const magnet::xml::Node &XML,

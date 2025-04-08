@@ -21,7 +21,6 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/globals/ParabolaSentinel.hpp>
-#include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/units/units.hpp>

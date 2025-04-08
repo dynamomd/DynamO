@@ -28,7 +28,6 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/systems/rotateGravity.hpp>

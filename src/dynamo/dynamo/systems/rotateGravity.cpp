@@ -26,7 +26,6 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/units/units.hpp>
-#include <fstream>
 #include <magnet/math/quaternion.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>

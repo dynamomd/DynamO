@@ -16,13 +16,11 @@
 */
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
-#include <magnet/overlap/cube_plane.hpp>
 #ifdef DYNAMO_visualizer
 #include <coil/RenderObj/Surface.hpp>
 #endif

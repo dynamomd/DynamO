@@ -36,13 +36,11 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/include.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
-#include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/systems/rescale.hpp>
 #include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/systems/sleep.hpp>
 #include <dynamo/topology/include.hpp>
 #include <magnet/exception.hpp>
-#include <magnet/math/matrix.hpp>
 #include <memory>
 
 namespace dynamo {

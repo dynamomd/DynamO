@@ -18,14 +18,9 @@
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/inputplugins/compression.hpp>
-#include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/interactions/squarewell.hpp>
-#include <dynamo/particle.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/species/species.hpp>
 #include <dynamo/systems/nblistCompressionFix.hpp>
 #include <dynamo/systems/tHalt.hpp>
 #include <dynamo/units/units.hpp>

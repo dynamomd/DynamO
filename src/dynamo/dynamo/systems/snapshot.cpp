@@ -17,7 +17,6 @@
 
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/systems/snapshot.hpp>

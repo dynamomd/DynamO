@@ -15,16 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/math/special_functions/pow.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/dynamics/gravity.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/globals/socells.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/intersection/ray_sphere.hpp>

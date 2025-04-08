@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/BC/None.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/chaintorsion.hpp>
 #include <dynamo/ranges/IDRange.hpp>

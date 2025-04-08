@@ -17,7 +17,6 @@
 
 #include <dynamo/interactions/potentials/lennard_jones.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
-#include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

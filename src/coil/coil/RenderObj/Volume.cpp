@@ -17,7 +17,6 @@
 
 #include <coil/RenderObj/Light.hpp>
 #include <coil/RenderObj/Volume.hpp>
-#include <coil/RenderObj/console.hpp>
 #include <magnet/GL/objects/primitives/cube.hpp>
 
 #ifdef COIL_TIFFSUPPORT
@@ -26,7 +25,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <fstream>
-#include <magnet/clamp.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 
 #include <coil/images/images.hpp>

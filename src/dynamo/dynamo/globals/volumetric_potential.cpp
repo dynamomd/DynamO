@@ -22,15 +22,12 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/globals/volumetric_potential.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/ranges/IDRangeAll.hpp>
-#include <dynamo/ranges/IDRangeList.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
 #include <fstream>
 #include <magnet/exception.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <set>
 
 namespace dynamo {
 void GVolumetricPotential::initialise(size_t id) {

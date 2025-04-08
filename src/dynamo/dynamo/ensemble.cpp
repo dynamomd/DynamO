@@ -15,15 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/BC/PBC.hpp>
-#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/ensemble.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <magnet/exception.hpp>
-#include <magnet/xmlreader.hpp>
-#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
 shared_ptr<Ensemble> Ensemble::loadEnsemble(const dynamo::Simulation &Sim) {

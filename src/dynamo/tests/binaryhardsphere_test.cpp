@@ -1,11 +1,9 @@
 #define BOOST_TEST_MODULE BinaryHardSphere_test
 #include <boost/test/included/unit_test.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
-#include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/outputplugins/misc.hpp>
-#include <dynamo/outputplugins/msd.hpp>
 #include <dynamo/ranges/IDRangeRange.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/simulation.hpp>

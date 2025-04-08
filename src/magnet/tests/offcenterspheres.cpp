@@ -2,8 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
 #include <magnet/intersection/offcentre_spheres.hpp>
-#include <magnet/intersection/parabola_sphere.hpp>
-#include <magnet/intersection/polynomial.hpp>
 #include <magnet/math/matrix.hpp>
 #include <random>
 

@@ -17,7 +17,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <magnet/color/transferFunction.hpp>
 #include <magnet/math/spline.hpp>
 
 int main(int argc, char *argv[]) {

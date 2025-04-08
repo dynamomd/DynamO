@@ -15,16 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
-#include <dynamo/ranges/IDPairRangeList.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/topology/chain.hpp>
-#include <fstream>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

@@ -24,10 +24,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
-#include <magnet/GL/context.hpp>
 #include <magnet/arg_share.hpp>
-#include <stdexcept>
-#include <unistd.h>
 
 namespace coil {
 CoilMaster *CoilRegister::_instance = NULL;

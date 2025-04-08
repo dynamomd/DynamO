@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE Plane_Intersection_Tests
 #include <boost/test/included/unit_test.hpp>
-#include <iostream>
-#include <magnet/intersection/ray_plane.hpp>
+#include <magnet/math/vector.hpp>
 #include <random>
 
 std::mt19937 RNG;

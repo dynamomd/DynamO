@@ -18,7 +18,6 @@
 #include <cmath>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/interactions/DSMC.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -26,7 +25,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <iomanip>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

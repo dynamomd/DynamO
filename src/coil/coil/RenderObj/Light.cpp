@@ -18,9 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <coil/RenderObj/Light.hpp>
 #include <coil/images/images.hpp>
-#include <fstream>
 #include <magnet/GL/objects/cairo.hpp>
-#include <magnet/clamp.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 
 namespace coil {

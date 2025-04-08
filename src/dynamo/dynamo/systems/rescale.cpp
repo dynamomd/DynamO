@@ -26,7 +26,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/units/units.hpp>
-#include <fstream>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

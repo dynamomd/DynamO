@@ -19,7 +19,6 @@
 #include <dynamo/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/vtk.hpp>
 #include <dynamo/simulation.hpp>
-#include <fstream>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
 

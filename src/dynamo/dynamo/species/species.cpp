@@ -18,7 +18,6 @@
 #include <cstring>
 #include <dynamo/species/include.hpp>
 #include <magnet/xmlreader.hpp>
-#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
 Species::~Species() {}

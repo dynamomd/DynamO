@@ -16,13 +16,11 @@
 */
 
 #include <cmath>
-#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
-#include <fstream>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>

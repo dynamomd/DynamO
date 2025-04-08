@@ -17,9 +17,6 @@
 
 #include <coil/RenderObj/Surface.hpp>
 #include <coil/images/images.hpp>
-#include <iostream>
-#include <magnet/string/formatcode.hpp>
-#include <magnet/string/line_number.hpp>
 
 namespace coil {
 Glib::RefPtr<Gdk::Pixbuf> RSurface::getIcon() {

@@ -1,11 +1,8 @@
 #define BOOST_TEST_MODULE Intersection_GeneralAlgorithm_Tests
 #include <boost/test/included/unit_test.hpp>
-#include <iostream>
 #include <magnet/intersection/generic_algorithm.hpp>
-#include <magnet/intersection/offcentre_spheres.hpp>
-#include <magnet/intersection/parabola_sphere.hpp>
 #include <magnet/intersection/polynomial.hpp>
-#include <magnet/math/matrix.hpp>
+#include <magnet/math/vector.hpp>
 #include <random>
 
 std::mt19937 RNG;

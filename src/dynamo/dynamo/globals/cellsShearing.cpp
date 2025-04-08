@@ -16,12 +16,10 @@
 */
 
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/globals/cellsShearing.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
-#include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
 GCellsShearing::GCellsShearing(dynamo::Simulation *nSim,
