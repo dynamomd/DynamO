@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-15, windows-2022]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15, windows-2022]
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
       # Not using "VCPKG_ROOT" because a variable with the same name is defined in the VS's
@@ -62,11 +62,11 @@ jobs:
       # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
       - uses: ilammy/msvc-dev-cmd@v1
 
-      # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
-      # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
-      # in the CMakePresets.json file.
-      # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
-      # store the built packages artifacts.
+      - name: "Create directory '${{ github.workspace }}/build'"
+        run: mkdir -p '${{ github.workspace }}/build
+        shell: bash
+
+      # Run CMake to generate Ninja project files.
       - name: Configure the build system
         working-directory: ${{ github.workspace }}/build
         run: |
@@ -79,22 +79,18 @@ jobs:
           cmake --build . -j4 -t check-src-format
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
-      #
-      # Note: if the preset misses the "configuration", it is possible to explicitly select the
-      # configuration with the `--config` flag, e.g.:
-      # run: cmake --build --preset ninja-vcpkg --config Release
       - name: Build (Release configuration)
         working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build . -j4 -t all
+          cmake --build . -j4
 
-      # Test the whole project with CTest, again Release configuration only.
+      # Test the whole project with CTest
       - name: Test (Release configuration)
         working-directory: ${{ github.workspace }}/build
         run: |
           ctest -j 4 --output-on-failure
 
-      - name: Package
+      - name: Package the project (python packages include more)
         working-directory: ${{ github.workspace }}/build
         run: |
           cmake --build . -j4 -t package
