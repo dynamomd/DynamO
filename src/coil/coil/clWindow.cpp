@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cmath>
@@ -24,18 +23,14 @@
 #include <coil/RenderObj/Volume.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/clWindow.hpp>
-#include <gtkmm/volumebutton.h>
 #include <iomanip>
 #include <iostream>
-#include <locale>
 #include <magnet/GL/context.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/image/PNG.hpp>
-#include <magnet/image/bitmap.hpp>
 #include <magnet/image/videoEncoderFFMPEG.hpp>
 #include <sstream>
 #include <stator/xml.hpp>
-#include <stdexcept>
 
 #ifdef COIL_wiimote
 #include <magnet/wiiheadtracking.hpp>

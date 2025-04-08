@@ -26,7 +26,7 @@
 namespace dynamo {
 GFrancesco::GFrancesco(const magnet::xml::Node &XML, dynamo::Simulation *ptrSim)
     : Global(ptrSim, "Francesco") {
-  operator<<(XML);
+  GFrancesco::operator<<(XML);
 }
 
 void GFrancesco::initialise(size_t nID) {

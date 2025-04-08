@@ -18,7 +18,6 @@
 #include <dynamo/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/velprof.hpp>
 #include <dynamo/simulation.hpp>
-#include <fstream>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {

@@ -36,7 +36,7 @@ namespace GL {
 template <class T> class Buffer {
 public:
   inline Buffer()
-      : _size(0), _components(0)
+      : _size(0), _components(0), _buffer(0)
 #ifdef MAGNET_CLGL
         ,
         _cl_handle_init(false), _cl_buffer_acquired(0)

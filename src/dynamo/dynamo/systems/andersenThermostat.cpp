@@ -37,7 +37,7 @@ SysAndersen::SysAndersen(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
       dimensions(NDIM), setPoint(0.05), eventCount(0), lastlNColl(0),
       setFrequency(100) {
   dt = std::numeric_limits<float>::infinity();
-  operator<<(XML);
+  SysAndersen::operator<<(XML);
   type = GAUSSIAN;
 }
 

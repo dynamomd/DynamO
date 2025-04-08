@@ -41,7 +41,7 @@ GSOCells::GSOCells(dynamo::Simulation *nSim, const std::string &name)
 
 GSOCells::GSOCells(const magnet::xml::Node &XML, dynamo::Simulation *ptrSim)
     : Global(ptrSim, "SingleOccupancyCells"), _cellD(0) {
-  operator<<(XML);
+  GSOCells::operator<<(XML);
 
   if (cell_origins.empty()) {
     derr << "Loading SOCells from the current particle positions!" << std::endl;

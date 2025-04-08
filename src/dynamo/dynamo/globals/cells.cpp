@@ -41,7 +41,7 @@ GCells::GCells(dynamo::Simulation *nSim, const std::string &name)
 GCells::GCells(const magnet::xml::Node &XML, dynamo::Simulation *ptrSim)
     : GNeighbourList(ptrSim, "CellNeighbourList"), _cellDimension({1, 1, 1}),
       _inConfig(true), overlink(1) {
-  operator<<(XML);
+  GCells::operator<<(XML);
 
   dout << "Cells Loaded" << std::endl;
 }

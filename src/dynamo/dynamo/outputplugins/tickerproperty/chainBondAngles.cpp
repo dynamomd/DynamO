@@ -36,7 +36,7 @@ OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw) : chainID(ID) {
 OPChainBondAngles::OPChainBondAngles(const dynamo::Simulation *tmp,
                                      const magnet::xml::Node &XML)
     : OPTicker(tmp, "ChainBondAngles"), binwidth(0.0001) {
-  operator<<(XML);
+  OPChainBondAngles::operator<<(XML);
 }
 
 void OPChainBondAngles::operator<<(const magnet::xml::Node &XML) {

@@ -24,7 +24,6 @@
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/topology/include.hpp>
 
 namespace dynamo {

@@ -30,7 +30,7 @@ BCLeesEdwards::BCLeesEdwards(const dynamo::Simulation *tmp)
 BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node &XML,
                              const dynamo::Simulation *tmp)
     : BCPeriodic(tmp, "LEBC"), _dxd(0) {
-  operator<<(XML);
+  BCLeesEdwards::operator<<(XML);
   dout << "Lee's Edwards BC loaded\n"
        << "DXD = " << _dxd
        << "Shear Rate = " << _shearRate * Sim->units.unitTime() << std::endl;

@@ -15,9 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/interactions/captures.hpp>
 #include <dynamo/outputplugins/tickerproperty/chainBondLength.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>

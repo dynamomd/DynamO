@@ -29,7 +29,7 @@ INull::INull(dynamo::Simulation *tmp, IDPairRange *nR, std::string name)
 
 INull::INull(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : Interaction(tmp, NULL) {
-  operator<<(XML);
+  INull::operator<<(XML);
 }
 
 void INull::initialise(size_t nID) { ID = nID; }

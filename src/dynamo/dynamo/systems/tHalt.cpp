@@ -17,7 +17,6 @@
 
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/systems/tHalt.hpp>
 #include <dynamo/units/units.hpp>

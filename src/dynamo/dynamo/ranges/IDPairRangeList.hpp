@@ -29,7 +29,9 @@ class IDPairRangeList : public IDPairRange {
   typedef std::unordered_set<Key, boost::hash<Key>> Container;
 
 public:
-  IDPairRangeList(const magnet::xml::Node &XML) { operator<<(XML); }
+  IDPairRangeList(const magnet::xml::Node &XML) {
+    IDPairRangeList::operator<<(XML);
+  }
 
   IDPairRangeList() {}
 

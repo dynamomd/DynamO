@@ -15,11 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/math/special_functions/pow.hpp>
 #include <cmath>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/interactions/stepped.hpp>
@@ -30,7 +28,6 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/units/units.hpp>
-#include <iomanip>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

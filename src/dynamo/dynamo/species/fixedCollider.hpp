@@ -33,7 +33,7 @@ public:
                   unsigned int nID)
       : SpInertia(nSim, NULL, std::numeric_limits<float>::infinity(), "", nID) {
     setOutputPrefix("SpFixedCollider");
-    operator<<(XML);
+    SpFixedCollider::operator<<(XML);
   }
 
   virtual void initialise();

@@ -21,8 +21,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <fstream>
-#include <limits>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

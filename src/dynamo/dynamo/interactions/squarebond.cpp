@@ -37,7 +37,7 @@ namespace dynamo {
 ISquareBond::ISquareBond(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : Interaction(tmp, NULL) // A temporary value!
 {
-  operator<<(XML);
+  ISquareBond::operator<<(XML);
 }
 
 void ISquareBond::operator<<(const magnet::xml::Node &XML) {

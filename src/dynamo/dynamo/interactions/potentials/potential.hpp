@@ -242,7 +242,9 @@ protected:
  */
 class PotentialStepped : public Potential {
 public:
-  PotentialStepped(const magnet::xml::Node &XML) { operator<<(XML); }
+  PotentialStepped(const magnet::xml::Node &XML) {
+    PotentialStepped::operator<<(XML);
+  }
 
   /*! \brief Construct a stepped potential from a list discontinuity
       positions and energies.

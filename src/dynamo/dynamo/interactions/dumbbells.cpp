@@ -17,7 +17,6 @@
 
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/interactions/dumbbells.hpp>

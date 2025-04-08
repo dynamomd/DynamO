@@ -31,7 +31,7 @@
 namespace dynamo {
 LCylinder::LCylinder(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : Local(tmp, "LocalCylinder") {
-  operator<<(XML);
+  LCylinder::operator<<(XML);
 }
 
 Event LCylinder::getEvent(const Particle &part) const {

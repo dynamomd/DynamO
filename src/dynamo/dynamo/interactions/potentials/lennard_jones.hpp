@@ -43,7 +43,9 @@ public:
   PotentialLennardJones(double sigma, double epsilon, double cutoff, int umode,
                         int rmode, double attractivesteps, double kT = 1);
 
-  PotentialLennardJones(const magnet::xml::Node &XML) { operator<<(XML); }
+  PotentialLennardJones(const magnet::xml::Node &XML) {
+    PotentialLennardJones::operator<<(XML);
+  }
 
   virtual std::size_t steps() const;
 

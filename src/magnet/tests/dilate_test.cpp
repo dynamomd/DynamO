@@ -1,10 +1,7 @@
 #define BOOST_TEST_MODULE Dilate_test
-#include <algorithm>
 #include <boost/test/included/unit_test.hpp>
-#include <iomanip>
 #include <magnet/math/dilated_int.hpp>
 #include <random>
-#include <sstream>
 
 // std::string hexout(size_t val)
 //{

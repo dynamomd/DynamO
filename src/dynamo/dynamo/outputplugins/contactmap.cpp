@@ -42,7 +42,7 @@ OPContactMap::OPContactMap(const dynamo::Simulation *t1,
     : OutputPlugin(t1, "ContactMap", 1) // This plugin should be updated and
                                         // initialised after the misc plugin
 {
-  operator<<(XML);
+  OPContactMap::operator<<(XML);
 }
 
 void OPContactMap::initialise() {

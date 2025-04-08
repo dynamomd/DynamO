@@ -142,7 +142,7 @@ public:
   CairoSurface() : _width(0), _height(0), _alpha_testing(0) {}
 
   //! \brief Destructor
-  inline ~CairoSurface() { deinit(); }
+  inline ~CairoSurface() { CairoSurface::deinit(); }
 
   //! \brief Release any associated OpenGL resources.
   virtual void deinit() {

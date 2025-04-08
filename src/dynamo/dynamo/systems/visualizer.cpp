@@ -19,7 +19,6 @@
 
 #include <gtkmm.h> //Must be included first!
 
-#include <algorithm>
 #include <coil/RenderObj/DataSet.hpp>
 #include <coil/clWindow.hpp>
 #include <dynamo/BC/LEBC.hpp>

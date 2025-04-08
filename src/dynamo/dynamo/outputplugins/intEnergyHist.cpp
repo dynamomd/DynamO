@@ -20,7 +20,6 @@
 #include <dynamo/outputplugins/intEnergyHist.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/simulation.hpp>
-#include <fstream>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

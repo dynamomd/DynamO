@@ -23,8 +23,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <fstream>
-#include <limits>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -32,7 +30,7 @@ namespace dynamo {
 OPPolarNematic::OPPolarNematic(const dynamo::Simulation *tmp,
                                const magnet::xml::Node &XML)
     : OPTicker(tmp, "PolarNematic") {
-  operator<<(XML);
+  OPPolarNematic::operator<<(XML);
 }
 
 void OPPolarNematic::operator<<(const magnet::xml::Node &XML) {}

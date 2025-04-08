@@ -19,8 +19,6 @@
 #include <dynamo/schedulers/sorters/MinMaxPEL.hpp>
 #include <dynamo/schedulers/sorters/boundedPQFEL.hpp>
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
-#include <dynamo/schedulers/sorters/referenceFEL.hpp>
-#include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 

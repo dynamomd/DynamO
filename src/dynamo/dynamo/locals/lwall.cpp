@@ -30,7 +30,7 @@
 namespace dynamo {
 LWall::LWall(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : Local(tmp, "LocalWall") {
-  operator<<(XML);
+  LWall::operator<<(XML);
 }
 
 Event LWall::getEvent(const Particle &part) const {

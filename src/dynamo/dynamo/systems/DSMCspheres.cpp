@@ -34,7 +34,7 @@ SysDSMCSpheres::SysDSMCSpheres(const magnet::xml::Node &XML,
                                dynamo::Simulation *tmp)
     : System(tmp), maxprob(0.0) {
   dt = std::numeric_limits<float>::infinity();
-  operator<<(XML);
+  SysDSMCSpheres::operator<<(XML);
   type = DSMC;
 }
 

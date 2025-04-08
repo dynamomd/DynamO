@@ -19,20 +19,16 @@
 #include <cmath>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/interactions/PRIME.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/ranges/IDPairRangeSingle.hpp>
-#include <dynamo/ranges/IDRangeRange.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/topology/PRIME.hpp>
 #include <dynamo/units/units.hpp>
-#include <iomanip>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -40,7 +36,7 @@ namespace dynamo {
 IPRIME::IPRIME(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : ICapture(tmp, NULL) // A temporary value!
 {
-  operator<<(XML);
+  IPRIME::operator<<(XML);
 }
 
 void IPRIME::operator<<(const magnet::xml::Node &XML) {
@@ -550,8 +546,8 @@ Event IPRIME::getEvent(const Particle &p1, const Particle &p2) const {
 
   if (bond_energy ==
       -std::numeric_limits<double>::infinity()) { // The pair are bonded, check
-                                                  // for events with the well
-                                                  // edges
+    // for events with the well
+    // edges
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, inner_diameter);
     if (dt != std::numeric_limits<float>::infinity())
       retval = Event(p1, dt, INTERACTION, CORE, ID, p2);
@@ -560,9 +556,9 @@ Event IPRIME::getEvent(const Particle &p1, const Particle &p2) const {
     if (retval._dt > dt)
       retval = Event(p1, dt, INTERACTION, BOUNCE, ID, p2);
   } else if (bond_energy ==
-             std::numeric_limits<
-                 double>::infinity()) { // The pair have a hard-sphere
-                                        // interaction, test for this event
+             std::numeric_limits<double>::infinity()) { // The pair have a
+                                                        // hard-sphere
+    // interaction, test for this event
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, outer_diameter);
     if (dt != std::numeric_limits<float>::infinity())
       retval = Event(p1, dt, INTERACTION, CORE, ID, p2);

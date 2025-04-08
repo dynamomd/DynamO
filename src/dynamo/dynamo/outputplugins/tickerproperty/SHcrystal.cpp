@@ -33,7 +33,7 @@ OPSHCrystal::OPSHCrystal(const dynamo::Simulation *tmp,
                          const magnet::xml::Node &XML)
     : OPTicker(tmp, "SHCrystal"), rg(1.2), maxl(7),
       nblistID(std::numeric_limits<size_t>::max()), count(0) {
-  operator<<(XML);
+  OPSHCrystal::operator<<(XML);
 }
 
 void OPSHCrystal::operator<<(const magnet::xml::Node &XML) {

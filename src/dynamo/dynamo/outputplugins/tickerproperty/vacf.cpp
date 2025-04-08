@@ -26,7 +26,7 @@
 namespace dynamo {
 OPVACF::OPVACF(const dynamo::Simulation *tmp, const magnet::xml::Node &XML)
     : OPTicker(tmp, "VACF"), length(50), currCorrLength(0), ticksTaken(0) {
-  operator<<(XML);
+  OPVACF::operator<<(XML);
 }
 
 void OPVACF::operator<<(const magnet::xml::Node &XML) {

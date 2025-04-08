@@ -22,7 +22,6 @@ jobs:
         with:
           submodules: true
 
-      # Used to host cibuildwheel
       - uses: actions/setup-python@v5
 
       - name: Install cibuildwheel
@@ -30,10 +29,8 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-        # to supply options, put them in 'env', like:
-        # env:
-        #   CIBW_SOME_OPTION: value
-        #   ...
+        env:
+          CIBW_ARCHS_LINUX: auto64 # Seems 32 bit vcpkg dependencies are missing, so force 64 bit on linux
 
       - uses: actions/upload-artifact@v4
         with:

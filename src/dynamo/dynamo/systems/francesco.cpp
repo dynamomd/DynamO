@@ -36,7 +36,7 @@ SysFrancesco::SysFrancesco(const magnet::xml::Node &XML,
       sqrtTemp(std::sqrt(Sim->units.unitEnergy())), dimensions(NDIM),
       eventCount(0), lastlNColl(0) {
   dt = std::numeric_limits<float>::infinity();
-  operator<<(XML);
+  SysFrancesco::operator<<(XML);
   type = GAUSSIAN;
 }
 

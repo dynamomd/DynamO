@@ -29,7 +29,7 @@ OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(
     const dynamo::Simulation *tmp, const magnet::xml::Node &XML)
     : OPTicker(tmp, "MSDOrientationalCorrelator"), length(50),
       currCorrLength(0), ticksTaken(0), notReady(true) {
-  operator<<(XML);
+  OPMSDOrientationalCorrelator::operator<<(XML);
 }
 
 void OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node &XML) {

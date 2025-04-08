@@ -26,7 +26,7 @@
 namespace dynamo {
 OPVTK::OPVTK(const dynamo::Simulation *tmp, const magnet::xml::Node &XML)
     : OPTicker(tmp, "VTK"), imageCount(0), _fields(true) {
-  operator<<(XML);
+  OPVTK::operator<<(XML);
 }
 
 void OPVTK::operator<<(const magnet::xml::Node &XML) {

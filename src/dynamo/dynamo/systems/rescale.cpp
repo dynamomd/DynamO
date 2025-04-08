@@ -35,7 +35,7 @@ SysRescale::SysRescale(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : System(tmp), _frequency(std::numeric_limits<size_t>::max()), _kT(1),
       _timestep(std::numeric_limits<float>::infinity()), scaleFactor(1),
       LastTime(0), RealTime(0) {
-  operator<<(XML);
+  SysRescale::operator<<(XML);
   type = RESCALE;
 
   dout << "Velocity Rescaler Loaded" << std::endl;

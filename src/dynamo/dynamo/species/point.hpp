@@ -38,7 +38,7 @@ public:
   SpPoint(const magnet::xml::Node &XML, dynamo::Simulation *nSim,
           unsigned int nID)
       : Species(nSim, "", NULL, 0, "", nID) {
-    operator<<(XML);
+    SpPoint::operator<<(XML);
   }
 
   virtual void initialise() {}

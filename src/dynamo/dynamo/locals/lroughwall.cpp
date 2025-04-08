@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -35,7 +34,7 @@ LRoughWall::LRoughWall(dynamo::Simulation *nSim, double ne, double net,
 
 LRoughWall::LRoughWall(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : Local(tmp, "LocalRoughWall") {
-  operator<<(XML);
+  LRoughWall::operator<<(XML);
 }
 
 void LRoughWall::initialise(size_t nID) {

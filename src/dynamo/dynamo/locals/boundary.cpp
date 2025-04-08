@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/boundary.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -27,7 +26,7 @@
 namespace dynamo {
 LBoundary::LBoundary(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : Local(tmp, "Boundary") {
-  operator<<(XML);
+  LBoundary::operator<<(XML);
 }
 
 Event LBoundary::getEvent(const Particle &part) const {

@@ -18,7 +18,6 @@
 #include <cmath>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/interactions/parallelcubes.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -34,7 +33,7 @@ namespace dynamo {
 IParallelCubes::IParallelCubes(const magnet::xml::Node &XML,
                                dynamo::Simulation *tmp)
     : Interaction(tmp, NULL) {
-  operator<<(XML);
+  IParallelCubes::operator<<(XML);
 }
 
 std::array<double, 4> IParallelCubes::getGlyphSize(size_t ID) const {

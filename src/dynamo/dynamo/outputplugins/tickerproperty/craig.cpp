@@ -17,12 +17,9 @@
 
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/tickerproperty/craig.hpp>
 #include <dynamo/simulation.hpp>
-#include <fstream>
 #include <magnet/xmlwriter.hpp>
-#include <sstream>
 
 // Creates a temperature profile of particles along the x-axis of the
 // simulations. This plugin calculates a rolling of the temperature in a
@@ -31,7 +28,7 @@
 namespace dynamo {
 OPCraig::OPCraig(const dynamo::Simulation *tmp, const magnet::xml::Node &XML)
     : OPTicker(tmp, "Craig"), nBins(100), tickCount(0) {
-  operator<<(XML);
+  OPCraig::operator<<(XML);
 }
 
 void OPCraig::operator<<(const magnet::xml::Node &XML) {

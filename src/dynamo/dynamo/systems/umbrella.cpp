@@ -34,7 +34,7 @@ namespace dynamo {
 SysUmbrella::SysUmbrella(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : System(tmp), _stepID(std::numeric_limits<size_t>::max()) {
   dt = std::numeric_limits<float>::infinity();
-  operator<<(XML);
+  SysUmbrella::operator<<(XML);
   type = UMBRELLA;
 }
 

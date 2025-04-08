@@ -34,7 +34,7 @@ namespace dynamo {
 SSleep::SSleep(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : System(tmp) {
   dt = std::numeric_limits<float>::infinity();
-  operator<<(XML);
+  SSleep::operator<<(XML);
   type = SLEEP;
 }
 

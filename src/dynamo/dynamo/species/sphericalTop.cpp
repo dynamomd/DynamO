@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/BC/LEBC.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/sphericalTop.hpp>
@@ -32,7 +31,7 @@ SpSphericalTop::SpSphericalTop(dynamo::Simulation *tmp, IDRange *nr,
 SpSphericalTop::SpSphericalTop(const magnet::xml::Node &XML,
                                dynamo::Simulation *Sim, unsigned int nID)
     : SpInertia(XML, Sim, nID) {
-  operator<<(XML);
+  SpSphericalTop::operator<<(XML);
 }
 
 void SpSphericalTop::outputXML(magnet::xml::XmlStream &XML,

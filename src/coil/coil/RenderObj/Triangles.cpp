@@ -22,7 +22,7 @@ namespace coil {
 RTriangles::RTriangles(std::string name)
     : RenderObj(name), _RenderMode(TRIANGLES), _triangleComponents(3) {}
 
-RTriangles::~RTriangles() { deinit(); }
+RTriangles::~RTriangles() { RTriangles::deinit(); }
 
 void RTriangles::init(
     const std::shared_ptr<magnet::thread::TaskQueue> &systemQueue) {

@@ -33,7 +33,7 @@
 namespace dynamo {
 IDSMC::IDSMC(const magnet::xml::Node &XML, dynamo::Simulation *tmp)
     : ICapture(tmp, NULL) {
-  operator<<(XML);
+  IDSMC::operator<<(XML);
 }
 
 void IDSMC::initialise(size_t nID) {

@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/trianglemesh.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -30,7 +29,7 @@ namespace dynamo {
 LTriangleMesh::LTriangleMesh(const magnet::xml::Node &XML,
                              dynamo::Simulation *tmp)
     : Local(tmp, "LocalWall") {
-  operator<<(XML);
+  LTriangleMesh::operator<<(XML);
 }
 
 Event LTriangleMesh::getEvent(const Particle &part) const {

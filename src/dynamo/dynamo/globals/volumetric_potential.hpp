@@ -35,7 +35,7 @@ public:
 public:
   GVolumetricPotential(const magnet::xml::Node &XML, dynamo::Simulation *ptrSim)
       : GCells(ptrSim, "VolumetricPotential") {
-    operator<<(XML);
+    GVolumetricPotential::operator<<(XML);
   }
 
   virtual void runEvent(Particle &p, const double dt);

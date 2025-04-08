@@ -30,7 +30,7 @@ namespace dynamo {
 OPSCParameter::OPSCParameter(const dynamo::Simulation *tmp,
                              const magnet::xml::Node &XML)
     : OPTicker(tmp, "SCParameter"), maxWaveNumber(0), count(0), runningsum(0) {
-  operator<<(XML);
+  OPSCParameter::operator<<(XML);
 }
 
 void OPSCParameter::initialise() {

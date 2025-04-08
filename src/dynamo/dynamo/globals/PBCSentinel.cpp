@@ -33,7 +33,7 @@ GPBCSentinel::GPBCSentinel(dynamo::Simulation *nSim, const std::string &name)
 GPBCSentinel::GPBCSentinel(const magnet::xml::Node &XML,
                            dynamo::Simulation *ptrSim)
     : Global(ptrSim, "PBCSentinel"), maxintdist(0) {
-  operator<<(XML);
+  GPBCSentinel::operator<<(XML);
 
   dout << "PBCSentinel Loaded" << std::endl;
 }
