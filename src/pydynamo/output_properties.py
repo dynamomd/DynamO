@@ -24,6 +24,9 @@ class OutputFile(XMLFile):
     def t(self):
         return float(self.tree.find('.//Duration').attrib['Time'])
 
+    def p(self):
+        return float(self.tree.find('.//Pressure').attrib['Avg'])
+        
     def numdensity(self):
         return float(self.tree.find('.//Density').attrib['val'])
 

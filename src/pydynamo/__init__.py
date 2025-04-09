@@ -29,7 +29,6 @@ class SkipThisPoint(BaseException):
 
 import pickle as pickle
 
-
 #This function actually sets up and runs the simulations and is run in parallel
 def worker(state, workdir, outputplugins, particle_equil_events, particle_run_events, particle_run_events_block_size, setup_worker):
     try:
