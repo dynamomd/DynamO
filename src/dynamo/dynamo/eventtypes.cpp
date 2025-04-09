@@ -7,7 +7,7 @@ namespace dynamo {
   case VAL:                                                                    \
     return os << #VAL;
 
-inline std::ostream &operator<<(std::ostream &os, EEventType etype) {
+std::ostream &operator<<(std::ostream &os, EEventType etype) {
   switch (etype) {
     ETYPE_ENUM_FACTORY(printEnum)
   case FINAL_ENUM_TO_CATCH_THE_COMMA:
@@ -18,7 +18,8 @@ inline std::ostream &operator<<(std::ostream &os, EEventType etype) {
   M_throw() << "Failed to find a name for the Event Type! The value must be "
                "uninitialised or memory is being corrupted somehow.";
 }
-inline std::ostream &operator<<(std::ostream &os, EventSource etype) {
+
+std::ostream &operator<<(std::ostream &os, EventSource etype) {
   switch (etype) {
   case INTERACTION:
     os << "Interaction";

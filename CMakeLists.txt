@@ -16,6 +16,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # Define any build options
 option(VISUALIZER_ENABLED "Enable the visualizer" ON)
 
+# if SKBUILD_SCRIPTS_DIR is not set, set it to the default install directory
+if(NOT DEFINED SKBUILD_SCRIPTS_DIR)
+  set(SKBUILD_SCRIPTS_DIR "${CMAKE_INSTALL_PREFIX}/bin")
+endif()
+
 ######################################################################
 ########## COMPILER FLAGS
 ######################################################################
