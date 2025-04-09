@@ -65,17 +65,17 @@ jobs:
       # Run CMake to generate Ninja project files.
       - name: Configure the build system
         run: |
-          cmake -B ${{github.workspace}}/build
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
       - name: Check code formatting
         if: runner.os == 'Linux'
         run: |
-          cmake --build ${{github.workspace}}/build -j4 -t check-src-format
+          cmake --build ${{github.workspace}}/build -j4 -t check-src-format --config Release
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       - name: Build (Release configuration)
         run: |
-          cmake --build ${{github.workspace}}/build -j4
+          cmake --build ${{github.workspace}}/build -j4 --config Release
 
       # Test the whole project with CTest
       - name: Test (Release configuration)
@@ -85,7 +85,7 @@ jobs:
 
       - name: Package the project (python packages include more)
         run: |
-          cmake --build ${{github.workspace}}/build -j4 -t package
+          cmake --build ${{github.workspace}}/build -j4 -t package --config Release
 
       - name: Upload packages as artifacts
         uses: actions/upload-artifact@v4
