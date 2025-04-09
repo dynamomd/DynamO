@@ -33,7 +33,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: auto64 # Seems 32 bit vcpkg dependencies are missing, so force 64 bit on linux
-          CIBW_SKIP: "*-musllinux_*" # Skip musllinux builds for now as they fail, and skip pypy builds
+          CIBW_SKIP: "*-musllinux_* pp*" # Skip musllinux builds for now as they fail, and skip pypy builds as they'll be disabled in cibuildwheel 3 anyway
 
       - uses: actions/upload-artifact@v4
         with:
