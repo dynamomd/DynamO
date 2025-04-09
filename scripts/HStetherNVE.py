@@ -1,8 +1,6 @@
-#!/usr/bin/python3
-import numpy, pydynamo, datastat
-from pydynamo import ET
-
-import math
+#!/usr/bin/env python3
+import numpy, pydynamo
+from pydynamo import ET, roundSF
 
 ################################################################
 ###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
@@ -10,9 +8,9 @@ import math
 #This is the list of state variables and their ranges
 
 densities = set(list(numpy.arange(0.1, 1.4, 0.1))+list(numpy.arange(0.8,1.05,0.01)))
-densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities = list(map(lambda x : roundSF(x, 3), list(densities)))
 densities.sort()
-Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.0, 0.01))))
+Rso = list(map(lambda x : roundSF(x, 3), list(numpy.arange(0.01, 1.0, 0.01))))
 statevars = [
     ("N", list(map(lambda x: 4*x**3, [5, 10, 15]))),
     ('ndensity', densities),

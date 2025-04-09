@@ -1,8 +1,11 @@
-#!/usr/bin/python3
-import numpy, pydynamo, datastat
+#!/usr/bin/env python3
+import math
+
+import numpy
+
+import pydynamo
 from pydynamo import ET
 
-import math
 
 def setup_worker( config, #The name of the config file to generate.
                   state, #A dictionary of state variables to use
@@ -111,7 +114,7 @@ statevars = [
         ("InitState", ["FCC"]),
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [7]))),
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
+        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
         ("kT", [1.0]),
     ],
     [ # HCP
@@ -119,7 +122,7 @@ statevars = [
         ("InitState", ["HCP"]),
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [7]))),
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
+        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
         ("kT", [1.0]),
     ],
     [ # BCC
@@ -127,7 +130,7 @@ statevars = [
         ("InitState", ["BCC"]),
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 2*x**3, [8]))),
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
+        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.95, 1.41, 0.01)))))),
         ("kT", [1.0]),
     ],
     [ # SC
@@ -135,7 +138,7 @@ statevars = [
         ("InitState", ["SC"]),
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: x**3, [10]))),
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 0.99, 0.01)))))),
+        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.01, 0.99, 0.01)))))),
         ("kT", [1.0]),
     ],
 ]

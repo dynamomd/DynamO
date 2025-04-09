@@ -1,8 +1,11 @@
-#!/usr/bin/python3
-import numpy, pydynamo, datastat
+#!/usr/bin/env python3
+import math
+
+import numpy
+
+import pydynamo
 from pydynamo import ET
 
-import math
 
 def setup_worker( config, #The name of the config file to generate.
                   state, #A dictionary of state variables to use

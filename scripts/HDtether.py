@@ -1,8 +1,11 @@
-#!/usr/bin/python3
-import numpy, pydynamo, datastat
-from pydynamo import ET
-
+#!/usr/bin/env python3
 import math
+
+import datastat
+import numpy
+
+import pydynamo
+from pydynamo import ET
 
 ################################################################
 ###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
@@ -144,6 +147,7 @@ data = mgr.fetch_data(1000) #This is a pandas dataframe with columns for
 #data.to_csv("output.csv")
 # Or pickle it for later processing
 import pickle
+
 pickle.dump(data, open("tether.pkl", 'wb'))
 
 #import matplotlib.pyplot as plt

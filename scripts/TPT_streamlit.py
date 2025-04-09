@@ -23,7 +23,6 @@ from pandas.api.types import (
 import shapely
 from shapely.geometry import LineString
 
-#from jax_spline import InterpolatedUnivariateSpline
 from scipy.interpolate import UnivariateSpline
 
 subs = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]

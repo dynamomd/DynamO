@@ -1,5 +1,5 @@
-#!/usr/bin/python3
-import numpy, pydynamo, datastat
+#!/usr/bin/env python3
+import numpy, pydynamo
 from pydynamo import ET
 
 import math

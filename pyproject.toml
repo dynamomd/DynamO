@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core>=0.10", "numpy"]
+requires = ["scikit-build-core>=0.10", "numpy", "pytest"]
 build-backend = "scikit_build_core.build"
 
 
@@ -24,11 +24,13 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-dependencies = ["alive-progress", "pandas", "scipy", "uncertainties"]
+dependencies = ["alive-progress", "pandas", "scipy", "uncertainties", "freud", "networkx"]
+
 [tool.scikit-build]
 cmake.build-type = "Release"
 wheel.expand-macos-universal-tags = true
 minimum-version = "build-system.requires"
+
 
 #[project.optional-dependencies]
 #test = ["pytest"]
