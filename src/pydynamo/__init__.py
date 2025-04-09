@@ -47,7 +47,8 @@ except ImportError:
 
 import numpy as np
 import uncertainties
-from ./datastat import WeightedArray, WeightedFloat, linear_interp
+
+from pydynamo.datastat import WeightedArray, WeightedFloat, linear_interp
 
 
 class SkipThisPoint(BaseException):

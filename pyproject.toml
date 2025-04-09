@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core>=0.10", "pybind11"]
+requires = ["scikit-build-core>=0.10", "numpy"]
 build-backend = "scikit_build_core.build"
 
 
@@ -24,8 +24,9 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-
+dependencies = ["alive-progress", "pandas", "scipy", "uncertainties"]
 [tool.scikit-build]
+cmake.build-type = "Release"
 wheel.expand-macos-universal-tags = true
 minimum-version = "build-system.requires"
 
