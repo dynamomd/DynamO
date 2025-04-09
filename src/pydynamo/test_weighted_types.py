@@ -6,13 +6,12 @@ from pydynamo.weighted_types import *
 def test_weighted_estimators():
     values = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
     average = sum(values) / len(values)
-    
+
 
     result = WeightedFloat(1, 1) + WeightedFloat(2, 2) + WeightedFloat(3, 3) + WeightedFloat(4, 4)
     assert result.avg() == pytest.approx(average)
     print("!!!!!!")
-    print(result.std_error())
-    print(">>>",average, std_dev)
+    #print(result.std_error())
 
 def test_weighted_array_equals_weighted_float():
     # Check that array operations are equivalent to float operations
