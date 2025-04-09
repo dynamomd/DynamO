@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import math
 
-import datastat
 import numpy
 
 import pydynamo
-from pydynamo import ET
 
 ################################################################
 ###      DEFINE THE "STATE" VARIABLES TO BE SWEPT & RANGE
@@ -13,9 +11,9 @@ from pydynamo import ET
 #This is the list of state variables and their ranges
 
 densities = set(list(numpy.arange(0.1, 0.9, 0.1))+list(numpy.arange(0.8,1.14,0.01)))
-densities = list(map(lambda x : datastat.roundSF(x, 3), list(densities)))
+densities = list(map(lambda x : pydynamo.roundSF(x, 3), list(densities)))
 densities.sort()
-Rso = list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02)))) + list(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(2.0, 5.0, 0.25))))
+Rso = list(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.01, 2.0, 0.02)))) + list(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(2.0, 5.0, 0.25))))
 Rso = [float('inf')] + Rso
 statevars = [
     ("N", list(map(lambda x: x**2, [12, 50, 100]))),
@@ -104,10 +102,10 @@ def setup_worker( config, #The name of the config file to generate.
         xml = pydynamo.ConfigFile(config)
         #Add the SO Cells global interaction (if needed)
         XMLGlobals = xml.tree.find(".//Globals")
-        XMLSOCells = ET.SubElement(XMLGlobals, 'Global')
+        XMLSOCells = pydynamo.ET.SubElement(XMLGlobals, 'Global')
         XMLSOCells.attrib['Name'] = "SOCells" #Name can be anything
         XMLSOCells.attrib['Type'] = "SOCells" #This must be the right type of Global to load
-        XMLSOCellsRange = ET.SubElement(XMLSOCells, 'Range')
+        XMLSOCellsRange = pydynamo.ET.SubElement(XMLSOCells, 'Range')
         XMLSOCellsRange.attrib["Type"] = "All"
         XMLSOCells.attrib['Diameter'] = str(2 * state['Rso'])
         xml.save(config)

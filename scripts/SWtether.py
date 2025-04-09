@@ -4,7 +4,6 @@ import math
 import numpy
 
 import pydynamo
-from pydynamo import ET
 
 
 def setup_worker( config, #The name of the config file to generate.
@@ -92,10 +91,10 @@ def setup_worker( config, #The name of the config file to generate.
     if ('Rso' in state) and (state['Rso'] != float('inf')):
         xml = pydynamo.ConfigFile(config)
         XMLGlobals = xml.tree.find(".//Globals")
-        XMLSOCells = ET.SubElement(XMLGlobals, 'Global')
+        XMLSOCells = pydynamo.ET.SubElement(XMLGlobals, 'Global')
         XMLSOCells.attrib['Name'] = "SOCells" #Name can be anything
         XMLSOCells.attrib['Type'] = "SOCells" #This must be the right type of Global to load
-        XMLSOCellsRange = ET.SubElement(XMLSOCells, 'Range')
+        XMLSOCellsRange = pydynamo.ET.SubElement(XMLSOCells, 'Range')
         XMLSOCellsRange.attrib["Type"] = "All"
         XMLSOCells.attrib['Diameter'] = str(2 * state['Rso'])
         xml.save(config)
@@ -114,8 +113,8 @@ statevars = [
 #        ("InitState", ["FCC"]),
 #        ("PhiT", [float('inf')]),
 #        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
-#        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 3.1, 0.1)))))),
+#        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
+#        ("kT", list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(1.0, 3.1, 0.1)))))),
 #    ],
 #    [ #Isochore
 #        ("Lambda", [2]),
@@ -123,7 +122,7 @@ statevars = [
 #        ("PhiT", [float('inf')]),
 #        ("N", list(map(lambda x: 4*x**3, [10]))), #15
 #        ('ndensity', [1.3]),
-#        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
+#        ("kT", list(set(map(lambda x : pydynamo.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
 #    ],
     [ #Isochore
         ("Lambda", [1.5, 1.57]),
@@ -131,22 +130,22 @@ statevars = [
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
         ('ndensity', [1.3]),
-        ("kT", list(set(map(lambda x : datastat.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
+        ("kT", list(set(map(lambda x : pydynamo.roundSF(1/x, 3), list(numpy.arange(0.01, 1.01, 0.01)))))),
     ],
     [ #Sweep 
         ("Lambda", [1.5, 1.57]),
         ("InitState", ["HCP"]), #'FCC'
         ("PhiT", [float('inf')]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
-        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.5, 3.1, 0.1)))))),
+        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(1.0, 1.41, 0.01)))))),
+        ("kT", list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.5, 3.1, 0.1)))))),
     ],
 #    [ #liquid runs
 #        ("Lambda", [1.5, 1.57]),
 #        ("InitState", ["HCP"]), #'FCC'
 #        ("PhiT", [float('inf')]),
 #        ("N", list(map(lambda x: 4*x**3, [10]))), #15
-#        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
+#        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), list(numpy.arange(0.01, 1.41, 0.01)))))),
 #        ("kT", [5,4,3,2.5,1.5]),
 #    ],
 ]
