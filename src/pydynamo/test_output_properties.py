@@ -28,4 +28,4 @@ def test_pressure():
     time_weighted_avg = outputfile.p() * outputfile.t() + outputfile2.p() * outputfile2.t()
     time_weighted_avg /= outputfile.t() + outputfile2.t()
     assert result.avg() == pytest.approx(time_weighted_avg)
-    print("\n",repr(result))
+    #print("\n",repr(result))

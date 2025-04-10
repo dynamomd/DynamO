@@ -10,8 +10,7 @@ def test_weighted_estimators():
 
     result = WeightedFloat(1, 1) + WeightedFloat(2, 2) + WeightedFloat(3, 3) + WeightedFloat(4, 4)
     assert result.avg() == pytest.approx(average)
-    print("!!!!!!")
-    #print(result.std_error())
+    assert result.std_error() == pytest.approx(0.5855400437691199)
 
 def test_weighted_array_equals_weighted_float():
     # Check that array operations are equivalent to float operations

@@ -7,10 +7,8 @@ import uncertainties.unumpy
 
 class WeightedFloat():
     '''This class implements weighted arithmetic means along with an
-    estimate of the standard error for the mean
+    estimate of the standard error for the mean.
     https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Bootstrapping_validation
-    that is unbiased
-    https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights.
 
     It eventually returns via its ufloat() method, a uncertainty float (ufloat),
     containing the average and error estimate for the average.
@@ -54,6 +52,10 @@ class WeightedFloat():
     
     We have to be careful as the mean does not have a leading $$n$$ so we might
     erroneously forget it.    
+
+    The front term $$(n-1)/n$$ is termed the bias. There are other choices for this bias, we use 
+        https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights.
+
 '''
 
     def __init__(self, value = 0, weight = 0):
@@ -87,15 +89,28 @@ class WeightedFloat():
         return self._w_v_sum / self._w_sum
 
     def std_error(self):
-        avg = self.avg()
         if self._w_sum == 0:
             #We actually have no data, no error with this estimate!
             return float('nan')
-        bias = (1 - self._ww_sum / (self._w_sum * self._w_sum))
+
+        avg = self.avg()
+        
+        bias_factor = self._ww_sum / (self._w_sum * self._w_sum)
+        if bias_factor == 1:
+            # We have one sample, so infinite error
+            return float('nan')
+        bias = 1.0 / (1 - bias_factor)
+
+
+        # Alternative choice of bias is here, check self._count != 1
+        #bias = self._count / (self._count - 1)
+        
         if bias == 0:
             #We have one sample, so infinite error?
             return float('nan')
-        unbiased_mean_stderror_sq = (self._ww_vv_sum - 2 * self._ww_v_sum * avg + self._ww_sum * avg * avg) / (self._w_sum * self._w_sum * bias)
+        
+        unbiased_mean_stderror_sq =  bias / (self._w_sum * self._w_sum ) * (self._ww_vv_sum - 2 * self._ww_v_sum * avg + self._ww_sum * avg * avg)
+
         if unbiased_mean_stderror_sq < 0:
             # Sometimes, round-off error for identical values gives almost zero, but negative, error
             unbiased_mean_stderror_sq = 0
