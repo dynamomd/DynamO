@@ -12,10 +12,49 @@ class WeightedFloat():
     that is unbiased
     https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights.
 
-    It eventually returns via its ufloat() method, a uncertainty float
-    (ufloat), containing the average and error estimate for the
-    average.
-    '''
+    It eventually returns via its ufloat() method, a uncertainty float (ufloat),
+    containing the average and error estimate for the average.
+
+    Calculations below are all about figuring out which running sums to collect
+    during calculation
+
+    The average weight is collected as a sum of weights
+
+    $$n\overline{w}=\sum_{i=1}^n w_i$$
+
+    However, the weighted mean is biased by the weights,
+    
+    $$ \overline{x} = \frac{\sum_{i=1}^n w_i x_i}{\sum_{i=1}^n w_i}$$
+    
+    If we adopt a notation for the running top running sum
+
+    $$ n \overline{w x} = \sum_{i=1}^n w_i x_i $$
+
+    then we can calculate the mean in terms of these running sums.
+    
+    $$ \overline{x} = \frac{n \overline{w x}}{n \overline{w}}$$
+
+    Now we try to estimate the uncertainty of the mean in terms of running sums.
+    From the wikipedia page, the estimation of the square of the standard error
+    of the weighted mean is,
+
+    $$ \sigma^2_{\overline x} = \frac{n}{(n-1)(n\overline{w})^2}\sum_{i=1}^n
+    w_i^2 (x_i - \overline{x})^2 $$
+    
+    Expanding the sum
+
+    $$ \sigma^2_{\overline x} = \frac{n}{(n-1)(n\overline{w})^2} \sum_{i=1}^n
+    (w_i^2\,x_i^2 - 2 w_i^2\,x_i \overline{x} + w_i^2\,\overline{x}^2)$$
+    
+    Turning it into running sums
+
+    $$ \sigma^2_{\overline x} = \frac{n}{(n-1)(n\overline{w})^2} \left(
+    n\overline{w^2 x^2} - 2n\overline{w^2 x} \overline{x} +
+    n\overline{w^2}\,\overline{x}^2\right)$$
+    
+    We have to be careful as the mean does not have a leading $$n$$ so we might
+    erroneously forget it.    
+'''
 
     def __init__(self, value = 0, weight = 0):
         """Initialise the weighted value."""
