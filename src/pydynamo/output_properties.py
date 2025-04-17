@@ -254,12 +254,12 @@ class OrderParameterProperty(OutputProperty):
 class ChungLuConfigurationModel(OutputProperty):
     '''
     https://en.wikipedia.org/wiki/Configuration_model#Chung-Lu_Configuration_Model
-    
 
+    We use the finite size version. 
+    https://en.wikipedia.org/wiki/Modularity_(networks)
     '''
-    def __init__(self, L):
+    def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
-        self.L = L
     
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         
@@ -274,23 +274,32 @@ class ChungLuConfigurationModel(OutputProperty):
 
         for pair in configfile.tree.findall('.//Interaction/CaptureMap/Pair'):
             G.add_edge(int(pair.attrib['ID1']), int(pair.attrib['ID2']))
-        
-        return WeightedFloat(nx.community.modularity(G), 1)
+
+        degrees = dict(G.degree())
+
+        from collections import defaultdict
+        counter = defaultdict(int)
+
+        for edge in G.edges():
+            counter[(min(degrees[edge[0]], degrees[edge[1]]), max(degrees[edge[0]], degrees[edge[1]]))] += 1
+
+        N = G.number_of_nodes()
+        L = G.number_of_edges()
+
+        # Write it to a file in output_dir
+        with open(configfilename + '_ChungLu.pkl', 'wb') as f:
+            pickle.dump({"N":N, "N_edges":L, "counters":counter}, f)
+
+        # Calculate the modularity
+        sumkikj = 0
+        for i in range(N):
+            for j in range(i):
+                sumkikj += degrees[i] * degrees[j]
+        Q = 1 - sumkikj/ (2 * L - 1) / L
+        return WeightedFloat(Q, 1)
 
     def init(self):
         return WeightedFloat()
-    
-    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        import freud
-        configfile = ConfigFile(configfilename)
-        box, points = configfile.to_freud()
-
-        #Steinhardt for FCC
-        ql = freud.order.Steinhardt(self.L)
-        ql.compute((box, points), neighbors={"num_neighbors": self.L})
-        ql_value = ql.particle_order
-        
-        return WeightedFloat(numpy.mean(ql_value), 1)
 
 
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
@@ -313,3 +322,4 @@ OutputFile.output_props["RadialDistEnd"] = RadialDistEndOutputProperty()
 OutputFile.output_props["RadialDistribution"] = RadialDistributionOutputProperty()
 OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
 OutputFile.output_props["CollisionMatrix"] = CollisionMatrixOutputProperty()
+OutputFile.output_props["ChungLu"] = ChungLuConfigurationModel()

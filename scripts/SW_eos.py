@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-import math
-
-import datastat
-import numpy
 import pydynamo
 from pydynamo import ET
 
@@ -121,8 +117,8 @@ statevars = [
         ("Lambda", [1.5, 2]),
         ("InitState", ["FCC"]),
         ("N", list(map(lambda x: 4*x**3, [10]))), #15
-        ('ndensity', list(set(map(lambda x : datastat.roundSF(x, 3), [0.01, 0.1, 0.5, 1.0, 1.3])))),
-        ("kT", list(set(map(lambda x : datastat.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))+[float('inf')]),
+        ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), [0.01, 0.1, 0.5, 1.0, 1.3])))),
+        ("kT", list(set(map(lambda x : pydynamo.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))+[float('inf')]),
     ],
 ]
         
@@ -131,7 +127,7 @@ statevars = [
 ################################################################
 mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", 'cv', 'u', "CollisionMatrix"], # 'RadialDist' "VACF",  # Output properties
+                          ["p", 'cv', 'u', "CollisionMatrix", "ChungLu"], # 'RadialDist' "VACF",  # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
 )
@@ -144,10 +140,10 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 5000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 5000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA
@@ -156,3 +152,5 @@ mgr.run(setup_worker=setup_worker,
 # AND any output values. It also generates pkl files, some for
 # different properties.
 data = mgr.fetch_data(1000)
+
+print(data)
