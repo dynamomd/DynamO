@@ -3,6 +3,7 @@ import pytest
 
 from pydynamo.weighted_types import *
 
+
 def test_weighted_estimators():
     # Create a process we know/understand
     true_avg = 5 # Center of the distribution
@@ -16,9 +17,9 @@ def test_weighted_estimators():
     limit = 5 # 5 sigma limit == 99.99994% sure its wrong
 
     # Compute estimates of the process properties
-    sum = WeightedFloat(0, 0)
+    sum = WeightedType(0, 0)
     for v in values:
-        sum += WeightedFloat(v, time_step)
+        sum += WeightedType(v, time_step)
     avg, avg_std_dev, std_dev_time = sum.stats()
 
     #print("\n", true_avg, final_uncertainty, true_stddev)
@@ -33,14 +34,66 @@ def test_weighted_estimators():
 
 def test_weighted_array_equals_weighted_float():
     # Check that array operations are equivalent to float operations
-    a = WeightedArray(numpy.array([1, 2]), 1)
-    b = WeightedArray(numpy.array([2, 4]), 0.1)
+    a = WeightedType(numpy.array([1, 2]), 1)
+    b = WeightedType(numpy.array([2, 4]), 0.1)
     c = a+b
-    c1 = WeightedFloat(1, 1) + WeightedFloat(2, 0.1)
-    c2 = WeightedFloat(2, 1) + WeightedFloat(4, 0.1)
+    c1 = WeightedType(1, 1) + WeightedType(2, 0.1)
+    c2 = WeightedType(2, 1) + WeightedType(4, 0.1)
 
     assert c.avg()[0] == pytest.approx(c1.avg())
     assert c.avg()[1] == pytest.approx(c2.avg())
     for i in range(3):
         assert c.stats()[i][0] == pytest.approx(c1.stats()[i])
         assert c.stats()[i][1] == pytest.approx(c2.stats()[i])
+
+
+def test_keyed_array():
+    a = KeyedArray()
+    a["a"] = 1
+    a["b"] = 2
+    a["c"] = 3
+    b = KeyedArray()
+    b["a"] = 2
+    b["b"] = 4
+
+    c = a + b
+    assert c["a"] == pytest.approx(3)
+    assert c["b"] == pytest.approx(6)
+    assert c["c"] == pytest.approx(3)
+    c = a - b
+    assert c["a"] == pytest.approx(-1)
+    assert c["b"] == pytest.approx(-2)
+    assert c["c"] == pytest.approx(3)
+    c = a * b
+    assert c["a"] == pytest.approx(2)
+    assert c["b"] == pytest.approx(8)
+    assert "c" not in c
+    c = a * 1.5
+    assert c["a"] == pytest.approx(1.5)
+    assert c["b"] == pytest.approx(3)
+    assert c["c"] == pytest.approx(4.5)
+
+    c = a / b
+    assert c["a"] == pytest.approx(0.5)
+    assert c["b"] == pytest.approx(0.5)
+    assert "c" not in c
+    c = a / 2
+    assert c["a"] == pytest.approx(0.5)
+    assert c["b"] == pytest.approx(1)
+    assert c["c"] == pytest.approx(1.5)
+
+    c = sqrt(a)
+    assert c["a"] == pytest.approx(1)
+    assert c["b"] == pytest.approx(math.sqrt(2))
+
+    # Weighted types
+    a = WeightedType(a, 1)
+    b = WeightedType(b, 0.1)    
+    c = a+b
+    c1 = WeightedType(1, 1) + WeightedType(2, 0.1)
+    c2 = WeightedType(2, 1) + WeightedType(4, 0.1)
+    assert c.avg()["a"] == pytest.approx(c1.avg())
+    assert c.avg()["b"] == pytest.approx(c2.avg())
+    for i in range(3):
+        assert c.stats()[i]["a"] == pytest.approx(c1.stats()[i])
+        assert c.stats()[i]["b"] == pytest.approx(c2.stats()[i])

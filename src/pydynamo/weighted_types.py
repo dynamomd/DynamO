@@ -1,91 +1,103 @@
 import math
+from collections import defaultdict
 
 import numpy
 import uncertainties
 import uncertainties.unumpy
 
 
-class WeightedFloat():
-    '''This class implements weighted arithmetic means along with an
-    estimate of the standard error for the mean.
-    '''
+class KeyedArray(defaultdict):
+    """A key-value store of values that has element-wise addition and multiplication"""
+    def __init__(self, values = {}):
+        super(KeyedArray, self).__init__(float, values)
 
-    def __init__(self, value = 0, weight = 0):
-        """Initialise the weighted value."""
-        self._ww_vv_sum = weight * weight * value * value
-        self._ww_v_sum = weight * weight * value
-        self._ww_sum = weight * weight
-        self._w_vv_sum = weight * value * value
-        self._w_v_sum = weight * value
-        self._w_sum = weight
-        self._count = 1
 
-    def __add__(self, v):
-        if not isinstance(v, WeightedFloat):
-            raise RuntimeError("Cannot add non-WeightedFloat to WeightedFloat")
+    def __add__(self, rhs):
+        if not isinstance(rhs, KeyedArray):
+            raise RuntimeError("Cannot add non-KeyedArray to KeyedArray")
+        
+        retval = KeyedArray()
+        for k, v in self.items():
+            retval[k] = v
 
-        retval = v
-        retval._ww_vv_sum += self._ww_vv_sum
-        retval._ww_v_sum += self._ww_v_sum
-        retval._ww_sum += self._ww_sum
-        retval._w_vv_sum += self._w_vv_sum
-        retval._w_v_sum += self._w_v_sum
-        retval._w_sum += self._w_sum
-        retval._count += self._count
+        for k, v in rhs.items():
+            retval[k] = retval[k] + v
+        return retval
+
+    def __neg__(self):
+        retval = KeyedArray()
+        for k, v in self.items():
+            retval[k] = -v
+        return retval
+
+    def __sub__(self, rhs):
+        return self + (-rhs)
+
+    def __mul__(self, rhs):
+        import copy
+        retval = KeyedArray()
+
+        if isinstance(rhs, KeyedArray):
+            for k in set(self.keys()).intersection(rhs.keys()):
+                retval[k] = copy.copy(self[k]) * rhs[k]
+        else:
+            for k, v in self.items():
+                retval[k] = copy.copy(v) * rhs
+
+        return retval
+    
+    def __rmul__(self, lhs):
+        return self.__mul__(lhs)
+    
+
+    def __truediv__(self, rhs):
+        import copy
+        retval = KeyedArray()
+
+        if isinstance(rhs, KeyedArray):
+            for k in set(self.keys()).intersection(rhs.keys()):
+                retval[k] = copy.copy(self[k]) / rhs[k]
+        else:
+            for k, v in self.items():
+                retval[k] = copy.copy(v) / rhs
 
         return retval
 
-    def stats(self):
-        if self._w_sum == 0:
-            # We actually have no weighted data!
-            return float('nan'), float('nan'), float('nan')
+def element_wise_multiply(a, b):
+    if isinstance(a, numpy.ndarray) or isinstance(b, numpy.ndarray):
+        return numpy.multiply(a, b)
+    else:
+        return a * b
 
-        avg = self._w_v_sum / self._w_sum
+def zeros_like(a):
+    if isinstance(a, numpy.ndarray):
+        return numpy.zeros_like(a)
+    elif isinstance(a, KeyedArray):
+        return a * 0.0
+    else:
+        return 0
 
-        var_per_time = (1 / self._count) * (self._w_sum * avg * avg - 2 * avg * self._w_v_sum + self._w_vv_sum)
-
-        avg_var = var_per_time / self._w_sum
-        if avg_var < 0:
-            # Sometimes, round-off error for identical values gives almost zero, but negative, error
-            avg_var = 0
-        
-        return avg, math.sqrt(avg_var), var_per_time
-
-    def avg(self):
-        if self._w_sum == 0:
-            return float('nan')
-        return self._w_v_sum / self._w_sum
-
-    def std_dev(self):
-        '''Return the standard deviation of the mean.'''
-        avg, std_dev, _ = self.stats()
-        return std_dev
+def maximum(a, b):
+    if isinstance(a, KeyedArray) and isinstance(b, KeyedArray):
+        return KeyedArray({k: maximum(a[k], b[k]) for k in set(a.keys()).union(b.keys())})
+    else:
+        return numpy.maximum(a,b)
     
-    def std_error(self):
-        '''Return the standard error of the mean.'''
-        avg, std_dev, _ = self.stats()
-        return std_dev / math.sqrt(self._w_sum)
+def sqrt(a):
+    if isinstance(a, KeyedArray):
+        return KeyedArray({k: sqrt(a[k]) for k in a.keys()})
+    else:
+        return numpy.sqrt(a)
 
-    def ufloat(self):
-        '''Return the average and error as a ufloat.'''
-        avg, std_dev, _ = self.stats()
-        return uncertainties.ufloat(avg, std_dev)
+class WeightedType():
 
-    def __str__(self):        
-        return str(self.ufloat())
-
-    def __repr__(self):
-        return repr(self.ufloat())
-
-class WeightedArray():
     '''This class implements weighted arithmetic means along with an
     estimate of the standard error for the mean.
     '''
-
-    def __init__(self, value = numpy.array([0]), weight = numpy.array([0])):
+    def __init__(self, value = 0, weight = 0):
         """Initialise the weighted value."""
         ww = weight * weight
-        vv = numpy.multiply(value, value)
+        vv = element_wise_multiply(value, value)
         self._ww_vv_sum = ww * vv
         self._ww_v_sum = ww * value
         self._ww_sum = ww
@@ -95,14 +107,17 @@ class WeightedArray():
         self._count = 1
 
     def __add__(self, v):
-        if not isinstance(v, WeightedArray):
-            raise RuntimeError("Cannot add non-WeightedArray to WeightedArray")
+        if not isinstance(v, WeightedType):
+            if not isinstance(v._w_v_sum, type(self._w_v_sum)):
+                raise RuntimeError("Cannot add non-WeightedType to WeightedType")
+            raise RuntimeError("Cannot add non-WeightedType to WeightedType")
 
-        retval = v
+        import copy
+        retval = copy.copy(v)
         if self._w_sum == 0:
             #Shortcut if this has no value, then just take the value passed in (and its shape!)
             return retval
-
+    
         retval._ww_vv_sum += self._ww_vv_sum
         retval._ww_v_sum += self._ww_v_sum
         retval._ww_sum += self._ww_sum
@@ -115,36 +130,49 @@ class WeightedArray():
 
     def stats(self):
         if self._w_sum == 0:
-            v = numpy.empty_like(self._w_v_sum)
-            v.fill(float('nan'))
-            return v, v, v
-        
+            if isinstance(self._w_v_sum, numpy.ndarray):
+                v = numpy.empty_like(self._w_v_sum)
+                v.fill(float('nan'))
+                return v, v, v
+            else:
+                return float('nan'), float('nan'), float('nan')
+
         avg = self._w_v_sum / self._w_sum
 
-        var_per_time = (1 / self._count) * (self._w_sum * numpy.multiply(avg, avg) - 2 * numpy.multiply(avg, self._w_v_sum) + self._w_vv_sum)
+        var_per_time = (1 / self._count) * (self._w_sum * element_wise_multiply(avg, avg) - 2 * element_wise_multiply(avg, self._w_v_sum) + self._w_vv_sum)
 
         # Sometimes, round-off error for identical values gives almost zero, but negative, error, so we clamp this away
-        avg_var = numpy.maximum(var_per_time / self._w_sum, numpy.zeros_like(var_per_time))
+        avg_var = maximum(var_per_time / self._w_sum, zeros_like(var_per_time))
         
-        return avg, numpy.sqrt(avg_var), var_per_time
+        return avg, sqrt(avg_var), var_per_time
 
     def avg(self):
-        '''Return the average of the weighted values.'''
         avg, _, _ = self.stats()
         return avg
-    
+
     def std_dev(self):
         '''Return the standard deviation of the mean.'''
-        avg, std_dev, _ = self.stats()
+        _, std_dev, _ = self.stats()
         return std_dev
     
+    def std_error(self):
+        '''Return the standard error of the mean.'''
+        _, std_dev, _ = self.stats()
+        return std_dev / math.sqrt(self._w_sum)
+
     def ufloat(self):
         '''Return the average and error as a ufloat.'''
         avg, std_dev, _ = self.stats()
-        return uncertainties.unumpy.uarray(avg, std_dev)
+        if isinstance(avg, numpy.ndarray):
+            # If the average is an array, we need to convert it to a ufloat array
+            avg = uncertainties.unumpy.uarray(avg, std_dev)
+        else:
+            return uncertainties.ufloat(avg, std_dev)
 
-    def __str__(self):
+    def __str__(self):        
         return str(self.ufloat())
 
     def __repr__(self):
         return repr(self.ufloat())
+
+from collections import defaultdict

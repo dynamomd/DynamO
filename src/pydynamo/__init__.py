@@ -21,13 +21,14 @@ from pydynamo.config_files import ConfigFile, validate_configfile
 from pydynamo.file_types import ET
 from pydynamo.math import conv_to_14sf, print_to_14sf, roundSF
 from pydynamo.output_properties import OutputFile, validate_outputfile
-from pydynamo.weighted_types import WeightedFloat
+from pydynamo.weighted_types import WeightedType
 
 
 class SkipThisPoint(BaseException):
     pass
 
 import pickle as pickle
+
 
 #This function actually sets up and runs the simulations and is run in parallel
 def worker(state, workdir, outputplugins, particle_equil_events, particle_run_events, particle_run_events_block_size, setup_worker):
@@ -525,10 +526,10 @@ class SimManager:
                 progress()
         
         #We now prep the data for processing, we convert our
-        #WeightedFloat's to ufloats as pandas supports that natively.
+        #WeightedType's to ufloats as pandas supports that natively.
         for statevars, data in state_data.items():
             for prop in data:
-                if isinstance(data[prop], WeightedFloat):
+                if isinstance(data[prop], WeightedType):
                     data[prop] = data[prop].ufloat()
 
         #Here we create the dataframe

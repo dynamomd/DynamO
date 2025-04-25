@@ -7,7 +7,7 @@ import scipy
 
 from pydynamo.config_files import ConfigFile
 from pydynamo.file_types import XMLFile, validate_xmlfile
-from pydynamo.weighted_types import WeightedArray, WeightedFloat
+from pydynamo.weighted_types import WeightedType
 
 
 # A XMLFile/ElementTree but specialised for DynamO output files
@@ -65,7 +65,7 @@ class SingleAttrib(OutputProperty):
         self._skip_missing=skip_missing
 
     def init(self):
-        return WeightedFloat()
+        return WeightedType()
 
     def value(self, outputfile):
         tag = outputfile.tree.find('.//'+self._tag)
@@ -104,7 +104,7 @@ class SingleAttrib(OutputProperty):
             return float(outputfile.tree.find('.//Duration').attrib['Events'])
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        return WeightedFloat(self.value(outputfile), self.weight(outputfile))
+        return WeightedType(self.value(outputfile), self.weight(outputfile))
 
 def parseToArray(text):
     data = []
@@ -141,7 +141,7 @@ class RadialDistributionOutputProperty(OutputProperty):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LRadialDistribution'])
 
     def init(self):
-        return WeightedArray()
+        return WeightedType()
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         #Presume that each tag is in order, and has a common bin width
@@ -181,7 +181,7 @@ class RadialDistributionOutputProperty(OutputProperty):
         for n in range(2, moments.shape[0]):
             central_moments[n-1] = sum(scipy.special.comb(n, i) * moments[i] * (N0-central_moments[0,:])**(n-i) for i in range(n+1))
 
-        return WeightedArray(central_moments, samples)
+        return WeightedType(central_moments, samples)
 
 class RadialDistEndOutputProperty(OutputProperty):
     def __init__(self):
@@ -234,10 +234,10 @@ class OrderParameterProperty(OutputProperty):
         ql.compute((box, points), neighbors={"num_neighbors": self.L})
         ql_value = ql.particle_order
         
-        return WeightedFloat(numpy.mean(ql_value), 1)
+        return WeightedType(numpy.mean(ql_value), 1)
 
     def init(self):
-        return WeightedFloat()
+        return WeightedType()
     
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         import freud
@@ -249,7 +249,7 @@ class OrderParameterProperty(OutputProperty):
         ql.compute((box, points), neighbors={"num_neighbors": self.L})
         ql_value = ql.particle_order
         
-        return WeightedFloat(numpy.mean(ql_value), 1)
+        return WeightedType(numpy.mean(ql_value), 1)
 
 class ChungLuConfigurationModel(OutputProperty):
     '''
@@ -278,10 +278,11 @@ class ChungLuConfigurationModel(OutputProperty):
         degrees = dict(G.degree())
 
         from collections import defaultdict
-        counter = defaultdict(int)
+        counter = WeightedSparseArray()
 
         for edge in G.edges():
-            counter[(min(degrees[edge[0]], degrees[edge[1]]), max(degrees[edge[0]], degrees[edge[1]]))] += 1
+            key = (min(degrees[edge[0]], degrees[edge[1]]), max(degrees[edge[0]], degrees[edge[1]]))
+            counter[key] += WeightedType(1, 1)
 
         N = G.number_of_nodes()
         L = G.number_of_edges()
@@ -296,10 +297,10 @@ class ChungLuConfigurationModel(OutputProperty):
             for j in range(i):
                 sumkikj += degrees[i] * degrees[j]
         Q = 1 - sumkikj/ (2 * L - 1) / L
-        return WeightedFloat(Q, 1)
+        return WeightedType(Q, 1)
 
     def init(self):
-        return WeightedFloat()
+        return WeightedType()
 
 
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
