@@ -129,7 +129,7 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", 'cv', 'u', "CollisionMatrix", "ChungLu"], # 'RadialDist' "VACF",  # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
-                          processes=None, #None is automatically use all processors
+                          processes=1, #None is automatically use all processors
 )
 
 ################################################################
@@ -140,10 +140,10 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-mgr.run(setup_worker=setup_worker,
-        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-        particle_run_events = 5000, # How many events per particle to run IN TOTAL
-        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+#mgr.run(setup_worker=setup_worker,
+#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+#        particle_run_events = 5000, # How many events per particle to run IN TOTAL
+#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

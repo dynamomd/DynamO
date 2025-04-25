@@ -7,7 +7,7 @@ import scipy
 
 from pydynamo.config_files import ConfigFile
 from pydynamo.file_types import XMLFile, validate_xmlfile
-from pydynamo.weighted_types import WeightedType
+from pydynamo.weighted_types import KeyedArray, WeightedType
 
 
 # A XMLFile/ElementTree but specialised for DynamO output files
@@ -278,29 +278,24 @@ class ChungLuConfigurationModel(OutputProperty):
         degrees = dict(G.degree())
 
         from collections import defaultdict
-        counter = WeightedSparseArray()
+        counter = KeyedArray()
 
         for edge in G.edges():
             key = (min(degrees[edge[0]], degrees[edge[1]]), max(degrees[edge[0]], degrees[edge[1]]))
-            counter[key] += WeightedType(1, 1)
+            counter[key] += 1
 
         N = G.number_of_nodes()
         L = G.number_of_edges()
 
-        # Write it to a file in output_dir
-        with open(configfilename + '_ChungLu.pkl', 'wb') as f:
-            pickle.dump({"N":N, "N_edges":L, "counters":counter}, f)
+        ## Write it to a file in output_dir
+        #with open(configfilename + '_ChungLu.pkl', 'wb') as f:
+        #    pickle.dump({"N":N, "N_edges":L, "counters":counter}, f)
 
         # Calculate the modularity
-        sumkikj = 0
-        for i in range(N):
-            for j in range(i):
-                sumkikj += degrees[i] * degrees[j]
-        Q = 1 - sumkikj/ (2 * L - 1) / L
-        return WeightedType(Q, 1)
+        return WeightedType(counter, 1)
 
     def init(self):
-        return WeightedType()
+        return WeightedType(KeyedArray(), 0)
 
 
 OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
