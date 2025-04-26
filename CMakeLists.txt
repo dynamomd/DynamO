@@ -4,7 +4,7 @@ if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the wa
   cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
 endif()
 
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
+#set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 project(DynamO) #Project name
 enable_testing() #Enable build of test executables and 'make test' command
@@ -96,7 +96,7 @@ endif()
 ######### Dependencies
 ######################################################################
 
-set(Boost_USE_STATIC_LIBS ON)
+#set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
