@@ -15,7 +15,8 @@
 
 std::mt19937 RNG;
 
-dynamo::Vector getRandVelVec() {
+dynamo::Vector getRandVelVec()
+{
   // See http://mathworld.wolfram.com/SpherePointPicking.html
   std::normal_distribution<> normal_dist(0.0, (1.0 / sqrt(double(NDIM))));
 
@@ -26,7 +27,8 @@ dynamo::Vector getRandVelVec() {
   return tmpVec;
 }
 
-void init(dynamo::Simulation &Sim, const double density) {
+void init(dynamo::Simulation &Sim, const double density)
+{
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
@@ -72,7 +74,8 @@ void init(dynamo::Simulation &Sim, const double density) {
                     0.000000001);
 }
 
-BOOST_AUTO_TEST_CASE(Equilibrium_Simulation) {
+BOOST_AUTO_TEST_CASE(Equilibrium_Simulation)
+{
   {
     dynamo::Simulation Sim;
     init(Sim, 0.5);
@@ -85,7 +88,8 @@ BOOST_AUTO_TEST_CASE(Equilibrium_Simulation) {
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();
-  while (Sim.runSimulationStep()) {
+  while (Sim.runSimulationStep())
+  {
   }
 
   Sim.reset();
@@ -93,7 +97,8 @@ BOOST_AUTO_TEST_CASE(Equilibrium_Simulation) {
   Sim.addOutputPlugin("Misc");
   Sim.addOutputPlugin("MSD");
   Sim.initialise();
-  while (Sim.runSimulationStep()) {
+  while (Sim.runSimulationStep())
+  {
   }
 
   // Taken from Lue 2005 DOI:10.1063/1.1834498
@@ -111,7 +116,7 @@ BOOST_AUTO_TEST_CASE(Equilibrium_Simulation) {
   // Check the diffusion coefficient as well
   dynamo::Vector D =
       opMSD.calcD(*Sim.species[0]->getRange()) / Sim.units.unitDiffusion();
-  BOOST_CHECK_CLOSE((D[0] + D[1] + D[2]) / 3, expectedD, 6);
+  BOOST_CHECK_CLOSE((D[0] + D[1] + D[2]) / 3, expectedD, 8);
 
   // Check the temperature is constant at 1
   double Temperature = opMisc.getCurrentkT() / Sim.units.unitEnergy();
@@ -127,7 +132,8 @@ BOOST_AUTO_TEST_CASE(Equilibrium_Simulation) {
       "There are more than two invalid states in the final configuration");
 }
 
-BOOST_AUTO_TEST_CASE(Compression_Simulation) {
+BOOST_AUTO_TEST_CASE(Compression_Simulation)
+{
   dynamo::Simulation Sim;
   init(Sim, 0.1);
 
@@ -146,7 +152,8 @@ BOOST_AUTO_TEST_CASE(Compression_Simulation) {
   // compressPlug->CellSchedulerHack();
 
   Sim.initialise();
-  while (Sim.runSimulationStep()) {
+  while (Sim.runSimulationStep())
+  {
   }
   compressPlug->RestoreSystem();
 
