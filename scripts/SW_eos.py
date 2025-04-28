@@ -129,7 +129,7 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
                           statevars, #State variables
                           ["p", 'cv', 'u', "CollisionMatrix", "ChungLu"], # 'RadialDist' "VACF",  # Output properties
                           restarts=2, #How many restarts (new initial configurations) should be done per state point
-                          processes=1, #None is automatically use all processors
+                          processes=None, #None is automatically use all processors
 )
 
 ################################################################

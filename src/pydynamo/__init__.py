@@ -21,7 +21,7 @@ from pydynamo.config_files import ConfigFile, validate_configfile
 from pydynamo.file_types import ET
 from pydynamo.math import conv_to_14sf, print_to_14sf, roundSF
 from pydynamo.output_properties import OutputFile, validate_outputfile
-from pydynamo.weighted_types import WeightedType
+from pydynamo.weighted_types import KeyedArray, WeightedType
 
 
 class SkipThisPoint(BaseException):
@@ -313,15 +313,30 @@ class SimManager:
                 return newpath            
             idx += 1
             
+    def imap_unordered(self, func, iterable, chunksize=2):
+        """A version of imap_unordered that works with multiprocessing.Pool"""
+        # Chunksize halves overhead for tiny tasks, but also doesn't limit
+        # parallelism when doing a few slow tasks, or on a system with many
+        # cores
+        if self.processes == 1:
+            # If we only have one process, just use the builtin map
+            for item in iterable:
+                yield func(item)
+            return
+        else:
+            pool = Pool(processes=self.processes)
+            for result in pool.imap_unordered(func, iterable, chunksize):
+                yield result
+
+
     def reorg_dirs(self):
         entries = os.listdir(self.workdir)
         print("Reorganising existing data directories...")
         n = len(entries)
         
-        pool = Pool(processes=self.processes)
         with alive_progress.alive_bar(n) as progress:
             #This is a parallel loop, returning items as they finish in arbitrary order
-            for actions in pool.imap_unordered(reorg_dir_worker, [(d, self) for d in entries], chunksize=10):
+            for actions in self.imap_unordered(reorg_dir_worker, [(d, self) for d in entries]):
                 #We do the actual moving here. We only want one thread
                 #doing the moving as it must check what directories
                 #already exist to figure out the new name. This is
@@ -499,8 +514,6 @@ class SimManager:
         print("Fetching data...")
         n = len(output_dirs)
 
-        pool = Pool(processes=self.processes)
-
         import collections
 
         #We store the extracted data in a dict of dicts. The first
@@ -511,7 +524,7 @@ class SimManager:
         state_data = {}
         with alive_progress.alive_bar(n) as progress:
             #This is a parallel loop, returning items as they finish in arbitrary order
-            for result in pool.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs], chunksize=10):
+            for result in self.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs]):
                 #Here we process the returned data from a single directory
                 for state, data in result.items():
                     if state not in state_data:
@@ -525,17 +538,19 @@ class SimManager:
                                 target[key] += value
                 progress()
         
+        import pickle
+        pickle.dump(state_data, open(self.workdir+".raw_data.pkl", 'wb'))
+
         #We now prep the data for processing, we convert our
         #WeightedType's to ufloats as pandas supports that natively.
         for statevars, data in state_data.items():
             for prop in data:
-                if isinstance(data[prop], WeightedType):
+                if isinstance(data[prop], WeightedType) and not isinstance(data[prop], KeyedArray):
                     data[prop] = data[prop].ufloat()
 
         #Here we create the dataframe
         import pandas
         df = pandas.DataFrame([{**dict(state), **output} for state, output in state_data.items()])
-
         
         #If there's no data, then there's no columns so the next
         #bit fails. Avoid that
@@ -550,9 +565,7 @@ class SimManager:
         #Now we sort items by the state variables in the order given.
         df = df.sort_values(by=[statevar for statevar in self.used_statevariables])
 
-        #Now we write out the data
-        import pickle
-        pickle.dump(df, open(self.workdir+".pkl", 'wb'))
+        ##Now we write out the data
 
         return df
-
+    

@@ -6,22 +6,73 @@ import uncertainties
 import uncertainties.unumpy
 
 
-class KeyedArray(defaultdict):
-    """A key-value store of values that has element-wise addition and multiplication"""
-    def __init__(self, values = {}):
-        super(KeyedArray, self).__init__(float, values)
+class KeyedArray():
+    """A key-value store of values that has element-wise addition and multiplication.
+       Any missing values are assumed to be zero. This is needed for observations that do not appear in some simulations.
+    """
 
+    store = defaultdict(float)
 
+    def __init__(self, values = None):
+        self.store = defaultdict(float)
+        if values is not None:
+            if isinstance(values, KeyedArray):
+                for k, v in values.items():
+                    self.store[k] = v
+            elif isinstance(values, dict):
+                for k, v in values.items():
+                    self.store[k] = v
+            else:
+                raise RuntimeError("Cannot create KeyedArray from non-dict or non-KeyedArray")
+    
+    def __getitem__(self, key):
+        """Get the value for a key, or zero if it does not exist."""
+        return self.store[key]
+    
+    def __setitem__(self, key, value):
+        """Set the value for a key."""
+        self.store[key] = value
+        return self.store[key]
+    
+    def __delitem__(self, key):
+        """Delete the value for a key."""
+        del self.store[key]
+        return self.store[key]
+    
+    def __contains__(self, key):
+        """Check if a key exists."""
+        return key in self.store
+    
+    def __iter__(self):
+        """Iterate over the keys."""
+        return iter(self.store)
+    
+    def __len__(self):
+        """Get the number of keys."""
+        return len(self.store)
+    
+    def items(self):
+        """Get the items as a list of tuples."""
+        return self.store.items()
+    
+    def keys(self):
+        """Get the keys as a list."""
+        return self.store.keys()
+
+    def values(self):
+        """Get the values as a list."""
+        return self.store.values()
+    
     def __add__(self, rhs):
         if not isinstance(rhs, KeyedArray):
             raise RuntimeError("Cannot add non-KeyedArray to KeyedArray")
         
         retval = KeyedArray()
-        for k, v in self.items():
-            retval[k] = v
+        retval.store = self.store.copy()
 
         for k, v in rhs.items():
             retval[k] = retval[k] + v
+
         return retval
 
     def __neg__(self):
@@ -38,6 +89,7 @@ class KeyedArray(defaultdict):
         retval = KeyedArray()
 
         if isinstance(rhs, KeyedArray):
+            # Only the intersection of the two KeyedArrays is multiplied, as everything else has at least one zero term.
             for k in set(self.keys()).intersection(rhs.keys()):
                 retval[k] = copy.copy(self[k]) * rhs[k]
         else:
@@ -47,6 +99,7 @@ class KeyedArray(defaultdict):
         return retval
     
     def __rmul__(self, lhs):
+        # Assume commutative multiplication
         return self.__mul__(lhs)
     
 
@@ -55,13 +108,18 @@ class KeyedArray(defaultdict):
         retval = KeyedArray()
 
         if isinstance(rhs, KeyedArray):
-            for k in set(self.keys()).intersection(rhs.keys()):
-                retval[k] = copy.copy(self[k]) / rhs[k]
+            raise RuntimeError("Cannot divide KeyedArray by KeyedArray, what to do about missing values which are zeros?")
         else:
             for k, v in self.items():
                 retval[k] = copy.copy(v) / rhs
 
         return retval
+    
+    def __repr__(self):
+        return str(self.store)
+    
+    def __str__(self):
+        return str(self.store)
 
 def element_wise_multiply(a, b):
     if isinstance(a, numpy.ndarray) or isinstance(b, numpy.ndarray):
@@ -115,9 +173,10 @@ class WeightedType():
         import copy
         retval = copy.copy(v)
         if self._w_sum == 0:
-            #Shortcut if this has no value, then just take the value passed in (and its shape!)
+            #Shortcut if this has no weight, then just take the value passed in (and its shape!)
             return retval
     
+        # We merge the two running sums of the weighted values 
         retval._ww_vv_sum += self._ww_vv_sum
         retval._ww_v_sum += self._ww_v_sum
         retval._ww_sum += self._ww_sum
@@ -165,7 +224,9 @@ class WeightedType():
         avg, std_dev, _ = self.stats()
         if isinstance(avg, numpy.ndarray):
             # If the average is an array, we need to convert it to a ufloat array
-            avg = uncertainties.unumpy.uarray(avg, std_dev)
+            return uncertainties.unumpy.uarray(avg, std_dev)
+        elif isinstance(avg, KeyedArray):
+            return KeyedArray({k: uncertainties.ufloat(avg[k], std_dev[k]) for k in avg.keys()})
         else:
             return uncertainties.ufloat(avg, std_dev)
 
