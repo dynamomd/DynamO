@@ -4,7 +4,8 @@ if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the wa
   cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
 endif()
 
-#set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
+set(VCPKG_BOOTSTRAP_OPTIONS "-musl")
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 project(DynamO) #Project name
 enable_testing() #Enable build of test executables and 'make test' command
