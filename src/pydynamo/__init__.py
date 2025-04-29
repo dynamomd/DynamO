@@ -133,7 +133,7 @@ def worker(state, workdir, outputplugins, particle_equil_events, particle_run_ev
     except subprocess.CalledProcessError as e:
         raise RuntimeError('Failed while running worker, command was\n"'+str(e.cmd)+'"\nSee logfile "'+str(os.path.join(workdir, 'run.log'))+'"')
         
-def perdir(args):
+def fetch_data_worker(args):
     output_dir, particle_equil_events, manager = args
     output_dir = os.path.join(manager.workdir, output_dir)
     if not os.path.isdir(output_dir):
@@ -518,13 +518,13 @@ class SimManager:
 
         #We store the extracted data in a dict of dicts. The first
         #dict is for the state, the second for the property.
-        state_data = collections.defaultdict(dict)        
+        state_data = collections.defaultdict(dict)
 
-        #So we run the per data dir operation, then reduce everything
+        #So we run the per data dir operation, then reduce everything.
         state_data = {}
         with alive_progress.alive_bar(n) as progress:
             #This is a parallel loop, returning items as they finish in arbitrary order
-            for result in self.imap_unordered(perdir, [(d, particle_equil_events, self) for d in output_dirs]):
+            for result in self.imap_unordered(fetch_data_worker, [(d, particle_equil_events, self) for d in output_dirs]):
                 #Here we process the returned data from a single directory
                 for state, data in result.items():
                     if state not in state_data:
@@ -555,7 +555,7 @@ class SimManager:
         #If there's no data, then there's no columns so the next
         #bit fails. Avoid that
         if len(df) == 0:
-            return df
+            return df, state_data
         
         #Here, we're just adjusting the column order to follow what was given by the user.
         cols = list(df.columns.values)
@@ -564,8 +564,6 @@ class SimManager:
         df = df[[statevar for statevar in self.used_statevariables]+cols]
         #Now we sort items by the state variables in the order given.
         df = df.sort_values(by=[statevar for statevar in self.used_statevariables])
+        pickle.dump(df, open(self.workdir+".df.pkl", 'wb'))
 
-        ##Now we write out the data
-
-        return df
-    
+        return df, state_data
