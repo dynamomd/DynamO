@@ -151,6 +151,6 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
 # This creates a pandas dataframe with columns for the state variables
 # AND any output values. It also generates pkl files, some for
 # different properties.
-data = mgr.fetch_data(1000)
+df, state_data = mgr.fetch_data(1000)
 
-print(data)
+print(df)
