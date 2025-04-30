@@ -97,3 +97,28 @@ def test_keyed_array():
     for i in range(3):
         assert c.stats()[i]["a"] == pytest.approx(c1.stats()[i])
         assert c.stats()[i]["b"] == pytest.approx(c2.stats()[i])
+
+def test_keyed_keyed_array():
+    a = KeyedArray(type=KeyedArray)
+    a["a"] = KeyedArray({"b":1})
+    a["a"] = KeyedArray({"c":3})
+    a["b"] = KeyedArray({"c":3})
+    a["c"] = KeyedArray({"d":4})
+
+    b = KeyedArray(type=KeyedArray)
+    b["a"] = KeyedArray({"b":2})
+
+    c = a + b
+    assert c["a"]["b"] == pytest.approx(3)
+    assert c["b"]["c"] == pytest.approx(3)
+    assert c["c"]["d"] == pytest.approx(4)
+
+    c = a - b
+    assert c["a"]["b"] == pytest.approx(-1)
+    assert c["b"]["c"] == pytest.approx(3)
+    assert c["c"]["d"] == pytest.approx(4)
+
+    c = a * b
+    assert c["a"]["b"] == pytest.approx(2)
+    assert "b" not in c
+    assert "c" not in c
