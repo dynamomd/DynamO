@@ -73,10 +73,10 @@ def test_keyed_array():
     assert c["b"] == pytest.approx(3)
     assert c["c"] == pytest.approx(4.5)
 
-    c = a / b
-    assert c["a"] == pytest.approx(0.5)
-    assert c["b"] == pytest.approx(0.5)
-    assert "c" not in c
+    # Check division of two keyed arrays fails
+    with pytest.raises(Exception):
+       c = a / b
+    
     c = a / 2
     assert c["a"] == pytest.approx(0.5)
     assert c["b"] == pytest.approx(1)
