@@ -10,16 +10,15 @@ class KeyedArray():
     """A key-value store of values that has element-wise addition and multiplication.
        Any missing values are assumed to be zero. This is needed for observations that do not appear in some simulations.
     """
-    def __init__(self, values = None, type = float):
+    def __init__(self, type = float, values = None):
         self.type = type
+        #print("KeyedArray(", repr(type),",", repr(values),")")
         self.store = defaultdict(type)
+        import copy
         if values is not None:
-            if isinstance(values, KeyedArray):
+            if isinstance(values, KeyedArray) or isinstance(values, dict):
                 for k, v in values.items():
-                    self.store[k] = v
-            elif isinstance(values, dict):
-                for k, v in values.items():
-                    self.store[k] = v
+                    self.store[k] = copy.copy(v)
             else:
                 raise RuntimeError("Cannot create KeyedArray from non-dict or non-KeyedArray")
     
@@ -114,10 +113,10 @@ class KeyedArray():
         return retval
     
     def __repr__(self):
-        return str(self.store)
+        return "KeyedArray("+self.type.__name__ +", {" + ", ".join([repr(k) + ": " + repr(v) for k, v in self.store.items()]) + "})"
     
     def __str__(self):
-        return str(self.store)
+        return self.__repr__()
 
 def element_wise_multiply(a, b):
     if isinstance(a, numpy.ndarray) or isinstance(b, numpy.ndarray):
@@ -135,13 +134,13 @@ def zeros_like(a):
 
 def maximum(a, b):
     if isinstance(a, KeyedArray) and isinstance(b, KeyedArray):
-        return KeyedArray({k: maximum(a[k], b[k]) for k in set(a.keys()).union(b.keys())})
+        return KeyedArray(type=a.type, values = {k: maximum(a[k], b[k]) for k in set(a.keys()).union(b.keys())})
     else:
         return numpy.maximum(a,b)
     
 def sqrt(a):
     if isinstance(a, KeyedArray):
-        return KeyedArray({k: sqrt(a[k]) for k in a.keys()})
+        return KeyedArray(type = a.type, values = {k: sqrt(a[k]) for k in a.keys()})
     else:
         return numpy.sqrt(a)
 
