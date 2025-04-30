@@ -10,11 +10,9 @@ class KeyedArray():
     """A key-value store of values that has element-wise addition and multiplication.
        Any missing values are assumed to be zero. This is needed for observations that do not appear in some simulations.
     """
-
-    store = defaultdict(float)
-
-    def __init__(self, values = None):
-        self.store = defaultdict(float)
+    def __init__(self, values = None, type = float):
+        self.type = type
+        self.store = defaultdict(type)
         if values is not None:
             if isinstance(values, KeyedArray):
                 for k, v in values.items():
