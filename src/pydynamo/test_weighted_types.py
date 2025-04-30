@@ -100,25 +100,34 @@ def test_keyed_array():
 
 def test_keyed_keyed_array():
     a = KeyedArray(type=KeyedArray)
-    a["a"] = KeyedArray({"b":1})
-    a["a"] = KeyedArray({"c":3})
-    a["b"] = KeyedArray({"c":3})
-    a["c"] = KeyedArray({"d":4})
+    a["a"]["1"] = 1
+    a["a"]["2"] = 3
+    a["b"]["2"] = 3
+    a["c"]["3"] = 4
+
+    # Check items that are there
+    assert a["a"]["1"] == 1
+    assert a["a"]["2"] == 3
+    assert a["b"]["2"] == 3
+    assert a["c"]["3"] == 4
+
+    # Check items that are not there
+    assert a["a"]["3"] == 0
 
     b = KeyedArray(type=KeyedArray)
-    b["a"] = KeyedArray({"b":2})
+    b["a"] = KeyedArray(float, {"1":2})
 
     c = a + b
-    assert c["a"]["b"] == pytest.approx(3)
-    assert c["b"]["c"] == pytest.approx(3)
-    assert c["c"]["d"] == pytest.approx(4)
+    assert c["a"]["1"] == pytest.approx(3)
+    assert c["b"]["2"] == pytest.approx(3)
+    assert c["c"]["3"] == pytest.approx(4)
 
     c = a - b
-    assert c["a"]["b"] == pytest.approx(-1)
-    assert c["b"]["c"] == pytest.approx(3)
-    assert c["c"]["d"] == pytest.approx(4)
+    assert c["a"]["1"] == pytest.approx(-1)
+    assert c["b"]["2"] == pytest.approx(3)
+    assert c["c"]["3"] == pytest.approx(4)
 
     c = a * b
-    assert c["a"]["b"] == pytest.approx(2)
+    assert c["a"]["1"] == pytest.approx(2)
     assert "b" not in c
     assert "c" not in c
