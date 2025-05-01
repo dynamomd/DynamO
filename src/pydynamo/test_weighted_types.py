@@ -131,3 +131,22 @@ def test_keyed_keyed_array():
     assert c["a"]["1"] == pytest.approx(2)
     assert "b" not in c
     assert "c" not in c
+
+def test_keyed_weighted_keyed_array():
+    constructor = lambda : WeightedType(KeyedArray())
+    constructor.__name__ = "WeightedType<KeyedArray>"
+    aval = WeightedType(KeyedArray(type=float, values={"1":1, "2": 2, "3":3}), 1)
+    bval = WeightedType(KeyedArray(type=float, values={"1":2, "2": 4}), 0.1)
+    a = KeyedArray(type=constructor, values = {
+        "a": aval,
+    })
+
+    b = KeyedArray(type=constructor, values = {
+        "a": bval,
+    })
+
+    c = a + b
+
+    assert c["a"].avg()["1"] == pytest.approx((1 * 1 + 2 * 0.1) / (1 + 0.1))
+    assert c["a"].avg()["2"] == pytest.approx((2 * 1 + 4 * 0.1) / (1 + 0.1))
+    assert c["a"].avg()["3"] == pytest.approx((3 * 1 + 0 * 0.1) / (1 + 0.1))
