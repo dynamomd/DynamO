@@ -313,7 +313,7 @@ class SimManager:
                 return newpath            
             idx += 1
             
-    def imap_unordered(self, func, iterable, chunksize=2):
+    def imap_unordered(self, func, iterable, chunksize=1):
         """A version of imap_unordered that works with multiprocessing.Pool"""
         # Chunksize halves overhead for tiny tasks, but also doesn't limit
         # parallelism when doing a few slow tasks, or on a system with many
