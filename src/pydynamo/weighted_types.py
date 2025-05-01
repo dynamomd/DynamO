@@ -149,7 +149,7 @@ class WeightedType():
     '''This class implements weighted arithmetic means along with an
     estimate of the standard error for the mean.
     '''
-    def __init__(self, value = 0, weight = 0):
+    def __init__(self, value = 0.0, weight = 0.0):
         """Initialise the weighted value."""
         ww = weight * weight
         vv = element_wise_multiply(value, value)
@@ -163,9 +163,10 @@ class WeightedType():
 
     def __add__(self, v):
         if not isinstance(v, WeightedType):
-            if not isinstance(v._w_v_sum, type(self._w_v_sum)):
-                raise RuntimeError("Cannot add non-WeightedType to WeightedType")
             raise RuntimeError("Cannot add non-WeightedType to WeightedType")
+
+        if not isinstance(v._w_v_sum, type(self._w_v_sum)):
+            raise RuntimeError(f"WeightedTypes have incompatible types {type(self._w_v_sum)} and {type(v._w_v_sum)}")
 
         import copy
         retval = copy.copy(v)
@@ -223,7 +224,7 @@ class WeightedType():
             # If the average is an array, we need to convert it to a ufloat array
             return uncertainties.unumpy.uarray(avg, std_dev)
         elif isinstance(avg, KeyedArray):
-            return KeyedArray({k: uncertainties.ufloat(avg[k], std_dev[k]) for k in avg.keys()})
+            return KeyedArray(uncertainties.ufloat, values={k: uncertainties.ufloat(avg[k], std_dev[k]) for k in avg.keys()})
         else:
             return uncertainties.ufloat(avg, std_dev)
 
@@ -232,5 +233,16 @@ class WeightedType():
 
     def __repr__(self):
         return repr(self.ufloat())
+
+
+class WeightedKeyedArray(WeightedType):
+    """This type is picklable and can be used in multiprocessing.
+    """
+    def __init__(self, type = float, values = None):
+        super().__init__(KeyedArray())
+
+class KeyedWeightedKeyedArray(KeyedArray):
+    def __init__(self):
+        super().__init__(type=WeightedKeyedArray)
 
 from collections import defaultdict
