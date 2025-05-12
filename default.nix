@@ -10,16 +10,34 @@ pkgs.stdenv.mkDerivation rec {
     sha256 = "sha256-p8+OoNBW7VABgIWXme6iLWEkiPe7v9yZqPveN4A+hKY=";
   };
 
-  buildInputs = [
-    pkgs.cmake
-    pkgs.git
-    pkgs.ninja
-    pkgs.gcc
-    pkgs.pkg-config
-    pkgs.bzip2.dev
+  buildInputs = with pkgs; [
+    # Basic build dependencies
+    cmake
+    git
+    ninja
+    gcc
+    pkg-config
+    bzip2.dev
+    boost.dev
+    clang-tools
+    eigen
     ((pks: pks.python3.withPackages (ps: with ps; [
       numpy
+      #alive-progress
+      uncertainties
+      pandas
+      scipy
+      freud
+      networkx
     ])) pkgs)
+
+    # Visualiser
+    gtkmm3.dev
+    ffmpeg.dev
+    freeglut
+    glew
+    cairomm
+    libpng
   ];
 
   configurePhase = ''
@@ -31,7 +49,6 @@ pkgs.stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    mkdir -p $out/bin
-    mv chord $out/bin
+    cmake --install .
   '';
 }
