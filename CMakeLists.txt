@@ -5,12 +5,13 @@ if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the wa
 endif()
 
 
-if(NOT MSVC)
-  # To make this compile on NixOS, we need to use the static linked MSVC
-  # But this is not available on windows
-  set(VCPKG_BOOTSTRAP_OPTIONS "-musl")
-endif()
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
+# Disabled VCPKG as we move to nix
+#if(NOT MSVC)
+#  # To make this compile on NixOS, we need to use the static linked MSVC
+#  # But this is not available on windows
+#  set(VCPKG_BOOTSTRAP_OPTIONS "-musl")
+#endif()
+#set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 project(DynamO) #Project name
 enable_testing() #Enable build of test executables and 'make test' command
