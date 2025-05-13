@@ -24,7 +24,7 @@
 #ifdef _WIN32
 #include <windows.h>
 typedef HGLRC ContextKey;
-#elif
+#elif __APPLE__
 #include <OpenGL/CGLCurrent.h>
 typedef  ContextKey;
 #else
