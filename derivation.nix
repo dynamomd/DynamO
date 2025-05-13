@@ -39,6 +39,7 @@ python3.pkgs.buildPythonPackage rec {
     eigen
     
     # Visualiser
+    libGL.dev
     gtkmm3.dev
     ffmpeg.dev
     freeglut
