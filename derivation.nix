@@ -1,4 +1,7 @@
 # see https://unix.stackexchange.com/questions/717168/how-to-package-my-software-in-nix-or-write-my-own-package-derivation-for-nixpkgs
+# To install `nix-env -u -f default.nix`
+# To develop `nix-shell` (will build the shell with dependencies)
+# To test build `nix-build`
 { pkgs, python3 }:
 python3.pkgs.buildPythonPackage rec {
   name = "pydynamo";

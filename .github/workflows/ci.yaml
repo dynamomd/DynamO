@@ -6,93 +6,58 @@ on:
   - push
   - pull_request
 jobs:
-  build-project:
+  nix-build:
     name: ${{ matrix.os }}-${{ github.workflow }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, macos-15, windows-2022]
-    env:
-      # Indicates the location of the vcpkg as a Git submodule of the project repository.
-      # Not using "VCPKG_ROOT" because a variable with the same name is defined in the VS's
-      # Developer Command Prompt environment in VS 2022 17.6, which would override this one
-      # if it had the same name.
-      _VCPKG_: ${{ github.workspace }}/vcpkg
-      # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15] #windows-2022
     steps:
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
       - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
-        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
-        shell: bash
-
-      # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
-      - uses: lukka/get-cmake@latest
-
-      # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
-      # when it is being run afterwards by CMake.
-      - name: Restore vcpkg
-        uses: actions/cache@v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
         with:
-          # The first path is the location of vcpkg: it contains the vcpkg executable and data files, as long as the
-          # built package archives (aka binary cache) which are located by VCPKG_DEFAULT_BINARY_CACHE env var.
-          # The other paths starting with '!' are exclusions: they contain termporary files generated during the build of the installed packages.
-          path: |
-            ${{ env._VCPKG_ }}
-            !${{ env._VCPKG_ }}/buildtrees
-            !${{ env._VCPKG_ }}/packages
-            !${{ env._VCPKG_ }}/downloads
-            !${{ env._VCPKG_ }}/installed
-          # The key is composed in a way that it gets properly invalidated whenever a different version of vcpkg is being used.
-          key: |
-            ${{ hashFiles( '.git/modules/vcpkg/HEAD' )}}
+          nix_path: nixpkgs=channel:nixos-stable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            allow-import-from-derivation = true
+            sandbox = false
 
-      # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
-      # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
-      - uses: ilammy/msvc-dev-cmd@v1
-
-      # Run CMake to generate Ninja project files.
-      - name: Configure the build system
-        run: |
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+      - name: Build the nix package
+        run: nix-build
+        
+  hand-build:
+    name: ${{ matrix.os }}-${{ github.workflow }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04, macos-15] #windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-stable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            allow-import-from-derivation = true
+            sandbox = false
+      
+      - name: Configure the project
+        run: nix-shell --run "cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release"
 
       - name: Check code formatting
         if: runner.os == 'Linux'
-        run: |
-          cmake --build ${{github.workspace}}/build -j4 -t check-src-format --config Release
-
-      # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
-      - name: Build (Release configuration)
-        run: |
-          cmake --build ${{github.workspace}}/build -j4 --config Release
+        run: nix-shell --run "cmake --build ${{github.workspace}}/build -j4 -t check-src-format --config Release"
 
       # Test the whole project with CTest
       - name: Test (Release configuration)
         working-directory: ${{github.workspace}}/build
-        run: |
-          ctest -j 4 --output-on-failure -C Release
-
-      - name: Package the project (python packages include more)
-        run: |
-          cmake --build ${{github.workspace}}/build -j4 -t package --config Release
-
-      - name: Upload packages as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dynamo-${{ matrix.os }}
-          path: |
-            ${{ github.workspace }}/build/*.deb
-            ${{ github.workspace }}/build/*.sh
-            ${{ github.workspace }}/build/*.tar.gz
-            ${{ github.workspace }}/build/*.exe
+        run: nix-shell --run "ctest -j 4 --output-on-failure -C Release"
