@@ -1,7 +1,7 @@
 # see https://unix.stackexchange.com/questions/717168/how-to-package-my-software-in-nix-or-write-my-own-package-derivation-for-nixpkgs
 { pkgs, python3 }:
 python3.pkgs.buildPythonPackage rec {
-  name = "dynamomd";
+  name = "pydynamo";
   src = ./.;
   pyproject = true;
 
