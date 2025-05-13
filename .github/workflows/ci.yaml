@@ -54,6 +54,9 @@ jobs:
       - name: Configure the project
         run: nix-shell ${{github.workspace}} --run "cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release"
 
+      - name: Build the project
+        run: nix-shell ${{github.workspace}} --run "cmake --build ${{github.workspace}}/build -j4 --config Release"
+
       - name: Check code formatting
         run: nix-shell ${{github.workspace}} --run "cmake --build ${{github.workspace}}/build -j4 -t check-src-format --config Release"
 
