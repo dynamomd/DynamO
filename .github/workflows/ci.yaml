@@ -38,9 +38,6 @@ jobs:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04, macos-15] #windows-2022
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -49,15 +46,18 @@ jobs:
             experimental-features = nix-command flakes
             allow-import-from-derivation = true
             sandbox = false
-      
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive 
+
       - name: Configure the project
         run: nix-shell --run "cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release"
 
       - name: Check code formatting
-        if: runner.os == 'Linux'
         run: nix-shell --run "cmake --build ${{github.workspace}}/build -j4 -t check-src-format --config Release"
 
       # Test the whole project with CTest
       - name: Test (Release configuration)
         working-directory: ${{github.workspace}}/build
-        run: nix-shell --run "ctest -j 4 --output-on-failure -C Release"
+        run: nix-shell --run ${{github.workspace}} "ctest -j 4 --output-on-failure -C Release"
