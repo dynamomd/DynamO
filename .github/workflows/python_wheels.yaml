@@ -11,9 +11,9 @@ jobs:
       matrix:
         os: [
             ubuntu-latest,
-            #ubuntu-24.04-arm,
+            ubuntu-24.04-arm,
             windows-latest,
-            #macos-13,
+            macos-13,
             macos-latest,
           ]
 
@@ -31,12 +31,9 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-        env:
-          #CIBW_ARCHS_LINUX: auto64 # Seems 32 bit vcpkg dependencies are missing, so force 64 bit on linux
-          CIBW_SKIP: "pp*" # Skip pypy builds as they'll be disabled in cibuildwheel 3 anyway (Might need to disable *-musllinux_* too)
-          CIBW_BEFORE_ALL_LINUX : yum install -y boost-devel bzip2-devel eigen3-devel ||  apt-get install -y libboost-all-dev libbz2-dev libeigen3-dev 
             
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
+f

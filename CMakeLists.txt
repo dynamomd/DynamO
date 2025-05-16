@@ -4,14 +4,12 @@ if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the wa
   cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
 endif()
 
-
 # Disabled VCPKG as we move to nix
-#if(NOT MSVC)
-#  # To make this compile on NixOS, we need to use the static linked MSVC
-#  # But this is not available on windows
-#  set(VCPKG_BOOTSTRAP_OPTIONS "-musl")
-#endif()
-#set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
+if(DEFINED ENV{VCPKG_ROOT})
+  message(STATUS "VCPKG_ROOT is set to $ENV{VCPKG_ROOT}")
+  set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+  set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
+endif()
 
 project(DynamO) #Project name
 enable_testing() #Enable build of test executables and 'make test' command
