@@ -50,7 +50,7 @@ minimum-version = "build-system.requires"
 
 [tool.cibuildwheel]
 # Here we install desired libraries for their build dependencies, then use vcpkg to update to latest files from vcpkg.json
-before-all = "(yum install -y boost-devel bzip2-devel zip unzip ninja || apt-get install -y libboost-all-dev libbz2-dev libeigen3-dev ninja zip unzip) && git clone https://github.com/microsoft/vcpkg.git /opt/vcpkg && /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics && /opt/vcpkg/vcpkg install"
+before-all = "(yum install -y boost-devel bzip2-devel zip unzip ninja-build || apt-get install -y libboost-all-dev libbz2-dev libeigen3-dev ninja zip unzip) && git clone https://github.com/microsoft/vcpkg.git /opt/vcpkg && /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics && /opt/vcpkg/vcpkg install"
 # We enable dynamo VCPKG integration using the environment variable.
 environment = {VCPKG_ROOT="/opt/vcpkg/"}
 # Skip the pypy builds (they're deprecated anyhoo)
