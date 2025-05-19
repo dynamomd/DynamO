@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.28)
 
-if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the warning
-  cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+# We want to set this to new, but the python wheels need boost 1.70 minimum before this can happen
+if(POLICY CMP0167) 
+  cmake_policy(SET CMP0167 OLD)
 endif()
 
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake)
+# Disabled VCPKG as we move to nix
+if(DEFINED ENV{DYNAMO_VCPKG_ROOT})
+  message(STATUS "DYNAMO_VCPKG_ROOT is set to $ENV{DYNAMO_VCPKG_ROOT}, enabling VCPKG")
+  set(CMAKE_TOOLCHAIN_FILE $ENV{DYNAMO_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
+endif()
 
 project(DynamO) #Project name
 enable_testing() #Enable build of test executables and 'make test' command
@@ -99,7 +104,12 @@ endif()
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
+find_package(Boost 1.66.0 COMPONENTS system filesystem program_options unit_test_framework)
+if(NOT Boost_FOUND)
+  message(WARNING "Static Boost not found, trying shared Boost")
+  set(Boost_USE_STATIC_LIBS OFF)
+  find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem program_options unit_test_framework)
+endif()
 
 add_subdirectory(src/magnet)
 find_package(Eigen3)

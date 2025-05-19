@@ -24,6 +24,9 @@
 #ifdef _WIN32
 #include <windows.h>
 typedef HGLRC ContextKey;
+#elif __APPLE__
+#include <OpenGL/CGLCurrent.h>
+typedef CGLContextObj ContextKey;
 #else
 #include <GL/glx.h>
 typedef GLXContext ContextKey;
@@ -74,6 +77,8 @@ protected:
   inline static ContextKey getCurrentContextKey() {
 #ifdef _WIN32
     ContextKey key = wglGetCurrentContext();
+#elif __APPLE__
+    ContextKey key = CGLGetCurrentContext(); 
 #else
     ContextKey key = glXGetCurrentContext();
 #endif
