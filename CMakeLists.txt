@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 
-if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the warning
-  cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+# We want to set this to new, but the python wheels need boost 1.70 minimum before this can happen
+if(POLICY CMP0167) 
+  cmake_policy(SET CMP0167 OLD)
 endif()
 
 # Disabled VCPKG as we move to nix
@@ -103,7 +104,7 @@ endif()
 # set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
+find_package(Boost 1.66.0 REQUIRED system filesystem program_options unit_test_framework)
 
 add_subdirectory(src/magnet)
 find_package(Eigen3)
