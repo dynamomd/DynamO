@@ -72,13 +72,13 @@ manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 musllinux-x86_64-image = "musllinux_1_2"
 musllinux-aarch64-image = "musllinux_1_2"
-before-all = "yum install -y zip unzip make boost-devel eigen3-devel bzip2-devel"
+before-all = "yum install -y zip unzip make boost-devel boost-static eigen3-devel bzip2-devel"
 
 [[tool.cibuildwheel.overrides]]
 # musllinux uses apk instead of yum
 select = "*-musllinux*"
 #install ninja-is-really-ninja, as the ninja package is a link to samurai which is incompatible with vcpkg it seems
-before-all = "apk add zip unzip ninja-is-really-ninja boost-dev eigen-dev bzip2-dev"
+before-all = "apk add zip unzip ninja-is-really-ninja boost-dev boost-static eigen-dev bzip2-dev"
 
 [tool.cibuildwheel.macos]
 before-all = "brew install cmake eigen boost"
