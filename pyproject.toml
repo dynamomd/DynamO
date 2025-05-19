@@ -81,6 +81,4 @@ select = "*-musllinux*"
 before-all = "apk add zip unzip ninja-is-really-ninja boost-dev eigen-dev bzip2-dev"
 
 [tool.cibuildwheel.macos]
-before-all = "brew install cmake eigen && brew install --build-from-source boost"
-
-
+before-all = "brew install cmake eigen boost"
