@@ -26,7 +26,7 @@
 typedef HGLRC ContextKey;
 #elif __APPLE__
 #include <OpenGL/CGLCurrent.h>
-typedef  ContextKey;
+typedef CGLContextObj ContextKey;
 #else
 #include <GL/glx.h>
 typedef GLXContext ContextKey;
