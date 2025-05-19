@@ -12,9 +12,9 @@ jobs:
         os: [
             ubuntu-latest,
             ubuntu-24.04-arm,
-            # windows-latest,
             macos-13,
             macos-latest,
+            # windows-latest, # Needs a way to install the build dependencies (or VCPKG)
           ]
 
     steps:
@@ -29,6 +29,15 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.23.3
 
+      - name: Install boost on macos
+        if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+        uses: MarkusJx/install-boost@v2
+        id: install-boost
+        with:
+        # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+          boost_version: 1.71.0
+          platform_version: 10.15  #Using this to allow for older macos versions in the wheel
+          
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
             

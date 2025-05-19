@@ -20,8 +20,6 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "License :: OSI Approved :: GPL License",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -55,6 +53,7 @@ minimum-version = "build-system.requires"
 [tool.cibuildwheel]
 # Skip the pypy builds (they're deprecated and use an old toolchain)
 # Skip 32bit builds due to issues with build tools
+# Dropping some older python versions too
 skip = "pp* *i686 *win32"
 # More modern install/build with uv
 # Doesn't work on macos github actions! Need to install it using brew?
@@ -82,6 +81,7 @@ select = "*-musllinux*"
 before-all = "apk add zip unzip ninja-is-really-ninja boost-dev eigen-dev bzip2-dev"
 
 [tool.cibuildwheel.macos]
-before-all = "brew install cmake boost bzip2 eigen"
+# Dont install boost, need system compiled for older mac versions
+before-all = "brew install cmake eigen"
 
 
