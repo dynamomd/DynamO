@@ -5,10 +5,9 @@ if(POLICY CMP0167) # Must be before project otherwise VCPKG hooks trigger the wa
 endif()
 
 # Disabled VCPKG as we move to nix
-if(DEFINED ENV{VCPKG_ROOT})
-  message(STATUS "VCPKG_ROOT is set to $ENV{VCPKG_ROOT}")
-  set(VCPKG_ROOT $ENV{VCPKG_ROOT})
-  set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
+if(DEFINED ENV{DYNAMO_VCPKG_ROOT})
+  message(STATUS "DYNAMO_VCPKG_ROOT is set to $ENV{DYNAMO_VCPKG_ROOT}, enabling VCPKG")
+  set(CMAKE_TOOLCHAIN_FILE $ENV{DYNAMO_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 endif()
 
 project(DynamO) #Project name

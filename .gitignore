@@ -12,3 +12,4 @@ __pycache__
 Testing/Temporary/CTestCostData.txt
 .eggs
 wheelhouse
+vcpkg_installed
