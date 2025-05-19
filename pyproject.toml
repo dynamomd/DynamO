@@ -53,8 +53,9 @@ minimum-version = "build-system.requires"
 #
 
 [tool.cibuildwheel]
-# Skip the pypy builds (they're deprecated anyhoo), and the 32bit builds due to issues with build tools
-skip = "pp* *-manylinux_i686" 
+# Skip the pypy builds (they're deprecated anyhoo)
+# Skip 32bit builds due to issues with build tools
+skip = "pp* *i686" 
 # Setup install of vcpkg, to download c++ dependencies
 before-all = "yum install -y zip unzip make && git clone https://github.com/microsoft/vcpkg.git /opt/vcpkg && /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics && /opt/vcpkg/vcpkg install"
 environment = {DYNAMO_VCPKG_ROOT="/opt/vcpkg/"}
@@ -65,3 +66,9 @@ build-frontend = "build[uv]"
 select = "*-musllinux*"
 #install ninja-is-really-ninja, as the ninja package is a link to samurai which is incompatible with vcpkg it seems
 before-all = "apk add zip unzip ninja-is-really-ninja && git clone https://github.com/microsoft/vcpkg.git /opt/vcpkg && /opt/vcpkg/bootstrap-vcpkg.sh -musl -disableMetrics && /opt/vcpkg/vcpkg install"
+
+[[tool.cibuildwheel.overrides]]
+# arm linux is tempermental with vcpkg
+select = "*-aarch64"
+before-all = "apk add zip unzip ninja-is-really-ninja && git clone https://github.com/microsoft/vcpkg.git /opt/vcpkg && /opt/vcpkg/bootstrap-vcpkg.sh -musl -disableMetrics && /opt/vcpkg/vcpkg install"
+
