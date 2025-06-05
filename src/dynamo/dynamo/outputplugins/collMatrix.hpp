@@ -51,7 +51,7 @@ protected:
 
   unsigned long totalCount;
 
-  // EventKet is a pair of EventSourceKey and EEventType
+  // EventKey is a pair of EventSourceKey and EEventType
   // It describes the type of event and its source
 
   //! A key for two events
