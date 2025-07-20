@@ -39,12 +39,13 @@ python3.pkgs.buildPythonPackage rec {
     eigen
     
     # Visualiser
-    libGL.dev
+    libGL
     gtkmm3.dev
     ffmpeg.dev
     freeglut
     glew
     cairomm.dev
     libpng
+    mesa
   ];
 }
