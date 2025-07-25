@@ -324,7 +324,7 @@ class Histogram:
                 if line.strip() == "":
                     continue
                 key, value= list(map(float, line.strip().split()))
-                retval.insert(key, value)
+                retval.insert(key, value * weight)
 
         return retval
 
