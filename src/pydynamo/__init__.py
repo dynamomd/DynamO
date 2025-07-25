@@ -185,12 +185,21 @@ def fetch_data_worker(args):
             dataout["tTotal"] += outputfile.t()
                             
             for prop in manager.outputs:
-                outputplugin = OutputFile.output_props[prop]
-                result = outputplugin.result(state, outputfile, configfilename, counter, manager, output_dir)
-                if result != None:
-                    if prop not in dataout:
-                        dataout[prop] = outputplugin.init()
-                    dataout[prop] += result
+                try:
+                    outputplugin = OutputFile.output_props[prop]
+                    # Output plugins will return dictionaries of properties to let them return multiple properties
+
+                    result = outputplugin.result(state, outputfile, configfilename, counter, manager, output_dir)
+                    initValues = outputplugin.init()
+                    for propname in result:
+                        # Ensure its initialised if needed
+                        if propname not in dataout:
+                            dataout[propname] = initValues[propname]
+                        dataout[propname] += result[propname]
+                except Exception as e:
+                    print("Error while processing output property", prop, "in", output_dir, ":", e)
+                    raise
+
         #except Exception as e:
         #    print("Processing", output_dir, " gave exception", e)
         #    #raise

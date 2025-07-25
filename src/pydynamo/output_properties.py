@@ -49,14 +49,15 @@ class OutputProperty:
         self._dep_outputplugins = dependent_outputplugins
 
     def init(self):
-        return None
+        return {}
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        return None
+        return {}
     
 class SingleAttrib(OutputProperty):
-    def __init__(self, tag, attrib, dependent_statevars, dependent_outputs, dependent_outputplugins, time_weighted=True, div_by_N=False, div_by_t=False, missing_val = 0, skip_missing=False):
+    def __init__(self, propkey, tag, attrib, dependent_statevars, dependent_outputs, dependent_outputplugins, time_weighted=True, div_by_N=False, div_by_t=False, missing_val = 0, skip_missing=False):
         OutputProperty.__init__(self, dependent_statevars, dependent_outputs, dependent_outputplugins)
+        self._propkey = propkey
         self._tag = tag
         self._attrib = attrib
         self._time_weighted = time_weighted
@@ -66,7 +67,7 @@ class SingleAttrib(OutputProperty):
         self._skip_missing=skip_missing
 
     def init(self):
-        return WeightedType()
+        return {self._propkey: WeightedType()}
 
     def value(self, outputfile):
         tag = outputfile.tree.find('.//'+self._tag)
@@ -105,16 +106,16 @@ class SingleAttrib(OutputProperty):
             return float(outputfile.tree.find('.//Duration').attrib['Events'])
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        return WeightedType(self.value(outputfile), self.weight(outputfile))
+        return {self._propkey: WeightedType(self.value(outputfile), self.weight(outputfile))}
 
-OutputFile.output_props["N"] = SingleAttrib('ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
-OutputFile.output_props["p"] = SingleAttrib('Pressure', 'Avg', [], [], [], missing_val=None)
-OutputFile.output_props["cv"] = SingleAttrib('ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
-OutputFile.output_props["u"] = SingleAttrib('UConfigurational', 'Mean', [], [], [], div_by_N=True, missing_val=None)
-OutputFile.output_props["T"] = SingleAttrib('Temperature', 'Mean', [], [], [], missing_val=None)
-OutputFile.output_props["density"] = SingleAttrib('Density', 'val', [], [], [], missing_val=None)
-OutputFile.output_props["MSD"] = SingleAttrib('MSD/Species', 'diffusionCoeff', [], [], ['-LMSD'], missing_val=None, skip_missing=True)
-OutputFile.output_props["NeventsSO"] = SingleAttrib('EventCounters/Entry[@Name="SOCells"]', # Outputfile tag name
+OutputFile.output_props["N"] = SingleAttrib("N", 'ParticleCount', 'val', [], [], [], missing_val=None)#We use missing_val=None to cause an error if the tag is missing
+OutputFile.output_props["p"] = SingleAttrib("p", 'Pressure', 'Avg', [], [], [], missing_val=None)
+OutputFile.output_props["cv"] = SingleAttrib("cv", 'ResidualHeatCapacity', 'Value', [], [], [], div_by_N=True, missing_val=None)
+OutputFile.output_props["u"] = SingleAttrib("u", 'UConfigurational', 'Mean', [], [], [], div_by_N=True, missing_val=None)
+OutputFile.output_props["T"] = SingleAttrib("T",'Temperature', 'Mean', [], [], [], missing_val=None)
+OutputFile.output_props["density"] = SingleAttrib("density", 'Density', 'val', [], [], [], missing_val=None)
+OutputFile.output_props["MSD"] = SingleAttrib("MSD",'MSD/Species', 'diffusionCoeff', [], [], ['-LMSD'], missing_val=None, skip_missing=True)
+OutputFile.output_props["NeventsSO"] = SingleAttrib("NeventsSO", 'EventCounters/Entry[@Name="SOCells"]', # Outputfile tag name
                                                     'Count', # Outputfile tag attribute name
                                                     ["Rso"], # Required state variable
                                                     [], # Required output variables
@@ -134,9 +135,6 @@ def parseToArray(text):
 class CollisionMatrixOutputProperty(OutputProperty):
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LCollisionMatrix'])
-
-    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        return None
 OutputFile.output_props["CollisionMatrix"] = CollisionMatrixOutputProperty()
 
 class VACFOutputProperty(OutputProperty):
@@ -152,15 +150,16 @@ class VACFOutputProperty(OutputProperty):
         
         for tag in outputfile.tree.findall('.//VACF/Topology/Structure'):
             pickle.dump(parseToArray(tag.text), open(filename_root + '/topology_'+tag.attrib['Name']+'.pkl', 'wb'))
-        return None
+        return {}
 OutputFile.output_props["VACF"] = VACFOutputProperty()
+
 
 class RadialDistributionOutputProperty(OutputProperty):
     def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LRadialDistribution'])
 
     def init(self):
-        return WeightedType()
+        return {"RadialDistribution":WeightedType()}
 
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         #Presume that each tag is in order, and has a common bin width
@@ -200,7 +199,7 @@ class RadialDistributionOutputProperty(OutputProperty):
         for n in range(2, moments.shape[0]):
             central_moments[n-1] = sum(scipy.special.comb(n, i) * moments[i] * (N0-central_moments[0,:])**(n-i) for i in range(n+1))
 
-        return WeightedType(central_moments, samples)
+        return {"RadialDistribution":WeightedType(central_moments, samples)}
 OutputFile.output_props["RadialDistribution"] = RadialDistributionOutputProperty()
 
 class RadialDistEndOutputProperty(OutputProperty):
@@ -215,7 +214,7 @@ class RadialDistEndOutputProperty(OutputProperty):
         filename_root = manager.workdir+'_RadialDist/' + manager.statename(state, var_separator='/')
 
         if os.path.isdir(filename_root):
-            return None
+            return {}
 
         os.makedirs(filename_root, exist_ok=True)
         
@@ -228,7 +227,7 @@ class RadialDistEndOutputProperty(OutputProperty):
             B = tag.attrib['Name2']
             output_pkl = filename_root + '/species_'+A+'_'+B+'.pkl'
             pickle.dump(parseToArray(tag.text), open(output_pkl, 'wb'))
-        return None
+        return {}
 OutputFile.output_props["RadialDistEnd"] = RadialDistEndOutputProperty()
 
 class OrderParameterProperty(OutputProperty):
@@ -238,9 +237,8 @@ class OrderParameterProperty(OutputProperty):
     This property is expensive to run at data collection time, as it processes every configuration file to determine the order parameter.
     The advantage is that it can be run on any simulation, no need for extra output plugins.
     '''
-    def __init__(self, L):
+    def __init__(self):
         OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=[])
-        self.L = L
     
     def result(self, state, outputfile, configfilename, counter, manager, output_dir):
         # We use freud to calculate the Steinhardt order parameter
@@ -251,27 +249,16 @@ class OrderParameterProperty(OutputProperty):
         box, points = configfile.to_freud()
 
         #Steinhardt for FCC
-        ql = freud.order.Steinhardt(self.L)
-        ql.compute((box, points), neighbors={"num_neighbors": self.L})
+        L=6
+        ql = freud.order.Steinhardt(L)
+        ql.compute((box, points), neighbors={"num_neighbors": L})
         ql_value = ql.particle_order
         
-        return WeightedType(numpy.mean(ql_value), 1)
+        return {"FCCOrder":WeightedType(numpy.mean(ql_value), 1)}
 
     def init(self):
-        return WeightedType()
-    
-    def result(self, state, outputfile, configfilename, counter, manager, output_dir):
-        import freud
-        configfile = ConfigFile(configfilename)
-        box, points = configfile.to_freud()
-
-        #Steinhardt for FCC
-        ql = freud.order.Steinhardt(self.L)
-        ql.compute((box, points), neighbors={"num_neighbors": self.L})
-        ql_value = ql.particle_order
-        
-        return WeightedType(numpy.mean(ql_value), 1)
-OutputFile.output_props["FCCOrder"] = OrderParameterProperty(6)
+        return {"FCCOrder":WeightedType()}
+OutputFile.output_props["OrderParameter"] = OrderParameterProperty()
 
 class ChungLuConfigurationModel(OutputProperty):
     '''
@@ -319,11 +306,11 @@ class ChungLuConfigurationModel(OutputProperty):
 
         # Calculate the modularity
         retval = self.init()
-        retval["bond_order_count"] = WeightedType(bond_order_counter, 1)
-        retval["order_count"] = WeightedType(order_count, 1)
+        retval["ChungLu"]["bond_order_count"] = WeightedType(bond_order_counter, 1)
+        retval["ChungLu"]["order_count"] = WeightedType(order_count, 1)
         return retval
 
     def init(self):
-        return KeyedWeightedKeyedArray()
+        return {"ChungLu":KeyedWeightedKeyedArray()}
 OutputFile.output_props["ChungLu"] = ChungLuConfigurationModel()
 
