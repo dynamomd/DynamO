@@ -7,8 +7,8 @@ import scipy
 
 from pydynamo.config_files import ConfigFile
 from pydynamo.file_types import XMLFile, validate_xmlfile
-from pydynamo.weighted_types import (KeyedArray, KeyedWeightedKeyedArray,
-                                     WeightedType)
+from pydynamo.weighted_types import (KeyedArray, KeyedWeightedKeyedArray, KeyedKeyedArray,
+                                     WeightedType, Histogram)
 
 
 # A XMLFile/ElementTree but specialised for DynamO output files
@@ -314,3 +314,35 @@ class ChungLuConfigurationModel(OutputProperty):
         return {"ChungLu":KeyedWeightedKeyedArray()}
 OutputFile.output_props["ChungLu"] = ChungLuConfigurationModel()
 
+class CollisionMatrixOutputProperty(OutputProperty):
+    def __init__(self):
+        OutputProperty.__init__(self, dependent_statevars=[], dependent_outputs=[], dependent_outputplugins=['-LCollisionMatrix'])
+
+    def result(self, state, outputfile: OutputFile, configfilename, counter, manager, output_dir):
+        N = outputfile.N()
+        t = outputfile.t()
+
+        retval = self.init()
+        retval["CaptureStateHistogram"] = Histogram.load(outputfile.tree.find(".//CaptureStateHistogram/HistogramWeighted"))
+
+        Rates = KeyedKeyedArray()
+        for tag in outputfile.tree.findall(".//CollCounters/PairCaptureCounters/Count"):
+            iName = tag.attrib["Name"]
+            eType = tag.attrib["Event"]
+            minCap = int(tag.attrib["captures1"])
+            maxCap = int(tag.attrib["captures2"])
+            count = int(tag.find("./RijDotVij/Histogram").attrib["SampleCount"]) / 2
+            Rates[iName+"_"+eType][(minCap, maxCap)] = count / N / t
+
+        for key, item in Rates.items():
+            retval["CollisionMatrix"][key] = WeightedType(item, outputfile.t())
+
+        return retval
+
+    def init(self):
+        return {
+            "CollisionMatrix":KeyedWeightedKeyedArray(),
+            "CaptureStateHistogram": Histogram()
+            }
+
+OutputFile.output_props["CollisionMatrix"] = CollisionMatrixOutputProperty()

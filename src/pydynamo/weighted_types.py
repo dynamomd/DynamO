@@ -245,4 +245,87 @@ class KeyedWeightedKeyedArray(KeyedArray):
     def __init__(self):
         super().__init__(type=WeightedKeyedArray)
 
+class KeyedKeyedArray(KeyedArray):
+    def __init__(self):
+        super().__init__(type=KeyedArray)
+
+class Histogram:
+    """
+    A histogram class to hold the histogram data.
+    """
+    def __init__(self, binwidth = None, total_weight = None):
+        self.binwidth = binwidth
+        self.total_weight = total_weight
+        self.data = KeyedArray()
+
+    def insert(self, key, value):
+        self.data[key] = value
+
+    def __getitem__(self, key):
+        return self.data[key]
+
+    def __repr__(self):
+        return f"Histogram(binwidth={self.binwidth}, total_weight={self.total_weight}, data={self.data})"
+    
+    def __add__(self, other):
+        if not isinstance(other, Histogram):
+            raise TypeError("Can only add another Histogram")
+        
+        if self.binwidth is None:
+            return other
+        if other.binwidth is None:
+            return self
+        if self.binwidth != other.binwidth:
+            raise ValueError("Cannot add Histograms with different bin widths")
+        
+        new_histogram = Histogram(self.binwidth, self.total_weight + other.total_weight)
+        for key in set(self.keys()).union(other.keys()):
+            new_histogram.insert(key, self.get(key, 0) + other.get(key, 0))
+        
+        return new_histogram
+    
+    def get(self, key, default=None):
+        """
+        Get the value for a key, or default if not found.
+        """
+        if key in self.data:
+            return self.data[key]
+        if default is None:
+            raise KeyError(f"Key {key} not found in histogram")
+        return default
+    
+    def keys(self):
+        """
+        Return the keys of the histogram.
+        """
+        return self.data.keys()
+    
+    @staticmethod
+    def load(tag):
+        """
+        Load a histogram from an XML tag.
+        """
+        if tag is None:
+            raise ValueError("Histogram is None")
+        
+        if "TotalWeight" in tag.attrib:
+            weight = float(tag.attrib["TotalWeight"])
+        elif "SampleCount" in tag.attrib:
+            weight = float(tag.attrib["SampleCount"])
+        else:        
+            raise ValueError("Histogram tag must have 'TotalWeight' or 'SampleCount' attributes.")
+
+        binwidth = float(tag.attrib["BinWidth"])
+
+        retval = Histogram(binwidth, weight)
+
+        if tag.text is not None:
+            for line in tag.text.splitlines():
+                if line.strip() == "":
+                    continue
+                key, value= list(map(float, line.strip().split()))
+                retval.insert(key, value)
+
+        return retval
+
 from collections import defaultdict
