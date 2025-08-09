@@ -2,7 +2,9 @@
 # To install `nix-env -u -f default.nix`
 # To develop `nix-shell` (will build the shell with dependencies)
 # To test build `nix-build`
-{ pkgs, python3 }:
+{ pkgs, python3,
+  visualiser ? true,
+  }:
 python3.pkgs.buildPythonPackage rec {
   name = "pydynamo";
   src = ./.;
@@ -29,15 +31,17 @@ python3.pkgs.buildPythonPackage rec {
     gcc
     pkg-config
     clang-tools
+  ]  ++ propagatedBuildInputs
+  ++ (lib.optionals visualiser [
     wrapGAppsHook3
-  ]  ++ propagatedBuildInputs;
+  ]);
   
   buildInputs = with pkgs; [
     # Basic build dependencies
     bzip2.dev
     boost.dev
     eigen
-    
+  ] ++ (lib.optionals visualiser [
     # Visualiser
     libGL
     gtkmm3.dev
@@ -47,5 +51,5 @@ python3.pkgs.buildPythonPackage rec {
     cairomm.dev
     libpng
     mesa
-  ];
+  ]);
 }
