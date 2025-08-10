@@ -253,9 +253,8 @@ class Histogram:
     """
     A histogram class to hold the histogram data.
     """
-    def __init__(self, binwidth = None, total_weight = None):
+    def __init__(self, binwidth = None):
         self.binwidth = binwidth
-        self.total_weight = total_weight
         self.data = KeyedArray()
 
     def insert(self, key, value):
@@ -265,7 +264,7 @@ class Histogram:
         return self.data[key]
 
     def __repr__(self):
-        return f"Histogram(binwidth={self.binwidth}, total_weight={self.total_weight}, data={self.data})"
+        return f"Histogram(binwidth={self.binwidth}, data={self.data})"
     
     def __add__(self, other):
         if not isinstance(other, Histogram):
@@ -278,11 +277,17 @@ class Histogram:
         if self.binwidth != other.binwidth:
             raise ValueError("Cannot add Histograms with different bin widths")
         
-        new_histogram = Histogram(self.binwidth, self.total_weight + other.total_weight)
+        new_histogram = Histogram(self.binwidth)
         for key in set(self.keys()).union(other.keys()):
             new_histogram.insert(key, self.get(key, 0) + other.get(key, 0))
         
         return new_histogram
+
+    def total_weight(self):
+        return sum([value for _, value in self.data.items()]) * self.binwidth
+    
+    def avg():
+        return sum([key * value for key, value in self.data.items()]) / sum([value for _, value in self.data.items()])
     
     def get(self, key, default=None):
         """
@@ -317,15 +322,24 @@ class Histogram:
 
         binwidth = float(tag.attrib["BinWidth"])
 
-        retval = Histogram(binwidth, weight)
+        retval = Histogram(binwidth)
 
+        value_sum = 0
         if tag.text is not None:
             for line in tag.text.splitlines():
                 if line.strip() == "":
                     continue
                 key, value= list(map(float, line.strip().split()))
                 retval.insert(key, value * weight)
+                value_sum += value
 
+        if (value_sum > 0) and abs(value_sum * retval.binwidth - 1.0) > 1e-3:
+            print("Warning! Unnormalised histogram", value_sum * retval.binwidth)
+                
         return retval
 
+class KeyedHistogram(KeyedArray):
+    def __init__(self):
+        super().__init__(type=Histogram)
+    
 from collections import defaultdict

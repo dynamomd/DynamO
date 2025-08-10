@@ -8,7 +8,7 @@ import scipy
 from pydynamo.config_files import ConfigFile
 from pydynamo.file_types import XMLFile, validate_xmlfile
 from pydynamo.weighted_types import (KeyedArray, KeyedWeightedKeyedArray, KeyedKeyedArray,
-                                     WeightedType, Histogram)
+                                     WeightedType, Histogram, KeyedHistogram)
 
 
 # A XMLFile/ElementTree but specialised for DynamO output files
@@ -323,8 +323,11 @@ class CollisionMatrixOutputProperty(OutputProperty):
         t = outputfile.t()
 
         retval = self.init()
+
+        # First, parse out the histogram of capture states
         retval["CaptureStateHistogram"] = Histogram.load(outputfile.tree.find(".//CaptureStateHistogram/HistogramWeighted"))
 
+        # Next, get the per-particle rates of events between various capture levels and event types.
         Rates = KeyedKeyedArray()
         for tag in outputfile.tree.findall(".//CollCounters/PairCaptureCounters/Count"):
             iName = tag.attrib["Name"]
@@ -333,16 +336,24 @@ class CollisionMatrixOutputProperty(OutputProperty):
             maxCap = int(tag.attrib["captures2"])
             count = int(tag.find("./RijDotVij/Histogram").attrib["SampleCount"]) / 2
             Rates[iName+"_"+eType][(minCap, maxCap)] = count / N / t
-
         for key, item in Rates.items():
             retval["CollisionMatrix"][key] = WeightedType(item, outputfile.t())
 
+        # Now get the properties for a particular capture count
+        for tag in outputfile.tree.findall(".//CollCounters/CaptureCounters/Count"):
+            iName = tag.attrib["Name"]
+            eType = tag.attrib["Event"]
+            captures = int(tag.attrib["captures"])
+            # Square velocity
+            retval["V2"][(iName, eType, captures)] += Histogram.load(tag.find("./V2/Histogram"))
+            
         return retval
 
     def init(self):
         return {
-            "CollisionMatrix":KeyedWeightedKeyedArray(),
-            "CaptureStateHistogram": Histogram()
+            "CollisionMatrix": KeyedWeightedKeyedArray(),
+            "CaptureStateHistogram": Histogram(),
+            "V2": KeyedHistogram(),
             }
 
 OutputFile.output_props["CollisionMatrix"] = CollisionMatrixOutputProperty()
