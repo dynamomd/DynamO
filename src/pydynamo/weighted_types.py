@@ -238,8 +238,8 @@ class WeightedType():
 class WeightedKeyedArray(WeightedType):
     """This type is picklable and can be used in multiprocessing.
     """
-    def __init__(self, type = float, values = None):
-        super().__init__(KeyedArray())
+    def __init__(self, type = float, values = None, weight = 0.0):
+        super().__init__(value= KeyedArray() if (values == None) else values, weight=weight)
 
 class KeyedWeightedKeyedArray(KeyedArray):
     def __init__(self):
@@ -255,13 +255,7 @@ class Histogram:
     """
     def __init__(self, binwidth = None):
         self.binwidth = binwidth
-        self.data = KeyedArray()
-
-    def insert(self, key, value):
-        self.data[key] = value
-
-    def __getitem__(self, key):
-        return self.data[key]
+        self.data = WeightedKeyedArray()
 
     def __repr__(self):
         return f"Histogram(binwidth={self.binwidth}, data={self.data})"
@@ -278,17 +272,19 @@ class Histogram:
             raise ValueError("Cannot add Histograms with different bin widths")
         
         new_histogram = Histogram(self.binwidth)
-        for key in set(self.keys()).union(other.keys()):
-            new_histogram.insert(key, self.get(key, 0) + other.get(key, 0))
-        
+        new_histogram.data = self.data + other.data
         return new_histogram
-
-    def total_weight(self):
-        return sum([value for _, value in self.data.items()]) * self.binwidth
     
-    def avg():
-        return sum([key * value for key, value in self.data.items()]) / sum([value for _, value in self.data.items()])
-    
+    def avg(self):
+        udata = self.data.ufloat()
+        sum = 0.0
+        vsum = 0.0
+        for k, v in udata.items():
+            sum += k * v
+            vsum += v
+        assert abs(vsum * self.binwidth - 1.0) < 1e-3, "Histogram is not normalised!"
+        return sum * self.binwidth
+        
     def get(self, key, default=None):
         """
         Get the value for a key, or default if not found.
@@ -322,16 +318,18 @@ class Histogram:
 
         binwidth = float(tag.attrib["BinWidth"])
 
-        retval = Histogram(binwidth)
-
+        values = KeyedArray()
         value_sum = 0
         if tag.text is not None:
             for line in tag.text.splitlines():
                 if line.strip() == "":
                     continue
                 key, value= list(map(float, line.strip().split()))
-                retval.insert(key, value * weight)
+                values[key] =  value
                 value_sum += value
+
+        retval = Histogram(binwidth)
+        retval.data = WeightedKeyedArray(type=float, values=values, weight=weight)
 
         if (value_sum > 0) and abs(value_sum * retval.binwidth - 1.0) > 1e-3:
             print("Warning! Unnormalised histogram", value_sum * retval.binwidth)
