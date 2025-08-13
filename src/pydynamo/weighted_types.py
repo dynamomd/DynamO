@@ -186,6 +186,7 @@ class WeightedType():
         return retval
 
     def stats(self):
+        # Note, there's an implementation for keyed array averages in the Histogram class.
         if self._w_sum == 0:
             if isinstance(self._w_v_sum, numpy.ndarray):
                 v = numpy.empty_like(self._w_v_sum)
@@ -276,14 +277,23 @@ class Histogram:
         return new_histogram
     
     def avg(self):
-        udata = self.data.ufloat()
-        sum = 0.0
-        vsum = 0.0
-        for k, v in udata.items():
-            sum += k * v
-            vsum += v
-        assert abs(vsum * self.binwidth - 1.0) < 1e-3, "Histogram is not normalised!"
-        return sum * self.binwidth
+        # This is a slow method using uncertainties, but it is correct.
+        #udata = self.data.ufloat()
+        #sum = 0.0
+        #vsum = 0.0
+        #for k, v in udata.items():
+        #    sum += k * v
+        #    vsum += v
+        #assert abs(vsum * self.binwidth - 1.0) < 1e-3, "Histogram is not normalised!"
+        #return sum * self.binwidth
+        
+        # About 30x faster than the above method
+        vavg = self.data._w_v_sum / self.data._w_sum
+        avg = sum([k * v for k,v in vavg.items()]) * self.binwidth
+        vavg_var = (1 / self.data._count) * (self.data._w_sum * element_wise_multiply(vavg, vavg) - 2 * element_wise_multiply(vavg, self.data._w_v_sum) + self.data._w_vv_sum) / self.data._w_sum
+        avg_std_dev = math.sqrt(sum([k * k * v for k, v in vavg_var.items()])) * self.binwidth
+        return uncertainties.ufloat(avg, avg_std_dev)
+
         
     def get(self, key, default=None):
         """
