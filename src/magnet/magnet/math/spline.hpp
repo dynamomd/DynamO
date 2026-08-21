@@ -143,9 +143,9 @@ private:
     case FIXED_1ST_DERIV_BC:
       return lx * _BCLowVal + y(0);
     case FIXED_2ND_DERIV_BC:
-      return lx * lx * _BCLowVal + firstDeriv * lx + y(0);
+      return 0.5 * lx * lx * _BCLowVal + firstDeriv * lx + y(0);
     case PARABOLIC_RUNOUT_BC:
-      return lx * lx * _ddy[0] + lx * firstDeriv + y(0);
+      return 0.5 * lx * lx * _ddy[0] + lx * firstDeriv + y(0);
     }
     throw std::runtime_error("Unknown BC");
   }
@@ -164,9 +164,9 @@ private:
     case FIXED_1ST_DERIV_BC:
       return lx * _BCHighVal + y(size() - 1);
     case FIXED_2ND_DERIV_BC:
-      return lx * lx * _BCHighVal + firstDeriv * lx + y(size() - 1);
+      return 0.5 * lx * lx * _BCHighVal + firstDeriv * lx + y(size() - 1);
     case PARABOLIC_RUNOUT_BC:
-      return lx * lx * _ddy[size() - 1] + lx * firstDeriv + y(size() - 1);
+      return 0.5 * lx * lx * _ddy[size() - 1] + lx * firstDeriv + y(size() - 1);
     }
     throw std::runtime_error("Unknown BC");
   }
