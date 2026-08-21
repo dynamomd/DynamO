@@ -137,8 +137,7 @@ private:
     if (_type == LINEAR)
       return lx * _BCLowVal + y(0);
 
-    const double firstDeriv =
-        (y(1) - y(0)) / h(0) - 2 * h(0) * (_data[0].b + 2 * _data[1].b) / 6;
+    const double firstDeriv = _data[0].c;
 
     switch (_BCLow) {
     case FIXED_1ST_DERIV_BC:
