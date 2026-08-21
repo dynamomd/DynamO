@@ -135,7 +135,7 @@ private:
     const double lx = xval - x(0);
 
     if (_type == LINEAR)
-      return lx * _BCHighVal + y(0);
+      return lx * _BCLowVal + y(0);
 
     const double firstDeriv =
         (y(1) - y(0)) / h(0) - 2 * h(0) * (_data[0].b + 2 * _data[1].b) / 6;
