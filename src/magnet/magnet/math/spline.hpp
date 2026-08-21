@@ -157,7 +157,7 @@ private:
       return lx * _BCHighVal + y(size() - 1);
 
     const double firstDeriv =
-        2 * h(size() - 2) * (_ddy[size() - 2] + 2 * _ddy[size() - 1]) / 6 +
+        h(size() - 2) * (_ddy[size() - 2] + 2 * _ddy[size() - 1]) / 6 +
         (y(size() - 1) - y(size() - 2)) / h(size() - 2);
 
     switch (_BCHigh) {
