@@ -179,17 +179,22 @@ void OPCollMatrix::eventUpdate(const Event &event, const NEventData &SDat) {
 
   // Update the last event for the system as a whole
   EventKey ek(ck, event._type);
-  if (_sysLastEventData.second.first.second != NOSOURCE) {
-    InterEventKey sysKey(ek, _sysLastEventData.second);
-    double dt = Sim->systemTime - _sysLastEventData.first;
-    //Perform an insert if the key doesn't exist, otherwise return the existing value
-    auto it = _sysInterEventMFTHistograms.insert(decltype(_sysInterEventMFTHistograms)::value_type(
-        sysKey, SysMFTData(Sim->lastRunMFT * 0.01 / Sim->N())));
-    it.first->second.MFT.addVal(dt);
-  }
 
-  _sysLastEventData.first = Sim->systemTime;
-  _sysLastEventData.second = ek;
+  // We ignore virtual events for the system as a whole, since they don't represent dynamics
+  if (event._type != VIRTUAL) {
+    // Ignore the first event, since we don't have a previous event to compare to
+    if (_sysLastEventData.second.first.second != NOSOURCE) {
+      InterEventKey sysKey(ek, _sysLastEventData.second);
+      double dt = Sim->systemTime - _sysLastEventData.first;
+      //Perform an insert if the key doesn't exist, otherwise return the existing value
+      auto it = _sysInterEventMFTHistograms.insert(decltype(_sysInterEventMFTHistograms)::value_type(
+          sysKey, SysMFTData(Sim->lastRunMFT * 0.01 / Sim->N())));
+      it.first->second.MFT.addVal(dt);
+    }
+
+    _sysLastEventData.first = Sim->systemTime;
+    _sysLastEventData.second = ek;
+  }
 }
 
 
