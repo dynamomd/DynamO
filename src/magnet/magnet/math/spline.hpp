@@ -135,18 +135,17 @@ private:
     const double lx = xval - x(0);
 
     if (_type == LINEAR)
-      return lx * _BCHighVal + y(0);
+      return lx * _BCLowVal + y(0);
 
-    const double firstDeriv =
-        (y(1) - y(0)) / h(0) - 2 * h(0) * (_data[0].b + 2 * _data[1].b) / 6;
+    const double firstDeriv = _data[0].c;
 
     switch (_BCLow) {
     case FIXED_1ST_DERIV_BC:
       return lx * _BCLowVal + y(0);
     case FIXED_2ND_DERIV_BC:
-      return lx * lx * _BCLowVal + firstDeriv * lx + y(0);
+      return 0.5 * lx * lx * _BCLowVal + firstDeriv * lx + y(0);
     case PARABOLIC_RUNOUT_BC:
-      return lx * lx * _ddy[0] + lx * firstDeriv + y(0);
+      return 0.5 * lx * lx * _ddy[0] + lx * firstDeriv + y(0);
     }
     throw std::runtime_error("Unknown BC");
   }
@@ -158,16 +157,16 @@ private:
       return lx * _BCHighVal + y(size() - 1);
 
     const double firstDeriv =
-        2 * h(size() - 2) * (_ddy[size() - 2] + 2 * _ddy[size() - 1]) / 6 +
+        h(size() - 2) * (_ddy[size() - 2] + 2 * _ddy[size() - 1]) / 6 +
         (y(size() - 1) - y(size() - 2)) / h(size() - 2);
 
     switch (_BCHigh) {
     case FIXED_1ST_DERIV_BC:
       return lx * _BCHighVal + y(size() - 1);
     case FIXED_2ND_DERIV_BC:
-      return lx * lx * _BCHighVal + firstDeriv * lx + y(size() - 1);
+      return 0.5 * lx * lx * _BCHighVal + firstDeriv * lx + y(size() - 1);
     case PARABOLIC_RUNOUT_BC:
-      return lx * lx * _ddy[size() - 1] + lx * firstDeriv + y(size() - 1);
+      return 0.5 * lx * lx * _ddy[size() - 1] + lx * firstDeriv + y(size() - 1);
     }
     throw std::runtime_error("Unknown BC");
   }
