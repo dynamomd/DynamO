@@ -346,7 +346,15 @@ class CollisionMatrixOutputProperty(OutputProperty):
             captures = int(tag.attrib["captures"])
             # Square velocity
             retval["V2"][(iName, eType, captures)] += Histogram.load(tag.find("./V2/Histogram"))
-            
+
+        for tag in outputfile.tree.findall(".//CollCounters/SystemMFT/MFT"):
+            iName1 = tag.attrib["Name"]
+            eType1 = tag.attrib["Event"]
+            iName2 = tag.attrib["lastName"]
+            eType2 = tag.attrib["lastEvent"]
+            # MFT histogram
+            retval["SysMFT"][(iName1, eType1, iName2, eType2)] += Histogram.load(tag.find("./Histogram"))
+
         return retval
 
     def init(self):
@@ -354,6 +362,7 @@ class CollisionMatrixOutputProperty(OutputProperty):
             "CollisionMatrix": KeyedWeightedKeyedArray(),
             "CaptureStateHistogram": Histogram(),
             "V2": KeyedHistogram(),
+            "SysMFT": KeyedHistogram(),
             }
 
 OutputFile.output_props["CollisionMatrix"] = CollisionMatrixOutputProperty()
