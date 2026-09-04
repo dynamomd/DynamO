@@ -101,14 +101,18 @@ endif()
 ######### Dependencies
 ######################################################################
 
-set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.66.0 COMPONENTS system filesystem program_options unit_test_framework)
+
+# Try static Boost first, then fallback to shared Boost
+find_package(Boost 1.66.0 COMPONENTS filesystem program_options unit_test_framework)
 if(NOT Boost_FOUND)
-  message(WARNING "Static Boost not found, trying shared Boost")
   set(Boost_USE_STATIC_LIBS OFF)
-  find_package(Boost 1.66.0 REQUIRED COMPONENTS system filesystem program_options unit_test_framework)
+  find_package(Boost 1.66.0 REQUIRED COMPONENTS filesystem program_options unit_test_framework)
+endif()
+
+if(NOT TARGET Boost::system)
+  add_library(Boost::system INTERFACE IMPORTED)
 endif()
 
 add_subdirectory(src/magnet)

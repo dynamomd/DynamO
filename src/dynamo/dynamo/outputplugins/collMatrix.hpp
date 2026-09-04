@@ -52,7 +52,7 @@ protected:
   unsigned long totalCount;
 
   // EventKey is a pair of EventSourceKey and EEventType
-  // It describes the type of event and its source
+  // Combines the EventSourceKey (type i.e. INTERACTION, and ID) with the EEventType (CORE, WELL, WALL, VIRTUAL, etc)
 
   //! A key for two events
   typedef std::pair<EventKey, EventKey> InterEventKey;
@@ -110,8 +110,21 @@ protected:
 
   std::map<EventKey, size_t> initialCounter;
 
+  //! The time and event key for the last event for each particle
   typedef std::pair<double, EventKey> lastEventData;
 
+  //! Keeps track of the last event for each particle
   std::vector<lastEventData> lastEvent;
+
+  //! Keeps track of the last event for the system as a whole
+  lastEventData _sysLastEventData;
+
+  struct SysMFTData {
+    SysMFTData(double binWidth)
+        : MFT(binWidth) {}
+    magnet::math::Histogram<> MFT;
+  };
+  //! Keeps track of the MFT histograms for the system as a whole
+  std::map<InterEventKey, SysMFTData> _sysInterEventMFTHistograms;
 };
 } // namespace dynamo

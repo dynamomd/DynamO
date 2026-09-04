@@ -32,6 +32,8 @@ void OPCollMatrix::initialise() {
   lastEvent.resize(Sim->N(),
                    lastEventData(Sim->systemTime,
                                  EventKey(EventSourceKey(0, NOSOURCE), NONE)));
+  
+  _sysLastEventData = lastEventData(Sim->systemTime, EventKey(EventSourceKey(0, NOSOURCE), NONE));
 
   // Reset the current capture state
   _currentCaptureState.clear();
@@ -174,7 +176,23 @@ void OPCollMatrix::eventUpdate(const Event &event, const NEventData &SDat) {
     newEvent(pData.particle1_.getParticleID(), pData.getType(), ck);
     newEvent(pData.particle2_.getParticleID(), pData.getType(), ck);
   }
+
+  // Update the last event for the system as a whole
+  EventKey ek(ck, event._type);
+  if (_sysLastEventData.second.first.second != NOSOURCE) {
+    InterEventKey sysKey(ek, _sysLastEventData.second);
+    double dt = Sim->systemTime - _sysLastEventData.first;
+    //Perform an insert if the key doesn't exist, otherwise return the existing value
+    auto it = _sysInterEventMFTHistograms.insert(decltype(_sysInterEventMFTHistograms)::value_type(
+        sysKey, SysMFTData(Sim->lastRunMFT * 0.01 / Sim->N())));
+    it.first->second.MFT.addVal(dt);
+  }
+
+  _sysLastEventData.first = Sim->systemTime;
+  _sysLastEventData.second = ek;
 }
+
+
 void OPCollMatrix::newEvent(const size_t &part, const EEventType &etype,
                             const EventSourceKey &ck) {
   if (lastEvent[part].second.first.second != NOSOURCE) {
@@ -193,8 +211,26 @@ void OPCollMatrix::newEvent(const size_t &part, const EEventType &etype,
 
 void OPCollMatrix::output(magnet::xml::XmlStream &XML) {
 
-  XML << magnet::xml::tag("CollCounters")
-      << magnet::xml::tag("TransitionMatrix");
+  XML << magnet::xml::tag("CollCounters");
+
+  XML << magnet::xml::tag("SystemMFT");
+
+  for (const auto &pair : _sysInterEventMFTHistograms) {
+    XML << magnet::xml::tag("MFT") << magnet::xml::attr("Event")
+        << pair.first.first.second << magnet::xml::attr("Name")
+        << getEventSourceName(pair.first.first.first, Sim)
+        << magnet::xml::attr("lastEvent") << pair.first.second.second
+        << magnet::xml::attr("lastName")
+        << getEventSourceName(pair.first.second.first, Sim);
+      
+      pair.second.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+      
+      XML << magnet::xml::endtag("MFT");
+  }
+
+  XML << magnet::xml::endtag("SystemMFT");
+
+  XML << magnet::xml::tag("TransitionMatrix");
 
   std::map<EventKey, std::pair<size_t, double>> totmap;
 
@@ -274,8 +310,8 @@ void OPCollMatrix::output(magnet::xml::XmlStream &XML) {
     XML << magnet::xml::endtag("RijDotVij");
 
     XML << magnet::xml::tag("RijDotDeltaPij");
-    val.second.rijdotvij.outputHistogram(XML, 1.0 / Sim->units.unitLength() /
-                                                  Sim->units.unitMomentum());
+    val.second.rijdotdP.outputHistogram(XML, 1.0 / Sim->units.unitLength() /
+                                                   Sim->units.unitMomentum());
     XML << magnet::xml::endtag("RijDotDeltaPij");
 
     XML << magnet::xml::tag("V2");

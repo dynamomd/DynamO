@@ -27,10 +27,10 @@ class System;
 
 namespace EventTypeTracking {
 
-//! Keeps the ID and type of the event source
+//! Keeps the type of the event source (GLOBAL, LOCAL, INTERACTION, SYSTEM) and the ID
 typedef std::pair<size_t, EventSource> EventSourceKey;
 
-//! Event source And Type
+//! Combines the EventSourceKey (type i.e. INTERACTION, and ID) with the EEventType (CORE, WELL, WALL, VIRTUAL, etc)
 typedef std::pair<EventSourceKey, EEventType> EventKey;
 
 std::string getEventSourceName(const EventSourceKey &,

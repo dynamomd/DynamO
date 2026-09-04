@@ -3,7 +3,7 @@
 # To develop `nix-shell` (will build the shell with dependencies)
 # To test build `nix-build`
 { pkgs, python3,
-  visualiser ? true,
+  visualiser ? false,
   }:
 python3.pkgs.buildPythonPackage rec {
   name = "pydynamo";
@@ -38,8 +38,8 @@ python3.pkgs.buildPythonPackage rec {
   
   buildInputs = with pkgs; [
     # Basic build dependencies
-    bzip2.dev
-    boost.dev
+    bzip2
+    boost
     eigen
   ] ++ (lib.optionals visualiser [
     # Visualiser

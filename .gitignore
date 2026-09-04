@@ -15,3 +15,6 @@ wheelhouse
 vcpkg_installed
 
 result
+build_*
+result
+result-*
