@@ -32,6 +32,8 @@ void OPCollMatrix::initialise() {
   lastEvent.resize(Sim->N(),
                    lastEventData(Sim->systemTime,
                                  EventKey(EventSourceKey(0, NOSOURCE), NONE)));
+  
+  _sysLastEventData = lastEventData(Sim->systemTime, EventKey(EventSourceKey(0, NOSOURCE), NONE));
 
   // Reset the current capture state
   _currentCaptureState.clear();
@@ -76,8 +78,22 @@ void OPCollMatrix::eventUpdate(const Event &event, const NEventData &SDat) {
 
         auto &cs1 = _currentCaptureState[ck1];
         auto &cs2 = _currentCaptureState[ck2];
-
         auto ek = EventKey(ck, pData.getType());
+
+        PairEventCaptureStateKey pecskey(ek, std::min(cs1._state, cs2._state), std::max(cs1._state, cs2._state));
+        auto pit = _pairCaptureCounters.insert(decltype(_pairCaptureCounters)::value_type(
+                pecskey, PairEventCaptureStateData(Sim->lastRunMFT * 0.01)));
+        auto &pecs = pit.first->second;
+        if (pecs.last_event_time != 0) {
+          pecs.MFT.addVal(Sim->systemTime - pecs.last_event_time);
+        }
+        pecs.rijdotvij.addVal(pData.rvdot);
+        pecs.rijdotdP.addVal(pData.rij * pData.impulse);
+        pecs.vi2.addVal(pData.particle1_.getOldVel().nrm2());
+        pecs.vi2.addVal(pData.particle2_.getOldVel().nrm2());
+        // Now we update the last event time
+        pecs.last_event_time = Sim->systemTime;
+
         auto cek1 = EventCaptureStateKey(ek, cs1._state);
         auto cek2 = EventCaptureStateKey(ek, cs2._state);
 
@@ -160,7 +176,28 @@ void OPCollMatrix::eventUpdate(const Event &event, const NEventData &SDat) {
     newEvent(pData.particle1_.getParticleID(), pData.getType(), ck);
     newEvent(pData.particle2_.getParticleID(), pData.getType(), ck);
   }
+
+  // Update the last event for the system as a whole
+  EventKey ek(ck, event._type);
+
+  // We ignore virtual events for the system as a whole, since they don't represent dynamics
+  if (event._type != VIRTUAL) {
+    // Ignore the first event, since we don't have a previous event to compare to
+    if (_sysLastEventData.second.first.second != NOSOURCE) {
+      InterEventKey sysKey(ek, _sysLastEventData.second);
+      double dt = Sim->systemTime - _sysLastEventData.first;
+      //Perform an insert if the key doesn't exist, otherwise return the existing value
+      auto it = _sysInterEventMFTHistograms.insert(decltype(_sysInterEventMFTHistograms)::value_type(
+          sysKey, SysMFTData(Sim->lastRunMFT * 0.01 / Sim->N())));
+      it.first->second.MFT.addVal(dt);
+    }
+
+    _sysLastEventData.first = Sim->systemTime;
+    _sysLastEventData.second = ek;
+  }
 }
+
+
 void OPCollMatrix::newEvent(const size_t &part, const EEventType &etype,
                             const EventSourceKey &ck) {
   if (lastEvent[part].second.first.second != NOSOURCE) {
@@ -179,8 +216,26 @@ void OPCollMatrix::newEvent(const size_t &part, const EEventType &etype,
 
 void OPCollMatrix::output(magnet::xml::XmlStream &XML) {
 
-  XML << magnet::xml::tag("CollCounters")
-      << magnet::xml::tag("TransitionMatrix");
+  XML << magnet::xml::tag("CollCounters");
+
+  XML << magnet::xml::tag("SystemMFT");
+
+  for (const auto &pair : _sysInterEventMFTHistograms) {
+    XML << magnet::xml::tag("MFT") << magnet::xml::attr("Event")
+        << pair.first.first.second << magnet::xml::attr("Name")
+        << getEventSourceName(pair.first.first.first, Sim)
+        << magnet::xml::attr("lastEvent") << pair.first.second.second
+        << magnet::xml::attr("lastName")
+        << getEventSourceName(pair.first.second.first, Sim);
+      
+      pair.second.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+      
+      XML << magnet::xml::endtag("MFT");
+  }
+
+  XML << magnet::xml::endtag("SystemMFT");
+
+  XML << magnet::xml::tag("TransitionMatrix");
 
   std::map<EventKey, std::pair<size_t, double>> totmap;
 
@@ -260,8 +315,8 @@ void OPCollMatrix::output(magnet::xml::XmlStream &XML) {
     XML << magnet::xml::endtag("RijDotVij");
 
     XML << magnet::xml::tag("RijDotDeltaPij");
-    val.second.rijdotvij.outputHistogram(XML, 1.0 / Sim->units.unitLength() /
-                                                  Sim->units.unitMomentum());
+    val.second.rijdotdP.outputHistogram(XML, 1.0 / Sim->units.unitLength() /
+                                                   Sim->units.unitMomentum());
     XML << magnet::xml::endtag("RijDotDeltaPij");
 
     XML << magnet::xml::tag("V2");
@@ -271,8 +326,47 @@ void OPCollMatrix::output(magnet::xml::XmlStream &XML) {
 
     XML << magnet::xml::endtag("Count");
   }
-  XML << magnet::xml::endtag("CaptureCounters")
-      << magnet::xml::tag("CaptureStateHistogram");
+  XML << magnet::xml::endtag("CaptureCounters");
+
+  XML << magnet::xml::tag("PairCaptureCounters");
+  for (const auto &val : _pairCaptureCounters) {
+    auto cek = val.first;
+    auto ek = std::get<0>(cek);
+    auto class_key = ek.first;
+    auto event_type = ek.second;
+    auto captures1 = std::get<1>(cek);
+    auto captures2 = std::get<2>(cek);
+    auto &pecs = val.second;
+
+    XML << magnet::xml::tag("Count") << magnet::xml::attr("Name")
+        << getEventSourceName(class_key, Sim) << magnet::xml::attr("Event")
+        << event_type << magnet::xml::attr("captures1") << captures1
+        << magnet::xml::attr("captures2") << captures2;
+
+    XML << magnet::xml::tag("MFT");
+    pecs.MFT.outputHistogram(XML, 1.0 / Sim->units.unitTime());
+    XML << magnet::xml::endtag("MFT");
+
+    XML << magnet::xml::tag("RijDotVij");
+    pecs.rijdotvij.outputHistogram(XML, 1.0 / Sim->units.unitLength() /
+                                                  Sim->units.unitVelocity());
+    XML << magnet::xml::endtag("RijDotVij");
+
+    XML << magnet::xml::tag("RijDotDeltaPij");
+    pecs.rijdotdP.outputHistogram(XML, 1.0 / Sim->units.unitLength() /
+                                                  Sim->units.unitMomentum());
+    XML << magnet::xml::endtag("RijDotDeltaPij");
+
+    XML << magnet::xml::tag("V2");
+    pecs.vi2.outputHistogram(XML, 1.0 / Sim->units.unitVelocity() /
+                                            Sim->units.unitVelocity());
+    XML << magnet::xml::endtag("V2");
+
+    XML << magnet::xml::endtag("Count");
+  }
+  XML << magnet::xml::endtag("PairCaptureCounters");
+
+  XML << magnet::xml::tag("CaptureStateHistogram");
 
   // Before we output the histogram we need to bring everything up to date
   for (auto &p : _currentCaptureState) {

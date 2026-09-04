@@ -73,10 +73,10 @@ def test_keyed_array():
     assert c["b"] == pytest.approx(3)
     assert c["c"] == pytest.approx(4.5)
 
-    c = a / b
-    assert c["a"] == pytest.approx(0.5)
-    assert c["b"] == pytest.approx(0.5)
-    assert "c" not in c
+    # Check division of two keyed arrays fails
+    with pytest.raises(Exception):
+       c = a / b
+    
     c = a / 2
     assert c["a"] == pytest.approx(0.5)
     assert c["b"] == pytest.approx(1)
@@ -97,3 +97,56 @@ def test_keyed_array():
     for i in range(3):
         assert c.stats()[i]["a"] == pytest.approx(c1.stats()[i])
         assert c.stats()[i]["b"] == pytest.approx(c2.stats()[i])
+
+def test_keyed_keyed_array():
+    a = KeyedArray(type=KeyedArray)
+    a["a"]["1"] = 1
+    a["a"]["2"] = 3
+    a["b"]["2"] = 3
+    a["c"]["3"] = 4
+
+    # Check items that are there
+    assert a["a"]["1"] == 1
+    assert a["a"]["2"] == 3
+    assert a["b"]["2"] == 3
+    assert a["c"]["3"] == 4
+
+    # Check items that are not there
+    assert a["a"]["3"] == 0
+
+    b = KeyedArray(type=KeyedArray)
+    b["a"] = KeyedArray(float, {"1":2})
+
+    c = a + b
+    assert c["a"]["1"] == pytest.approx(3)
+    assert c["b"]["2"] == pytest.approx(3)
+    assert c["c"]["3"] == pytest.approx(4)
+
+    c = a - b
+    assert c["a"]["1"] == pytest.approx(-1)
+    assert c["b"]["2"] == pytest.approx(3)
+    assert c["c"]["3"] == pytest.approx(4)
+
+    c = a * b
+    assert c["a"]["1"] == pytest.approx(2)
+    assert "b" not in c
+    assert "c" not in c
+
+def test_keyed_weighted_keyed_array():
+    constructor = lambda : WeightedType(KeyedArray())
+    constructor.__name__ = "WeightedType<KeyedArray>"
+    aval = WeightedType(KeyedArray(type=float, values={"1":1, "2": 2, "3":3}), 1)
+    bval = WeightedType(KeyedArray(type=float, values={"1":2, "2": 4}), 0.1)
+    a = KeyedArray(type=constructor, values = {
+        "a": aval,
+    })
+
+    b = KeyedArray(type=constructor, values = {
+        "a": bval,
+    })
+
+    c = a + b
+
+    assert c["a"].avg()["1"] == pytest.approx((1 * 1 + 2 * 0.1) / (1 + 0.1))
+    assert c["a"].avg()["2"] == pytest.approx((2 * 1 + 4 * 0.1) / (1 + 0.1))
+    assert c["a"].avg()["3"] == pytest.approx((3 * 1 + 0 * 0.1) / (1 + 0.1))

@@ -110,25 +110,24 @@ def setup_worker( config,                # The name of the config file to genera
 ################################################################
 # This is the list of state variables and their ranges
 
-prefix="SW_eos"
 
 statevars = [
     [ #Sweep 
-        ("Lambda", [1.5, 2]),
+        ("Lambda", [float('inf')]),
         ("InitState", ["FCC"]),
-        ("N", list(map(lambda x: 4*x**3, [10]))), #15
+        ("N", list(map(lambda x: 4*x**3, [3,4,5,6,7]))), #15
         ('ndensity', list(set(map(lambda x : pydynamo.roundSF(x, 3), [0.01, 0.1, 0.5, 1.0, 1.3])))),
-        ("kT", list(set(map(lambda x : pydynamo.roundSF(x, 3), [1.0, 1.5, 2.0, 2.5, 3.0])))+[float('inf')]),
+        ("kT", [1.0]),
     ],
 ]
         
 ################################################################
 ###          CREATE A SIMULATION MANAGER
 ################################################################
-mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
+mgr = pydynamo.SimManager("HS_stats", #Which subdirectory to work in
                           statevars, #State variables
-                          ["p", 'cv', 'u', "CollisionMatrix", "ChungLu"], # 'RadialDist' "VACF",  # Output properties
-                          restarts=2, #How many restarts (new initial configurations) should be done per state point
+                          ["p", "CollisionMatrix"], # 'RadialDist' "VACF",  # Output properties
+                          restarts=1, #How many restarts (new initial configurations) should be done per state point
                           processes=None, #None is automatically use all processors
 )
 
@@ -140,10 +139,10 @@ mgr = pydynamo.SimManager("SW_eos", #Which subdirectory to work in
 ################################################################
 ###          RUN SOME SIMULATIONS
 ################################################################
-#mgr.run(setup_worker=setup_worker,
-#        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
-#        particle_run_events = 5000, # How many events per particle to run IN TOTAL
-#        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
+mgr.run(setup_worker=setup_worker,
+        particle_equil_events = 1000, # How many events per particle to equilibrate each sim for
+        particle_run_events = 1000, # How many events per particle to run IN TOTAL
+        particle_run_events_block_size=1000) # How big a block each run should be (for jacknife averaging).
 
 ################################################################
 ###          GET THE DATA

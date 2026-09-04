@@ -51,18 +51,17 @@ protected:
 
   unsigned long totalCount;
 
-  // We create a key for events based on the interaction/system/global/local ID
-  // and type (EventSourceKey) and EventType
+  // EventKey is a pair of EventSourceKey and EEventType
+  // Combines the EventSourceKey (type i.e. INTERACTION, and ID) with the EEventType (CORE, WELL, WALL, VIRTUAL, etc)
 
   //! A key for two events
-  // Used to track the previous and current event for some data
   typedef std::pair<EventKey, EventKey> InterEventKey;
 
+  //! Counters for properties between two different events
   std::map<InterEventKey, InterEventData> counters;
 
   // First we track how many times a particle has been captured
-  typedef std::pair<size_t, size_t>
-      TotalCaptureStateKey; // Interaction ID and particle ID
+  typedef std::pair<size_t, size_t> TotalCaptureStateKey; // Interaction ID and particle ID
   struct CaptureStateData {
     CaptureStateData(double binWidth = 1.0) {}
     double _last_update = 0;
@@ -76,9 +75,8 @@ protected:
   magnet::math::HistogramWeighted<> _captureStateHistogram;
 
   // Here we're tracking collision statistics depending on the Event Type/Source
-  // and pair capture state
+  // and capture state of each particle individually
   typedef std::pair<EventKey, size_t> EventCaptureStateKey;
-
   struct EventCaptureStateData {
     EventCaptureStateData(double binWidth)
         : MFT(binWidth), rijdotvij(0.01), rijdotdP(0.01), vi2(0.01) {}
@@ -89,8 +87,22 @@ protected:
     magnet::math::Histogram<> vi2;
     magnet::math::Histogram<> _particle_MFT;
   };
-
   std::map<EventCaptureStateKey, EventCaptureStateData> _captureCounters;
+
+  typedef std::tuple<EventKey, size_t, size_t> PairEventCaptureStateKey;
+  struct PairEventCaptureStateData {
+    PairEventCaptureStateData(double binWidth)
+        : MFT(binWidth), rijdotvij(0.01), rijdotdP(0.01), vi2(0.01) {}
+    double last_event_time = 0;
+    magnet::math::Histogram<> MFT;
+    magnet::math::Histogram<> rijdotvij;
+    magnet::math::Histogram<> rijdotdP;
+    magnet::math::Histogram<> vi2;
+    magnet::math::Histogram<> _particle_MFT;
+  };
+  std::map<PairEventCaptureStateKey, PairEventCaptureStateData> _pairCaptureCounters;
+
+
 
   typedef std::pair<EventCaptureStateKey, EventCaptureStateKey> MFTKey;
 
@@ -98,8 +110,21 @@ protected:
 
   std::map<EventKey, size_t> initialCounter;
 
+  //! The time and event key for the last event for each particle
   typedef std::pair<double, EventKey> lastEventData;
 
+  //! Keeps track of the last event for each particle
   std::vector<lastEventData> lastEvent;
+
+  //! Keeps track of the last event for the system as a whole
+  lastEventData _sysLastEventData;
+
+  struct SysMFTData {
+    SysMFTData(double binWidth)
+        : MFT(binWidth) {}
+    magnet::math::Histogram<> MFT;
+  };
+  //! Keeps track of the MFT histograms for the system as a whole
+  std::map<InterEventKey, SysMFTData> _sysInterEventMFTHistograms;
 };
 } // namespace dynamo

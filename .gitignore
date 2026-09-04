@@ -13,3 +13,8 @@ Testing/Temporary/CTestCostData.txt
 .eggs
 wheelhouse
 vcpkg_installed
+
+result
+build_*
+result
+result-*
